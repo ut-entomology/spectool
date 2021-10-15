@@ -1,0 +1,6 @@
+{
+    "extends": "./backend/tsconfig.json",
+    "include": [
+        "."
+    ],
+}
