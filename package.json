@@ -9,7 +9,8 @@
     "check": "svelte-check --tsconfig ./tsconfig.json",
     "server": "rollup -c -w",
     "start": "sirv public --no-clear",
-    "client": "electron ."
+    "client": "cross-env NODE_ENV=development electron .",
+    "dist:mac": "rollup -c && electron-builder build --mac --publish never"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^17.0.0",
@@ -32,5 +33,37 @@
   },
   "dependencies": {
     "sirv-cli": "^1.0.0"
+  },
+  "build": {
+    "productName": "SpecTool",
+    "appId": "edu.utexas.spectool",
+    "win": {
+      "target": [
+        "nsis"
+      ]
+    },
+    "mac": {
+      "target": [
+        "dmg"
+      ],
+      "category": "productivity",
+      "type": "distribution",
+      "hardenedRuntime": "true"
+    },
+    "linux": {
+      "target": [
+        "AppImage",
+        "snap"
+      ],
+      "category": "productivity"
+    },
+    "files": [
+      "build/**/*",
+      "node_modules/**/*",
+      "package.json"
+    ],
+    "extraResources": [
+      "assets/**"
+    ]
   }
 }

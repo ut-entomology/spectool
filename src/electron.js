@@ -9,13 +9,12 @@ function createWindow() {
     height: 680,
   })
 
-  const mode = process.env.NODE_ENV
-  const url =
-    mode === "production"
-      // in production, use the statically build version of our application
-      ? `file://${path.join(__dirname, "../public/index.html")}`
-      // in dev, target the host and port of the local rollup web server
-      : "http://localhost:5000"
+  const inDevMode = process.env.NODE_ENV === "development"
+  const url = inDevMode
+    // in dev, target the host and port of the local rollup web server
+    ? "http://localhost:5000"
+    // in production, use the statically build version of our application
+    : `file://${path.join(__dirname, "../public/index.html")}`
   mainWindow.loadURL(url).catch(err => {
     app.quit()
   })
