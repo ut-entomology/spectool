@@ -1,13 +1,49 @@
 <script lang="ts">
-	export let name: string;
+	let username: string = "";
+	let password: string = "";
+	let lastName: string = "";
+	let names: string[] = [];
+	let message: string = "";
+
+	window.api.receive("first-names", (firstNames: string[]) => {
+		names = firstNames;
+	});
+	window.api.receive("app-error", (msg: string) => {
+		message = msg + "; username " + username;
+	});
+
+	function getFirstNames() {
+		window.api.send("get-first-names", {
+			username,
+			password,
+			lastName,
+		});
+	}
 </script>
 
 <main>
-	<h1>Hello {name}!</h1>
-	<p>
-		Visit the <a href="https://svelte.dev/tutorial">Svelte tutorial</a> to learn
-		how to build Svelte apps.
-	</p>
+	<label>
+		username:
+		<input bind:value={username} />
+	</label>
+	<label>
+		password:
+		<input bind:value={password} />
+	</label>
+	<label>
+		last name:
+		<input bind:value={lastName} />
+	</label>
+
+	<button on:click={getFirstNames}>Get First Names</button>
+
+	<ul>
+		{#each names as name}
+			<li>{name}</li>
+		{/each}
+	</ul>
+
+	<p>{message}</p>
 </main>
 
 <style>
@@ -16,13 +52,6 @@
 		padding: 1em;
 		max-width: 240px;
 		margin: 0 auto;
-	}
-
-	h1 {
-		color: #ff3e00;
-		text-transform: uppercase;
-		font-size: 4em;
-		font-weight: 100;
 	}
 
 	@media (min-width: 640px) {

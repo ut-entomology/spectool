@@ -1,5 +1,7 @@
-import { app, BrowserWindow } from 'electron'
+import { app, BrowserWindow, ipcMain } from 'electron'
 import * as path from 'path'
+
+import * as dbtest from './backend/dbtest'
 
 let mainWindow: BrowserWindow | null
 
@@ -7,6 +9,11 @@ function createWindow() {
   mainWindow = new BrowserWindow({
     width: 900,
     height: 680,
+    webPreferences: {
+      nodeIntegration: false,
+      contextIsolation: true,
+      preload: path.join(__dirname, "preload.js")
+    },
   })
 
   const inDevMode = process.env.NODE_ENV === "development"
@@ -34,4 +41,20 @@ app.on("window-all-closed", () => {
 })
 app.on("activate", () => {
   if (mainWindow === null) createWindow()
+})
+
+interface FirstNamesRequest {
+  username: string
+  password: string
+  lastName: string
+}
+
+ipcMain.on("get-first-names", (_event, args: FirstNamesRequest) => {
+  dbtest.getFirstNames(args.username, args.password, args.lastName,
+    (err, firstNames) => {
+      if (err)
+        mainWindow?.webContents.send("app-error", err.message)
+      else
+        mainWindow?.webContents.send("first-names", firstNames)
+    })
 })
