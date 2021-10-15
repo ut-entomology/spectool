@@ -3,6 +3,7 @@
         "sourceMap": true,
         "target": "ESNext",
         "module": "commonjs",
+        "outDir": "build",
         "stripInternal": true,
         "strict": true,
         "moduleResolution": "node",
@@ -18,11 +19,13 @@
         "isolatedModules": true
     },
     "include": [
-        "."
+        "src/*"
     ],
     "exclude": [
         "node_modules/*",
         "__sapper__/*",
-        "public/*"
+        "build/*",
+        "public/*",
+        "src/frontend/*"
     ]
 }

@@ -15,7 +15,8 @@ function createWindow() {
     ? "http://localhost:5000"
     // in production, use the statically build version of our application
     : `file://${path.join(__dirname, "../public/index.html")}`
-  mainWindow.loadURL(url).catch(err => {
+  mainWindow.loadURL(url).catch((_err) => {
+    // TODO: log the error somewhere
     app.quit()
   })
   mainWindow.on("closed", () => {

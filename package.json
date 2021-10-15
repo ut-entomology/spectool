@@ -2,15 +2,15 @@
   "name": "ut-spectool",
   "version": "0.1.0",
   "private": true,
-  "main": "./src/electron.js",
+  "main": "./build/electron.js",
   "scripts": {
-    "build": "rollup -c",
+    "build": "tsc && rollup -c",
     "build-client": "run-s build client",
     "check": "svelte-check --tsconfig ./tsconfig.json",
     "server": "rollup -c -w",
     "start": "sirv public --no-clear",
     "client": "cross-env NODE_ENV=development electron .",
-    "dist:mac": "rollup -c && electron-builder build --mac --publish never"
+    "dist:mac": "tsc && rollup -c && electron-builder build --mac --publish never"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^17.0.0",
