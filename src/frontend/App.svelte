@@ -6,10 +6,12 @@
 	let message: string = "";
 
 	window.api.receive("first-names", (firstNames: string[]) => {
+		message = "";
 		names = firstNames;
 	});
 	window.api.receive("app-error", (msg: string) => {
-		message = msg + "; username " + username;
+		names = [];
+		message = msg;
 	});
 
 	function getFirstNames() {

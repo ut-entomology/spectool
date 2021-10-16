@@ -49,12 +49,12 @@ interface FirstNamesRequest {
   lastName: string
 }
 
-ipcMain.on("get-first-names", (_event, args: FirstNamesRequest) => {
+ipcMain.on("get-first-names", (event, args: FirstNamesRequest) => {
   dbtest.getFirstNames(args.username, args.password, args.lastName,
     (err, firstNames) => {
       if (err)
-        mainWindow?.webContents.send("app-error", err.message)
+        event.reply("app-error", err.message)
       else
-        mainWindow?.webContents.send("first-names", firstNames)
+        event.reply("first-names", firstNames)
     })
 })
