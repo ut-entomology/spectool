@@ -1,21 +1,25 @@
 <script lang="ts">
+	import type { Api } from "../bridge/api";
+
 	let username: string = "";
 	let password: string = "";
 	let lastName: string = "";
 	let names: string[] = [];
 	let message: string = "";
 
-	window.api.receive("first-names", (firstNames: string[]) => {
+	const api = window.api as Api;
+
+	api.receive("first-names", (firstNames: string[]) => {
 		message = "";
 		names = firstNames;
 	});
-	window.api.receive("app-error", (msg: string) => {
+	api.receive("app-error", (msg: string) => {
 		names = [];
 		message = msg;
 	});
 
 	function getFirstNames() {
-		window.api.send("get-first-names", {
+		api.send("get-first-names", {
 			username,
 			password,
 			lastName,

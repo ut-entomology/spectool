@@ -6,6 +6,11 @@ import * as dbtest from './backend/dbtest'
 let mainWindow: BrowserWindow | null
 
 function createWindow() {
+  process.on('uncaughtException', function (error) {
+    console.log(error)
+    app.exit(1)
+  })
+
   mainWindow = new BrowserWindow({
     width: 900,
     height: 680,
