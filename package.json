@@ -10,7 +10,8 @@
     "server": "kill $(lsof -ti:5000) 2>/dev/null; rollup -c -w",
     "start": "sirv public --no-clear --single",
     "client": "tsc && cross-env NODE_ENV=development electron .",
-    "dist:mac": "tsc && rollup -c && electron-builder build --mac --publish never"
+    "dist:mac": "tsc && rollup -c && electron-builder build --mac --publish never",
+    "test": "jest"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^17.0.0",
@@ -18,6 +19,7 @@
     "@rollup/plugin-typescript": "^8.0.0",
     "@tsconfig/svelte": "^2.0.0",
     "@types/jest": "^27.0.2",
+    "@types/page": "^1.11.5",
     "cross-env": "^7.0.3",
     "electron": "^15.2.0",
     "jest": "^27.2.5",
@@ -35,7 +37,6 @@
     "typescript": "^4.0.0"
   },
   "dependencies": {
-    "@types/page": "^1.11.5",
     "knex": "^0.95.11",
     "mysql2": "^2.3.1",
     "page": "^1.11.6",
