@@ -11,9 +11,25 @@ export abstract class IpcHandler {
   }
 
   abstract handler(event: IpcMainEvent, data: any): void
+
+  protected abstract reply(event: IpcMainEvent, err: any, data: any): void
 }
 
-export class GetFirstNamesIpc extends IpcHandler {
+export abstract class AsyncIpcHandler extends IpcHandler {
+
+  constructor(name: string) {
+    super(name)
+  }
+
+  protected reply(event: IpcMainEvent, err: any, data: any): void {
+    if (err)
+      event.reply("app-error", err.message)
+    else
+      event.reply(this.name, data)
+  }
+}
+
+export class GetFirstNamesIpc extends AsyncIpcHandler {
 
   constructor() {
     super("get-first-names")
@@ -22,13 +38,10 @@ export class GetFirstNamesIpc extends IpcHandler {
   handler(event: IpcMainEvent,
     data: {username: string, password: string, lastName: string}
   ): void {
-    const self = this
+    const obj = this
     dbtest.getFirstNames(data.username, data.password, data.lastName,
       (err, firstNames) => {
-        if (err)
-          event.reply("app-error", err.message)
-        else
-          event.reply(self.name, firstNames)
+        obj.reply(event, err, firstNames)
       })
   }
 }
