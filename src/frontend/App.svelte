@@ -13,14 +13,13 @@
 			username,
 			password,
 			lastName,
-			(err?: Error, firstNames?: string[]) => {
-				if (err) {
-					names = [];
-					message = err.message;
-				} else {
-					message = "";
-					names = firstNames!;
-				}
+			(firstNames: string[]) => {
+				message = "";
+				names = firstNames!;
+			},
+			(err: Error) => {
+				names = [];
+				message = err.message;
 			}
 		);
 	}

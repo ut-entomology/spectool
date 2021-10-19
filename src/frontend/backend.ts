@@ -5,9 +5,10 @@ export class Backend {
 
   static getFirstNames(window: Window,
     username: string, password: string, lastName: string,
-    callback: (err?: Error, firstNames?: string[]) => void
+    onSuccess: (firstNames: string[]) => void,
+    onError: (err: Error) => void
   ): void {
     ClientApi.sendAsync(window, "get-first-names",
-      { username, password, lastName }, callback)
+      { username, password, lastName }, onSuccess, onError)
   }
 }

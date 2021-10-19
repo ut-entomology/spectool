@@ -4,9 +4,10 @@ export namespace ClientApi {
     window: Window,
     channel: string,
     data: any,
-    callback: (err?: Error, data?: any) => void,
+    onSuccess: (data: any) => void,
+    onError: (err: Error) => void,
   ): void {
-    receiveOnce(window, channel, callback)
+    receiveOnce(window, channel, onSuccess, onError)
     window.ipc.send(channel, data)
   }
 
@@ -24,13 +25,14 @@ export namespace ClientApi {
   export function receiveOnce(
     window: Window,
     channel: string,
-    callback: (err?: Error, data?: any) => void
+    onSuccess: (data: any) => void,
+    onError: (err: Error) => void
   ) {
     window.ipc.receiveOnce(channel + "-reply", (data: any) => {
       if (data instanceof Error)
-        callback(data, undefined)
+        onError(data)
       else
-        callback(undefined, data)
+        onSuccess(data)
     })
   }
 }
