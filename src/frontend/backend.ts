@@ -1,15 +1,13 @@
 
+import { ClientApi } from './client_api'
+
 export class Backend {
 
   static getFirstNames(window: Window,
     username: string, password: string, lastName: string,
-    callback: (firstNames: string[]) => void)
-  : void {
-    const eventName = "get-first-names"
-    window.ipc.receiveOnce(eventName, callback)
-    window.ipc.send(eventName, { username, password, lastName })
+    callback: (err?: Error, firstNames?: string[]) => void
+  ): void {
+    ClientApi.sendAsync(window, "get-first-names",
+      { username, password, lastName }, callback)
   }
-
-  //static onError(window: Window,
-
 }

@@ -7,20 +7,20 @@
 	let names: string[] = [];
 	let message: string = "";
 
-	window.ipc.receive("app-error", (msg: string) => {
-		names = [];
-		message = msg;
-	});
-
 	function getFirstNames() {
 		Backend.getFirstNames(
 			window,
 			username,
 			password,
 			lastName,
-			(firstNames: string[]) => {
-				message = "";
-				names = firstNames;
+			(err?: Error, firstNames?: string[]) => {
+				if (err) {
+					names = [];
+					message = err.message;
+				} else {
+					message = "";
+					names = firstNames!;
+				}
 			}
 		);
 	}

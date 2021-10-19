@@ -2,11 +2,12 @@ import { app, BrowserWindow, ipcMain } from 'electron'
 import * as path from 'path'
 import 'source-map-support/register'
 
-import { GetFirstNamesIpc } from './bridge/ipc'
+import * as firstNameModule from './backend/first_names'
 
 let mainWindow: BrowserWindow | null
 
 function createWindow() {
+  // Without this handler, electron was not reporting all exceptions.
   process.on('uncaughtException', function (error) {
     console.log(error)
     app.exit(1)
@@ -49,5 +50,11 @@ app.on("activate", () => {
   if (mainWindow === null) createWindow()
 })
 
-const firstNamesIpc = new GetFirstNamesIpc()
-ipcMain.on(firstNamesIpc.name, firstNamesIpc.handler.bind(firstNamesIpc))
+const ipcHandlerSets = [
+  firstNameModule.ipcHandlers
+]
+ipcHandlerSets.forEach(handlerSet => {
+  handlerSet.forEach(handler => {
+    ipcMain.on(handler.channel, handler.handle.bind(handler))
+  })
+})
