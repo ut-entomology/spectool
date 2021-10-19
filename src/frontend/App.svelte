@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { Backend } from "./backend";
-	import type { Ipc } from "../bridge/ipc";
 
 	let username: string = "";
 	let password: string = "";
@@ -8,9 +7,7 @@
 	let names: string[] = [];
 	let message: string = "";
 
-	const ipc = window.ipc as Ipc;
-
-	ipc.receive("app-error", (msg: string) => {
+	window.ipc.receive("app-error", (msg: string) => {
 		names = [];
 		message = msg;
 	});

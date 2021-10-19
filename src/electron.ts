@@ -1,7 +1,8 @@
 import { app, BrowserWindow, ipcMain } from 'electron'
 import * as path from 'path'
+import 'source-map-support/register'
 
-import * as dbtest from './backend/dbtest'
+import { GetFirstNamesIpc } from './bridge/ipc'
 
 let mainWindow: BrowserWindow | null
 
@@ -48,18 +49,5 @@ app.on("activate", () => {
   if (mainWindow === null) createWindow()
 })
 
-interface FirstNamesRequest {
-  username: string
-  password: string
-  lastName: string
-}
-
-ipcMain.on("get-first-names", (event, args: FirstNamesRequest) => {
-  dbtest.getFirstNames(args.username, args.password, args.lastName,
-    (err, firstNames) => {
-      if (err)
-        event.reply("app-error", err.message)
-      else
-        event.reply("get-first-names", firstNames)
-    })
-})
+const firstNamesIpc = new GetFirstNamesIpc()
+ipcMain.on(firstNamesIpc.name, firstNamesIpc.handler.bind(firstNamesIpc))

@@ -1,14 +1,34 @@
+import { IpcMainEvent } from 'electron'
 
-import { ipcRenderer } from 'electron'
+import * as dbtest from '../backend/dbtest'
 
-export class Ipc {
+export abstract class IpcHandler {
 
-  send(channel: string, data: any): void {
-    ipcRenderer.send(channel, data)
+  name: string
+
+  constructor(name: string) {
+    this.name = name
   }
 
-  receive(channel: string, func: (...data: any) => void): void {
-    // Deliberately strip event as it includes `sender`
-    ipcRenderer.on(channel, (_event, ...args) => func(...args))
+  abstract handler(event: IpcMainEvent, data: any): void
+}
+
+export class GetFirstNamesIpc extends IpcHandler {
+
+  constructor() {
+    super("get-first-names")
+  }
+
+  handler(event: IpcMainEvent,
+    data: {username: string, password: string, lastName: string}
+  ): void {
+    const self = this
+    dbtest.getFirstNames(data.username, data.password, data.lastName,
+      (err, firstNames) => {
+        if (err)
+          event.reply("app-error", err.message)
+        else
+          event.reply(self.name, firstNames)
+      })
   }
 }
