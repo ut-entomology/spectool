@@ -3,7 +3,7 @@ import { IpcMainEvent } from 'electron'
 import { AsyncIpcHandler } from './ipc_handler'
 import * as dbtest from './dbtest'
 
-export class GetFirstNamesIpc extends AsyncIpcHandler {
+class GetFirstNamesIpc extends AsyncIpcHandler {
 
   constructor() {
     super("get-first-names")
