@@ -8,7 +8,7 @@
     "build-client": "run-s build client",
     "check": "svelte-check --tsconfig ./tsconfig.json",
     "server": "kill $(lsof -ti:5000) 2>/dev/null; rollup -c -w",
-    "start": "sirv public --no-clear",
+    "start": "sirv public --no-clear --single",
     "client": "tsc && cross-env NODE_ENV=development electron .",
     "dist:mac": "tsc && rollup -c && electron-builder build --mac --publish never"
   },
@@ -35,8 +35,10 @@
     "typescript": "^4.0.0"
   },
   "dependencies": {
+    "@types/page": "^1.11.5",
     "knex": "^0.95.11",
     "mysql2": "^2.3.1",
+    "page": "^1.11.6",
     "sirv-cli": "^1.0.0",
     "source-map-support": "^0.5.20"
   },
