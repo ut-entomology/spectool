@@ -60,6 +60,6 @@ ipcMain.on("get-first-names", (event, args: FirstNamesRequest) => {
       if (err)
         event.reply("app-error", err.message)
       else
-        event.reply("first-names", firstNames)
+        event.reply("get-first-names", firstNames)
     })
 })

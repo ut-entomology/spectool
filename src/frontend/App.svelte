@@ -1,5 +1,6 @@
 <script lang="ts">
-	import type { Api } from "../bridge/api";
+	import { Backend } from "./backend";
+	import type { Ipc } from "../bridge/ipc";
 
 	let username: string = "";
 	let password: string = "";
@@ -7,23 +8,24 @@
 	let names: string[] = [];
 	let message: string = "";
 
-	const api = window.api as Api;
+	const ipc = window.ipc as Ipc;
 
-	api.receive("first-names", (firstNames: string[]) => {
-		message = "";
-		names = firstNames;
-	});
-	api.receive("app-error", (msg: string) => {
+	ipc.receive("app-error", (msg: string) => {
 		names = [];
 		message = msg;
 	});
 
 	function getFirstNames() {
-		api.send("get-first-names", {
+		Backend.getFirstNames(
+			window,
 			username,
 			password,
 			lastName,
-		});
+			(firstNames: string[]) => {
+				message = "";
+				names = firstNames;
+			}
+		);
 	}
 </script>
 

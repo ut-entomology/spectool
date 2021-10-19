@@ -1,7 +1,7 @@
 
 import { ipcRenderer } from 'electron'
 
-export class Api {
+export class Ipc {
 
   send(channel: string, data: any): void {
     ipcRenderer.send(channel, data)

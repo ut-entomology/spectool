@@ -4,6 +4,6 @@ import 'svelte'
 
 declare global {
   interface Window {
-    api: any
+    ipc: any
   }
 }
