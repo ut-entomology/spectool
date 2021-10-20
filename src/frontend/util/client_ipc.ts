@@ -1,5 +1,5 @@
 
-export namespace ClientApi {
+export namespace ClientIpc {
   export function sendAsync(
     window: Window,
     channel: string,

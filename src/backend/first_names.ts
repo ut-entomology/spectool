@@ -1,6 +1,6 @@
 import { IpcMainEvent } from 'electron'
 
-import { AsyncIpcHandler } from './ipc_handler'
+import { AsyncIpcHandler } from './util/ipc_handler'
 import * as dbtest from './dbtest'
 
 class GetFirstNamesIpc extends AsyncIpcHandler {

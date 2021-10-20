@@ -1,5 +1,5 @@
 
-import { ClientApi } from './client_api'
+import { ClientIpc } from './util/client_ipc'
 
 export class Backend {
 
@@ -8,7 +8,7 @@ export class Backend {
     onSuccess: (firstNames: string[]) => void,
     onError: (err: Error) => void
   ): void {
-    ClientApi.sendAsync(window, "get-first-names",
+    ClientIpc.sendAsync(window, "get-first-names",
       { username, password, lastName }, onSuccess, onError)
   }
 }
