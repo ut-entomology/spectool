@@ -26,21 +26,21 @@ export class Platform {
 
       // MacOS
       case "darwin":
-        this.userHomeDir = this._nonEmptyVar("HOME")
+        this.userHomeDir = this.nonEmptyVar("HOME")
         this.userConfigDir = path.join(this.userHomeDir, "Library/Application Support", appDirName)
         this.userCacheDir = path.join(this.userHomeDir, "Library/Caches", appDirName)
         break
 
       // Windows (including 64-bit)
       case "win32":
-        this.userHomeDir = this._nonEmptyVar("USERPROFILE")
-        this.userConfigDir = path.join(this._nonEmptyVar("AppData"), appDirName)
-        this.userCacheDir = path.join(this._nonEmptyVar("LocalAppData"), appDirName)
+        this.userHomeDir = this.nonEmptyVar("USERPROFILE")
+        this.userConfigDir = path.join(this.nonEmptyVar("AppData"), appDirName)
+        this.userCacheDir = path.join(this.nonEmptyVar("LocalAppData"), appDirName)
         break
 
       // UNIX/Linux
       default:
-        this.userHomeDir = this._nonEmptyVar("HOME")
+        this.userHomeDir = this.nonEmptyVar("HOME")
         this.userConfigDir = process.env["XDG_CONFIG_HOME"] || path.join(
           this.userHomeDir, ".config", appDirName)
         this.userCacheDir = process.env["XDG_CACHE_HOME"] || path.join(
@@ -129,11 +129,13 @@ export class Platform {
     await fsp.writeFile(filePath, text)
   }
 
+  //// PRIVATE METHODS ////
+
   /**
    * Require that an environment variable be assigned.
    * @throws ConfigError when the variable has no value
    */
-  private _nonEmptyVar(var_name: string): string {
+  private nonEmptyVar(var_name: string): string {
     const env_var = process.env[var_name]
     if (!env_var)
       throw new ConfigError(`Enviroment variable '${var_name}' not defined`)

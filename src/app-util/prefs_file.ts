@@ -69,6 +69,8 @@ export class PreferencesFile<T> {
       await this.platform.dropUserFile(this.platform.userConfigDir, this.filename)
   }
 
+  //// PROTECTED METHODS ////
+
   /**
    * Converts an old version of the preferences to the current version,
    * returning the converted preferences. Returns the default preferences

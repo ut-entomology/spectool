@@ -10,7 +10,7 @@ export abstract class IpcHandler {
 
   abstract handle(event: IpcMainEvent, data: any): void
 
-  protected abstract reply(event: IpcMainEvent, err: any, data: any): void
+  protected abstract reply(event: IpcMainEvent, dataOrError: any): void
 }
 
 export abstract class AsyncIpcHandler extends IpcHandler {
@@ -19,8 +19,8 @@ export abstract class AsyncIpcHandler extends IpcHandler {
     super(channel)
   }
 
-  protected reply(event: IpcMainEvent, err: any, data: any): void {
-    event.reply(this.channel + "-reply", err ? err : data)
+  protected reply(event: IpcMainEvent, dataOrError: any): void {
+    event.reply(this.channel + "-reply", dataOrError)
   }
 }
 
@@ -30,7 +30,7 @@ export abstract class SyncIpcHandler extends IpcHandler {
     super(channel)
   }
 
-  protected reply(event: IpcMainEvent, err: any, data: any): void {
-    event.returnValue = err ? err : data
+  protected reply(event: IpcMainEvent, dataOrError: any): void {
+    event.returnValue = dataOrError
   }
 }

@@ -2,7 +2,9 @@ import { app, BrowserWindow, ipcMain } from 'electron'
 import * as path from 'path'
 import 'source-map-support/register'
 
-import * as firstNamesApi from './backend/api/first_names_api'
+import appPrefsApi from './backend/api/app_prefs_api'
+import firstNamesApi from './backend/api/first_names_api'
+import { AppKernel } from './kernel/app_kernel'
 
 let mainWindow: BrowserWindow | null
 
@@ -50,8 +52,11 @@ app.on("activate", () => {
   if (mainWindow === null) createWindow()
 })
 
+const kernel = new AppKernel("UT SpecTool")
+
 const ipcHandlerSets = [
-  firstNamesApi.ipcHandlers
+  appPrefsApi(kernel),
+  firstNamesApi(kernel)
 ]
 ipcHandlerSets.forEach(handlerSet => {
   handlerSet.forEach(handler => {
