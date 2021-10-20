@@ -51,13 +51,34 @@ export class Platform {
 
   /**
    * Remove the given user directory and all contained files.
+   * Does not throw an error if the directory does not exist.
    */
   async dropUserDir(userDir: string): Promise<void> {
-    const files = await fsp.readdir(userDir)
-    for (const fileName of files) {
+    try {
+      const files = await fsp.readdir(userDir)
+      for (const fileName of files) {
+        await fsp.unlink(path.join(userDir, fileName))
+      }
+      await fsp.rmdir(userDir)
+    }
+    catch (err) {
+      if (!hasErrorCode(err) || err.code != "ENOENT")
+        throw err
+    }
+  }
+
+  /**
+   * Remove the given user file. Does not throw an error if the directory or
+   * file does not exist.
+   */
+  async dropUserFile(userDir: string, fileName: string): Promise<void> {
+    try {
       await fsp.unlink(path.join(userDir, fileName))
     }
-    await fsp.rmdir(userDir)
+    catch (err) {
+      if (!hasErrorCode(err) || err.code != "ENOENT")
+        throw err
+    }
   }
 
   /**

@@ -3,6 +3,7 @@
 
     let username: string = "";
     let password: string = "";
+    let savingCredentials: boolean = false;
     let lastName: string = "";
     let names: string[] = [];
     let message: string = "";
@@ -33,6 +34,10 @@
     <label>
         password:
         <input bind:value={password} />
+    </label>
+    <label>
+        <input type="checkbox" checked={savingCredentials} />
+        Save login credentials on this computer?
     </label>
     <label>
         last name:

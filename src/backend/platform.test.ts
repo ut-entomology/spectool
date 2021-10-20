@@ -92,4 +92,27 @@ describe("user files (using user cache dir)", () => {
         throw err
     }
   })
+
+  test("should not error dropping non-existant user file", async () => {
+    // First drop the user file from a non-existant directory.
+    await platform.dropUserFile(userDir, cacheFile)
+    // Now create the directory.
+    await platform.writeTextUserFile(userDir, cacheFile, textOut)
+    // Then erase a non-existant file in an existing directory.
+    await platform.dropUserFile(userDir, "not-there")
+  })
+
+  test("should erase dropped user file", async () => {
+    const text1 = await platform.readTextUserFile(userDir, cacheFile)
+    expect(text1).toEqual(textOut)
+    await platform.dropUserFile(userDir, cacheFile)
+    const text2 = await platform.readTextUserFile(userDir, cacheFile)
+    expect(text2).toEqual("")
+    await platform.dropUserDir(userDir)
+  })
+})
+
+afterAll(async () => {
+  const platform = new Platform(dummyAppName)
+  await platform.dropUserDir(platform.userCacheDir)
 })
