@@ -1,7 +1,7 @@
 import { promises as fsp } from 'fs'
 import * as path from 'path'
 
-import { hasErrorCode, ConfigError } from './errors'
+import { fileNotFound, ConfigError } from './errors'
 
 /**
  * Platform is a class providing access to the desktop environment.
@@ -61,7 +61,7 @@ export class Platform {
       await fsp.rmdir(userDir)
     }
     catch (err) {
-      if (!hasErrorCode(err) || err.code != "ENOENT")
+      if (!fileNotFound(err))
         throw err
     }
   }
@@ -75,7 +75,7 @@ export class Platform {
       await fsp.unlink(path.join(userDir, fileName))
     }
     catch (err) {
-      if (!hasErrorCode(err) || err.code != "ENOENT")
+      if (!fileNotFound(err))
         throw err
     }
   }
@@ -90,7 +90,7 @@ export class Platform {
       return stats.mtime
     }
     catch (err) {
-      if (hasErrorCode(err) && err.code == "ENOENT")
+      if (fileNotFound(err))
         return null
       throw err
     }
@@ -106,7 +106,7 @@ export class Platform {
       return await fsp.readFile(filePath, { encoding: "utf8" })
     }
     catch (err) {
-      if (hasErrorCode(err) && err.code == "ENOENT")
+      if (fileNotFound(err))
         return ""
       throw err
     }

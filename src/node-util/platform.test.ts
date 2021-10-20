@@ -1,7 +1,7 @@
 import { promises as fsp } from 'fs'
 
 import { Platform } from './platform'
-import { hasErrorCode } from './errors'
+import { fileNotFound } from './errors'
 
 const dummyAppName = "__ Temp Dummy App"
 
@@ -31,14 +31,11 @@ describe("user files (using user cache dir)", () => {
   let startTimeMillis = Date.now()
 
   test("user dir should not initially exist", async () => {
-    expect.assertions(1)
     try {
       await fsp.stat(platform.userCacheDir)
     }
     catch (err) {
-      if (hasErrorCode(err))
-        expect(err.code).toEqual("ENOENT")
-      else
+      if (!fileNotFound(err))
         throw err
     }
   })
@@ -81,14 +78,11 @@ describe("user files (using user cache dir)", () => {
   })
 
   test("dropping user dir should have deleted user dir", async () => {
-    expect.assertions(1)
     try {
       await fsp.stat(platform.userCacheDir)
     }
     catch (err) {
-      if (hasErrorCode(err))
-        expect(err.code).toEqual("ENOENT")
-      else
+      if (!fileNotFound(err))
         throw err
     }
   })
