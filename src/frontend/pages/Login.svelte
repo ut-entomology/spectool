@@ -1,4 +1,6 @@
 <script lang="ts">
+    import type { AppPrefs } from "../shared/app_prefs";
+    import { AppPrefsClient } from "../clients/app_prefs_client";
     import { FirstNamesClient } from "../clients/first_names_client";
 
     let username: string = "";
@@ -7,6 +9,16 @@
     let lastName: string = "";
     let names: string[] = [];
     let message: string = "";
+
+    AppPrefsClient.getPrefs(
+        window,
+        (prefs: AppPrefs) => {
+            username = prefs.username;
+        },
+        (err: Error) => {
+            message = err.message;
+        }
+    );
 
     function getFirstNames() {
         FirstNamesClient.getFirstNames(
