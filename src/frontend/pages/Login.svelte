@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { Backend } from "../backend";
+    import { FirstNamesClient } from "../clients/first_names_client";
 
     let username: string = "";
     let password: string = "";
@@ -9,7 +9,7 @@
     let message: string = "";
 
     function getFirstNames() {
-        Backend.getFirstNames(
+        FirstNamesClient.getFirstNames(
             window,
             username,
             password,

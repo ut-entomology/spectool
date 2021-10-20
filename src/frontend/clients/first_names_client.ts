@@ -1,7 +1,7 @@
 
-import { ClientIpc } from './util/client_ipc'
+import { ClientIpc } from '../util/client_ipc'
 
-export class Backend {
+export class FirstNamesClient {
 
   static getFirstNames(window: Window,
     username: string, password: string, lastName: string,

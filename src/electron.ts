@@ -2,7 +2,7 @@ import { app, BrowserWindow, ipcMain } from 'electron'
 import * as path from 'path'
 import 'source-map-support/register'
 
-import * as firstNameModule from './backend/first_names'
+import * as firstNamesApi from './backend/api/first_names_api'
 
 let mainWindow: BrowserWindow | null
 
@@ -51,7 +51,7 @@ app.on("activate", () => {
 })
 
 const ipcHandlerSets = [
-  firstNameModule.ipcHandlers
+  firstNamesApi.ipcHandlers
 ]
 ipcHandlerSets.forEach(handlerSet => {
   handlerSet.forEach(handler => {
