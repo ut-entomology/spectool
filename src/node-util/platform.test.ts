@@ -1,7 +1,7 @@
 import { promises as fsp } from 'fs'
 
 import { Platform } from './platform'
-import { hasErrorCode } from './util'
+import { hasErrorCode } from './errors'
 
 const dummyAppName = "__ Temp Dummy App"
 

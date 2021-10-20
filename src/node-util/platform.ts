@@ -1,8 +1,7 @@
 import { promises as fsp } from 'fs'
 import * as path from 'path'
 
-import { ConfigError } from './errors'
-import { hasErrorCode } from './util'
+import { hasErrorCode, ConfigError } from './errors'
 
 /**
  * Platform is a class providing access to the desktop environment.
