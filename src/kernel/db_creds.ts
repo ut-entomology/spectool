@@ -1,9 +1,9 @@
 import knex, { Knex } from 'knex'
 
 import { AppKernel } from './app_kernel'
-import { Credentials } from './credentials'
+import { SavableCredentials } from './savable_creds'
 
-export class DatabaseCredentials extends Credentials {
+export class DatabaseCredentials extends SavableCredentials {
 
   private kernel: AppKernel
   private __database?: Knex
@@ -34,8 +34,8 @@ export class DatabaseCredentials extends Credentials {
     await this.kernel.savePrefs(prefs)
   }
 
-  async setCredentials(username: string, password: string): Promise<void> {
-    await super.setCredentials(username, password)
+  async set(username: string, password: string): Promise<void> {
+    await super.set(username, password)
     if (this.__database)
       this.__database = this.createDatabaseClient()
   }
@@ -43,6 +43,8 @@ export class DatabaseCredentials extends Credentials {
   //// PRIVATE METHODS ////
 
   private createDatabaseClient(): Knex {
+    if (!this.username || !this.password)
+      throw Error("Database credentials not assigned")
     const prefs = this.kernel.prefs
     return knex({
       client: 'mysql2',
