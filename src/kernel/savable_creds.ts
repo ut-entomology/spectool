@@ -36,11 +36,11 @@ export abstract class SavableCredentials {
       if (savedPassword != null) {
         this.username = savedUsername
         this.password = savedPassword
+        return
       }
-      else
-        await this.saveUsername("")
-    } else
-      await this.clear() // to be safe; shouldn't be necessary
+    }
+    await this.saveUsername("")
+    await this.clear() // clear all other user credentials
   }
 
   /**
