@@ -39,7 +39,8 @@ export abstract class SavableCredentials {
         return
       }
     }
-    await this.saveUsername("")
+    if (savedUsername)
+      await this.saveUsername("")
     await this.clear() // clear all other user credentials
   }
 
