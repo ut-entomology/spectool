@@ -1,7 +1,7 @@
 import knex, { Knex } from 'knex'
 
 import { AppKernel } from './app_kernel'
-import { SavableCredentials } from './savable_creds'
+import { SavableCredentials } from '../app-util/savable_creds'
 
 export class DatabaseCredentials extends SavableCredentials {
 
@@ -44,7 +44,7 @@ export class DatabaseCredentials extends SavableCredentials {
 
   private createDatabaseClient(): Knex {
     if (!this.username || !this.password)
-      throw Error("Database credentials not assigned")
+      throw Error("No database credentials assigned")
     const prefs = this.kernel.prefs
     return knex({
       client: 'mysql2',

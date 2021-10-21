@@ -1,7 +1,7 @@
 export class AppPrefs {
-  databaseDomain = "entomology.tacc.utexas.edu"
-  databaseName = "specify_dev"
+  databaseHost = "entomology.tacc.utexas.edu"
   databasePort = 3306
+  databaseName = "specify_dev"
   databaseUsername: string = ""
   saveDatabaseCredentials = true
 }

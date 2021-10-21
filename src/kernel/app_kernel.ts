@@ -7,7 +7,7 @@ import { DatabaseCredentials } from './db_creds'
 
 class AppPrefsFile extends PreferencesFile<AppPrefs> {
   constructor(platform: Platform) {
-    super(platform, "prefs", "0.1.0", new AppPrefs())
+    super(platform, "prefs", "0.1.0", () => new AppPrefs())
   }
 }
 
@@ -47,5 +47,9 @@ export class AppKernel {
   async savePrefs(prefs: AppPrefs): Promise<void> {
     this.__prefs = prefs
     await this.appPrefsFile.save(prefs)
+  }
+
+  async dropPrefs(): Promise<void> {
+    await this.appPrefsFile.drop()
   }
 }

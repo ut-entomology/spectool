@@ -10,25 +10,31 @@ export class PreferencesFile<T> {
   private platform: Platform
   private filename: string
   private version: string
-  private defaultPrefs: T
+  private getDefaultPrefs: () => T
 
   /**
    * Construct a proxy for a preferences file.
    * @param platform Platform for managing user files
    * @param filename Name of the preferences file, with no file type suffix
    * @param version Version of the preferences file, identifying the data type `T`
-   * @param defaultPrefs Default preferences to use when there is no preferences file
-   *    and when the existing preference file has a different version.
+   * @param getDefaultPrefs Function returning the default preferences to use when
+   *    there is no preferences file or when the existing preference file has a
+   *    different version.
    */
 
-  constructor(platform: Platform, filename: string, version: string, defaultPrefs: T) {
+  constructor(
+    platform: Platform,
+    filename: string,
+    version: string, 
+    getDefaultPrefs: () => T
+  ) {
     if (filename.indexOf(".") > 0)
       throw Error("Preferences file can't include the file type suffix")
 
     this.platform = platform
     this.filename = filename + ".json"
     this.version = version
-    this.defaultPrefs = defaultPrefs
+    this.getDefaultPrefs = getDefaultPrefs
   }
 
   /**
@@ -41,7 +47,7 @@ export class PreferencesFile<T> {
     const jsonString = await this.platform.readTextUserFile(
       this.platform.userConfigDir, this.filename)
     if (jsonString === "")
-      return this.defaultPrefs
+      return this.getDefaultPrefs()
     let { version, prefs } = JSON.parse(jsonString)
     if (version !== this.version) {
       prefs = this.update(version, prefs)
@@ -79,6 +85,6 @@ export class PreferencesFile<T> {
    * @param _oldPrefs Existing preferences as an object literal (no class info)
    */
   protected update(_oldVersion: string, _oldPrefs: any): T {
-    return this.defaultPrefs
+    return this.getDefaultPrefs()
   }
 }

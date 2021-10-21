@@ -4,5 +4,6 @@ module.exports = {
   testEnvironment: 'node',
   testPathIgnorePatterns: [
     "/build"
-  ]
+  ],
+  testTimeout: 120000
 }
