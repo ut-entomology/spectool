@@ -100,11 +100,4 @@ export abstract class SavableCredentials {
     this.username = username // assign after possibly having cleared
     this.password = password
   }
-
-  /**
-   * Tests the credentials to make sure they are valid. Returns null
-   * if they are, returns an error message otherwise.
-   */
-  // async test(): Promise<string | null> {
-  // }
 }

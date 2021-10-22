@@ -2,6 +2,7 @@ import knex, { Knex } from 'knex'
 
 import { AppKernel } from './app_kernel'
 import { SavableCredentials } from '../app-util/savable_creds'
+import { Collection } from '../shared/schema/collection'
 
 export class DatabaseCredentials extends SavableCredentials {
 
@@ -39,6 +40,25 @@ export class DatabaseCredentials extends SavableCredentials {
     if (this.__database) {
       await this.__database.destroy()
       this.__database = this.createDatabaseClient()
+    }
+  }
+
+  /**
+   * Tests the credentials to make sure they are valid. Returns null
+   * if they are, returns the error otherwise.
+   */
+  async test(db: Knex): Promise<Error | null> {
+    try {
+      const rows = await db.select("CollectionName")
+          .from<Collection>("collection")
+      if (rows.length  == 0)
+        return Error("No collections found")
+      return null
+    }
+    catch (err) {
+      if (err instanceof Error)
+        return err
+      throw err
     }
   }
 

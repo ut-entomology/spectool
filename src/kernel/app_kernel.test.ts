@@ -1,10 +1,7 @@
-import { Knex } from 'knex'
-
 import { Platform } from '../app-util/platform'
 import { TestPrefsFile, TestCredentials } from '../test_config'
 import { APP_NAME, AppKernel } from './app_kernel'
 import { AppPrefs } from '../shared/app_prefs'
-import { UserRecord } from '../shared/user_record'
 
 const DUMMY_APP_NAME = "__ Temp Dummy App"
 
@@ -77,36 +74,26 @@ describe("the database", () => {
     await kernel1.databaseCreds.clear()
     await kernel1.databaseCreds.set(username, password)
     const db = kernel1.database
-    const firstNames = await queryFirstNames(db)
-    expect(firstNames.length).toBeGreaterThan(0)
+    const err = await kernel1.databaseCreds.test(db)
+    expect(err).toBe(null)
   })
 
   test("should fail to read database with invalid username", async () => {
-    expect.assertions(1)
     await kernel1.databaseCreds.clear()
     await kernel1.databaseCreds.set("invalid-username", password)
     const db = kernel1.database
-    try {
-      await queryFirstNames(db)
-    }
-    catch (err) {
-      if (err instanceof Error)
-        expect(err.message.toLowerCase()).toContain("access denied")
-    }
+    const err = await kernel1.databaseCreds.test(db)
+    expect(err).toBeInstanceOf(Error)
+    expect(err!.message.toLowerCase()).toContain("access denied")
   })
 
   test("should fail to read database with invalid password", async () => {
-    expect.assertions(1)
     await kernel1.databaseCreds.clear()
     await kernel1.databaseCreds.set(username, "invalid-password")
     const db = kernel1.database
-    try {
-      await queryFirstNames(db)
-    }
-    catch (err) {
-      if (err instanceof Error)
-        expect(err.message.toLowerCase()).toContain("access denied")
-    }
+    const err = await kernel1.databaseCreds.test(db)
+    expect(err).toBeInstanceOf(Error)
+    expect(err!.message.toLowerCase()).toContain("access denied")
   })
 
   afterAll(async () => {
@@ -115,16 +102,6 @@ describe("the database", () => {
     await kernel1.database.destroy()
   })
 })
-
-async function queryFirstNames(db: Knex): Promise<string[]> {
-  const lastNameToFind = "Smith"
-  const rows = await db.select("firstname")
-      .from<UserRecord>("agent")
-      .where("lastname", lastNameToFind)
-  const firstNames: string[] = []
-  rows.forEach(row => firstNames.push(row.firstname))
-  return firstNames
-}
 
 async function dropUserDir(kernel: AppKernel): Promise<void> {
   await kernel.platform.dropUserDir(kernel.platform.userConfigDir)
