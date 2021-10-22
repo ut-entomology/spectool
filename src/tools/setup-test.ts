@@ -1,7 +1,13 @@
+import readlineSync from 'readline-sync'
+
 import { APP_NAME } from '../kernel/app_kernel'
 import { Platform } from '../app-util/platform'
 import { TestPrefsFile, TestCredentials } from '../test_config'
-import readlineSync from 'readline-sync'
+
+/**
+ * Sets up the app preferences and credentials for testing against
+ * a development installation of Specify.
+ */
 
 async function setup(): Promise<void> {
   const platform = new Platform(APP_NAME)

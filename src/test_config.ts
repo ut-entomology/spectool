@@ -13,7 +13,7 @@ export class TestPrefs {
 
 export class TestPrefsFile extends PreferencesFile<TestPrefs> {
   constructor(platform: Platform) {
-    super(platform, "test", "0.1.0", () => new TestPrefs())
+    super(platform, "test-config", "0.1.0", () => new TestPrefs())
   }
 }
 
