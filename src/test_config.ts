@@ -2,6 +2,8 @@ import { Platform } from './app-util/platform'
 import { PreferencesFile } from './app-util/prefs_file';
 import { SavableCredentials } from './app-util/savable_creds'
 
+// Testing and debugging is set up for Jest Runner with VS Code.
+
 export class TestPrefs {
   databaseHost = "localhost"
   databasePort = 3306
