@@ -1,45 +1,43 @@
-import knex, { Knex } from 'knex'
+import knex, { Knex } from "knex";
 
-import { AppKernel } from './app_kernel'
-import { SavableCredentials } from '../app-util/savable_creds'
-import { Collection } from '../shared/schema/collection'
+import { AppKernel } from "./app_kernel";
+import { SavableCredentials } from "../app-util/savable_creds";
+import { Collection } from "../shared/schema/collection";
 
 export class DatabaseCredentials extends SavableCredentials {
-
-  private kernel: AppKernel
-  private __database?: Knex
+  private kernel: AppKernel;
+  private __database?: Knex;
 
   constructor(kernel: AppKernel) {
-    super(kernel.appName, "database")
-    this.kernel = kernel
+    super(kernel.appName, "database");
+    this.kernel = kernel;
   }
 
   get database(): Knex {
-    if (this.__database)
-      return this.__database
-    this.__database = this.createDatabaseClient()
-    return this.__database
+    if (this.__database) return this.__database;
+    this.__database = this.createDatabaseClient();
+    return this.__database;
   }
 
   protected getSavedUsername(): string {
-    return this.kernel.prefs.databaseUsername
+    return this.kernel.prefs.databaseUsername;
   }
 
   protected isSavingCredentials(): boolean {
-    return this.kernel.prefs.saveDatabaseCredentials
+    return this.kernel.prefs.saveDatabaseCredentials;
   }
 
   protected async saveUsername(username: string): Promise<void> {
-    const prefs = this.kernel.prefs
-    prefs.databaseUsername = username
-    await this.kernel.savePrefs(prefs)
+    const prefs = this.kernel.prefs;
+    prefs.databaseUsername = username;
+    await this.kernel.savePrefs(prefs);
   }
 
   async set(username: string, password: string): Promise<void> {
-    await super.set(username, password)
+    await super.set(username, password);
     if (this.__database) {
-      await this.__database.destroy()
-      this.__database = this.createDatabaseClient()
+      await this.__database.destroy();
+      this.__database = this.createDatabaseClient();
     }
   }
 
@@ -49,16 +47,12 @@ export class DatabaseCredentials extends SavableCredentials {
    */
   async test(db: Knex): Promise<Error | null> {
     try {
-      const rows = await db.select("CollectionName")
-          .from<Collection>("collection")
-      if (rows.length  == 0)
-        return Error("No collections found")
-      return null
-    }
-    catch (err) {
-      if (err instanceof Error)
-        return err
-      throw err
+      const rows = await db.select("CollectionName").from<Collection>("collection");
+      if (rows.length == 0) return Error("No collections found");
+      return null;
+    } catch (err) {
+      if (err instanceof Error) return err;
+      throw err;
     }
   }
 
@@ -66,17 +60,17 @@ export class DatabaseCredentials extends SavableCredentials {
 
   private createDatabaseClient(): Knex {
     if (!this.username || !this.password)
-      throw Error("No database credentials assigned")
-    const prefs = this.kernel.prefs
+      throw Error("No database credentials assigned");
+    const prefs = this.kernel.prefs;
     return knex({
-      client: 'mysql2',
+      client: "mysql2",
       connection: {
         host: prefs.databaseHost,
         database: prefs.databaseName,
         port: prefs.databasePort,
         user: this.username,
-        password: this.password,
+        password: this.password
       }
-    })
+    });
   }
 }

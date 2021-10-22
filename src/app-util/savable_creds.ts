@@ -1,4 +1,4 @@
-import * as keytar from 'keytar'
+import * as keytar from "keytar";
 
 /**
  * SavableCredentials is a class representing login credentials that can be
@@ -10,10 +10,9 @@ import * as keytar from 'keytar'
  * internal copy of the credentials for use by the application.
  */
 export abstract class SavableCredentials {
-
-  protected serviceName: string
-  protected username?: string
-  protected password?: string
+  protected serviceName: string;
+  protected username?: string;
+  protected password?: string;
 
   /**
    * Constructs an instance associating credentials with a service name.
@@ -21,7 +20,7 @@ export abstract class SavableCredentials {
    * @param appService Application-specific service name
    */
   constructor(appName: string, appService: string) {
-    this.serviceName = appName + " - " + appService
+    this.serviceName = appName + " - " + appService;
   }
 
   /**
@@ -29,30 +28,28 @@ export abstract class SavableCredentials {
    * or clearing previously-saved credentials, as configured.
    */
   async init(): Promise<void> {
-    const savedUsername = this.getSavedUsername()
+    const savedUsername = this.getSavedUsername();
     if (this.isSavingCredentials() && savedUsername) {
-      const savedPassword = await keytar.getPassword(
-          this.serviceName, savedUsername)
+      const savedPassword = await keytar.getPassword(this.serviceName, savedUsername);
       if (savedPassword != null) {
-        this.username = savedUsername
-        this.password = savedPassword
-        return
+        this.username = savedUsername;
+        this.password = savedPassword;
+        return;
       }
     }
-    if (savedUsername)
-      await this.saveUsername("")
-    await this.clear() // clear all other user credentials
+    if (savedUsername) await this.saveUsername("");
+    await this.clear(); // clear all other user credentials
   }
 
   /**
    * Clears any previously-saved credentials associated with the service.
    */
   async clear(): Promise<void> {
-    const creds = await keytar.findCredentials(this.serviceName)
+    const creds = await keytar.findCredentials(this.serviceName);
     for (const cred of creds)
-      await keytar.deletePassword(this.serviceName, cred.account)
-    this.username = undefined
-    this.password = undefined
+      await keytar.deletePassword(this.serviceName, cred.account);
+    this.username = undefined;
+    this.password = undefined;
   }
 
   /**
@@ -60,30 +57,29 @@ export abstract class SavableCredentials {
    * assigned. Otherwise returns null.
    */
   get(): [string, string] | null {
-    if (this.username && this.password)
-      return [this.username, this.password]
-    return null
+    if (this.username && this.password) return [this.username, this.password];
+    return null;
   }
 
   /**
    * Returns the saved username when configured to save credentials.
    * Should return "" when there is no saved username.
    */
-  protected abstract getSavedUsername(): string
+  protected abstract getSavedUsername(): string;
 
   /**
    * Indicates whether the application is presently configured to save
    * the associated credentials. The return value may dynamically change
    * over the course of the application.
    */
-  protected abstract isSavingCredentials(): boolean
+  protected abstract isSavingCredentials(): boolean;
 
   /**
    * Saves the indicated username for use retrieving its associated
    * password in the future.
    * @param username Username to save
    */
-  protected abstract saveUsername(username: string): Promise<void>
+  protected abstract saveUsername(username: string): Promise<void>;
 
   /**
    * Sets the credentials. If configured to save credentials, also
@@ -91,13 +87,13 @@ export abstract class SavableCredentials {
    */
   async set(username: string, password: string): Promise<void> {
     if (this.isSavingCredentials()) {
-      await this.saveUsername(username)
-      await keytar.setPassword(this.serviceName, username, password)
+      await this.saveUsername(username);
+      await keytar.setPassword(this.serviceName, username, password);
     } else {
-      await this.clear() // also clears local username and password
-      await this.saveUsername("") // clear the saved username
+      await this.clear(); // also clears local username and password
+      await this.saveUsername(""); // clear the saved username
     }
-    this.username = username // assign after possibly having cleared
-    this.password = password
+    this.username = username; // assign after possibly having cleared
+    this.password = password;
   }
 }

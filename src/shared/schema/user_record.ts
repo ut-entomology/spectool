@@ -1,3 +1,3 @@
 export interface UserRecord {
-  firstname: string
+  firstname: string;
 }

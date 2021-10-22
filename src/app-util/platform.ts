@@ -1,17 +1,16 @@
-import { promises as fsp } from 'fs'
-import * as path from 'path'
+import { promises as fsp } from "fs";
+import * as path from "path";
 
-import { fileNotFound, ConfigError } from './errors'
+import { fileNotFound, ConfigError } from "./errors";
 
 /**
  * Platform is a class providing access to the desktop environment.
  */
 
 export class Platform {
-
-  readonly userHomeDir: string
-  readonly userCacheDir: string
-  readonly userConfigDir: string
+  readonly userHomeDir: string;
+  readonly userCacheDir: string;
+  readonly userConfigDir: string;
 
   /**
    * Constructs a Platform instance from the name of the application
@@ -19,32 +18,36 @@ export class Platform {
    * @throws ConfigError when a required environment variable is not set
    */
   constructor(appDirName: string) {
-
     // Determine the app directories as a function of operating system.
 
     switch (process.platform) {
-
       // MacOS
       case "darwin":
-        this.userHomeDir = this.nonEmptyVar("HOME")
-        this.userConfigDir = path.join(this.userHomeDir, "Library/Application Support", appDirName)
-        this.userCacheDir = path.join(this.userHomeDir, "Library/Caches", appDirName)
-        break
+        this.userHomeDir = this.nonEmptyVar("HOME");
+        this.userConfigDir = path.join(
+          this.userHomeDir,
+          "Library/Application Support",
+          appDirName
+        );
+        this.userCacheDir = path.join(this.userHomeDir, "Library/Caches", appDirName);
+        break;
 
       // Windows (including 64-bit)
       case "win32":
-        this.userHomeDir = this.nonEmptyVar("USERPROFILE")
-        this.userConfigDir = path.join(this.nonEmptyVar("AppData"), appDirName)
-        this.userCacheDir = path.join(this.nonEmptyVar("LocalAppData"), appDirName)
-        break
+        this.userHomeDir = this.nonEmptyVar("USERPROFILE");
+        this.userConfigDir = path.join(this.nonEmptyVar("AppData"), appDirName);
+        this.userCacheDir = path.join(this.nonEmptyVar("LocalAppData"), appDirName);
+        break;
 
       // UNIX/Linux
       default:
-        this.userHomeDir = this.nonEmptyVar("HOME")
-        this.userConfigDir = process.env["XDG_CONFIG_HOME"] || path.join(
-          this.userHomeDir, ".config", appDirName)
-        this.userCacheDir = process.env["XDG_CACHE_HOME"] || path.join(
-          this.userHomeDir, ".cache", appDirName)
+        this.userHomeDir = this.nonEmptyVar("HOME");
+        this.userConfigDir =
+          process.env["XDG_CONFIG_HOME"] ||
+          path.join(this.userHomeDir, ".config", appDirName);
+        this.userCacheDir =
+          process.env["XDG_CACHE_HOME"] ||
+          path.join(this.userHomeDir, ".cache", appDirName);
     }
   }
 
@@ -54,15 +57,13 @@ export class Platform {
    */
   async dropUserDir(userDir: string): Promise<void> {
     try {
-      const files = await fsp.readdir(userDir)
+      const files = await fsp.readdir(userDir);
       for (const fileName of files) {
-        await fsp.unlink(path.join(userDir, fileName))
+        await fsp.unlink(path.join(userDir, fileName));
       }
-      await fsp.rmdir(userDir)
-    }
-    catch (err) {
-      if (!fileNotFound(err))
-        throw err
+      await fsp.rmdir(userDir);
+    } catch (err) {
+      if (!fileNotFound(err)) throw err;
     }
   }
 
@@ -72,11 +73,9 @@ export class Platform {
    */
   async dropUserFile(userDir: string, fileName: string): Promise<void> {
     try {
-      await fsp.unlink(path.join(userDir, fileName))
-    }
-    catch (err) {
-      if (!fileNotFound(err))
-        throw err
+      await fsp.unlink(path.join(userDir, fileName));
+    } catch (err) {
+      if (!fileNotFound(err)) throw err;
     }
   }
 
@@ -84,15 +83,13 @@ export class Platform {
    * Returns the date on which the given user file was last written.
    */
   async getUserFileDate(userDir: string, fileName: string): Promise<Date | null> {
-    const filePath = path.join(userDir, fileName)
+    const filePath = path.join(userDir, fileName);
     try {
-      const stats = await fsp.stat(filePath)
-      return stats.mtime
-    }
-    catch (err) {
-      if (fileNotFound(err))
-        return null
-      throw err
+      const stats = await fsp.stat(filePath);
+      return stats.mtime;
+    } catch (err) {
+      if (fileNotFound(err)) return null;
+      throw err;
     }
   }
 
@@ -101,14 +98,12 @@ export class Platform {
    * empty or if the file is not present.
    */
   async readTextUserFile(userDir: string, fileName: string): Promise<string> {
-    const filePath = path.join(userDir, fileName)
+    const filePath = path.join(userDir, fileName);
     try {
-      return await fsp.readFile(filePath, { encoding: "utf8" })
-    }
-    catch (err) {
-      if (fileNotFound(err))
-        return ""
-      throw err
+      return await fsp.readFile(filePath, { encoding: "utf8" });
+    } catch (err) {
+      if (fileNotFound(err)) return "";
+      throw err;
     }
   }
 
@@ -116,17 +111,18 @@ export class Platform {
    * Writes text to the given user file, first creating the user
    * directory if it does not exist.
    */
-  async writeTextUserFile(userDir: string, fileName: string, text: string):
-    Promise<void> {
-
-    const filePath = path.join(userDir, fileName)
+  async writeTextUserFile(
+    userDir: string,
+    fileName: string,
+    text: string
+  ): Promise<void> {
+    const filePath = path.join(userDir, fileName);
     try {
-      await fsp.access(filePath)
+      await fsp.access(filePath);
+    } catch (err) {
+      await fsp.mkdir(userDir).catch((e) => e);
     }
-    catch (err) {
-      await fsp.mkdir(userDir).catch(e => e)
-    }
-    await fsp.writeFile(filePath, text)
+    await fsp.writeFile(filePath, text);
   }
 
   //// PRIVATE METHODS ////
@@ -136,9 +132,9 @@ export class Platform {
    * @throws ConfigError when the variable has no value
    */
   private nonEmptyVar(var_name: string): string {
-    const env_var = process.env[var_name]
+    const env_var = process.env[var_name];
     if (!env_var)
-      throw new ConfigError(`Enviroment variable '${var_name}' not defined`)
-    return env_var
+      throw new ConfigError(`Enviroment variable '${var_name}' not defined`);
+    return env_var;
   }
 }

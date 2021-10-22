@@ -1,21 +1,23 @@
-import knex, { Knex } from 'knex'
+import knex, { Knex } from "knex";
 
 interface UserRecord {
-  firstname: string
+  firstname: string;
 }
 
 export function getFirstNames(
-    username: string, password: string, lastName: string,
-    callback: (err: any, firstNames: string[]) => void): void {
-
-  const domain = "entomology.tacc.utexas.edu"
-  const dbName = "specify_dev"
+  username: string,
+  password: string,
+  lastName: string,
+  callback: (err: any, firstNames: string[]) => void
+): void {
+  const domain = "entomology.tacc.utexas.edu";
+  const dbName = "specify_dev";
   // `mysql://${username}:${password}@tcp(${domain})/${dbName}`
 
-  let db: Knex
+  let db: Knex;
   try {
     db = knex({
-      client: 'mysql2',
+      client: "mysql2",
       connection: {
         host: domain,
         port: 3306,
@@ -23,24 +25,23 @@ export function getFirstNames(
         password: password,
         database: dbName
       }
-    })
+    });
 
     db.select("firstname")
       .from<UserRecord>("agent")
       .where("lastname", lastName)
       .asCallback((err: any, rows: UserRecord[]) => {
         if (err) {
-          callback(err, [])
-          return
+          callback(err, []);
+          return;
         }
-        const firstNames: string[] = []
+        const firstNames: string[] = [];
         for (const row of rows) {
-          firstNames.push(row.firstname)
+          firstNames.push(row.firstname);
         }
-        callback(null, firstNames)
-      })
-    
+        callback(null, firstNames);
+      });
   } catch (err) {
-    callback(err, [])
+    callback(err, []);
   }
 }

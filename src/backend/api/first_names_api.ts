@@ -1,28 +1,30 @@
-import { IpcMainEvent } from 'electron'
+import { IpcMainEvent } from "electron";
 
-import { AppKernel } from '../../kernel/app_kernel'
-import { IpcHandler, AsyncIpcHandler } from '../util/ipc_handler'
-import * as dbtest from '../../kernel/dbtest'
+import { AppKernel } from "../../kernel/app_kernel";
+import { IpcHandler, AsyncIpcHandler } from "../util/ipc_handler";
+import * as dbtest from "../../kernel/dbtest";
 
 class GetFirstNamesIpc extends AsyncIpcHandler {
-
   constructor() {
-    super("get-first-names")
+    super("get-first-names");
   }
 
-  handle(event: IpcMainEvent,
-    data: {username: string, password: string, lastName: string}
+  handle(
+    event: IpcMainEvent,
+    data: { username: string; password: string; lastName: string }
   ): void {
-    const obj = this
-    dbtest.getFirstNames(data.username, data.password, data.lastName,
+    const obj = this;
+    dbtest.getFirstNames(
+      data.username,
+      data.password,
+      data.lastName,
       (err, firstNames) => {
-        obj.reply(event, err ? err : firstNames)
-      })
+        obj.reply(event, err ? err : firstNames);
+      }
+    );
   }
 }
 
 export default function (_kernel: AppKernel): IpcHandler[] {
-  return [
-    new GetFirstNamesIpc()
-  ]
+  return [new GetFirstNamesIpc()];
 }

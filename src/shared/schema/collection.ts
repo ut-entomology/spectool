@@ -1,3 +1,3 @@
 export interface Collection {
-  collectionName: string
+  collectionName: string;
 }

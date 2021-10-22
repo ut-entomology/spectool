@@ -1,4 +1,4 @@
-import { Platform } from './platform'
+import { Platform } from "./platform";
 
 /**
  * Preferences is a class that manages a JSON application preferences file.
@@ -6,11 +6,10 @@ import { Platform } from './platform'
  */
 
 export class PreferencesFile<T> {
-
-  private platform: Platform
-  private filename: string
-  private version: string
-  private getDefaultPrefs: () => T
+  private platform: Platform;
+  private filename: string;
+  private version: string;
+  private getDefaultPrefs: () => T;
 
   /**
    * Construct a proxy for a preferences file.
@@ -25,16 +24,16 @@ export class PreferencesFile<T> {
   constructor(
     platform: Platform,
     filename: string,
-    version: string, 
+    version: string,
     getDefaultPrefs: () => T
   ) {
     if (filename.indexOf(".") > 0)
-      throw Error("Preferences file can't include the file type suffix")
+      throw Error("Preferences file can't include the file type suffix");
 
-    this.platform = platform
-    this.filename = filename + ".json"
-    this.version = version
-    this.getDefaultPrefs = getDefaultPrefs
+    this.platform = platform;
+    this.filename = filename + ".json";
+    this.version = version;
+    this.getDefaultPrefs = getDefaultPrefs;
   }
 
   /**
@@ -45,15 +44,16 @@ export class PreferencesFile<T> {
    */
   async load(): Promise<T> {
     const jsonString = await this.platform.readTextUserFile(
-      this.platform.userConfigDir, this.filename)
-    if (jsonString === "")
-      return this.getDefaultPrefs()
-    let { version, prefs } = JSON.parse(jsonString)
+      this.platform.userConfigDir,
+      this.filename
+    );
+    if (jsonString === "") return this.getDefaultPrefs();
+    let { version, prefs } = JSON.parse(jsonString);
     if (version !== this.version) {
-      prefs = this.update(version, prefs)
-      await this.save(prefs)
+      prefs = this.update(version, prefs);
+      await this.save(prefs);
     }
-    return prefs
+    return prefs;
   }
 
   /**
@@ -62,9 +62,12 @@ export class PreferencesFile<T> {
    * @param prefs Preferences to save
    */
   async save(prefs: T): Promise<void> {
-    const jsonString = JSON.stringify({ version: this.version, prefs })
+    const jsonString = JSON.stringify({ version: this.version, prefs });
     await this.platform.writeTextUserFile(
-      this.platform.userConfigDir, this.filename, jsonString)
+      this.platform.userConfigDir,
+      this.filename,
+      jsonString
+    );
   }
 
   /**
@@ -72,7 +75,7 @@ export class PreferencesFile<T> {
    */
 
   async drop(): Promise<void> {
-      await this.platform.dropUserFile(this.platform.userConfigDir, this.filename)
+    await this.platform.dropUserFile(this.platform.userConfigDir, this.filename);
   }
 
   //// PROTECTED METHODS ////
@@ -85,6 +88,6 @@ export class PreferencesFile<T> {
    * @param _oldPrefs Existing preferences as an object literal (no class info)
    */
   protected update(_oldVersion: string, _oldPrefs: any): T {
-    return this.getDefaultPrefs()
+    return this.getDefaultPrefs();
   }
 }

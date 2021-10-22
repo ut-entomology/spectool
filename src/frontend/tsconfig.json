@@ -9,6 +9,7 @@
         "target": "ESNext",
         "stripInternal": true,
         "strict": true,
+        "pretty": true,
         "moduleResolution": "node",
         "noUnusedLocals": true,
         "noUnusedParameters": true,
