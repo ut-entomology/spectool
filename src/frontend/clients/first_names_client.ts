@@ -1,4 +1,4 @@
-import { ClientIpc } from "../util/client_ipc";
+import { ClientIpc } from '../util/client_ipc';
 
 export class FirstNamesClient {
   static getFirstNames(
@@ -11,7 +11,7 @@ export class FirstNamesClient {
   ): void {
     ClientIpc.sendAsync(
       window,
-      "get-first-names",
+      'get-first-names',
       { username, password, lastName },
       onSuccess,
       onError

@@ -1,32 +1,32 @@
-import { Platform } from "../app-util/platform";
-import { TestPrefsFile, TestCredentials } from "../test_config";
-import { APP_NAME, AppKernel } from "./app_kernel";
-import { AppPrefs } from "../shared/app_prefs";
+import { Platform } from '../app-util/platform';
+import { TestPrefsFile, TestCredentials } from '../test_config';
+import { APP_NAME, AppKernel } from './app_kernel';
+import { AppPrefs } from '../shared/app_prefs';
 
-const DUMMY_APP_NAME = "__ Temp Dummy App";
+const DUMMY_APP_NAME = '__ Temp Dummy App';
 
-describe("app preferences", () => {
+describe('app preferences', () => {
   const kernel1 = new AppKernel(DUMMY_APP_NAME);
   beforeAll(async () => {
     await kernel1.init();
   });
 
-  test("should initially equal the defaults", () => {
+  test('should initially equal the defaults', () => {
     expect(kernel1.prefs).toEqual(new AppPrefs());
   });
 
-  test("should change when saved", async () => {
+  test('should change when saved', async () => {
     const prefs = kernel1.prefs;
-    prefs.databaseName = "dummy";
+    prefs.databaseName = 'dummy';
     await kernel1.savePrefs(prefs);
     const kernel2 = new AppKernel(DUMMY_APP_NAME);
     await kernel2.init();
     expect(kernel2.prefs).toEqual(prefs);
   });
 
-  test("should return to defaults when dropped", async () => {
+  test('should return to defaults when dropped', async () => {
     const prefs = kernel1.prefs;
-    prefs.databaseName = "dummy";
+    prefs.databaseName = 'dummy';
     await kernel1.savePrefs(prefs);
     await kernel1.dropPrefs();
     const kernel2 = new AppKernel(DUMMY_APP_NAME);
@@ -39,7 +39,7 @@ describe("app preferences", () => {
   });
 });
 
-describe("the database", () => {
+describe('the database', () => {
   const kernel1 = new AppKernel(DUMMY_APP_NAME);
   const testPlatform = new Platform(APP_NAME);
   const testPrefsFile = new TestPrefsFile(testPlatform);
@@ -54,21 +54,21 @@ describe("the database", () => {
     await testCreds.init();
     const creds = testCreds.get();
     if (creds === null) {
-      throw Error("Test not configured");
+      throw Error('Test not configured');
     }
     [username, password] = creds;
   });
 
-  test("should initially have no client", () => {
+  test('should initially have no client', () => {
     expect.assertions(1);
     try {
       kernel1.database;
     } catch (err) {
-      if (err instanceof Error) expect(err.message).toContain("credentials");
+      if (err instanceof Error) expect(err.message).toContain('credentials');
     }
   });
 
-  test("should read database with valid credentials", async () => {
+  test('should read database with valid credentials', async () => {
     await kernel1.databaseCreds.clear();
     await kernel1.databaseCreds.set(username, password);
     const db = kernel1.database;
@@ -76,22 +76,22 @@ describe("the database", () => {
     expect(err).toBe(null);
   });
 
-  test("should fail to read database with invalid username", async () => {
+  test('should fail to read database with invalid username', async () => {
     await kernel1.databaseCreds.clear();
-    await kernel1.databaseCreds.set("invalid-username", password);
+    await kernel1.databaseCreds.set('invalid-username', password);
     const db = kernel1.database;
     const err = await kernel1.databaseCreds.test(db);
     expect(err).toBeInstanceOf(Error);
-    expect(err!.message.toLowerCase()).toContain("access denied");
+    expect(err!.message.toLowerCase()).toContain('access denied');
   });
 
-  test("should fail to read database with invalid password", async () => {
+  test('should fail to read database with invalid password', async () => {
     await kernel1.databaseCreds.clear();
-    await kernel1.databaseCreds.set(username, "invalid-password");
+    await kernel1.databaseCreds.set(username, 'invalid-password');
     const db = kernel1.database;
     const err = await kernel1.databaseCreds.test(db);
     expect(err).toBeInstanceOf(Error);
-    expect(err!.message.toLowerCase()).toContain("access denied");
+    expect(err!.message.toLowerCase()).toContain('access denied');
   });
 
   afterAll(async () => {

@@ -1,4 +1,4 @@
-import * as keytar from "keytar";
+import * as keytar from 'keytar';
 
 /**
  * SavableCredentials is a class representing login credentials that can be
@@ -20,7 +20,7 @@ export abstract class SavableCredentials {
    * @param appService Application-specific service name
    */
   constructor(appName: string, appService: string) {
-    this.serviceName = appName + " - " + appService;
+    this.serviceName = appName + ' - ' + appService;
   }
 
   /**
@@ -37,7 +37,7 @@ export abstract class SavableCredentials {
         return;
       }
     }
-    if (savedUsername) await this.saveUsername("");
+    if (savedUsername) await this.saveUsername('');
     await this.clear(); // clear all other user credentials
   }
 
@@ -91,7 +91,7 @@ export abstract class SavableCredentials {
       await keytar.setPassword(this.serviceName, username, password);
     } else {
       await this.clear(); // also clears local username and password
-      await this.saveUsername(""); // clear the saved username
+      await this.saveUsername(''); // clear the saved username
     }
     this.username = username; // assign after possibly having cleared
     this.password = password;

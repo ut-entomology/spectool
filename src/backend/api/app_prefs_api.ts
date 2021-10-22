@@ -1,14 +1,14 @@
-import { IpcMainEvent } from "electron";
+import { IpcMainEvent } from 'electron';
 
-import { IpcHandler, AsyncIpcHandler, SyncIpcHandler } from "../util/ipc_handler";
-import { AppPrefs } from "../../shared/app_prefs";
-import { AppKernel } from "../../kernel/app_kernel";
+import { IpcHandler, AsyncIpcHandler, SyncIpcHandler } from '../util/ipc_handler';
+import { AppPrefs } from '../../shared/app_prefs';
+import { AppKernel } from '../../kernel/app_kernel';
 
 class GetAppPrefsIpc extends SyncIpcHandler {
   private kernel: AppKernel;
 
   constructor(kernel: AppKernel) {
-    super("get-app-prefs");
+    super('get-app-prefs');
     this.kernel = kernel;
   }
 
@@ -21,7 +21,7 @@ class SetAppPrefsIpc extends AsyncIpcHandler {
   private kernel: AppKernel;
 
   constructor(kernel: AppKernel) {
-    super("set-app-prefs");
+    super('set-app-prefs');
     this.kernel = kernel;
   }
 

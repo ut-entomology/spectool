@@ -1,4 +1,4 @@
-import { Platform } from "./platform";
+import { Platform } from './platform';
 
 /**
  * Preferences is a class that manages a JSON application preferences file.
@@ -27,11 +27,11 @@ export class PreferencesFile<T> {
     version: string,
     getDefaultPrefs: () => T
   ) {
-    if (filename.indexOf(".") > 0)
+    if (filename.indexOf('.') > 0)
       throw Error("Preferences file can't include the file type suffix");
 
     this.platform = platform;
-    this.filename = filename + ".json";
+    this.filename = filename + '.json';
     this.version = version;
     this.getDefaultPrefs = getDefaultPrefs;
   }
@@ -47,7 +47,7 @@ export class PreferencesFile<T> {
       this.platform.userConfigDir,
       this.filename
     );
-    if (jsonString === "") return this.getDefaultPrefs();
+    if (jsonString === '') return this.getDefaultPrefs();
     let { version, prefs } = JSON.parse(jsonString);
     if (version !== this.version) {
       prefs = this.update(version, prefs);

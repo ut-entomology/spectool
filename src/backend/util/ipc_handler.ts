@@ -1,4 +1,4 @@
-import { IpcMainEvent } from "electron";
+import { IpcMainEvent } from 'electron';
 
 export abstract class IpcHandler {
   channel: string;
@@ -18,7 +18,7 @@ export abstract class AsyncIpcHandler extends IpcHandler {
   }
 
   protected reply(event: IpcMainEvent, dataOrError: any): void {
-    event.reply(this.channel + "-reply", dataOrError);
+    event.reply(this.channel + '-reply', dataOrError);
   }
 }
 

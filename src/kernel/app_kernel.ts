@@ -1,21 +1,21 @@
-import { Knex } from "knex";
+import { Knex } from 'knex';
 
-import { Platform } from "../app-util/platform";
-import { AppPrefs } from "../shared/app_prefs";
-import { PreferencesFile } from "../app-util/prefs_file";
-import { DatabaseCredentials } from "./db_creds";
+import { Platform } from '../app-util/platform';
+import { AppPrefs } from '../shared/app_prefs';
+import { PreferencesFile } from '../app-util/prefs_file';
+import { DatabaseCredentials } from './db_creds';
 
 // TODO: Need to reconcile the fact that I'd like this name here but
 // Electron pulls the name out of package.json, which can't have spaces.
 // Consequently, my code and Electron are using different user directories.
-export const APP_NAME = "UT SpecTool";
+export const APP_NAME = 'UT SpecTool';
 
 /**
  * AppPrefsFile manages the non-Electron user preferences.
  */
 class AppPrefsFile extends PreferencesFile<AppPrefs> {
   constructor(platform: Platform) {
-    super(platform, "prefs-config", "0.1.0", () => new AppPrefs());
+    super(platform, 'prefs-config', '0.1.0', () => new AppPrefs());
   }
 }
 

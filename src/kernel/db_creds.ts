@@ -1,15 +1,15 @@
-import knex, { Knex } from "knex";
+import knex, { Knex } from 'knex';
 
-import { AppKernel } from "./app_kernel";
-import { SavableCredentials } from "../app-util/savable_creds";
-import { Collection } from "../shared/schema/collection";
+import { AppKernel } from './app_kernel';
+import { SavableCredentials } from '../app-util/savable_creds';
+import { Collection } from '../shared/schema/collection';
 
 export class DatabaseCredentials extends SavableCredentials {
   private kernel: AppKernel;
   private __database?: Knex;
 
   constructor(kernel: AppKernel) {
-    super(kernel.appName, "database");
+    super(kernel.appName, 'database');
     this.kernel = kernel;
   }
 
@@ -47,8 +47,8 @@ export class DatabaseCredentials extends SavableCredentials {
    */
   async test(db: Knex): Promise<Error | null> {
     try {
-      const rows = await db.select("CollectionName").from<Collection>("collection");
-      if (rows.length == 0) return Error("No collections found");
+      const rows = await db.select('CollectionName').from<Collection>('collection');
+      if (rows.length == 0) return Error('No collections found');
       return null;
     } catch (err) {
       if (err instanceof Error) return err;
@@ -60,10 +60,10 @@ export class DatabaseCredentials extends SavableCredentials {
 
   private createDatabaseClient(): Knex {
     if (!this.username || !this.password)
-      throw Error("No database credentials assigned");
+      throw Error('No database credentials assigned');
     const prefs = this.kernel.prefs;
     return knex({
-      client: "mysql2",
+      client: 'mysql2',
       connection: {
         host: prefs.databaseHost,
         database: prefs.databaseName,

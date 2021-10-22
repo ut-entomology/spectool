@@ -3,7 +3,7 @@
  * was not found.
  */
 export function fileNotFound(error: any): boolean {
-  return hasErrorCode(error) && error.code == "ENOENT";
+  return hasErrorCode(error) && error.code == 'ENOENT';
 }
 
 /**

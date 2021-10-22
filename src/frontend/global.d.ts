@@ -1,6 +1,6 @@
 /// <reference types="svelte" />
 
-import "svelte";
+import 'svelte';
 
 declare global {
   interface Window {

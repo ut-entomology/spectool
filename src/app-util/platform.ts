@@ -1,7 +1,7 @@
-import { promises as fsp } from "fs";
-import * as path from "path";
+import { promises as fsp } from 'fs';
+import * as path from 'path';
 
-import { fileNotFound, ConfigError } from "./errors";
+import { fileNotFound, ConfigError } from './errors';
 
 /**
  * Platform is a class providing access to the desktop environment.
@@ -22,32 +22,32 @@ export class Platform {
 
     switch (process.platform) {
       // MacOS
-      case "darwin":
-        this.userHomeDir = this.nonEmptyVar("HOME");
+      case 'darwin':
+        this.userHomeDir = this.nonEmptyVar('HOME');
         this.userConfigDir = path.join(
           this.userHomeDir,
-          "Library/Application Support",
+          'Library/Application Support',
           appDirName
         );
-        this.userCacheDir = path.join(this.userHomeDir, "Library/Caches", appDirName);
+        this.userCacheDir = path.join(this.userHomeDir, 'Library/Caches', appDirName);
         break;
 
       // Windows (including 64-bit)
-      case "win32":
-        this.userHomeDir = this.nonEmptyVar("USERPROFILE");
-        this.userConfigDir = path.join(this.nonEmptyVar("AppData"), appDirName);
-        this.userCacheDir = path.join(this.nonEmptyVar("LocalAppData"), appDirName);
+      case 'win32':
+        this.userHomeDir = this.nonEmptyVar('USERPROFILE');
+        this.userConfigDir = path.join(this.nonEmptyVar('AppData'), appDirName);
+        this.userCacheDir = path.join(this.nonEmptyVar('LocalAppData'), appDirName);
         break;
 
       // UNIX/Linux
       default:
-        this.userHomeDir = this.nonEmptyVar("HOME");
+        this.userHomeDir = this.nonEmptyVar('HOME');
         this.userConfigDir =
-          process.env["XDG_CONFIG_HOME"] ||
-          path.join(this.userHomeDir, ".config", appDirName);
+          process.env['XDG_CONFIG_HOME'] ||
+          path.join(this.userHomeDir, '.config', appDirName);
         this.userCacheDir =
-          process.env["XDG_CACHE_HOME"] ||
-          path.join(this.userHomeDir, ".cache", appDirName);
+          process.env['XDG_CACHE_HOME'] ||
+          path.join(this.userHomeDir, '.cache', appDirName);
     }
   }
 
@@ -100,9 +100,9 @@ export class Platform {
   async readTextUserFile(userDir: string, fileName: string): Promise<string> {
     const filePath = path.join(userDir, fileName);
     try {
-      return await fsp.readFile(filePath, { encoding: "utf8" });
+      return await fsp.readFile(filePath, { encoding: 'utf8' });
     } catch (err) {
-      if (fileNotFound(err)) return "";
+      if (fileNotFound(err)) return '';
       throw err;
     }
   }

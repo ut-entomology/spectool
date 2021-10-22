@@ -1,12 +1,12 @@
-import { IpcMainEvent } from "electron";
+import { IpcMainEvent } from 'electron';
 
-import { AppKernel } from "../../kernel/app_kernel";
-import { IpcHandler, AsyncIpcHandler } from "../util/ipc_handler";
-import * as dbtest from "../../kernel/dbtest";
+import { AppKernel } from '../../kernel/app_kernel';
+import { IpcHandler, AsyncIpcHandler } from '../util/ipc_handler';
+import * as dbtest from '../../kernel/dbtest';
 
 class GetFirstNamesIpc extends AsyncIpcHandler {
   constructor() {
-    super("get-first-names");
+    super('get-first-names');
   }
 
   handle(

@@ -1,7 +1,7 @@
-import { contextBridge } from "electron";
-import { ipcRenderer } from "electron";
+import { contextBridge } from 'electron';
+import { ipcRenderer } from 'electron';
 
-contextBridge.exposeInMainWorld("ipc", {
+contextBridge.exposeInMainWorld('ipc', {
   sendSync: (channel: string, data: any) => {
     return ipcRenderer.sendSync(channel, data);
   },

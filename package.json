@@ -12,7 +12,7 @@
     "client": "tsc && cross-env NODE_ENV=development electron .",
     "dist:mac": "tsc && rollup -c && electron-builder build --mac --publish never",
     "test": "jest",
-    "pretty": "prettier --config .prettierrc 'src/**/*.ts' --write"
+    "prettier": "prettier --config .prettierrc 'src/**/*.ts' --write"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^17.0.0",

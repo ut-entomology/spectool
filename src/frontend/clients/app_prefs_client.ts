@@ -1,5 +1,5 @@
-import { ClientIpc } from "../util/client_ipc";
-import type { AppPrefs } from "../shared/app_prefs";
+import { ClientIpc } from '../util/client_ipc';
+import type { AppPrefs } from '../shared/app_prefs';
 
 export class AppPrefsClient {
   static getPrefs(
@@ -7,7 +7,7 @@ export class AppPrefsClient {
     onSuccess: (appPrefs: AppPrefs) => void,
     onError: (err: Error) => void
   ): void {
-    ClientIpc.sendAsync(window, "get-app-prefs", undefined, onSuccess, onError);
+    ClientIpc.sendAsync(window, 'get-app-prefs', undefined, onSuccess, onError);
   }
 
   static setPrefs(
@@ -16,6 +16,6 @@ export class AppPrefsClient {
     onSuccess: () => void,
     onError: (err: Error) => void
   ): void {
-    ClientIpc.sendAsync(window, "set-app-prefs", appPrefs, onSuccess, onError);
+    ClientIpc.sendAsync(window, 'set-app-prefs', appPrefs, onSuccess, onError);
   }
 }
