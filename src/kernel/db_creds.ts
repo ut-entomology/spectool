@@ -36,8 +36,10 @@ export class DatabaseCredentials extends SavableCredentials {
 
   async set(username: string, password: string): Promise<void> {
     await super.set(username, password)
-    if (this.__database)
+    if (this.__database) {
+      await this.__database.destroy()
       this.__database = this.createDatabaseClient()
+    }
   }
 
   //// PRIVATE METHODS ////

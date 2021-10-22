@@ -1,5 +1,6 @@
 import { Knex } from 'knex'
 
+import { Platform } from '../app-util/platform'
 import { TestPrefsFile, TestCredentials } from '../test_config'
 import { APP_NAME, AppKernel } from './app_kernel'
 import { AppPrefs } from '../shared/app_prefs'
@@ -43,7 +44,8 @@ describe("app preferences", () => {
 
 describe("the database", () => {
   const kernel1 = new AppKernel(DUMMY_APP_NAME)
-  const testPrefsFile = new TestPrefsFile(kernel1.platform)
+  const testPlatform = new Platform(APP_NAME)
+  const testPrefsFile = new TestPrefsFile(testPlatform)
   // Use the test database for the application proper, rather
   // than the non-existent test DB for the current temporary app.
   const testCreds = new TestCredentials(APP_NAME, testPrefsFile)
@@ -72,7 +74,8 @@ describe("the database", () => {
   })
 
   test("should read database with valid credentials", async () => {
-    kernel1.databaseCreds.set(username, password)
+    await kernel1.databaseCreds.clear()
+    await kernel1.databaseCreds.set(username, password)
     const db = kernel1.database
     const firstNames = await queryFirstNames(db)
     expect(firstNames.length).toBeGreaterThan(0)
@@ -80,33 +83,36 @@ describe("the database", () => {
 
   test("should fail to read database with invalid username", async () => {
     expect.assertions(1)
-    kernel1.databaseCreds.set("invalid-username", password)
+    await kernel1.databaseCreds.clear()
+    await kernel1.databaseCreds.set("invalid-username", password)
     const db = kernel1.database
     try {
       await queryFirstNames(db)
     }
     catch (err) {
       if (err instanceof Error)
-        expect(err.message.toLowerCase()).toContain("declined")
+        expect(err.message.toLowerCase()).toContain("access denied")
     }
   })
 
   test("should fail to read database with invalid password", async () => {
     expect.assertions(1)
-    kernel1.databaseCreds.set(username, "invalid-password")
+    await kernel1.databaseCreds.clear()
+    await kernel1.databaseCreds.set(username, "invalid-password")
     const db = kernel1.database
     try {
       await queryFirstNames(db)
     }
     catch (err) {
       if (err instanceof Error)
-        expect(err.message.toLowerCase()).toContain("declined")
+        expect(err.message.toLowerCase()).toContain("access denied")
     }
   })
 
   afterAll(async () => {
     await kernel1.databaseCreds.clear()
     await dropUserDir(kernel1)
+    await kernel1.database.destroy()
   })
 })
 

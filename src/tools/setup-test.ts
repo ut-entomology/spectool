@@ -8,27 +8,33 @@ async function setup(): Promise<void> {
   const prefsFile = new TestPrefsFile(platform)
   const prefs = await prefsFile.load()
 
-  console.log("Please provide the MySQL database test configuration...\n")
+  console.log("\nPlease provide the MySQL database test configuration...")
+  console.log("(Hit enter to keep the current value.)\n")
 
-  prefs.databaseHost = readlineSync.question("Host name: ",
-      { defaultInput: prefs.databaseHost })
-  prefs.databasePort = readlineSync.questionInt("Port: ",
-      { defaultInput: prefs.databasePort.toString() })
-  prefs.databaseName = readlineSync.question("Database name: ",
-      { defaultInput: prefs.databaseName })
-  prefs.databaseUsername= readlineSync.question("Username: ",
-      { defaultInput: prefs.databaseUsername })
-  const password = readlineSync.question("Password: ",
-      { hideEchoBack: true })
-  console.log(`Got password [${password}]`)
+  prefs.databaseHost = readlineSync.question(
+    `Host name (${prefs.databaseHost}): `,
+    { defaultInput: prefs.databaseHost })
+  prefs.databasePort = readlineSync.questionInt(
+    `Port (${prefs.databasePort}): `,
+    { defaultInput: prefs.databasePort.toString() })
+  prefs.databaseName = readlineSync.question(
+    `Database name (${prefs.databaseName}): `,
+    { defaultInput: prefs.databaseName })
+  const username = readlineSync.question(
+    `Username (${prefs.databaseUsername}): `,
+    { defaultInput: prefs.databaseUsername })
+  const password = readlineSync.question(
+    "Password: ",
+    { hideEchoBack: true })
 
-  const testCreds = new TestCredentials(APP_NAME, prefsFile)
+  await prefsFile.save(prefs)
+  const testCreds = new TestCredentials(APP_NAME, prefsFile) // loads prefs
   await testCreds.init()
-  await testCreds.set(prefs.databaseUsername, password)
+  await testCreds.set(username, password)
 }
 
 setup().then(() => {
-  console.log("DONE")
+  console.log("DONE\n")
 }).catch(err => {
-  console.log("FAILED:", err)
+  console.log("FAILED:", err, "\n")
 })
