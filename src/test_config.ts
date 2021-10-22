@@ -32,15 +32,15 @@ export class TestCredentials extends SavableCredentials {
     await super.init()
   }
 
-  getSavedUsername(): string {
+  protected getSavedUsername(): string {
     return this.prefs!.databaseUsername
   }
 
-  isSavingCredentials(): boolean {
+  protected isSavingCredentials(): boolean {
     return true
   }
 
-  async saveUsername(username: string): Promise<void> {
+  protected async saveUsername(username: string): Promise<void> {
     this.prefs!.databaseUsername = username
     await this.prefsFile.save(this.prefs!)
   }

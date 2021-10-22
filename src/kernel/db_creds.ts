@@ -20,15 +20,15 @@ export class DatabaseCredentials extends SavableCredentials {
     return this.__database
   }
 
-  getSavedUsername(): string {
+  protected getSavedUsername(): string {
     return this.kernel.prefs.databaseUsername
   }
 
-  isSavingCredentials(): boolean {
+  protected isSavingCredentials(): boolean {
     return this.kernel.prefs.saveDatabaseCredentials
   }
 
-  async saveUsername(username: string): Promise<void> {
+  protected async saveUsername(username: string): Promise<void> {
     const prefs = this.kernel.prefs
     prefs.databaseUsername = username
     await this.kernel.savePrefs(prefs)

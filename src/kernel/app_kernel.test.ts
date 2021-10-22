@@ -116,22 +116,14 @@ describe("the database", () => {
   })
 })
 
-function queryFirstNames(db: Knex): Promise<string[]> {
+async function queryFirstNames(db: Knex): Promise<string[]> {
   const lastNameToFind = "Smith"
-  return new Promise<string[]>((resolve, reject) => {
-    db.select("firstname")
+  const rows = await db.select("firstname")
       .from<UserRecord>("agent")
       .where("lastname", lastNameToFind)
-      .asCallback((err: any, rows: UserRecord[]) => {
-        if (err)
-          return reject(err)
-        const firstNames: string[] = []
-        for (const row of rows) {
-          firstNames.push(row.firstname)
-        }
-        resolve(firstNames)
-      })
-    })
+  const firstNames: string[] = []
+  rows.forEach(row => firstNames.push(row.firstname))
+  return firstNames
 }
 
 async function dropUserDir(kernel: AppKernel): Promise<void> {

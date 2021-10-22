@@ -69,21 +69,21 @@ export abstract class SavableCredentials {
    * Returns the saved username when configured to save credentials.
    * Should return "" when there is no saved username.
    */
-  abstract getSavedUsername(): string
+  protected abstract getSavedUsername(): string
 
   /**
    * Indicates whether the application is presently configured to save
    * the associated credentials. The return value may dynamically change
    * over the course of the application.
    */
-  abstract isSavingCredentials(): boolean
+  protected abstract isSavingCredentials(): boolean
 
   /**
    * Saves the indicated username for use retrieving its associated
    * password in the future.
    * @param username Username to save
    */
-  abstract saveUsername(username: string): Promise<void>
+  protected abstract saveUsername(username: string): Promise<void>
 
   /**
    * Sets the credentials. If configured to save credentials, also
@@ -100,4 +100,11 @@ export abstract class SavableCredentials {
     this.username = username // assign after possibly having cleared
     this.password = password
   }
+
+  /**
+   * Tests the credentials to make sure they are valid. Returns null
+   * if they are, returns an error message otherwise.
+   */
+  // async test(): Promise<string | null> {
+  // }
 }
