@@ -5,6 +5,8 @@ import { AppPrefs } from '../shared/app_prefs'
 import { PreferencesFile } from '../app-util/prefs_file';
 import { DatabaseCredentials } from './db_creds'
 
+export const APP_NAME = "UT SpecTool"
+
 class AppPrefsFile extends PreferencesFile<AppPrefs> {
   constructor(platform: Platform) {
     super(platform, "prefs", "0.1.0", () => new AppPrefs())
@@ -20,7 +22,7 @@ export class AppKernel {
   private __prefs?: AppPrefs
   private __databaseCreds?: DatabaseCredentials
 
-  constructor(appName: string) {
+  constructor(appName: string = APP_NAME) {
     this.appName = appName
     this.platform = new Platform(appName)
     this.appPrefsFile = new AppPrefsFile(this.platform)

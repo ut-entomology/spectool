@@ -9,7 +9,7 @@ export class DatabaseCredentials extends SavableCredentials {
   private __database?: Knex
 
   constructor(kernel: AppKernel) {
-    super(kernel.appName + " - database")
+    super(kernel.appName, "database")
     this.kernel = kernel
   }
 
@@ -49,7 +49,7 @@ export class DatabaseCredentials extends SavableCredentials {
     return knex({
       client: 'mysql2',
       connection: {
-        host: prefs.databaseDomain,
+        host: prefs.databaseHost,
         database: prefs.databaseName,
         port: prefs.databasePort,
         user: this.username,

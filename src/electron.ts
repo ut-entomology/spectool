@@ -52,7 +52,7 @@ app.on("activate", () => {
   if (mainWindow === null) createWindow()
 })
 
-const kernel = new AppKernel("UT SpecTool")
+const kernel = new AppKernel()
 
 const ipcHandlerSets = [
   appPrefsApi(kernel),

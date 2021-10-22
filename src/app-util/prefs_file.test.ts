@@ -3,7 +3,7 @@ import lodash from 'lodash'
 import { Platform } from './platform'
 import { PreferencesFile } from './prefs_file'
 
-const dummyAppName = "__ Temp Dummy App"
+const DUMMY_APP_NAME = "__ Temp Dummy App"
 
 interface Prefs {
   intValue: number
@@ -18,7 +18,7 @@ class CustomPrefsFile extends PreferencesFile<Prefs> {
 }
 
 describe("a default preferences file", () => {
-  const platform = new Platform(dummyAppName)
+  const platform = new Platform(DUMMY_APP_NAME)
   const prefsFile1 = new PreferencesFile<Prefs>(platform, "prefs", "1", getDefaults)
   const prefsFile2 = new PreferencesFile<Prefs>(platform, "prefs", "2", getDefaults)
 
@@ -53,7 +53,7 @@ describe("a default preferences file", () => {
 })
 
 describe("a custom preferences file", () => {
-  const platform = new Platform(dummyAppName)
+  const platform = new Platform(DUMMY_APP_NAME)
   const defaults: Prefs = {
     intValue: 32,
     strValue: "foo"
@@ -77,7 +77,7 @@ describe("a custom preferences file", () => {
 })
 
 afterAll(async () => {
-  const platform = new Platform(dummyAppName)
+  const platform = new Platform(DUMMY_APP_NAME)
   await platform.dropUserDir(platform.userConfigDir)
 })
 

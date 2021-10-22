@@ -1,6 +1,6 @@
 import { SavableCredentials } from './savable_creds'
 
-const serviceName = "__ Temp Dummy Service"
+const DUMMY_APP_NAME = "__ Temp Dummy APP"
 
 class TestCredentials extends SavableCredentials {
 
@@ -8,7 +8,7 @@ class TestCredentials extends SavableCredentials {
   savedUsername: string
 
   constructor(saving: boolean, initialUsername: string) {
-    super(serviceName)
+    super(DUMMY_APP_NAME, "test")
     this.saving = saving
     this.savedUsername = initialUsername
   }

@@ -17,11 +17,11 @@ export abstract class SavableCredentials {
 
   /**
    * Constructs an instance associating credentials with a service name.
-   * @param serviceName Name of the service to which the credentials apply.
-   *     Should be unique across all applications.
+   * @param appName Name of the application
+   * @param appService Application-specific service name
    */
-  constructor(serviceName: string) {
-    this.serviceName = serviceName
+  constructor(appName: string, appService: string) {
+    this.serviceName = appName + " - " + appService
   }
 
   /**

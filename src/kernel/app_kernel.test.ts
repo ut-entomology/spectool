@@ -1,14 +1,14 @@
 import { Knex } from 'knex'
 
 import { TestPrefsFile, TestCredentials } from '../test_config'
-import { AppKernel } from './app_kernel'
+import { APP_NAME, AppKernel } from './app_kernel'
 import { AppPrefs } from '../shared/app_prefs'
 import { UserRecord } from '../shared/user_record'
 
-const appName = "__ Temp SpecTool Test"
+const DUMMY_APP_NAME = "__ Temp Dummy App"
 
 describe("app preferences", () => {
-  const kernel1 = new AppKernel(appName)
+  const kernel1 = new AppKernel(DUMMY_APP_NAME)
   beforeAll(async () => {
     await kernel1.init()
   })
@@ -21,7 +21,7 @@ describe("app preferences", () => {
     const prefs = kernel1.prefs
     prefs.databaseName = "dummy"
     await kernel1.savePrefs(prefs)
-    const kernel2 = new AppKernel(appName)
+    const kernel2 = new AppKernel(DUMMY_APP_NAME)
     await kernel2.init()
     expect(kernel2.prefs).toEqual(prefs)
   })
@@ -31,7 +31,7 @@ describe("app preferences", () => {
     prefs.databaseName = "dummy"
     await kernel1.savePrefs(prefs)
     await kernel1.dropPrefs()
-    const kernel2 = new AppKernel(appName)
+    const kernel2 = new AppKernel(DUMMY_APP_NAME)
     await kernel2.init()
     expect(kernel2.prefs).toEqual(new AppPrefs())
   })
@@ -42,9 +42,11 @@ describe("app preferences", () => {
 })
 
 describe("the database", () => {
-  const kernel1 = new AppKernel(appName)
+  const kernel1 = new AppKernel(DUMMY_APP_NAME)
   const testPrefsFile = new TestPrefsFile(kernel1.platform)
-  const testCreds = new TestCredentials(kernel1, testPrefsFile)
+  // Use the test database for the application proper, rather
+  // than the non-existent test DB for the current temporary app.
+  const testCreds = new TestCredentials(APP_NAME, testPrefsFile)
   let username: string
   let password: string
 

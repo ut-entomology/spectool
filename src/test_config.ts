@@ -1,7 +1,6 @@
 import { Platform } from './app-util/platform'
 import { PreferencesFile } from './app-util/prefs_file';
 import { SavableCredentials } from './app-util/savable_creds'
-import { AppKernel } from './kernel/app_kernel'
 
 export class TestPrefs {
   databaseHost = "localhost"
@@ -12,7 +11,7 @@ export class TestPrefs {
 
 export class TestPrefsFile extends PreferencesFile<TestPrefs> {
   constructor(platform: Platform) {
-    super(platform, "test-prefs", "0.1.0", () => new TestPrefs())
+    super(platform, "test", "0.1.0", () => new TestPrefs())
   }
 }
 
@@ -21,8 +20,8 @@ export class TestCredentials extends SavableCredentials {
   private prefsFile: TestPrefsFile
   private prefs?: TestPrefs
 
-  constructor(kernel: AppKernel, prefsFile: TestPrefsFile) {
-    super(kernel.appName + " - test")
+  constructor(appName: string, prefsFile: TestPrefsFile) {
+    super(appName, "test")
     this.prefsFile = prefsFile
   }
 
