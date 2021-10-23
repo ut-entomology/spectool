@@ -22,7 +22,7 @@ export namespace ClientIpc {
     onSuccess: (data: any) => void,
     onError: (err: Error) => void
   ) {
-    window.ipc.receiveOnce(channel + '-reply', (data: any) => {
+    window.ipc.receiveOnce(channel + '_reply', (data: any) => {
       if (data instanceof Error) onError(data);
       else onSuccess(data);
     });

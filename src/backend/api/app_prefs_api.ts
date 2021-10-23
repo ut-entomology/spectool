@@ -8,7 +8,7 @@ class GetAppPrefsIpc extends SyncIpcHandler {
   private kernel: AppKernel;
 
   constructor(kernel: AppKernel) {
-    super('get-app-prefs');
+    super('get_app_prefs');
     this.kernel = kernel;
   }
 
@@ -21,7 +21,7 @@ class SetAppPrefsIpc extends AsyncIpcHandler {
   private kernel: AppKernel;
 
   constructor(kernel: AppKernel) {
-    super('set-app-prefs');
+    super('set_app_prefs');
     this.kernel = kernel;
   }
 
@@ -39,5 +39,8 @@ class SetAppPrefsIpc extends AsyncIpcHandler {
 }
 
 export default function (kernel: AppKernel): IpcHandler[] {
-  return [new GetAppPrefsIpc(kernel), new SetAppPrefsIpc(kernel)];
+  return [
+    new GetAppPrefsIpc(kernel), // multiline
+    new SetAppPrefsIpc(kernel)
+  ];
 }

@@ -3,6 +3,7 @@ import * as path from 'path';
 import 'source-map-support/register';
 
 import appPrefsApi from './backend/api/app_prefs_api';
+import databaseApi from './backend/api/database_api';
 import firstNamesApi from './backend/api/first_names_api';
 import { AppKernel } from './kernel/app_kernel';
 
@@ -52,11 +53,24 @@ app.on('activate', () => {
   if (mainWindow === null) createWindow();
 });
 
-const kernel = new AppKernel();
+async function configure() {
+  const kernel = new AppKernel();
+  await kernel.init();
 
-const ipcHandlerSets = [appPrefsApi(kernel), firstNamesApi(kernel)];
-ipcHandlerSets.forEach((handlerSet) => {
-  handlerSet.forEach((handler) => {
-    ipcMain.on(handler.channel, handler.handle.bind(handler));
+  const ipcHandlerSets = [
+    appPrefsApi(kernel), // multiline
+    databaseApi(kernel),
+    firstNamesApi(kernel)
+  ];
+  ipcHandlerSets.forEach((handlerSet) => {
+    handlerSet.forEach((handler) => {
+      ipcMain.on(handler.channel, handler.handle.bind(handler));
+    });
   });
-});
+}
+
+configure()
+  .then(() => {})
+  .catch((err) => {
+    console.log(err);
+  });

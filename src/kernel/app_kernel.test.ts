@@ -76,6 +76,16 @@ describe('the database', () => {
     expect(err).toBe(null);
   });
 
+  test('should invalidate connection on clearing credentials', async () => {
+    await kernel1.databaseCreds.clear();
+    await kernel1.databaseCreds.set(username, password);
+    const db = kernel1.database;
+    await kernel1.databaseCreds.clear();
+    const err = await kernel1.databaseCreds.test(db);
+    expect(err).toBeInstanceOf(Error);
+    expect(err!.message.toLowerCase()).toContain('connection');
+  });
+
   test('should fail to read database with invalid username', async () => {
     await kernel1.databaseCreds.clear();
     await kernel1.databaseCreds.set('invalid-username', password);
@@ -97,7 +107,6 @@ describe('the database', () => {
   afterAll(async () => {
     await kernel1.databaseCreds.clear();
     await dropUserDir(kernel1);
-    await kernel1.database.destroy();
   });
 });
 

@@ -13,6 +13,12 @@ export class DatabaseCredentials extends SavableCredentials {
     this.kernel = kernel;
   }
 
+  async clear(): Promise<void> {
+    await super.clear();
+    if (this.__database) await this.__database.destroy();
+    this.__database = undefined;
+  }
+
   get database(): Knex {
     if (this.__database) return this.__database;
     this.__database = this.createDatabaseClient();
