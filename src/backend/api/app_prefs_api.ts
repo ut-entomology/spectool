@@ -4,7 +4,7 @@ import { IpcHandler, AsyncIpcHandler, SyncIpcHandler } from '../util/ipc_handler
 import { AppPrefs } from '../../shared/app_prefs';
 import { AppKernel } from '../../kernel/app_kernel';
 
-class GetAppPrefsIpc extends SyncIpcHandler {
+class GetAppPrefsIpc extends SyncIpcHandler<void, AppPrefs> {
   private kernel: AppKernel;
 
   constructor(kernel: AppKernel) {
@@ -17,7 +17,7 @@ class GetAppPrefsIpc extends SyncIpcHandler {
   }
 }
 
-class SetAppPrefsIpc extends AsyncIpcHandler {
+class SetAppPrefsIpc extends AsyncIpcHandler<AppPrefs, void> {
   private kernel: AppKernel;
 
   constructor(kernel: AppKernel) {
@@ -38,7 +38,7 @@ class SetAppPrefsIpc extends AsyncIpcHandler {
   }
 }
 
-export default function (kernel: AppKernel): IpcHandler[] {
+export default function (kernel: AppKernel): IpcHandler<any, any>[] {
   return [
     new GetAppPrefsIpc(kernel), // multiline
     new SetAppPrefsIpc(kernel)

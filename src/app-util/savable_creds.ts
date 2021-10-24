@@ -53,11 +53,11 @@ export abstract class SavableCredentials {
   }
 
   /**
-   * Returns the current credentials as a [username, password] tuple, if
-   * assigned. Otherwise returns null.
+   * Returns the current credentials, if assigned. Otherwise returns null.
    */
-  get(): [string, string] | null {
-    if (this.username && this.password) return [this.username, this.password];
+  get(): { username: string; password: string } | null {
+    if (this.username && this.password)
+      return { username: this.username, password: this.password };
     return null;
   }
 

@@ -56,7 +56,7 @@ describe('the database', () => {
     if (creds === null) {
       throw Error('Test not configured');
     }
-    [username, password] = creds;
+    ({ username, password } = creds);
   });
 
   test('should initially have no client', () => {

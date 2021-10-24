@@ -39,13 +39,13 @@ describe('savable credentials (not saving)', () => {
 
   test('should return but not save assignment', async () => {
     await creds1.set(user1, pass1);
-    expect(creds1.get()).toEqual([user1, pass1]);
+    expect(creds1.get()).toEqual(creds(user1, pass1));
     expect(creds1.savedUsername).toEqual('');
     const creds2 = new TestCredentials(false, '');
     await creds2.init();
     expect(creds2.get()).toBe(null);
     await creds1.set(user1, pass1);
-    expect(creds1.get()).toEqual([user1, pass1]);
+    expect(creds1.get()).toEqual(creds(user1, pass1));
     const creds3 = new TestCredentials(true, user1);
     await creds3.init();
     expect(creds3.get()).toBe(null);
@@ -53,12 +53,12 @@ describe('savable credentials (not saving)', () => {
 
   test('should clear a saved username', async () => {
     await creds1.set(user1, pass1);
-    expect(creds1.get()).toEqual([user1, pass1]);
+    expect(creds1.get()).toEqual(creds(user1, pass1));
     const creds2 = new TestCredentials(false, user1);
     await creds2.init();
     expect(creds2.savedUsername).toEqual('');
     await creds1.set(user1, pass1);
-    expect(creds1.get()).toEqual([user1, pass1]);
+    expect(creds1.get()).toEqual(creds(user1, pass1));
     const creds3 = new TestCredentials(true, user1);
     await creds3.init();
     expect(creds3.savedUsername).toEqual('');
@@ -84,17 +84,17 @@ describe('savable credentials (saving)', () => {
 
   test('should save and return assignment', async () => {
     await creds1.set(user1, pass1);
-    expect(creds1.get()).toEqual([user1, pass1]);
+    expect(creds1.get()).toEqual(creds(user1, pass1));
     expect(creds1.savedUsername).toEqual(user1);
     const creds2 = new TestCredentials(true, user1);
     await creds2.init();
-    expect(creds2.get()).toEqual([user1, pass1]);
+    expect(creds2.get()).toEqual(creds(user1, pass1));
     expect(creds2.savedUsername).toEqual(user1);
   });
 
   test('should clear an incorrect saved username', async () => {
     await creds1.set(user1, pass1);
-    expect(creds1.get()).toEqual([user1, pass1]);
+    expect(creds1.get()).toEqual(creds(user1, pass1));
     const creds2 = new TestCredentials(true, user2);
     await creds2.init();
     expect(creds2.get()).toBe(null);
@@ -103,7 +103,7 @@ describe('savable credentials (saving)', () => {
 
   test('should clear on configuration change', async () => {
     await creds1.set(user1, pass1);
-    expect(creds1.get()).toEqual([user1, pass1]);
+    expect(creds1.get()).toEqual(creds(user1, pass1));
     const creds2 = new TestCredentials(false, user1);
     await creds2.init();
     expect(creds2.get()).toBe(null);
@@ -112,7 +112,7 @@ describe('savable credentials (saving)', () => {
 
   test('should clear on explicitly clearing', async () => {
     await creds1.set(user1, pass1);
-    expect(creds1.get()).toEqual([user1, pass1]);
+    expect(creds1.get()).toEqual(creds(user1, pass1));
     await creds1.clear();
     const creds2 = new TestCredentials(true, user1);
     await creds2.init();
@@ -124,3 +124,10 @@ describe('savable credentials (saving)', () => {
     await creds1.clear();
   });
 });
+
+function creds(
+  username: string,
+  password: string
+): { username: string; password: string } {
+  return { username, password };
+}

@@ -4,7 +4,7 @@ import { AppKernel } from '../../kernel/app_kernel';
 import { IpcHandler, AsyncIpcHandler } from '../util/ipc_handler';
 import { UserRecord } from '../../shared/schema/user_record';
 
-class GetFirstNamesIpc extends AsyncIpcHandler {
+class GetFirstNamesIpc extends AsyncIpcHandler<string, string[]> {
   kernel: AppKernel;
 
   constructor(kernel: AppKernel) {
@@ -39,6 +39,6 @@ class GetFirstNamesIpc extends AsyncIpcHandler {
   }
 }
 
-export default function (kernel: AppKernel): IpcHandler[] {
+export default function (kernel: AppKernel): IpcHandler<any, any>[] {
   return [new GetFirstNamesIpc(kernel)];
 }

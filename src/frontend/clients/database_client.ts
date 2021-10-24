@@ -1,24 +1,18 @@
 import { ClientIpc } from '../util/client_ipc';
+import type { Credentials } from '../../shared/Credentials';
 
 export class DatabaseClient {
-  static getCredentials(window: Window): [string, string] | null {
+  static getCredentials(window: Window): Credentials | null {
     return ClientIpc.sendSync(window, 'get_database_creds', undefined);
   }
 
   static login(
     window: Window,
-    username: string,
-    password: string,
+    creds: Credentials,
     onSuccess: () => void,
     onError: (err: Error) => void
   ): void {
-    ClientIpc.sendAsync(
-      window,
-      'login_to_database',
-      [username, password],
-      onSuccess,
-      onError
-    );
+    ClientIpc.sendAsync(window, 'login_to_database', creds, onSuccess, onError);
   }
 
   static logout(

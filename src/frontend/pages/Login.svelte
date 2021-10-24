@@ -7,14 +7,13 @@
 
   const creds = DatabaseClient.getCredentials(window);
   if (creds !== null) {
-    [username, password] = creds;
+    ({ username, password } = creds);
   }
 
   function login() {
     DatabaseClient.login(
       window,
-      username,
-      password,
+      { username, password },
       () => {
         message = 'Success';
       },

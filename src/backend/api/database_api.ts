@@ -2,8 +2,9 @@ import { IpcMainEvent } from 'electron';
 
 import { IpcHandler, AsyncIpcHandler, SyncIpcHandler } from '../util/ipc_handler';
 import { AppKernel } from '../../kernel/app_kernel';
+import { Credentials } from '../../shared/Credentials';
 
-class GetDatabaseCredsIpc extends SyncIpcHandler {
+class GetDatabaseCredsIpc extends SyncIpcHandler<void, Credentials | null> {
   private kernel: AppKernel;
 
   constructor(kernel: AppKernel) {
@@ -16,7 +17,7 @@ class GetDatabaseCredsIpc extends SyncIpcHandler {
   }
 }
 
-class LoginToDatabaseIpc extends AsyncIpcHandler {
+class LoginToDatabaseIpc extends AsyncIpcHandler<Credentials, null> {
   private kernel: AppKernel;
 
   constructor(kernel: AppKernel) {
@@ -24,11 +25,10 @@ class LoginToDatabaseIpc extends AsyncIpcHandler {
     this.kernel = kernel;
   }
 
-  handle(event: IpcMainEvent, creds: [string, string]): void {
+  handle(event: IpcMainEvent, creds: Credentials): void {
     const obj = this;
-    const [username, password] = creds;
     this.kernel.databaseCreds
-      .set(username, password)
+      .set(creds.username, creds.password)
       .then(() => {
         const db = obj.kernel.database;
         return obj.kernel.databaseCreds.test(db);
@@ -42,7 +42,7 @@ class LoginToDatabaseIpc extends AsyncIpcHandler {
   }
 }
 
-class LogoutOfDatabaseIpc extends AsyncIpcHandler {
+class LogoutOfDatabaseIpc extends AsyncIpcHandler<void, null> {
   private kernel: AppKernel;
 
   constructor(kernel: AppKernel) {
@@ -67,7 +67,7 @@ class LogoutOfDatabaseIpc extends AsyncIpcHandler {
   }
 }
 
-export default function (kernel: AppKernel): IpcHandler[] {
+export default function (kernel: AppKernel): IpcHandler<any, any>[] {
   return [
     new GetDatabaseCredsIpc(kernel), // multiline
     new LoginToDatabaseIpc(kernel),
