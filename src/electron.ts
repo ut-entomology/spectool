@@ -41,22 +41,8 @@ function createWindow() {
   });
 }
 
-app.on('ready', createWindow);
-
-// those two events completely optional to subscrbe to, but that's a common way to get the
-// user experience people expect to have on macOS: do not quit the application directly
-// after the user close the last window, instead wait for Command + Q (or equivalent).
-app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') app.quit();
-});
-app.on('activate', () => {
-  if (mainWindow === null) createWindow();
-});
-
 async function configure() {
   const kernel = new AppKernel();
-  await kernel.init();
-
   const ipcHandlerSets = [
     appPrefsApi(kernel), // multiline
     databaseApi(kernel),
@@ -67,6 +53,19 @@ async function configure() {
       handler.register(ipcMain);
     });
   });
+
+  // Must follow initializing IPC handlers.
+  app.on('ready', createWindow);
+
+  // Implement expected Mac OS behavior.
+  app.on('window-all-closed', () => {
+    if (process.platform !== 'darwin') app.quit();
+  });
+  app.on('activate', () => {
+    if (mainWindow === null) createWindow();
+  });
+
+  await kernel.init();
 }
 
 configure()
