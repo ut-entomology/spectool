@@ -1,6 +1,4 @@
-// TODO: redo for invoke()
-
-import { IpcMain, IpcMainEvent } from 'electron';
+import { IpcMain } from 'electron';
 
 export abstract class IpcHandler {
   channel: string;
@@ -38,12 +36,10 @@ export abstract class SyncIpcHandler<Req, Res> extends IpcHandler {
   }
 
   register(ipcMain: IpcMain): void {
-    ipcMain.on(this.channel, this.handle.bind(this));
+    ipcMain.on(this.channel, (event, request) => {
+      event.returnValue = this.handle(request);
+    });
   }
 
-  abstract handle(event: IpcMainEvent, request: Req): void;
-
-  protected reply(event: IpcMainEvent, response: Res): void {
-    event.returnValue = response;
-  }
+  abstract handle(request: Req): Res;
 }

@@ -1,5 +1,3 @@
-import { IpcMainEvent } from 'electron';
-
 import { IpcHandler, AsyncIpcHandler, SyncIpcHandler } from '../util/ipc_handler';
 import { AppKernel } from '../../kernel/app_kernel';
 import { Credentials } from '../../shared/Credentials';
@@ -12,8 +10,8 @@ class GetDatabaseCredsIpc extends SyncIpcHandler<void, Credentials | null> {
     this.kernel = kernel;
   }
 
-  handle(event: IpcMainEvent, _data: any): void {
-    this.reply(event, this.kernel.databaseCreds.get());
+  handle(_data: any): Credentials | null {
+    return this.kernel.databaseCreds.get();
   }
 }
 
