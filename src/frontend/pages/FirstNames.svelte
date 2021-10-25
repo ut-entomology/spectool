@@ -6,18 +6,15 @@
   let message: string = '';
 
   function getFirstNames() {
-    FirstNamesClient.getFirstNames(
-      window,
-      lastName,
-      (firstNames: string[]) => {
+    FirstNamesClient.getFirstNames(window, lastName)
+      .then((firstNames) => {
         message = '';
         names = firstNames!;
-      },
-      (err: Error) => {
+      })
+      .catch((err) => {
         names = [];
         message = err.message;
-      }
-    );
+      });
   }
 </script>
 

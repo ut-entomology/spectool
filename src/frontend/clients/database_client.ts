@@ -6,20 +6,11 @@ export class DatabaseClient {
     return ClientIpc.sendSync(window, 'get_database_creds', undefined);
   }
 
-  static login(
-    window: Window,
-    creds: Credentials,
-    onSuccess: () => void,
-    onError: (err: Error) => void
-  ): void {
-    ClientIpc.sendAsync(window, 'login_to_database', creds, onSuccess, onError);
+  static login(window: Window, creds: Credentials): Promise<void> {
+    return ClientIpc.sendAsync(window, 'login_to_database', creds);
   }
 
-  static logout(
-    window: Window,
-    onSuccess: () => void,
-    onError: (err: Error) => void
-  ): void {
-    ClientIpc.sendAsync(window, 'logout_of_database', undefined, onSuccess, onError);
+  static logout(window: Window): Promise<void> {
+    return ClientIpc.sendAsync(window, 'logout_of_database', undefined);
   }
 }

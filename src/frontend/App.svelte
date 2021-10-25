@@ -5,7 +5,7 @@
   import FirstNamesPage from './pages/FirstNames.svelte';
   import { DatabaseClient } from './clients/database_client';
   import { Modals, openModal, closeModal } from 'svelte-modals';
-  import Modal from './components/Modal.svelte';
+  import Modal from './components/modal.svelte';
 
   let page;
   let params;

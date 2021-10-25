@@ -11,16 +11,13 @@
   }
 
   function login() {
-    DatabaseClient.login(
-      window,
-      { username, password },
-      () => {
+    DatabaseClient.login(window, { username, password })
+      .then(() => {
         message = 'Success';
-      },
-      (err) => {
+      })
+      .catch((err) => {
         message = err.message;
-      }
-    );
+      });
   }
 </script>
 
