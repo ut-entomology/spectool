@@ -2,7 +2,7 @@ import { IpcHandler, AsyncIpcHandler, SyncIpcHandler } from '../util/ipc_handler
 import { AppKernel } from '../../kernel/app_kernel';
 import { Credentials } from '../../shared/Credentials';
 
-class GetDatabaseCredsIpc extends SyncIpcHandler<void, Credentials | null> {
+class GetDatabaseCredsIpc extends SyncIpcHandler {
   private kernel: AppKernel;
 
   constructor(kernel: AppKernel) {
@@ -15,7 +15,7 @@ class GetDatabaseCredsIpc extends SyncIpcHandler<void, Credentials | null> {
   }
 }
 
-class LoginToDatabaseIpc extends AsyncIpcHandler<Credentials, void> {
+class LoginToDatabaseIpc extends AsyncIpcHandler {
   private kernel: AppKernel;
 
   constructor(kernel: AppKernel) {
@@ -35,7 +35,7 @@ class LoginToDatabaseIpc extends AsyncIpcHandler<Credentials, void> {
   }
 }
 
-class LogoutOfDatabaseIpc extends AsyncIpcHandler<void, void> {
+class LogoutOfDatabaseIpc extends AsyncIpcHandler {
   private kernel: AppKernel;
 
   constructor(kernel: AppKernel) {

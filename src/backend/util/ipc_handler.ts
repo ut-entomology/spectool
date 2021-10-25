@@ -10,7 +10,7 @@ export abstract class IpcHandler {
   abstract register(ipcMain: IpcMain): void;
 }
 
-export abstract class AsyncIpcHandler<Req, Res> extends IpcHandler {
+export abstract class AsyncIpcHandler extends IpcHandler {
   constructor(channel: string) {
     super(channel);
   }
@@ -27,10 +27,10 @@ export abstract class AsyncIpcHandler<Req, Res> extends IpcHandler {
     });
   }
 
-  abstract handle(request: Req): Promise<Res>;
+  abstract handle(request: any): Promise<any>;
 }
 
-export abstract class SyncIpcHandler<Req, Res> extends IpcHandler {
+export abstract class SyncIpcHandler extends IpcHandler {
   constructor(channel: string) {
     super(channel);
   }
@@ -41,5 +41,5 @@ export abstract class SyncIpcHandler<Req, Res> extends IpcHandler {
     });
   }
 
-  abstract handle(request: Req): Res;
+  abstract handle(request: any): any;
 }
