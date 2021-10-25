@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   import router from 'page';
 
   import LoginPage from './pages/Login.svelte';
@@ -6,24 +6,26 @@
   import { DatabaseClient } from './clients/database_client';
   import { Modals, openModal, closeModal } from 'svelte-modals';
   import Modal from './components/modal.svelte';
+  import type { SvelteComponent } from 'svelte';
 
-  let page;
-  let params;
+  let page: typeof SvelteComponent;
+  let params: any;
 
   router('/', () => (page = FirstNamesPage));
   router('/login', () => (page = LoginPage));
   router.start();
 
   function logout() {
-    DatabaseClient.logout(
-      window,
-      () => {
-        openModal(Modal, { message: 'Logged out' });
-      },
-      (err) => {
-        openModal(Modal, { message: 'Failed to log out' });
-      }
-    );
+    DatabaseClient.logout(window)
+      .then(() => {
+        openModal(Modal, { title: 'Notice', message: 'Logged out' });
+      })
+      .catch((err) => {
+        openModal(Modal, {
+          title: 'Notice',
+          message: `Failed to log out: ${err.message}`
+        });
+      });
   }
 </script>
 

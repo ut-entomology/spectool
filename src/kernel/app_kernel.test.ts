@@ -72,36 +72,50 @@ describe('the database', () => {
     await kernel1.databaseCreds.clear();
     await kernel1.databaseCreds.set(username, password);
     const db = kernel1.database;
-    const err = await kernel1.databaseCreds.test(db);
-    expect(err).toBe(null);
+    await kernel1.databaseCreds.test(db);
   });
 
   test('should invalidate connection on clearing credentials', async () => {
+    expect.assertions(1);
     await kernel1.databaseCreds.clear();
     await kernel1.databaseCreds.set(username, password);
     const db = kernel1.database;
     await kernel1.databaseCreds.clear();
-    const err = await kernel1.databaseCreds.test(db);
-    expect(err).toBeInstanceOf(Error);
-    expect(err!.message.toLowerCase()).toContain('connection');
+    try {
+      await kernel1.databaseCreds.test(db);
+    } catch (err) {
+      if (err instanceof Error) {
+        expect(err.message.toLowerCase()).toContain('connection');
+      }
+    }
   });
 
   test('should fail to read database with invalid username', async () => {
+    expect.assertions(1);
     await kernel1.databaseCreds.clear();
     await kernel1.databaseCreds.set('invalid-username', password);
     const db = kernel1.database;
-    const err = await kernel1.databaseCreds.test(db);
-    expect(err).toBeInstanceOf(Error);
-    expect(err!.message.toLowerCase()).toContain('access denied');
+    try {
+      await kernel1.databaseCreds.test(db);
+    } catch (err) {
+      if (err instanceof Error) {
+        expect(err.message.toLowerCase()).toContain('access denied');
+      }
+    }
   });
 
   test('should fail to read database with invalid password', async () => {
+    expect.assertions(1);
     await kernel1.databaseCreds.clear();
     await kernel1.databaseCreds.set(username, 'invalid-password');
     const db = kernel1.database;
-    const err = await kernel1.databaseCreds.test(db);
-    expect(err).toBeInstanceOf(Error);
-    expect(err!.message.toLowerCase()).toContain('access denied');
+    try {
+      await kernel1.databaseCreds.test(db);
+    } catch (err) {
+      if (err instanceof Error) {
+        expect(err.message.toLowerCase()).toContain('access denied');
+      }
+    }
   });
 
   afterAll(async () => {

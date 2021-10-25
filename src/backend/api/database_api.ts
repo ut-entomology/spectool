@@ -29,8 +29,7 @@ class LoginToDatabaseIpc extends AsyncIpcHandler {
       .set(creds.username, creds.password)
       .then(async () => {
         const db = obj.kernel.database;
-        const err = obj.kernel.databaseCreds.test(db);
-        if (err) throw err;
+        await obj.kernel.databaseCreds.test(db);
       });
   }
 }
@@ -45,10 +44,14 @@ class LogoutOfDatabaseIpc extends AsyncIpcHandler {
 
   async handle(_data: any): Promise<void> {
     const obj = this;
-    await this.kernel.databaseCreds.clear().then(() => {
-      const db = obj.kernel.database;
-      const err = obj.kernel.databaseCreds.test(db);
-      if (!err) throw Error('Failed to logout of database');
+    await this.kernel.databaseCreds.clear().then(async () => {
+      try {
+        const db = obj.kernel.database;
+        await obj.kernel.databaseCreds.test(db);
+      } catch (err) {
+        return;
+      }
+      throw Error('Failed to log out of database');
     });
   }
 }
