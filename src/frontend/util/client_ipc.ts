@@ -1,13 +1,14 @@
+// TODO: redo using invoke()
+
 export namespace ClientIpc {
-  export function sendAsync<Req, Res>(
+  export async function sendAsync<Req, Res>(
     window: Window,
     channel: string,
     req: Req
   ): Promise<Res> {
-    // Construct promise before sending so we don't miss response.
-    const promise = receiveOnce<Res>(window, channel + '_reply');
-    window.ipc.send(channel, req);
-    return promise;
+    const res = await window.ipc.invoke(channel, req);
+    if (res instanceof Error) throw res;
+    return res;
   }
 
   export function sendSync<Res>(window: Window, channel: string, request: any): Res {

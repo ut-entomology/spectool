@@ -17,7 +17,7 @@ class GetDatabaseCredsIpc extends SyncIpcHandler<void, Credentials | null> {
   }
 }
 
-class LoginToDatabaseIpc extends AsyncIpcHandler<Credentials, null> {
+class LoginToDatabaseIpc extends AsyncIpcHandler<Credentials, void> {
   private kernel: AppKernel;
 
   constructor(kernel: AppKernel) {
@@ -25,24 +25,19 @@ class LoginToDatabaseIpc extends AsyncIpcHandler<Credentials, null> {
     this.kernel = kernel;
   }
 
-  handle(event: IpcMainEvent, creds: Credentials): void {
+  async handle(creds: Credentials): Promise<void> {
     const obj = this;
-    this.kernel.databaseCreds
+    await this.kernel.databaseCreds
       .set(creds.username, creds.password)
-      .then(() => {
+      .then(async () => {
         const db = obj.kernel.database;
-        return obj.kernel.databaseCreds.test(db);
-      })
-      .then((err) => {
-        obj.reply(event, err);
-      })
-      .catch((err) => {
-        obj.reply(event, err);
+        const err = obj.kernel.databaseCreds.test(db);
+        if (err) throw err;
       });
   }
 }
 
-class LogoutOfDatabaseIpc extends AsyncIpcHandler<void, null> {
+class LogoutOfDatabaseIpc extends AsyncIpcHandler<void, void> {
   private kernel: AppKernel;
 
   constructor(kernel: AppKernel) {
@@ -50,24 +45,17 @@ class LogoutOfDatabaseIpc extends AsyncIpcHandler<void, null> {
     this.kernel = kernel;
   }
 
-  handle(event: IpcMainEvent, _data: any): void {
+  async handle(_data: any): Promise<void> {
     const obj = this;
-    this.kernel.databaseCreds
-      .clear()
-      .then(() => {
-        const db = obj.kernel.database;
-        return obj.kernel.databaseCreds.test(db);
-      })
-      .then((err) => {
-        obj.reply(event, err === null ? Error('Failed to logout of database') : null);
-      })
-      .catch((err) => {
-        obj.reply(event, err);
-      });
+    await this.kernel.databaseCreds.clear().then(() => {
+      const db = obj.kernel.database;
+      const err = obj.kernel.databaseCreds.test(db);
+      if (!err) throw Error('Failed to logout of database');
+    });
   }
 }
 
-export default function (kernel: AppKernel): IpcHandler<any, any>[] {
+export default function (kernel: AppKernel): IpcHandler[] {
   return [
     new GetDatabaseCredsIpc(kernel), // multiline
     new LoginToDatabaseIpc(kernel),

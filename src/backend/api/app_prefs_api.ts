@@ -25,20 +25,12 @@ class SetAppPrefsIpc extends AsyncIpcHandler<AppPrefs, void> {
     this.kernel = kernel;
   }
 
-  handle(event: IpcMainEvent, prefs: AppPrefs): void {
-    const obj = this;
-    this.kernel
-      .savePrefs(prefs)
-      .then(() => {
-        obj.reply(event, undefined);
-      })
-      .catch((err) => {
-        obj.reply(event, err);
-      });
+  async handle(prefs: AppPrefs): Promise<void> {
+    return await this.kernel.savePrefs(prefs);
   }
 }
 
-export default function (kernel: AppKernel): IpcHandler<any, any>[] {
+export default function (kernel: AppKernel): IpcHandler[] {
   return [
     new GetAppPrefsIpc(kernel), // multiline
     new SetAppPrefsIpc(kernel)

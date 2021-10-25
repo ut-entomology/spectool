@@ -64,7 +64,7 @@ async function configure() {
   ];
   ipcHandlerSets.forEach((handlerSet) => {
     handlerSet.forEach((handler) => {
-      ipcMain.on(handler.channel, handler.handle.bind(handler));
+      handler.register(ipcMain);
     });
   });
 }

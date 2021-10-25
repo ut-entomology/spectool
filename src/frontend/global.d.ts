@@ -5,6 +5,7 @@ import 'svelte';
 declare global {
   interface Window {
     ipc: {
+      invoke: (channel: string, data: any) => Promise<any>;
       sendSync: (channel: string, data: any) => any;
       send: (channel: string, data: any) => void;
       receive: (channel: string, func: (data: any) => void) => void;
