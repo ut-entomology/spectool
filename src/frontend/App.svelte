@@ -18,11 +18,10 @@
   function logout() {
     DatabaseClient.logout(window)
       .then(() => {
-        openModal(Modal, { title: 'Notice', message: 'Logged out' });
+        openModal(Modal, { message: 'Logged out' });
       })
       .catch((err) => {
         openModal(Modal, {
-          title: 'Notice',
           message: `Failed to log out: ${err.message}`
         });
       });
