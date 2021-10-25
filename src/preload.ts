@@ -14,9 +14,5 @@ contextBridge.exposeInMainWorld('ipc', {
   receive: (channel: string, func: (data: any) => void) => {
     // Don't pass along event as it includes `sender`
     ipcRenderer.on(channel, (_event, args) => func(args));
-  },
-  receiveOnce: (channel: string, func: (data: any) => void) => {
-    // Don't pass along event as it includes `sender`
-    ipcRenderer.once(channel, (_event, args) => func(args));
   }
 });

@@ -18,18 +18,18 @@ export abstract class AsyncIpcHandler<Req, Res> extends IpcHandler {
   }
 
   register(ipcMain: IpcMain): void {
-    ipcMain.handle(this.channel, async (_event, req) => {
+    ipcMain.handle(this.channel, async (_event, request) => {
       try {
         // await before returning to keep Electron from writing errors
-        const res = await this.handle(req);
-        return res;
+        const response = await this.handle(request);
+        return response;
       } catch (err) {
         return err;
       }
     });
   }
 
-  abstract handle(req: Req): Promise<Res>;
+  abstract handle(request: Req): Promise<Res>;
 }
 
 export abstract class SyncIpcHandler<Req, Res> extends IpcHandler {
@@ -41,9 +41,9 @@ export abstract class SyncIpcHandler<Req, Res> extends IpcHandler {
     ipcMain.on(this.channel, this.handle.bind(this));
   }
 
-  abstract handle(event: IpcMainEvent, req: Req): void;
+  abstract handle(event: IpcMainEvent, request: Req): void;
 
-  protected reply(event: IpcMainEvent, res: Res): void {
-    event.returnValue = res;
+  protected reply(event: IpcMainEvent, response: Res): void {
+    event.returnValue = response;
   }
 }
