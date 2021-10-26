@@ -25,12 +25,9 @@ class LoginToDatabaseIpc extends AsyncIpcHandler {
 
   async handle(creds: Credentials): Promise<void> {
     const obj = this;
-    await this.kernel.databaseCreds
-      .set(creds.username, creds.password)
-      .then(async () => {
-        const db = obj.kernel.database;
-        await obj.kernel.databaseCreds.test(db);
-      });
+    this.kernel.databaseCreds.set(creds.username, creds.password);
+    const db = obj.kernel.database;
+    await obj.kernel.databaseCreds.test(db);
   }
 }
 

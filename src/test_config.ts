@@ -18,29 +18,7 @@ export class TestPrefsFile extends PreferencesFile<TestPrefs> {
 }
 
 export class TestCredentials extends SavableCredentials {
-  private prefsFile: TestPrefsFile;
-  private prefs?: TestPrefs;
-
-  constructor(appName: string, prefsFile: TestPrefsFile) {
+  constructor(appName: string) {
     super(appName, 'test');
-    this.prefsFile = prefsFile;
-  }
-
-  async init(): Promise<void> {
-    this.prefs = await this.prefsFile.load(); // init() depends on prefs
-    await super.init();
-  }
-
-  protected getSavedUsername(): string {
-    return this.prefs!.databaseUsername;
-  }
-
-  protected isSavingCredentials(): boolean {
-    return true;
-  }
-
-  protected async saveUsername(username: string): Promise<void> {
-    this.prefs!.databaseUsername = username;
-    await this.prefsFile.save(this.prefs!);
   }
 }

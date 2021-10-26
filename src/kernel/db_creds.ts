@@ -15,32 +15,22 @@ export class DatabaseCredentials extends SavableCredentials {
 
   async clear(): Promise<void> {
     await super.clear();
-    if (this.__database) await this.__database.destroy();
+    if (this.__database) {
+      await this.__database.destroy();
+    }
     this.__database = undefined;
   }
 
-  get database(): Knex {
-    if (this.__database) return this.__database;
+  connect(): Knex {
+    if (this.__database) {
+      return this.__database;
+    }
     this.__database = this.createDatabaseClient();
     return this.__database;
   }
 
-  protected getSavedUsername(): string {
-    return this.kernel.prefs.databaseUsername;
-  }
-
-  protected isSavingCredentials(): boolean {
-    return this.kernel.prefs.saveDatabaseCredentials;
-  }
-
-  protected async saveUsername(username: string): Promise<void> {
-    const prefs = this.kernel.prefs;
-    prefs.databaseUsername = username;
-    await this.kernel.savePrefs(prefs);
-  }
-
   async set(username: string, password: string): Promise<void> {
-    await super.set(username, password);
+    super.set(username, password);
     if (this.__database) {
       await this.__database.destroy();
       this.__database = this.createDatabaseClient();

@@ -51,14 +51,14 @@ export class AppKernel {
   async init(): Promise<void> {
     this.__prefs = await this.appPrefsFile.load();
     this.__databaseCreds = new DatabaseCredentials(this);
-    await this.__databaseCreds.init();
+    await this.__databaseCreds.init(this.__prefs.databaseUsername);
   }
 
   /**
    * Returns a client for the configured Specify database.
    */
   get database(): Knex {
-    return this.databaseCreds!.database;
+    return this.databaseCreds!.connect();
   }
 
   /**

@@ -41,17 +41,17 @@ describe('app preferences', () => {
 
 describe('the database', () => {
   const kernel1 = new AppKernel(DUMMY_APP_NAME);
-  const testPlatform = new Platform(APP_NAME);
-  const testPrefsFile = new TestPrefsFile(testPlatform);
   // Use the test database for the application proper, rather
   // than the non-existent test DB for the current temporary app.
-  const testCreds = new TestCredentials(APP_NAME, testPrefsFile);
+  const testCreds = new TestCredentials(APP_NAME);
   let username: string;
   let password: string;
 
   beforeAll(async () => {
     await kernel1.init();
-    await testCreds.init();
+    const testPrefsFile = new TestPrefsFile(new Platform(APP_NAME));
+    const testPrefs = await testPrefsFile.load();
+    await testCreds.init(testPrefs.databaseUsername);
     const creds = testCreds.get();
     if (creds === null) {
       throw Error('Test not configured');
