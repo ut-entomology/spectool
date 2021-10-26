@@ -1,5 +1,4 @@
-import { Platform } from '../app-util/platform';
-import { TestPrefsFile, TestCredentials } from '../test_config';
+import { TestCredentials } from '../test_config';
 import { APP_NAME, AppKernel } from './app_kernel';
 import { AppPrefs } from '../shared/app_prefs';
 
@@ -49,9 +48,7 @@ describe('the database', () => {
 
   beforeAll(async () => {
     await kernel1.init();
-    const testPrefsFile = new TestPrefsFile(new Platform(APP_NAME));
-    const testPrefs = await testPrefsFile.load();
-    await testCreds.init(testPrefs.databaseUsername);
+    await testCreds.init();
     const creds = testCreds.get();
     if (creds === null) {
       throw Error('Test not configured');

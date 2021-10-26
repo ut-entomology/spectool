@@ -1,12 +1,13 @@
 <script lang="ts">
   import router from 'page';
+  import type { SvelteComponent } from 'svelte';
+  import { Modals, openModal, closeModal } from 'svelte-modals';
 
   import LoginPage from './pages/Login.svelte';
   import FirstNamesPage from './pages/FirstNames.svelte';
-  import { DatabaseClient } from './clients/database_client';
-  import { Modals, openModal, closeModal } from 'svelte-modals';
   import Modal from './components/modal.svelte';
-  import type { SvelteComponent } from 'svelte';
+  import { loggedInUser } from './stores/loggedInUser';
+  import { User } from './lib/user';
 
   let page: typeof SvelteComponent;
   let params: any;
@@ -15,12 +16,15 @@
   router('/login', () => (page = LoginPage));
   router.start();
 
+  $loggedInUser = User.getLoggedInUser();
+
   function logout() {
-    DatabaseClient.logout(window)
+    User.logout()
       .then(() => {
+        $loggedInUser = null;
         openModal(Modal, { message: 'Logged out' });
       })
-      .catch((err) => {
+      .catch((err: Error) => {
         openModal(Modal, {
           message: `Failed to log out: ${err.message}`
         });

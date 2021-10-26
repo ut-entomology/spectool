@@ -8,7 +8,7 @@ import * as keytar from 'keytar';
  * is only ever returned for the expected username.
  */
 export class SavableCredentials {
-  protected serviceName: string;
+  serviceName: string;
   protected username?: string;
   protected password?: string;
 
@@ -22,26 +22,22 @@ export class SavableCredentials {
   }
 
   /**
-   * Initializes prior to use. Loads previously-saved credentials if
-   * they are for the provided username; otherwise, to be safe, clears
-   * previously-saved credentials, if there are any.
+   * Initializes prior to use. Loads previously-saved credentials, if
+   * they are any. If more than one user is associated with the service,
+   * clears all of the saved credentials.
    */
-  async init(savedUsername: string): Promise<void> {
-    if (savedUsername) {
-      const savedPassword = await keytar.getPassword(this.serviceName, savedUsername);
-      if (savedPassword != null) {
-        this.username = savedUsername;
-        this.password = savedPassword;
-        return;
-      }
+  async init(): Promise<void> {
+    const creds = await keytar.findCredentials(this.serviceName);
+    if (creds.length > 1) {
+      await this.unsave();
+    } else if (creds.length == 1) {
+      this.username = creds[0].account;
+      this.password = creds[0].password;
     }
-    // Clear all credentials if not opened with a valid username.
-    await this.clear();
   }
 
   /**
-   * Clears all credentials associated with the service, both
-   * those in-memory and saved.
+   * Clears all credentials associated with the service, both in-memory and saved.
    */
   async clear(): Promise<void> {
     this.username = undefined;
@@ -50,7 +46,7 @@ export class SavableCredentials {
   }
 
   /**
-   * Returns the username of the currently logged in user or null
+   * Returns the credentials of the currently logged in user or null
    * if no user is logged in.
    */
   get(): { username: string; password: string } | null {

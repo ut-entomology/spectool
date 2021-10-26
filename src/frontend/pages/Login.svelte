@@ -1,29 +1,21 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
-  import { AppPrefsClient } from '../clients/app_prefs_client';
-  import { DatabaseClient } from '../clients/database_client';
+  import { loggedInUser } from '../stores/loggedInUser';
+  import { User } from '../lib/user';
 
   let username: string = '';
   let password: string = '';
   let savingCredentials = false;
   let message: string = '';
 
-  onMount(async () => {
-    const prefs = await AppPrefsClient.getPrefs(window);
-    savingCredentials = prefs.saveDatabaseCredentials;
-    const creds = DatabaseClient.getCredentials(window);
-    if (creds !== null) {
-      ({ username, password } = creds);
-    }
-  });
+  const initialUser = $loggedInUser;
+  if (initialUser) {
+    username = initialUser.username;
+  }
 
   async function login() {
-    // Reload prefs in case they chaned in the interim.
-    const prefs = await AppPrefsClient.getPrefs(window);
-    prefs.saveDatabaseCredentials = savingCredentials;
-    await AppPrefsClient.setPrefs(window, prefs);
     try {
-      await DatabaseClient.login(window, { username, password });
+      await User.login(username, password, savingCredentials);
+      $loggedInUser = new User(username, savingCredentials);
       message = 'Success';
     } catch (err) {
       message = (err as Error).message;

@@ -51,7 +51,7 @@ export class AppKernel {
   async init(): Promise<void> {
     this.__prefs = await this.appPrefsFile.load();
     this.__databaseCreds = new DatabaseCredentials(this);
-    await this.__databaseCreds.init(this.__prefs.databaseUsername);
+    await this.__databaseCreds.init();
   }
 
   /**

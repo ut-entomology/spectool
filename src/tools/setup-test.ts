@@ -37,7 +37,7 @@ async function setup(): Promise<void> {
 
   const testCreds = new TestCredentials(APP_NAME);
   await prefsFile.save(prefs);
-  await testCreds.init(prefs.databaseUsername);
+  await testCreds.init();
   await testCreds.set(prefs.databaseUsername, password);
   await testCreds.save();
 }
