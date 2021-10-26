@@ -8,7 +8,6 @@ export class TestPrefs {
   databaseHost = 'localhost';
   databasePort = 3306;
   databaseName = 'specify_dev';
-  databaseUsername: string = 'tester';
 }
 
 export class TestPrefsFile extends PreferencesFile<TestPrefs> {

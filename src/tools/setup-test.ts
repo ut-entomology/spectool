@@ -27,18 +27,18 @@ async function setup(): Promise<void> {
     `Database name (${prefs.databaseName}): `,
     { defaultInput: prefs.databaseName }
   );
-  prefs.databaseUsername = readlineSync.question(
-    `Username (${prefs.databaseUsername}): `,
-    {
-      defaultInput: prefs.databaseUsername
-    }
-  );
-  const password = readlineSync.question('Password: ', { hideEchoBack: true });
 
   const testCreds = new TestCredentials(APP_NAME);
-  await prefsFile.save(prefs);
   await testCreds.init();
-  await testCreds.set(prefs.databaseUsername, password);
+  const initialCreds = testCreds.get();
+  const defaultUsername = initialCreds ? initialCreds.username : 'tester';
+  const username = readlineSync.question(`Username (${defaultUsername}): `, {
+    defaultInput: defaultUsername
+  });
+  const password = readlineSync.question('Password: ', { hideEchoBack: true });
+
+  await prefsFile.save(prefs);
+  await testCreds.set(username, password);
   await testCreds.save();
 }
 
