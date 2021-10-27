@@ -1,36 +1,28 @@
-<script>
+<script lang="ts">
+  import ModalPopup from './ModalPopup.svelte';
   import { closeModal } from 'svelte-modals';
 
-  export let isOpen;
-  export let message;
+  export let isOpen: boolean;
+  export let millis = 0;
+  export let message: string;
+
+  $: if (isOpen) {
+    setTimeout(() => closeModal(), millis);
+  }
 </script>
 
-{#if isOpen}
-  <div role="dialog" class="modal">
-    <div class="contents">
-      <p>{message}</p>
+<ModalPopup {isOpen}>
+  <div class="contents">
+    <p>{message}</p>
+    {#if millis == 0}
       <div class="actions">
         <button on:click={closeModal}>OK</button>
       </div>
-    </div>
+    {/if}
   </div>
-{/if}
+</ModalPopup>
 
 <style>
-  .modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-
-    /* allow click-through to backdrop */
-    pointer-events: none;
-  }
-
   .contents {
     min-width: 240px;
     border-radius: 6px;

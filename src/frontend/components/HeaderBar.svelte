@@ -11,14 +11,15 @@
   async function login(username: string, password: string, save: boolean) {
     await User.login(username, password, save);
     $loggedInUser = new User(username, save);
-    openModal(ModalMessage, { message: 'You are now logged in.' });
+    closeModal();
+    openModal(ModalMessage, { message: 'You are logged in', millis: 1000 });
   }
 
   function logout() {
     User.logout()
       .then(() => {
         $loggedInUser = null;
-        openModal(ModalMessage, { message: 'Logged out' });
+        openModal(ModalMessage, { message: 'You logged out', millis: 1000 });
       })
       .catch((err: Error) => {
         openModal(ModalMessage, {
@@ -28,7 +29,7 @@
   }
 
   function openLoginForm() {
-    openModal(LoginForm, { login });
+    openModal(LoginForm, { login, title: 'Enter your database credentials' });
   }
 </script>
 
@@ -56,7 +57,7 @@
 </div>
 
 <Modals>
-  <div slot="backdrop" class="backdrop" on:click={closeModal} />
+  <div slot="backdrop" class="backdrop" />
 </Modals>
 
 <style>
