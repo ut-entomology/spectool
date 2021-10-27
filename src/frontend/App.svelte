@@ -5,6 +5,7 @@
   import { User } from './lib/user';
   import { loggedInUser } from './stores/loggedInUser';
   import HeaderBar from './components/HeaderBar.svelte';
+  import MainMenuPage from './pages/MainMenuPage.svelte';
   import FirstNamesPage from './pages/FirstNames.svelte';
 
   let page: typeof SvelteComponent;
@@ -12,14 +13,12 @@
 
   $loggedInUser = User.getLoggedInUser();
 
-  router('/', () => (page = FirstNamesPage));
+  router('/', () => (page = MainMenuPage));
+  router('/first-names', () => (page = FirstNamesPage));
   router.start();
 </script>
 
 <HeaderBar appTitle="UT SpecTool" />
-<nav>
-  <a href="/">First Names</a>
-</nav>
 
 <svelte:component this={page} {params} />
 
@@ -27,5 +26,6 @@
   :global(body) {
     margin: 0;
     padding: 0;
+    background-color: rgb(255, 202, 132);
   }
 </style>

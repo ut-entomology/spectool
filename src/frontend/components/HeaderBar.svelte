@@ -62,12 +62,14 @@
 <style>
   .header_bar {
     width: 100%;
-    border-bottom: 2px solid rgba(49, 177, 49, 0.74);
+    background-color: white;
+    padding: 0.6em 0;
+    border-bottom: 3px solid rgba(49, 177, 49, 0.74);
   }
 
   .header_bar .content {
     position: relative;
-    margin: 0.4em 0.6em;
+    margin: 0 0.4em;
     text-align: center;
   }
 
