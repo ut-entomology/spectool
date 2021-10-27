@@ -33,23 +33,25 @@
 </script>
 
 <div class="header_bar">
-  <div class="app_title">{appTitle}</div>
-  {#if $loggedInUser === null}
-    not logged in
-  {:else}
-    <div class="logged_in_user">
-      {$loggedInUser.username}
-      {#if $loggedInUser.saved}
-        <span>(saved login)</span>
+  <div class="content">
+    <div class="app_title">{appTitle}</div>
+    <div class="login_logout">
+      {#if $loggedInUser === null}
+        <a href={'#'} on:click={openLoginForm}>Login</a>
+      {:else}
+        <a href={'#'} on:click={logout}>Logout</a>
       {/if}
     </div>
-  {/if}
-  <div class="login_logout">
-    {#if $loggedInUser === null}
-      <a href={'#'} on:click={openLoginForm}>Login</a>
-    {:else}
-      <a href={'#'} on:click={logout}>Logout</a>
-    {/if}
+    <div class="logged_in_user">
+      {#if $loggedInUser === null}
+        <span>not logged in</span>
+      {:else}
+        {$loggedInUser.username}
+        {#if $loggedInUser.saved}
+          <span>(saved login)</span>
+        {/if}
+      {/if}
+    </div>
   </div>
 </div>
 
@@ -59,20 +61,30 @@
 
 <style>
   .header_bar {
-    display: flex;
-    margin: 8px 0;
+    width: 100%;
+    border-bottom: 2px solid rgba(49, 177, 49, 0.74);
   }
 
-  .header_bar div {
-    flex: 1;
+  .header_bar .content {
+    position: relative;
+    margin: 0.4em 0.6em;
+    text-align: center;
+  }
+
+  .app_title {
+    position: absolute;
+    left: 0px;
+    color: darkred;
+  }
+
+  .login_logout {
+    position: absolute;
+    right: 0px;
   }
 
   .logged_in_user span {
     font-style: italic;
-  }
-
-  .login_logout {
-    text-align: right;
+    color: #999;
   }
 
   .backdrop {
