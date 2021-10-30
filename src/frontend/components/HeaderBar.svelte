@@ -19,7 +19,7 @@
     User.logout()
       .then(() => {
         $loggedInUser = null;
-        openModal(ModalMessage, { message: 'You logged out', millis: 1000 });
+        openModal(ModalMessage, { message: 'You have logged out', millis: 1000 });
       })
       .catch((err: Error) => {
         openModal(ModalMessage, {
@@ -38,9 +38,9 @@
     <div class="app_title">{appTitle}</div>
     <div class="login_logout">
       {#if $loggedInUser === null}
-        <a href={'#'} on:click={openLoginForm}>Login</a>
+        <button on:click={openLoginForm}>Login</button>
       {:else}
-        <a href={'#'} on:click={logout}>Logout</a>
+        <button on:click={logout}>Logout</button>
       {/if}
     </div>
     <div class="logged_in_user">
@@ -60,34 +60,42 @@
   <div slot="backdrop" class="backdrop" />
 </Modals>
 
-<style>
+<style lang="scss">
+  @import '../global.scss';
+
   .header_bar {
+    flex: 0;
     width: 100%;
-    background-color: white;
-    padding: 0.6em 0;
-    border-bottom: 3px solid rgba(49, 177, 49, 0.74);
+    background-color: $pageBarBackgroundColor;
+    color: $pageBarTextColor;
+    padding: 0.3em 0;
   }
 
   .header_bar .content {
     position: relative;
-    margin: 0 0.4em;
+    margin: 0 $horizontalMargin;
     text-align: center;
   }
 
   .app_title {
+    padding: 0.3em 0;
     position: absolute;
     left: 0px;
-    color: darkred;
+    color: rgb(172, 92, 0);
   }
 
   .login_logout {
     position: absolute;
     right: 0px;
+    font-size: 0.9em;
+  }
+
+  .logged_in_user {
+    padding: 0.3em 0;
   }
 
   .logged_in_user span {
     font-style: italic;
-    color: #999;
   }
 
   .backdrop {

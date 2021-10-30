@@ -19,7 +19,7 @@
   .back {
     font-size: 160%;
     font-weight: bold;
-    padding: 0 0.3em;
+    padding-right: 0.3em;
   }
 
   .text {

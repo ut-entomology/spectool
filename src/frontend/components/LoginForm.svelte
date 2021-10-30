@@ -48,7 +48,7 @@
 
     <p class="actions">
       <button on:click={cancel}> Cancel </button>
-      <button on:click={attemptLogin}> Login </button>
+      <button class="primary" on:click={attemptLogin}> Login </button>
     </p>
 
     <p class="error">{message}</p>
