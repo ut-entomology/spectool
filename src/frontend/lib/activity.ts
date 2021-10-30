@@ -4,5 +4,5 @@ export interface Activity {
   title: string;
   component: typeof SvelteComponent;
   description: string;
-  preClose: () => Promise<void>;
+  preClose: () => Promise<boolean>;
 }

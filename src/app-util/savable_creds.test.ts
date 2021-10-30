@@ -20,6 +20,7 @@ describe('savable credentials (not saving)', () => {
 
   test('should initially be empty', () => {
     expect(creds1.get()).toBe(null);
+    expect(creds1.isSaved()).toBe(false);
   });
 
   test('should return but not save assignment', async () => {
@@ -28,6 +29,7 @@ describe('savable credentials (not saving)', () => {
     const creds2 = new TestCredentials();
     await creds2.init();
     expect(creds2.get()).toBe(null);
+    expect(creds1.isSaved()).toBe(false);
   });
 
   afterAll(async () => {
@@ -53,18 +55,21 @@ describe('savable credentials (saving)', () => {
     creds1.set(user1, pass1);
     await creds1.save();
     expect(creds1.get()).toEqual(creds(user1, pass1));
+    expect(creds1.isSaved()).toBe(true);
     const creds2 = new TestCredentials();
     await creds2.init();
     expect(creds2.get()).toEqual(creds(user1, pass1));
+    expect(creds2.isSaved()).toBe(true);
   });
 
-  test('should clear one more than one username', async () => {
+  test('should clear more than one username', async () => {
     creds1.set(user1, pass1);
     expect(creds1.get()).toEqual(creds(user1, pass1));
     await keytar.setPassword(creds1.serviceName, user2, pass2);
     const creds2 = new TestCredentials();
     await creds2.init();
     expect(creds2.get()).toBe(null);
+    expect(creds2.isSaved()).toBe(false);
   });
 
   test('should unsave upon unsaving', async () => {
@@ -73,9 +78,11 @@ describe('savable credentials (saving)', () => {
     await creds1.save();
     await creds1.unsave();
     expect(creds1.get()).toEqual(creds(user1, pass1));
+    expect(creds1.isSaved()).toBe(false);
     const creds2 = new TestCredentials();
     await creds2.init();
     expect(creds2.get()).toBe(null);
+    expect(creds2.isSaved()).toBe(false);
   });
 
   test('should clear and unsave upon clearing', async () => {
@@ -84,9 +91,11 @@ describe('savable credentials (saving)', () => {
     await creds1.save();
     await creds1.clear();
     expect(creds1.get()).toBe(null);
+    expect(creds1.isSaved()).toBe(false);
     const creds2 = new TestCredentials();
     await creds2.init();
     expect(creds2.get()).toBe(null);
+    expect(creds2.isSaved()).toBe(false);
   });
 
   afterAll(async () => {

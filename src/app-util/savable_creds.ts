@@ -11,6 +11,7 @@ export class SavableCredentials {
   serviceName: string;
   protected username?: string;
   protected password?: string;
+  protected saved = false;
 
   /**
    * Constructs an instance associating credentials with a service name.
@@ -33,6 +34,7 @@ export class SavableCredentials {
     } else if (creds.length == 1) {
       this.username = creds[0].account;
       this.password = creds[0].password;
+      this.saved = true;
     }
   }
 
@@ -55,6 +57,13 @@ export class SavableCredentials {
   }
 
   /**
+   * Indicates whether the credentials are saved on computer.
+   */
+  isSaved(): boolean {
+    return this.saved;
+  }
+
+  /**
    * Saves previously-assigned credentials to storage.
    */
   async save(): Promise<void> {
@@ -62,6 +71,7 @@ export class SavableCredentials {
       throw Error('Credentials were never set');
     }
     await keytar.setPassword(this.serviceName, this.username, this.password);
+    this.saved = true;
   }
 
   /**
@@ -80,5 +90,6 @@ export class SavableCredentials {
     const creds = await keytar.findCredentials(this.serviceName);
     for (const cred of creds)
       await keytar.deletePassword(this.serviceName, cred.account);
+    this.saved = false;
   }
 }

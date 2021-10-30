@@ -11,7 +11,8 @@ export class User {
 
   static getLoggedInUser() {
     const initialUsername = DatabaseClient.getUsername(window);
-    return initialUsername ? new User(initialUsername, true) : null;
+    const saved = DatabaseClient.isSaved(window);
+    return initialUsername ? new User(initialUsername, saved) : null;
   }
 
   static async login(username: string, password: string, save: boolean) {

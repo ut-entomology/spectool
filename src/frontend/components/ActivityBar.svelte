@@ -2,11 +2,12 @@
   import { currentActivity } from '../stores/currentActivity';
 
   export let title: string;
-  export let preClose: (() => Promise<void>) | null = null;
+  export let preClose: (() => Promise<boolean>) | null = null;
 
   async function closeActivity(): Promise<void> {
-    await preClose!();
-    $currentActivity = null;
+    if (await preClose!()) {
+      $currentActivity = null;
+    }
   }
 </script>
 

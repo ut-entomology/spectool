@@ -16,6 +16,19 @@ class GetDatabaseUsernameIpc extends SyncIpcHandler {
   }
 }
 
+class DatabseLoginIsSavedIpc extends SyncIpcHandler {
+  private kernel: AppKernel;
+
+  constructor(kernel: AppKernel) {
+    super('database_login_is_saved');
+    this.kernel = kernel;
+  }
+
+  handle(_data: any): boolean {
+    return this.kernel.databaseCreds.isSaved();
+  }
+}
+
 class LoginToDatabaseIpc extends AsyncIpcHandler {
   private kernel: AppKernel;
 
@@ -72,6 +85,7 @@ class LogoutOfDatabaseIpc extends AsyncIpcHandler {
 export default function (kernel: AppKernel): IpcHandler[] {
   return [
     new GetDatabaseUsernameIpc(kernel), // multiline
+    new DatabseLoginIsSavedIpc(kernel),
     new LoginToDatabaseIpc(kernel),
     new LoginToDatabaseAndSaveIpc(kernel),
     new LogoutOfDatabaseIpc(kernel)
