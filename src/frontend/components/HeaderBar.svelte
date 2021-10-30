@@ -40,7 +40,7 @@
       {#if $loggedInUser === null}
         <button on:click={openLoginForm}>Login</button>
       {:else}
-        <button on:click={logout}>Logout</button>
+        <button class="inconspicuous" on:click={logout}>Logout</button>
       {/if}
     </div>
     <div class="logged_in_user">

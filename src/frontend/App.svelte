@@ -50,6 +50,10 @@
     background-color: rgba(255, 191, 72, 0.938);
   }
 
+  :global(button.inconspicuous) {
+    background-color: #ccc;
+  }
+
   :global(button:hover) {
     border: 1px solid #999;
     cursor: pointer;
