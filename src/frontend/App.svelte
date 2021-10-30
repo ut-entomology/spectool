@@ -1,28 +1,25 @@
 <script lang="ts">
-  import router from 'page';
-  import type { SvelteComponent } from 'svelte';
-
   import { User } from './lib/user';
   import { loggedInUser } from './stores/loggedInUser';
+  import { currentActivity } from './stores/currentActivity';
   import HeaderBar from './components/HeaderBar.svelte';
-  import ActivitiesPage from './pages/ActivitiesPage.svelte';
-  import FirstNamesPage from './pages/FirstNames.svelte';
+  import ActivityBar from './components/ActivityBar.svelte';
+  import ActivityMenu from './pages/ActivityMenu.svelte';
   import StatusBar from './components/StatusBar.svelte';
 
-  let page: typeof SvelteComponent;
-  let params: any;
-
   $loggedInUser = User.getLoggedInUser();
-
-  router('/', () => (page = ActivitiesPage));
-  router('/first-names', () => (page = FirstNamesPage));
-  router.start();
 </script>
 
 <HeaderBar appTitle="UT SpecTool" />
 
 <div class="content">
-  <svelte:component this={page} {params} />
+  {#if $currentActivity}
+    <ActivityBar title={$currentActivity.title} preClose={$currentActivity.preClose} />
+    <svelte:component this={$currentActivity.component} />
+  {:else}
+    <ActivityBar title="Activities" />
+    <ActivityMenu />
+  {/if}
 </div>
 
 <StatusBar />
@@ -52,6 +49,7 @@
 
   :global(button.inconspicuous) {
     background-color: #ccc;
+    padding: 0.1em 0.5em;
   }
 
   :global(button:hover) {

@@ -90,6 +90,10 @@
     font-size: 0.9em;
   }
 
+  .login_logout .inconspicuous {
+    margin-top: 0.15em;
+  }
+
   .logged_in_user {
     padding: 0.3em 0;
   }

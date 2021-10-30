@@ -1,12 +1,11 @@
 <script lang="ts">
   import { FirstNamesClient } from '../clients/first_names_client';
-  import CookieTrail from '../components/CookieTrail.svelte';
 
   let lastName: string = '';
   let names: string[] = [];
   let message: string = '';
 
-  function getFirstNames() {
+  async function getFirstNames() {
     FirstNamesClient.getFirstNames(window, lastName)
       .then((firstNames) => {
         message = '';
@@ -18,8 +17,6 @@
       });
   }
 </script>
-
-<CookieTrail pageTitle="Query First Names" />
 
 <main>
   <label>
