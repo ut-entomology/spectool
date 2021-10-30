@@ -1,6 +1,16 @@
 <script lang="ts">
-  import { activities } from '../lib/activities';
   import { currentActivity } from '../stores/currentActivity';
+  import type { Activity } from '../lib/activity';
+  import FirstNames from '../activities/FirstNames.svelte';
+
+  const activities: Activity[] = [
+    {
+      title: 'Query for first names',
+      component: FirstNames,
+      description: 'Returns all first names for a given last name.',
+      preClose: async () => true
+    }
+  ];
 </script>
 
 <nav>

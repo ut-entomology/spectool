@@ -4,7 +4,7 @@
   import { currentActivity } from './stores/currentActivity';
   import HeaderBar from './components/HeaderBar.svelte';
   import ActivityBar from './components/ActivityBar.svelte';
-  import ActivityMenu from './pages/ActivityMenu.svelte';
+  import ActivityMenu from './activities/ActivityMenu.svelte';
   import StatusBar from './components/StatusBar.svelte';
 
   $loggedInUser = User.getLoggedInUser();
