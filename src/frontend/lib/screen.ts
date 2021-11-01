@@ -1,7 +1,7 @@
 import type { SvelteComponent } from 'svelte';
 
-export interface Activity {
+export interface Screen {
   title: string;
   componentType: typeof SvelteComponent;
-  description: string;
+  params: { [key: string]: any };
 }

@@ -1,25 +1,29 @@
 <script lang="ts">
   import { User } from './lib/user';
   import { loggedInUser } from './stores/loggedInUser';
-  import { currentActivity } from './stores/currentActivity';
+  import { screenStack } from './stores/screenStack';
   import HeaderBar from './components/HeaderBar.svelte';
   import ActivityBar from './components/ActivityBar.svelte';
   import ActivityMenu from './activities/ActivityMenu.svelte';
   import StatusBar from './components/StatusBar.svelte';
 
   $loggedInUser = User.getLoggedInUser();
+  screenStack.push({
+    title: 'Activities',
+    componentType: ActivityMenu,
+    params: {}
+  });
+
+  function currentScreen() {
+    return $screenStack[$screenStack.length - 1];
+  }
 </script>
 
 <HeaderBar appTitle="UT SpecTool" />
 
 <div class="content">
-  {#if $currentActivity}
-    <ActivityBar title={$currentActivity.title} preClose={$currentActivity.preClose} />
-    <svelte:component this={$currentActivity.component} />
-  {:else}
-    <ActivityBar title="Activities" />
-    <ActivityMenu />
-  {/if}
+  <ActivityBar />
+  <svelte:component this={currentScreen().componentType} {...currentScreen().params} />
 </div>
 
 <StatusBar />

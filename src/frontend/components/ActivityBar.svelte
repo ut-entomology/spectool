@@ -1,19 +1,16 @@
 <script lang="ts">
-  import { currentActivity } from '../stores/currentActivity';
+  import { screenStack } from '../stores/screenStack';
 
-  export let title: string;
-  export let preClose: (() => Promise<boolean>) | null = null;
-
-  async function closeActivity(): Promise<void> {
-    if (await preClose!()) {
-      $currentActivity = null;
-    }
+  function closeActivity() {
+    screenStack.pop();
   }
 </script>
 
 <div class="activity_bar">
-  {title}
-  {#if preClose}
+  {#if $screenStack.length == 1}
+    {$screenStack[0].title}
+  {:else}
+    {$screenStack[$screenStack.length - 1].title}
     <button class="inconspicuous" on:click={closeActivity}>Close</button>
   {/if}
 </div>

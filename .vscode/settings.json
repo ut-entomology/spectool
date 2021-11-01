@@ -8,4 +8,16 @@
         "smartStep": true,
         "configPath": "jest.debug-config.json"
     },
+    "[css]": {
+        "editor.tabSize": 2
+    },
+    "[html]": {
+        "editor.tabSize": 2
+    },
+    "[svelte]": {
+        "editor.tabSize": 2
+    },
+    "[typescript]": {
+        "editor.tabSize": 2
+    },
 }

@@ -1,22 +1,29 @@
 <script lang="ts">
-  import { currentActivity } from '../stores/currentActivity';
+  import { screenStack } from '../stores/screenStack';
   import type { Activity } from '../lib/activity';
   import FirstNames from '../activities/FirstNames.svelte';
 
   const activities: Activity[] = [
     {
       title: 'Query for first names',
-      component: FirstNames,
-      description: 'Returns all first names for a given last name.',
-      preClose: async () => true
+      componentType: FirstNames,
+      description: 'Returns all first names for a given last name.'
     }
   ];
+
+  function openActivity(activity: Activity) {
+    screenStack.push({
+      title: activity.title,
+      componentType: activity.componentType,
+      params: []
+    });
+  }
 </script>
 
 <nav>
   {#each activities as activity}
     <div class="activity">
-      <button on:click={() => ($currentActivity = activity)}>{activity.title}</button>
+      <button on:click={() => openActivity(activity)}>{activity.title}</button>
       <div class="description">{activity.description}</div>
     </div>
   {/each}
