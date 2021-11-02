@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { Button } from 'sveltestrap';
   import { Modals, openModal, closeModal } from 'svelte-modals';
   import LoginForm from './LoginForm.svelte';
   import ModalMessage from './ModalMessage.svelte';
@@ -38,9 +39,9 @@
     <div class="app_title">{appTitle}</div>
     <div class="login_logout">
       {#if $loggedInUser === null}
-        <button on:click={openLoginForm}>Login</button>
+        <Button outline color="primary" on:click={openLoginForm}>Login</Button>
       {:else}
-        <button class="inconspicuous" on:click={logout}>Logout</button>
+        <Button on:click={logout}>Logout</Button>
       {/if}
     </div>
     <div class="logged_in_user">
