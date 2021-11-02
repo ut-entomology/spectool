@@ -1,5 +1,6 @@
 <script lang="ts">
   import { screenStack } from '../stores/screenStack';
+  import { Button } from 'sveltestrap';
   import type { Activity } from '../lib/activity';
   import FirstNames from '../activities/FirstNames.svelte';
 
@@ -23,7 +24,12 @@
 <nav>
   {#each activities as activity}
     <div class="activity">
-      <button on:click={() => openActivity(activity)}>{activity.title}</button>
+      <Button
+        color="primary"
+        class="compact"
+        outline
+        on:click={() => openActivity(activity)}>{activity.title}</Button
+      >
       <div class="description">{activity.description}</div>
     </div>
   {/each}

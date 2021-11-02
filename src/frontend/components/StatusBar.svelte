@@ -7,7 +7,7 @@
 </div>
 
 <style lang="scss">
-  @import '../global.scss';
+  @import '../values';
 
   .status_bar {
     flex: 0;

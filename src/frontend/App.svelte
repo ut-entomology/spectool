@@ -28,8 +28,27 @@
 
 <StatusBar />
 
-<style lang="scss" global>
-  $primary: rgba(255, 207, 117, 0.959);
-  //$primary: rgba(255, 191, 72, 0.938);
-  @import '../../node_modules/bootstrap/scss/bootstrap';
+<style lang="scss">
+  @import './values';
+
+  :global {
+    @import '../../node_modules/bootstrap/scss/bootstrap';
+
+    body {
+      box-sizing: content-box;
+      display: flex;
+      flex-direction: column;
+      margin: 0;
+      padding: 0;
+    }
+
+    button.compact {
+      padding: 0.1em 0.5em;
+    }
+  }
+
+  .content {
+    flex: auto;
+    margin: 0 $horizontalMargin;
+  }
 </style>

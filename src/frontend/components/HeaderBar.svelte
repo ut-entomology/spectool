@@ -37,13 +37,6 @@
 <div class="header_bar">
   <div class="content">
     <div class="app_title">{appTitle}</div>
-    <div class="login_logout">
-      {#if $loggedInUser === null}
-        <Button outline color="primary" on:click={openLoginForm}>Login</Button>
-      {:else}
-        <Button on:click={logout}>Logout</Button>
-      {/if}
-    </div>
     <div class="logged_in_user">
       {#if $loggedInUser === null}
         <span>not logged in</span>
@@ -54,6 +47,13 @@
         {/if}
       {/if}
     </div>
+    <div class="login_logout">
+      {#if $loggedInUser === null}
+        <Button class="compact" color="primary" on:click={openLoginForm}>Login</Button>
+      {:else}
+        <Button class="compact" on:click={logout}>Logout</Button>
+      {/if}
+    </div>
   </div>
 </div>
 
@@ -62,41 +62,42 @@
 </Modals>
 
 <style lang="scss">
-  @import '../global.scss';
+  @import '../values';
 
   .header_bar {
     flex: 0;
     width: 100%;
     background-color: $pageBarBackgroundColor;
     color: $pageBarTextColor;
-    padding: 0.3em 0;
+    padding: 0.3em $horizontalMargin;
   }
 
   .header_bar .content {
-    position: relative;
-    margin: 0 $horizontalMargin;
-    text-align: center;
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+  }
+
+  .app_title,
+  .logged_in_user {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
   }
 
   .app_title {
-    padding: 0.3em 0;
-    position: absolute;
-    left: 0px;
+    width: 20%;
     color: rgb(172, 92, 0);
   }
 
-  .login_logout {
-    position: absolute;
-    right: 0px;
-    font-size: 0.9em;
-  }
-
-  .login_logout .inconspicuous {
-    margin-top: 0.15em;
-  }
-
   .logged_in_user {
-    padding: 0.3em 0;
+    width: 60%;
+    text-align: center;
+  }
+
+  .login_logout {
+    width: 20%;
+    text-align: right;
   }
 
   .logged_in_user span {
