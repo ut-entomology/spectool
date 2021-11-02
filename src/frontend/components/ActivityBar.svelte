@@ -10,7 +10,7 @@
   {#if $screenStack.length == 1}
     {$screenStack[0].title}
   {:else}
-    {$screenStack[$screenStack.length - 1].title}
+    {$screenStack[1].title}
     <button class="inconspicuous" on:click={closeActivity}>Close</button>
   {/if}
 </div>

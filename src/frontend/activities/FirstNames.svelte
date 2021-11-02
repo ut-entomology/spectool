@@ -24,7 +24,7 @@
     <input bind:value={lastName} />
   </label>
 
-  <button on:click={getFirstNames}>Get First Names</button>
+  <button class="btn btn-primary" on:click={getFirstNames}>Get First Names</button>
 
   <ul>
     {#each names as name}

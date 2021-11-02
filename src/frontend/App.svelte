@@ -19,6 +19,10 @@
   }
 </script>
 
+<svelte:head>
+  <link rel="stylesheet" href="vendor/bootstrap.min.css" />
+</svelte:head>
+
 <HeaderBar appTitle="UT SpecTool" />
 
 <div class="content">
@@ -37,7 +41,7 @@
     display: flex;
     flex-flow: column nowrap;
   }
-
+  /*
   :global(button) {
     background-color: rgba(255, 215, 140, 0.938);
     color: black;
@@ -60,7 +64,7 @@
     border: 1px solid #999;
     cursor: pointer;
   }
-
+*/
   :global(.content) {
     flex: auto;
     margin: 0 $horizontalMargin;

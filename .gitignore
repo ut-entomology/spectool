@@ -1,6 +1,7 @@
 .DS_Store
 build
 public/build
+public/vendor
 
 # Logs
 logs

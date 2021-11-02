@@ -2,7 +2,7 @@ import { writable } from 'svelte/store';
 
 import type { Screen } from '../lib/screen';
 
-function createCurrentScreen() {
+function createScreenStack() {
   const { subscribe, update } = writable<Screen[]>([]);
 
   return {
@@ -25,4 +25,4 @@ function createCurrentScreen() {
   };
 }
 
-export const screenStack = createCurrentScreen();
+export const screenStack = createScreenStack();
