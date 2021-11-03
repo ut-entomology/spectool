@@ -21,33 +21,32 @@
 
 <HeaderBar appTitle="UT SpecTool" />
 
-<div class="content">
+<div class="page-content">
   <ActivityBar />
   <svelte:component this={currentScreen().componentType} {...currentScreen().params} />
 </div>
 
 <StatusBar />
 
-<style lang="scss">
+<style lang="scss" global>
+  // Svelte is not allowing a component to have both local and global SCSS.
+
   @import './values';
+  @import '../../node_modules/bootstrap/scss/bootstrap';
 
-  :global {
-    @import '../../node_modules/bootstrap/scss/bootstrap';
-
-    body {
-      box-sizing: content-box;
-      display: flex;
-      flex-direction: column;
-      margin: 0;
-      padding: 0;
-    }
-
-    button.compact {
-      padding: 0.1em 0.5em;
-    }
+  body {
+    box-sizing: content-box;
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    padding: 0;
   }
 
-  .content {
+  button.compact {
+    padding: 0.1em 0.5em;
+  }
+
+  .page-content {
     flex: auto;
     margin: 0 $horizontalMargin;
   }

@@ -48,10 +48,6 @@
     margin: 2em;
   }
 
-  button {
-    font-style: bold;
-  }
-
   .description {
     margin-top: 0.8em;
     margin-left: 1em;
