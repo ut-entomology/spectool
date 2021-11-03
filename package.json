@@ -51,8 +51,7 @@
     "mysql2": "^2.3.1",
     "sirv-cli": "^1.0.0",
     "source-map-support": "^0.5.20",
-    "svelte-modals": "^1.0.4",
-    "sveltestrap": "^5.6.3"
+    "svelte-modals": "^1.0.4"
   },
   "build": {
     "productName": "SpecTool",

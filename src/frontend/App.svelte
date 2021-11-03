@@ -34,6 +34,8 @@
   @import './values';
   @import '../../node_modules/bootstrap/scss/bootstrap';
 
+  // Layout
+
   body {
     box-sizing: content-box;
     display: flex;
@@ -42,12 +44,37 @@
     padding: 0;
   }
 
-  button.compact {
-    padding: 0.1em 0.5em;
-  }
-
   .page-content {
     flex: auto;
     margin: 0 $horizontalMargin;
+  }
+
+  // Buttons
+
+  button.btn-major,
+  button.btn-minor {
+    color: $blueLinkColor;
+    padding: 0.2em 0.6em;
+    border-radius: 0.5em;
+  }
+
+  button.btn-major {
+    background-color: $majorButtonColor;
+    border: 1px solid $majorButtonColor;
+  }
+
+  button.btn-minor {
+    background-color: $minorButtonColor;
+    border: 1px solid $minorButtonColor;
+  }
+
+  button.btn-major:hover,
+  button.btn-minor:hover {
+    border: 1px solid $blueLinkColor;
+  }
+
+  button.compact {
+    padding: 0 0.5em;
+    font-size: 90%;
   }
 </style>

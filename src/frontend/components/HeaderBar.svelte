@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { Button } from 'sveltestrap';
   import { Modals, openModal, closeModal } from 'svelte-modals';
   import LoginForm from './LoginForm.svelte';
   import ModalMessage from './ModalMessage.svelte';
@@ -34,10 +33,10 @@
   }
 </script>
 
-<div class="header_bar">
-  <div class="content">
-    <div class="app_title">{appTitle}</div>
-    <div class="logged_in_user">
+<div class="header_bar container-flud g-0">
+  <div class="row">
+    <div class="col-3 app_title">{appTitle}</div>
+    <div class="col-6 logged_in_user">
       {#if $loggedInUser === null}
         <span>not logged in</span>
       {:else}
@@ -47,12 +46,14 @@
         {/if}
       {/if}
     </div>
-    <div class="login_logout">
-      {#if $loggedInUser === null}
-        <Button class="compact" color="primary" on:click={openLoginForm}>Login</Button>
-      {:else}
-        <Button class="compact" on:click={logout}>Logout</Button>
-      {/if}
+    <div class="col-3 login_logout">
+      <div>
+        {#if $loggedInUser === null}
+          <button class="btn-major compact" on:click={openLoginForm}>Login</button>
+        {:else}
+          <button class="btn-minor compact" on:click={logout}>Logout</button>
+        {/if}
+      </div>
     </div>
   </div>
 </div>
@@ -72,31 +73,23 @@
     padding: 0.3em $horizontalMargin;
   }
 
-  .header_bar .content {
-    display: flex;
-    flex-direction: row;
-    width: 100%;
-  }
-
   .app_title,
-  .logged_in_user {
+  .logged_in_user,
+  .login_logout {
     display: flex;
     flex-direction: column;
     justify-content: center;
   }
 
   .app_title {
-    width: 20%;
     color: rgb(172, 92, 0);
   }
 
   .logged_in_user {
-    width: 60%;
     text-align: center;
   }
 
   .login_logout {
-    width: 20%;
     text-align: right;
   }
 

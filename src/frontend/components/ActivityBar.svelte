@@ -1,6 +1,5 @@
 <script lang="ts">
   import { screenStack } from '../stores/screenStack';
-  import { Button } from 'sveltestrap';
 
   function closeActivity() {
     screenStack.pop();
@@ -12,7 +11,7 @@
     <div>{$screenStack[0].title}</div>
   {:else}
     <div>{$screenStack[1].title}</div>
-    <Button outline class="compact" on:click={closeActivity}>Close</Button>
+    <button class="btn-minor compact" on:click={closeActivity}>Close</button>
   {/if}
 </div>
 

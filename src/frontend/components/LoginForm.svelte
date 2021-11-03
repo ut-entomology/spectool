@@ -30,28 +30,49 @@
 
 <ModalPopup {isOpen}>
   <div class="contents">
-    <div class="title">{title}</div>
-    <label>
-      username:
-      <input bind:value={username} />
-    </label>
-    <label>
-      password:
-      <input bind:value={password} type="password" />
-    </label>
-    <p>
-      <label>
-        <input bind:checked={savingCredentials} type="checkbox" />
-        stay logged in on this computer
-      </label>
-    </p>
-
-    <p class="actions">
-      <button on:click={cancel}> Cancel </button>
-      <button class="primary" on:click={attemptLogin}> Login </button>
-    </p>
-
-    <p class="error">{message}</p>
+    <div class="container g-0">
+      <div class="row">
+        <div class="title col">{title}</div>
+      </div>
+      <div class="row justify-content-center">
+        <div class="col-3">
+          <label for="username">Username</label>
+        </div>
+        <div class="col-6">
+          <input id="username" type="text" bind:value={username} />
+        </div>
+      </div>
+      <div class="row space justify-content-center">
+        <div class="col-3">
+          <label for="password">Password</label>
+        </div>
+        <div class="col-6">
+          <input id="password" bind:value={password} type="password" />
+        </div>
+      </div>
+      <div class="row space justify-content-center">
+        <div class="col-auto">
+          <label>
+            <input id="saving" bind:checked={savingCredentials} type="checkbox" />
+            stay logged in on this computer
+          </label>
+        </div>
+      </div>
+      <div class="row justify-content-center">
+        <div class="col-3">
+          <button class="btn-minor" on:click={cancel}>Cancel</button>
+        </div>
+        <div class="col-1" />
+        <div class="col-3">
+          <button class="btn-major" on:click={attemptLogin}>Login</button>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col error">
+          {message}
+        </div>
+      </div>
+    </div>
   </div>
 </ModalPopup>
 
@@ -59,34 +80,38 @@
   .contents {
     width: 400px;
     border-radius: 8px;
-    padding: 1.5em;
     background: white;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
     pointer-events: auto;
   }
 
+  .space {
+    margin-top: 0.5em;
+  }
+
   .title {
-    margin-bottom: 1em;
+    margin: 1em;
     font-weight: bold;
+    font-size: 105%;
+    text-align: center;
   }
 
-  p {
-    margin: 0.5em 0;
+  input[type='text'],
+  input[type='password'] {
+    width: 100%;
   }
 
-  .actions {
-    display: flex;
-    justify-content: center;
+  input[type='checkbox'] {
+    margin-right: 0.5em;
   }
 
   button {
-    margin: 0 2em;
+    margin-top: 1.5em;
+    width: 100%;
   }
 
   .error {
     color: red;
     text-align: center;
+    padding: 1.5em;
   }
 </style>
