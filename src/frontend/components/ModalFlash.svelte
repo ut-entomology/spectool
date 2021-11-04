@@ -2,7 +2,7 @@
   import { writable } from 'svelte/store';
   import { showModal, hideModal } from './Modal.svelte';
 
-  const MODAL_ID = 'reusable_flash_modal';
+  const MODAL_ID = 'global_flash_modal';
   const messageStore = writable<string>('');
 
   export function flashMessage(message: string, millis = 1250) {

@@ -2,7 +2,7 @@
   import { writable } from 'svelte/store';
   import { ModalOptions, showModal, hideModal } from './Modal.svelte';
 
-  const MODAL_ID = 'reusable_notice_modal';
+  const MODAL_ID = 'global_notice_modal';
   const messageStore = writable<string>('');
   const buttonTextStore = writable<string | null>(null);
 
