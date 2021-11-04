@@ -6,6 +6,8 @@
   import ActivityBar from './components/ActivityBar.svelte';
   import ActivityMenu from './activities/ActivityMenu.svelte';
   import StatusBar from './components/StatusBar.svelte';
+  import ModalFlash from './components/ModalFlash.svelte';
+  import ModalNotice from './components/ModalNotice.svelte';
 
   $loggedInUser = User.getLoggedInUser();
   screenStack.push({
@@ -20,13 +22,14 @@
 </script>
 
 <HeaderBar appTitle="UT SpecTool" />
-
 <div class="page-content">
   <ActivityBar />
   <svelte:component this={currentScreen().componentType} {...currentScreen().params} />
 </div>
-
 <StatusBar />
+
+<ModalNotice />
+<ModalFlash maxWidth="220px" />
 
 <style lang="scss" global>
   // Svelte is not allowing a component to have both local and global SCSS.
@@ -47,6 +50,26 @@
   .page-content {
     flex: auto;
     margin: 0 $horizontalMargin;
+  }
+
+  // Modals
+
+  .dialog,
+  .modal-notice,
+  .modal-flash {
+    margin: 0 auto;
+    border-radius: 8px;
+    background: white;
+    pointer-events: auto;
+  }
+
+  .modal-notice {
+    padding: 1em;
+  }
+
+  .modal-flash {
+    padding: 1.5em;
+    text-align: center;
   }
 
   // Buttons

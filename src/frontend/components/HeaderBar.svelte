@@ -1,7 +1,8 @@
 <script lang="ts">
-  import { Modals, openModal, closeModal } from 'svelte-modals';
+  import { showModal, hideModal } from './Modal.svelte';
   import LoginForm from './LoginForm.svelte';
-  import ModalMessage from './ModalMessage.svelte';
+  import { flashMessage } from './ModalFlash.svelte';
+  import { showNotice } from './ModalNotice.svelte';
 
   import { loggedInUser } from '../stores/loggedInUser';
   import { User } from '../lib/user';
@@ -11,27 +12,22 @@
   async function login(username: string, password: string, save: boolean) {
     await User.login(username, password, save);
     $loggedInUser = new User(username, save);
-    closeModal();
-    openModal(ModalMessage, { message: 'You are logged in', millis: 1000 });
+    hideModal(() => flashMessage('You are logged in'));
   }
 
   function logout() {
     User.logout()
       .then(() => {
         $loggedInUser = null;
-        openModal(ModalMessage, { message: 'You have logged out', millis: 1000 });
+        flashMessage('You have logged out');
       })
       .catch((err: Error) => {
-        openModal(ModalMessage, {
-          message: `Failed to log out: ${err.message}`
-        });
+        showNotice(`Failed to log out: ${err.message}`);
       });
   }
-
-  function openLoginForm() {
-    openModal(LoginForm, { login, title: 'Enter your database credentials' });
-  }
 </script>
+
+<LoginForm id="login-form" title="Enter your database credentials" {login} />
 
 <div class="header_bar container-flud g-0">
   <div class="row">
@@ -49,7 +45,9 @@
     <div class="col-3 login_logout">
       <div>
         {#if $loggedInUser === null}
-          <button class="btn-major compact" on:click={openLoginForm}>Login</button>
+          <button class="btn-major compact" on:click={() => showModal('login-form')}>
+            Login
+          </button>
         {:else}
           <button class="btn-minor compact" on:click={logout}>Logout</button>
         {/if}
@@ -57,10 +55,6 @@
     </div>
   </div>
 </div>
-
-<Modals>
-  <div slot="backdrop" class="backdrop" />
-</Modals>
 
 <style lang="scss">
   @import '../values';
@@ -95,14 +89,5 @@
 
   .logged_in_user span {
     font-style: italic;
-  }
-
-  .backdrop {
-    position: fixed;
-    top: 0;
-    bottom: 0;
-    right: 0;
-    left: 0;
-    background: rgba(0, 0, 0, 0.5);
   }
 </style>

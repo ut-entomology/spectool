@@ -1,9 +1,8 @@
 <script lang="ts">
-  import ModalPopup from './ModalPopup.svelte';
-  import { closeModal } from 'svelte-modals';
+  import Modal, { hideModal } from './Modal.svelte';
 
+  export let id: string;
   export let title = '';
-  export let isOpen: boolean;
   export let login: (
     username: string,
     password: string,
@@ -24,12 +23,12 @@
   }
 
   function cancel() {
-    closeModal();
+    hideModal();
   }
 </script>
 
-<ModalPopup {isOpen}>
-  <div class="contents">
+<Modal {id} fade maxWidth="400px">
+  <div class="dialog login-dialog">
     <div class="container g-0">
       <div class="row">
         <div class="title col">{title}</div>
@@ -42,7 +41,7 @@
           <input id="username" type="text" bind:value={username} />
         </div>
       </div>
-      <div class="row space justify-content-center">
+      <div class="row mt-2 justify-content-center">
         <div class="col-3">
           <label for="password">Password</label>
         </div>
@@ -50,7 +49,7 @@
           <input id="password" bind:value={password} type="password" />
         </div>
       </div>
-      <div class="row space justify-content-center">
+      <div class="row mt-2 justify-content-center">
         <div class="col-auto">
           <label>
             <input id="saving" bind:checked={savingCredentials} type="checkbox" />
@@ -74,20 +73,9 @@
       </div>
     </div>
   </div>
-</ModalPopup>
+</Modal>
 
 <style>
-  .contents {
-    width: 400px;
-    border-radius: 8px;
-    background: white;
-    pointer-events: auto;
-  }
-
-  .space {
-    margin-top: 0.5em;
-  }
-
   .title {
     margin: 1em;
     font-weight: bold;
