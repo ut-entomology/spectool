@@ -52,26 +52,6 @@
     margin: 0 $horizontalMargin;
   }
 
-  // Modals
-
-  .dialog,
-  .modal-notice,
-  .modal-flash {
-    margin: 0 auto;
-    border-radius: 8px;
-    background: white;
-    pointer-events: auto;
-  }
-
-  .modal-notice {
-    padding: 1em;
-  }
-
-  .modal-flash {
-    padding: 1.5em;
-    text-align: center;
-  }
-
   // Buttons
 
   button.btn-major,
@@ -99,5 +79,32 @@
   button.compact {
     padding: 0 0.5em;
     font-size: 90%;
+  }
+
+  // Modals
+
+  .dialog,
+  .modal-notice,
+  .modal-flash {
+    margin: 0 auto;
+    border-radius: 8px;
+    background: white;
+    pointer-events: auto;
+  }
+
+  .modal-notice {
+    padding: 1em;
+  }
+
+  .modal-flash {
+    padding: 1.5em;
+    text-align: center;
+  }
+
+  // Forms
+
+  input[type='checkbox'] {
+    margin-right: 0.5em;
+    cursor: pointer;
   }
 </style>

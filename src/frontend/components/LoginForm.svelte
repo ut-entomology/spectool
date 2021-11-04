@@ -21,49 +21,64 @@
       message = (err as Error).message;
     }
   }
-
-  function cancel() {
-    hideModal();
-  }
 </script>
 
 <Modal {id} fade maxWidth="400px">
   <div class="dialog login-dialog">
-    <div class="container g-0">
+    <form class="container g-0" on:submit|preventDefault={attemptLogin} novalidate>
       <div class="row">
         <div class="title col">{title}</div>
       </div>
+      <div class="row mb-2 justify-content-center">
+        <div class="col-3">
+          <label for="username" class="col-form-label">Username</label>
+        </div>
+        <div class="col-6">
+          <input
+            id="username"
+            class="form-control"
+            type="text"
+            bind:value={username}
+            required
+          />
+        </div>
+      </div>
+      <div class="row mb-2 justify-content-center">
+        <div class="col-3">
+          <label for="password" class="col-form-label">Password</label>
+        </div>
+        <div class="col-6">
+          <input
+            id="password"
+            class="form-control"
+            bind:value={password}
+            type="password"
+            required
+          />
+        </div>
+      </div>
       <div class="row justify-content-center">
-        <div class="col-3">
-          <label for="username">Username</label>
-        </div>
-        <div class="col-6">
-          <input id="username" type="text" bind:value={username} />
-        </div>
-      </div>
-      <div class="row mt-2 justify-content-center">
-        <div class="col-3">
-          <label for="password">Password</label>
-        </div>
-        <div class="col-6">
-          <input id="password" bind:value={password} type="password" />
-        </div>
-      </div>
-      <div class="row mt-2 justify-content-center">
         <div class="col-auto">
-          <label>
-            <input id="saving" bind:checked={savingCredentials} type="checkbox" />
-            stay logged in on this computer
+          <label class="col-form-label">
+            <input
+              id="saving"
+              class="form-check-input"
+              bind:checked={savingCredentials}
+              type="checkbox"
+            />
+            Stay logged in on this computer
           </label>
         </div>
       </div>
       <div class="row justify-content-center">
         <div class="col-3">
-          <button class="btn-minor" on:click={cancel}>Cancel</button>
+          <button class="btn-minor" type="button" on:click={() => hideModal()}
+            >Cancel</button
+          >
         </div>
         <div class="col-1" />
         <div class="col-3">
-          <button class="btn-major" on:click={attemptLogin}>Login</button>
+          <button class="btn-major" type="submit">Login</button>
         </div>
       </div>
       <div class="row">
@@ -71,7 +86,7 @@
           {message}
         </div>
       </div>
-    </div>
+    </form>
   </div>
 </Modal>
 
