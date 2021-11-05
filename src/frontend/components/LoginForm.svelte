@@ -17,6 +17,11 @@
   async function attemptLogin() {
     try {
       await login(username, password, savingCredentials);
+      // Reset form prior to next viewing.
+      username = '';
+      password = '';
+      savingCredentials = false;
+      message = '';
     } catch (err) {
       message = (err as Error).message;
     }
