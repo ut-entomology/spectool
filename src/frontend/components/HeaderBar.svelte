@@ -12,7 +12,8 @@
   async function login(username: string, password: string, save: boolean) {
     await User.login(username, password, save);
     $loggedInUser = new User(username, save);
-    hideModal(() => flashMessage('You are logged in'));
+    await hideModal();
+    flashMessage('You are logged in');
   }
 
   function logout() {

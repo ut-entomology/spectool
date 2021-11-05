@@ -1,6 +1,7 @@
 <script lang="ts" context="module">
   /*
-    Displays a modal dialog using Bootstrap's modal javascript.
+    Displays a modal dialog using Bootstrap's modal javascript. Only supports
+    one modal at a time, as is the case with Bootstrap anyway.
 
     Exports `showModal()` and `hideModal()` for showing the identified modal and
     for hiding whichever modal is active. Do not use Bootstrap's `data-bs-*`
@@ -21,29 +22,44 @@
     focus?: boolean;
   };
 
-  export function showModal(id: string, options?: ModalOptions) {
+  export function showModal(id: string, options?: ModalOptions): Promise<void> {
     if (currentModalID !== null) throw Error('Modal already showing');
     options ||= {};
     if (options.backdrop === undefined) {
       options.backdrop = 'static';
     }
-    const modal = new bootstrap.Modal(document.getElementById(id), options);
-    currentModalIDStore.set(id);
-    modal.show();
+
+    return new Promise((resolve, reject) => {
+      try {
+        const modalElement = document.getElementById(id);
+        const modal = new bootstrap.Modal(modalElement, options);
+        currentModalIDStore.set(id);
+        modalElement!.addEventListener('shown.bs.modal', function (_event) {
+          resolve();
+        });
+        modal.show();
+      } catch (err) {
+        reject(err);
+      }
+    });
   }
 
-  export function hideModal(afterHideCallback?: () => void) {
-    if (currentModalID === null) throw Error('No modal to hide');
-    const modalElement = document.getElementById(currentModalID);
-    if (afterHideCallback) {
-      modalElement!.addEventListener('hidden.bs.modal', function (_event) {
-        // Can't be sure the originally queued callback will run first.
-        currentModalIDStore.set(null);
-        // This callback can open another modal at this point, if desired.
-        afterHideCallback();
-      });
-    }
-    bootstrap.Modal.getInstance(modalElement).hide();
+  export function hideModal(): Promise<void> {
+    return new Promise((resolve, reject) => {
+      try {
+        if (currentModalID === null) throw Error('No modal to hide');
+        const modalElement = document.getElementById(currentModalID);
+        modalElement!.addEventListener('hidden.bs.modal', function (_event) {
+          // Can't be sure the originally queued callback will run first.
+          currentModalIDStore.set(null);
+          // The caller can open another modal at this point, if desired.
+          resolve();
+        });
+        bootstrap.Modal.getInstance(modalElement).hide();
+      } catch (err) {
+        reject(err);
+      }
+    });
   }
 </script>
 
