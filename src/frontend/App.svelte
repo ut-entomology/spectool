@@ -100,11 +100,4 @@
     padding: 1.5em;
     text-align: center;
   }
-
-  // Forms
-
-  input[type='checkbox'] {
-    margin-right: 0.5em;
-    cursor: pointer;
-  }
 </style>

@@ -27,7 +27,7 @@
   <div class="dialog login-dialog">
     <form class="container g-0" on:submit|preventDefault={attemptLogin} novalidate>
       <div class="row">
-        <div class="title col">{title}</div>
+        <h2 class="col">{title}</h2>
       </div>
       <div class="row mb-2 justify-content-center">
         <div class="col-3">
@@ -62,6 +62,7 @@
           <label class="col-form-label">
             <input
               id="saving"
+              role="button"
               class="form-check-input"
               bind:checked={savingCredentials}
               type="checkbox"
@@ -91,7 +92,7 @@
 </Modal>
 
 <style>
-  .title {
+  form h2 {
     margin: 1em;
     font-weight: bold;
     font-size: 105%;
