@@ -60,7 +60,7 @@
   export let maxWidth = '';
 
   const modalClass = 'modal' + (fade ? ' fade' : '');
-  const style = maxWidth ? 'max-width: ' + maxWidth : '';
+  const innerStyle = maxWidth ? 'margin: 0 auto; max-width: ' + maxWidth : '';
 
   onMount(() => {
     // Only clear current modal when it is really hidden, and always do so.
@@ -72,7 +72,9 @@
 </script>
 
 <div class={modalClass} {id} tabindex="-1" aria-hidden="true">
-  <div class={'modal-dialog ' + classNames} {style}>
-    <slot>No content provided</slot>
+  <div class={'modal-dialog ' + classNames}>
+    <div style={innerStyle}>
+      <slot>No content provided</slot>
+    </div>
   </div>
 </div>
