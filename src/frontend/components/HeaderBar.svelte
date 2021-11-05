@@ -46,11 +46,14 @@
     <div class="col-3 login_logout">
       <div>
         {#if $loggedInUser === null}
-          <button class="btn-major compact" on:click={() => showModal('login-form')}>
+          <button
+            class="btn btn-major compact"
+            on:click={() => showModal('login-form')}
+          >
             Login
           </button>
         {:else}
-          <button class="btn-minor compact" on:click={logout}>Logout</button>
+          <button class="btn btn-minor compact" on:click={logout}>Logout</button>
         {/if}
       </div>
     </div>
@@ -86,6 +89,11 @@
 
   .login_logout {
     text-align: right;
+  }
+
+  .login_logout .btn {
+    // .btn's vertical align messes up vertical centering
+    vertical-align: baseline;
   }
 
   .logged_in_user span {

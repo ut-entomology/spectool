@@ -24,7 +24,7 @@
 <nav>
   {#each activities as activity}
     <div class="activity">
-      <button class="btn-minor" on:click={() => openActivity(activity)}>
+      <button class="btn btn-minor" on:click={() => openActivity(activity)}>
         {activity.title}
       </button>
       <div class="description">{activity.description}</div>

@@ -11,7 +11,7 @@
     <div>{$screenStack[0].title}</div>
   {:else}
     <div>{$screenStack[1].title}</div>
-    <button class="btn-minor compact" on:click={closeActivity}>Close</button>
+    <button class="btn btn-minor compact" on:click={closeActivity}>Close</button>
   {/if}
 </div>
 

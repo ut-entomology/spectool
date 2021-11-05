@@ -78,13 +78,13 @@
       </div>
       <div class="row justify-content-center">
         <div class="col-3">
-          <button class="btn-minor" type="button" on:click={() => hideModal()}
+          <button class="btn btn-minor" type="button" on:click={() => hideModal()}
             >Cancel</button
           >
         </div>
         <div class="col-1" />
         <div class="col-3">
-          <button class="btn-major" type="submit">Login</button>
+          <button class="btn btn-major" type="submit">Login</button>
         </div>
       </div>
       <div class="row">
@@ -114,7 +114,7 @@
   }
 
   button {
-    margin-top: 1.5em;
+    margin-top: 1em;
     width: 100%;
   }
 
