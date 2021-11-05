@@ -17,7 +17,7 @@
 
   export type ModalOptions = {
     // defined by Bootstrap
-    backdrop?: boolean | string;
+    backdrop?: boolean | string; // defaults to 'static'
     keyboard?: boolean;
     focus?: boolean;
   };
@@ -31,13 +31,11 @@
 
     return new Promise((resolve, reject) => {
       try {
-        const modalElement = document.getElementById(id);
-        const modal = new bootstrap.Modal(modalElement, options);
-        currentModalIDStore.set(id);
-        modalElement!.addEventListener('shown.bs.modal', function (_event) {
+        const modalElement = addListener(id, 'shown', () => {
+          currentModalIDStore.set(id);
           resolve();
         });
-        modal.show();
+        new bootstrap.Modal(modalElement, options).show();
       } catch (err) {
         reject(err);
       }
@@ -48,8 +46,7 @@
     return new Promise((resolve, reject) => {
       try {
         if (currentModalID === null) throw Error('No modal to hide');
-        const modalElement = document.getElementById(currentModalID);
-        modalElement!.addEventListener('hidden.bs.modal', function (_event) {
+        const modalElement = addListener(currentModalID, 'hidden', () => {
           // Can't be sure the originally queued callback will run first.
           currentModalIDStore.set(null);
           // The caller can open another modal at this point, if desired.
@@ -60,6 +57,16 @@
         reject(err);
       }
     });
+  }
+
+  function addListener(
+    id: string,
+    eventPrefix: string,
+    listener: () => void
+  ): HTMLElement {
+    const modalElement = document.getElementById(id);
+    modalElement!.addEventListener(eventPrefix + '.bs.modal', listener);
+    return modalElement!;
   }
 </script>
 
@@ -76,10 +83,7 @@
 
   onMount(() => {
     // Only clear current modal when it is really hidden, and always do so.
-    const modalElement = document.getElementById(id);
-    modalElement!.addEventListener('hidden.bs.modal', function (_event) {
-      currentModalIDStore.set(null);
-    });
+    addListener(id, 'hidden', () => currentModalIDStore.set(null));
   });
 </script>
 
