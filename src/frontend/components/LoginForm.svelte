@@ -1,5 +1,7 @@
 <script lang="ts">
   import Modal, { hideModal } from './Modal.svelte';
+  import { createForm } from 'svelte-forms-lib';
+  import * as yup from 'yup';
 
   export let id: string;
   export let title = '';
@@ -9,28 +11,46 @@
     save: boolean
   ) => Promise<void>;
 
-  let username = '';
-  let password = '';
-  let savingCredentials = false;
-  let message = '';
+  let errorMessage = '';
 
-  async function attemptLogin() {
+  const { form, errors, handleChange, handleSubmit, handleReset } = createForm({
+    initialValues: {
+      username: '',
+      password: '',
+      saving: false
+    },
+    validationSchema: yup.object().shape({
+      username: yup.string().required().label('Username'),
+      password: yup.string().required().label('Password')
+    }),
+    onSubmit: submitForm
+  });
+
+  function formControlClass(error: string): string {
+    return 'form-control' + (error ? ' is-invalid' : '');
+  }
+
+  async function submitForm(values: any) {
     try {
-      await login(username, password, savingCredentials);
-      // Reset form prior to next viewing.
-      username = '';
-      password = '';
-      savingCredentials = false;
-      message = '';
+      await login(values.username, values.password, values.saving);
+      // reset prior to next viewing
+      handleReset();
+      errorMessage = '';
     } catch (err) {
-      message = (err as Error).message;
+      errorMessage = (err as Error).message;
     }
+  }
+
+  async function cancelForm() {
+    await hideModal();
+    handleReset();
+    errorMessage = '';
   }
 </script>
 
 <Modal {id} fade maxWidth="400px">
   <div class="dialog login-dialog">
-    <form class="container g-0" on:submit|preventDefault={attemptLogin} novalidate>
+    <form class="container g-0" on:submit|preventDefault={handleSubmit}>
       <div class="row">
         <h2 class="col">{title}</h2>
       </div>
@@ -41,44 +61,52 @@
         <div class="col-6">
           <input
             id="username"
-            class="form-control"
+            class={formControlClass($errors.username)}
             type="text"
-            bind:value={username}
-            required
+            on:change={handleChange}
+            on:blur={handleChange}
+            bind:value={$form.username}
           />
+          {#if $errors.username}
+            <div class="invalid-feedback">Required</div>
+          {/if}
         </div>
       </div>
-      <div class="row mb-2 justify-content-center">
+      <div class="row mb-3 justify-content-center">
         <div class="col-3">
           <label for="password" class="col-form-label">Password</label>
         </div>
         <div class="col-6">
           <input
             id="password"
-            class="form-control"
-            bind:value={password}
+            class={formControlClass($errors.password)}
             type="password"
-            required
+            on:change={handleChange}
+            on:blur={handleChange}
+            bind:value={$form.password}
           />
+          <div class="invalid-feedback">Required</div>
         </div>
       </div>
       <div class="row justify-content-center">
         <div class="col-auto">
-          <label class="col-form-label">
+          <div class="form-check">
             <input
               id="saving"
               role="button"
               class="form-check-input"
-              bind:checked={savingCredentials}
+              bind:checked={$form.saving}
               type="checkbox"
             />
-            Stay logged in on this computer
-          </label>
+            <label class="form-check-label" for="saving">
+              Stay logged in on this computer
+            </label>
+          </div>
         </div>
       </div>
       <div class="row justify-content-center">
         <div class="col-3">
-          <button class="btn btn-minor" type="button" on:click={() => hideModal()}
+          <button class="btn btn-minor" type="button" on:click={cancelForm}
             >Cancel</button
           >
         </div>
@@ -87,40 +115,29 @@
           <button class="btn btn-major" type="submit">Login</button>
         </div>
       </div>
-      <div class="row">
-        <div class="col error">
-          {message}
+      {#if errorMessage}
+        <div class="error-region">
+          <div class="alert alert-danger" role="alert">{errorMessage}</div>
         </div>
-      </div>
+      {/if}
     </form>
   </div>
 </Modal>
 
 <style>
   form h2 {
-    margin: 1em;
+    margin: 0 0 1em 0;
     font-weight: bold;
     font-size: 105%;
     text-align: center;
   }
 
-  input[type='text'],
-  input[type='password'] {
-    width: 100%;
-  }
-
-  input[type='checkbox'] {
-    margin-right: 0.5em;
-  }
-
   button {
-    margin-top: 1em;
     width: 100%;
+    margin-top: 1em;
   }
 
-  .error {
-    color: red;
-    text-align: center;
-    padding: 1.5em;
+  .error-region {
+    margin-top: 1em;
   }
 </style>

@@ -83,6 +83,10 @@
 
   // Modals
 
+  .dialog {
+    padding: 1.5em 1em;
+  }
+
   .dialog,
   .modal-notice,
   .modal-flash {
@@ -99,5 +103,11 @@
   .modal-flash {
     padding: 1.5em;
     text-align: center;
+  }
+
+  // Alerts
+
+  .alert {
+    margin-bottom: 0; // override default 1rem
   }
 </style>
