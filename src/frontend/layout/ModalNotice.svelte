@@ -1,6 +1,6 @@
 <script lang="ts" context="module">
   import { writable } from 'svelte/store';
-  import { ModalOptions, showModal, hideModal } from './Modal.svelte';
+  import { ModalOptions, showModal, hideModal } from '../layout/Modal.svelte';
 
   const MODAL_ID = 'global_notice_modal';
   const messageStore = writable<string>('');
@@ -18,7 +18,7 @@
 </script>
 
 <script lang="ts">
-  import Modal from './Modal.svelte';
+  import Modal from '../layout/Modal.svelte';
 
   let classNames = '';
   export { classNames as class };

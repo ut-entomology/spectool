@@ -2,12 +2,12 @@
   import { User } from './lib/user';
   import { loggedInUser } from './stores/loggedInUser';
   import { screenStack } from './stores/screenStack';
+  import ModalFlash from './layout/ModalFlash.svelte';
+  import ModalNotice from './layout/ModalNotice.svelte';
+  import ActivityMenu from './activities/ActivityMenu.svelte';
   import HeaderBar from './components/HeaderBar.svelte';
   import ActivityBar from './components/ActivityBar.svelte';
-  import ActivityMenu from './activities/ActivityMenu.svelte';
   import StatusBar from './components/StatusBar.svelte';
-  import ModalFlash from './components/ModalFlash.svelte';
-  import ModalNotice from './components/ModalNotice.svelte';
 
   $loggedInUser = User.getLoggedInUser();
   screenStack.push({

@@ -1,9 +1,8 @@
 <script lang="ts">
-  import { showModal, hideModal } from './Modal.svelte';
+  import { showModal, hideModal } from '../layout/Modal.svelte';
+  import { flashMessage } from '../layout/ModalFlash.svelte';
+  import { showNotice } from '../layout/ModalNotice.svelte';
   import LoginForm from './LoginForm.svelte';
-  import { flashMessage } from './ModalFlash.svelte';
-  import { showNotice } from './ModalNotice.svelte';
-
   import { loggedInUser } from '../stores/loggedInUser';
   import { User } from '../lib/user';
 

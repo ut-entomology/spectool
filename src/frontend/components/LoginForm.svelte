@@ -1,5 +1,5 @@
 <script lang="ts">
-  import Modal, { hideModal } from './Modal.svelte';
+  import Modal, { hideModal } from '../layout/Modal.svelte';
   import { createForm } from 'svelte-forms-lib';
   import * as yup from 'yup';
 
