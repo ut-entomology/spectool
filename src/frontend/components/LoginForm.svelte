@@ -1,7 +1,8 @@
 <script lang="ts">
-  import Modal, { hideModal } from '../layout/Modal.svelte';
   import { createForm } from 'svelte-forms-lib';
   import * as yup from 'yup';
+  import InputAndError from '../layout/InputAndError.svelte';
+  import Modal, { hideModal } from '../layout/Modal.svelte';
 
   export let id: string;
   export let title = '';
@@ -35,10 +36,6 @@
     }
   });
 
-  function formControlClass(error: string): string {
-    return 'form-control' + (error ? ' is-invalid' : '');
-  }
-
   async function cancelForm() {
     await hideModal();
     handleReset();
@@ -57,17 +54,15 @@
           <label for="username" class="col-form-label">Username</label>
         </div>
         <div class="col-6">
-          <input
+          <InputAndError
             id="username"
-            class={formControlClass($errors.username)}
+            class="form-control"
             type="text"
             on:change={handleChange}
             on:blur={handleChange}
             bind:value={$form.username}
+            error={$errors.username}
           />
-          {#if $errors.username}
-            <div class="invalid-feedback">Required</div>
-          {/if}
         </div>
       </div>
       <div class="row mb-3 justify-content-center">
@@ -75,15 +70,15 @@
           <label for="password" class="col-form-label">Password</label>
         </div>
         <div class="col-6">
-          <input
+          <InputAndError
             id="password"
-            class={formControlClass($errors.password)}
+            class="form-control"
             type="password"
             on:change={handleChange}
             on:blur={handleChange}
             bind:value={$form.password}
+            error={$errors.password}
           />
-          <div class="invalid-feedback">Required</div>
         </div>
       </div>
       <div class="row justify-content-center">
