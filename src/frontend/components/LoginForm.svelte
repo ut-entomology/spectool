@@ -23,22 +23,20 @@
       username: yup.string().required().label('Username'),
       password: yup.string().required().label('Password')
     }),
-    onSubmit: submitForm
+    onSubmit: async (values) => {
+      try {
+        await login(values.username, values.password, values.saving);
+        // reset prior to next viewing
+        handleReset();
+        errorMessage = '';
+      } catch (err) {
+        errorMessage = (err as Error).message;
+      }
+    }
   });
 
   function formControlClass(error: string): string {
     return 'form-control' + (error ? ' is-invalid' : '');
-  }
-
-  async function submitForm(values: any) {
-    try {
-      await login(values.username, values.password, values.saving);
-      // reset prior to next viewing
-      handleReset();
-      errorMessage = '';
-    } catch (err) {
-      errorMessage = (err as Error).message;
-    }
   }
 
   async function cancelForm() {
