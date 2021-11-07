@@ -47,7 +47,9 @@ export class PreferencesFile<T> {
       this.platform.userConfigDir,
       this.filename
     );
-    if (jsonString === '') return this.getDefaultPrefs();
+    if (jsonString === '') {
+      return this.getDefaultPrefs();
+    }
     let { version, prefs } = JSON.parse(jsonString);
     if (version !== this.version) {
       prefs = this.update(version, prefs);

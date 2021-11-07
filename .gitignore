@@ -2,6 +2,7 @@
 build
 public/build
 public/vendor
+testing
 
 # Logs
 logs
