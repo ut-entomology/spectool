@@ -1,6 +1,6 @@
 import knex, { Knex } from 'knex';
 
-interface UserRecord {
+interface SpecUser {
   firstname: string;
 }
 
@@ -28,9 +28,9 @@ export function getFirstNames(
     });
 
     db.select('firstname')
-      .from<UserRecord>('agent')
+      .from<SpecUser>('agent')
       .where('lastname', lastName)
-      .asCallback((err: any, rows: UserRecord[]) => {
+      .asCallback((err: any, rows: SpecUser[]) => {
         if (err) {
           callback(err, []);
           return;

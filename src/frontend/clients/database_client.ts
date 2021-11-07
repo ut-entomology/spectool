@@ -1,5 +1,5 @@
 import { ClientIpc } from '../util/client_ipc';
-import type { Credentials } from '../../shared/Credentials';
+import type { Credentials } from '../../shared/credentials';
 
 export class DatabaseClient {
   static getUsername(window: Window): string | null {

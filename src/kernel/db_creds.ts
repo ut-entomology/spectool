@@ -2,7 +2,7 @@ import knex, { Knex } from 'knex';
 
 import { AppKernel } from './app_kernel';
 import { SavableCredentials } from '../app-util/savable_creds';
-import { Collection } from '../shared/schema/collection';
+import { SpecCollection } from '../shared/schema';
 
 export class DatabaseCredentials extends SavableCredentials {
   private kernel: AppKernel;
@@ -43,7 +43,7 @@ export class DatabaseCredentials extends SavableCredentials {
    */
   async test(db: Knex): Promise<void> {
     try {
-      const rows = await db.select('CollectionName').from<Collection>('collection');
+      const rows = await db.select('CollectionName').from<SpecCollection>('collection');
       if (rows.length == 0) {
         throw Error('No collections found');
       }

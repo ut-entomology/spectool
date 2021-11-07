@@ -1,6 +1,6 @@
 import { AppKernel } from '../../kernel/app_kernel';
 import { IpcHandler, AsyncIpcHandler } from '../util/ipc_handler';
-import { UserRecord } from '../../shared/schema/user_record';
+import { SpecUser } from '../../shared/schema';
 
 class GetFirstNamesIpc extends AsyncIpcHandler {
   kernel: AppKernel;
@@ -13,7 +13,7 @@ class GetFirstNamesIpc extends AsyncIpcHandler {
   async handle(lastName: string): Promise<string[]> {
     const rows = await this.kernel.database
       .select('firstname')
-      .from<UserRecord>('agent')
+      .from<SpecUser>('agent')
       .where('lastname', lastName);
     const firstNames: string[] = [];
     for (const row of rows) {
