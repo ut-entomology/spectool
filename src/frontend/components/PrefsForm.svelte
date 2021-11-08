@@ -56,7 +56,11 @@
 </script>
 
 <div class="dialog">
-  <form class="container g-0" on:submit|preventDefault={handleSubmit}>
+  <form
+    class="g-0"
+    style="max-width:40rem; margin: 0 auto"
+    on:submit|preventDefault={handleSubmit}
+  >
     <div class="row mb-2">
       <div class="col-sm-3">
         <label for="database-host" class="col-form-label">Database host</label>
@@ -125,12 +129,14 @@
         />
       </div>
     </div>
-    <div class="row justify-content-center">
-      <div class="col-3">
-        <button class="btn btn-minor" type="button" on:click={cancelForm}>Cancel</button
-        >
-      </div>
-      <div class="col-1" />
+    <div class="row justify-content-end">
+      {#if initialPrefs.dataFolder !== ''}
+        <div class="col-3">
+          <button class="btn btn-minor" type="button" on:click={cancelForm}
+            >Cancel</button
+          >
+        </div>
+      {/if}
       <div class="col-3">
         <button class="btn btn-major" type="submit">Submit</button>
       </div>

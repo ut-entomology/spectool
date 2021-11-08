@@ -4,7 +4,7 @@
 
 <main>
   <div class="row justify-content-center">
-    <div class="col-sm-10 col-md-9">
+    <div class="col-sm-11 col-md-9">
       <PrefsForm />
     </div>
   </div>

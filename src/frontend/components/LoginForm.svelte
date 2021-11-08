@@ -97,14 +97,13 @@
           </div>
         </div>
       </div>
-      <div class="row justify-content-center">
-        <div class="col-3">
+      <div class="row justify-content-evenly g-2">
+        <div class="col-6 col-sm-3">
           <button class="btn btn-minor" type="button" on:click={cancelForm}
             >Cancel</button
           >
         </div>
-        <div class="col-1" />
-        <div class="col-3">
+        <div class="col-6 col-sm-3">
           <button class="btn btn-major" type="submit">Login</button>
         </div>
       </div>
