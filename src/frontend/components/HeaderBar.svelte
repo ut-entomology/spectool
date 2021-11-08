@@ -7,6 +7,7 @@
   import { User } from '../lib/user';
 
   export let appTitle = 'untitled';
+  export let disabled: boolean;
 
   async function login(username: string, password: string, save: boolean) {
     await User.login(username, password, save);
@@ -48,6 +49,7 @@
           <button
             class="btn btn-major compact"
             on:click={() => showModal('login-form')}
+            {disabled}
           >
             Login
           </button>

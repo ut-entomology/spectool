@@ -1,9 +1,9 @@
 <script lang="ts">
-  import { setContext, getContext } from 'svelte';
+  import { setContext } from 'svelte';
   import { User } from './lib/user';
+  import { appDisabled } from './stores/appDisabled';
   import { loggedInUser } from './stores/loggedInUser';
   import { screenStack } from './stores/screenStack';
-  import type { AppPrefs } from './shared/app_prefs';
   import { AppPrefsClient } from './clients/app_prefs_client';
   import AppPrefsScreen from './AppPrefsScreen.svelte';
   import ModalFlash from './layout/ModalFlash.svelte';
@@ -13,9 +13,12 @@
   import ActivityBar from './components/ActivityBar.svelte';
   import StatusBar from './components/StatusBar.svelte';
 
-  setContext('prefs', AppPrefsClient.getPrefs(window));
+  const initialPrefs = AppPrefsClient.getPrefs(window);
+  $appDisabled = initialPrefs.dataFolder === '';
+
+  setContext('prefs', initialPrefs);
   $loggedInUser = User.getLoggedInUser();
-  if (!getContext<AppPrefs>('prefs').dataFolder) {
+  $: if ($appDisabled) {
     screenStack.push({
       title: 'Application Preferences',
       componentType: AppPrefsScreen,
@@ -34,7 +37,7 @@
   }
 </script>
 
-<HeaderBar appTitle="UT SpecTool" />
+<HeaderBar appTitle="UT SpecTool" disabled={$appDisabled} />
 <div class="page-content">
   <ActivityBar />
   <svelte:component this={currentScreen().componentType} {...currentScreen().params} />
@@ -121,6 +124,10 @@
 
   button.compact {
     padding: 0 0.5rem;
+    font-size: 90%;
+  }
+
+  input[file]::before {
     font-size: 90%;
   }
 

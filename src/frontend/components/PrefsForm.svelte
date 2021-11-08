@@ -1,11 +1,13 @@
 <script lang="ts">
   import { getContext, setContext } from 'svelte';
+  import { createEventDispatcher } from 'svelte';
   import { createForm } from 'svelte-forms-lib';
   import * as yup from 'yup';
   import { AppPrefs } from '../shared/app_prefs';
   import Input from '../layout/Input.svelte';
   import { AppPrefsClient } from '../clients/app_prefs_client';
 
+  const dispatch = createEventDispatcher();
   let errorMessage = '';
 
   const initialPrefs = getContext<AppPrefs>('prefs');
@@ -46,6 +48,7 @@
         prefs.databaseName = formPrefs.databaseName;
         await AppPrefsClient.setPrefs(window, prefs);
         setContext('prefs', prefs);
+        dispatch('submit');
       } catch (err: any) {
         errorMessage = err.message;
       }
@@ -63,45 +66,45 @@
   >
     <div class="row mb-2">
       <div class="col-sm-3">
-        <label for="database-host" class="col-form-label">Database host</label>
+        <label for="databaseHost" class="col-form-label">Database host</label>
       </div>
       <div class="col-sm-9">
         <Input
-          id="database-host"
+          id="databaseHost"
           class="form-control"
           type="text"
           on:change={handleChange}
           on:blur={handleChange}
           bind:value={$form.databaseHost}
           error={$errors.databaseHost}
-          description="URL of database in the form <b>//databasename.domain.com</b>"
+          description="URL of database (e.g. <b>//subdomain.domain.com</b>)"
         />
       </div>
     </div>
     <div class="row mb-3 justify-content-start">
       <div class="col-sm-3">
-        <label for="database-port-str" class="col-form-label">Database port</label>
+        <label for="databasePortStr" class="col-form-label">Database port</label>
       </div>
       <div class="col-sm-9">
         <Input
-          id="database-port-str"
+          id="databasePortStr"
           class="form-control rw-sm-3"
           type="string"
           on:change={handleChange}
           on:blur={handleChange}
           bind:value={$form.databasePortStr}
           error={$errors.databasePortStr}
-          description="Server port as specified by the admin (usually 3306)"
+          description="Server port (usually 3306)"
         />
       </div>
     </div>
     <div class="row mb-3 justify-content-start">
       <div class="col-sm-3">
-        <label for="database-name" class="col-form-label">Database name</label>
+        <label for="databaseName" class="col-form-label">Database name</label>
       </div>
       <div class="col-sm-9">
         <Input
-          id="database-name"
+          id="databaseName"
           class="form-control rw-sm-6"
           type="text"
           on:change={handleChange}
@@ -114,13 +117,13 @@
     </div>
     <div class="row mb-3">
       <div class="col-sm-3">
-        <label for="data-folder" class="col-form-label">Data Folder</label>
+        <label for="dataFolder" class="col-form-label">Data Folder</label>
       </div>
       <div class="col-sm-9">
         <Input
-          id="data-folder"
+          id="dataFolder"
           class="form-control"
-          type="text"
+          type="file"
           on:change={handleChange}
           on:blur={handleChange}
           bind:value={$form.dataFolder}
