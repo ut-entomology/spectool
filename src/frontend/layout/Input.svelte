@@ -2,6 +2,7 @@
   let classNames: string;
   export { classNames as class };
   export let id: string;
+  export let width = '';
   export let value = '';
   export let description = '';
   export let error = '';
@@ -19,6 +20,7 @@
   {...$$restProps}
   {id}
   class={error ? classNames + ' is-invalid' : classNames}
+  style={width ? 'width:' + width : undefined}
   on:blur
   on:change
   on:focus

@@ -5,7 +5,7 @@
   import { screenStack } from './stores/screenStack';
   import type { AppPrefs } from './shared/app_prefs';
   import { AppPrefsClient } from './clients/app_prefs_client';
-  import AppPrefsScreen from './app_prefs_screen.svelte';
+  import AppPrefsScreen from './AppPrefsScreen.svelte';
   import ModalFlash from './layout/ModalFlash.svelte';
   import ModalNotice from './layout/ModalNotice.svelte';
   import ActivityMenu from './activities/ActivityMenu.svelte';
@@ -47,7 +47,37 @@
 <style lang="scss" global>
   // Svelte is not allowing a component to have both local and global SCSS.
 
+  @use 'sass:math';
   @import './values';
+
+  @import '../../node_modules/bootstrap/scss/functions';
+  @import '../../node_modules/bootstrap/scss/variables';
+  @import '../../node_modules/bootstrap/scss/utilities';
+
+  // Must precede loading boostrap SCSS
+  $utilities: (
+    'rw': (
+      class: 'rw',
+      property: width,
+      responsive: true,
+      values: (
+        // can't figure out how to generate this
+        1: math.percentage(math.div(1, 12)),
+        2: math.percentage(math.div(2, 12)),
+        3: math.percentage(math.div(3, 12)),
+        4: math.percentage(math.div(4, 12)),
+        5: math.percentage(math.div(5, 12)),
+        6: math.percentage(math.div(6, 12)),
+        7: math.percentage(math.div(7, 12)),
+        8: math.percentage(math.div(8, 12)),
+        9: math.percentage(math.div(9, 12)),
+        10: math.percentage(math.div(10, 12)),
+        11: math.percentage(math.div(11, 12)),
+        12: math.percentage(math.div(12, 12))
+      )
+    )
+  );
+
   @import '../../node_modules/bootstrap/scss/bootstrap';
 
   // Layout

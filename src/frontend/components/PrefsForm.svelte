@@ -46,8 +46,8 @@
         prefs.databaseName = formPrefs.databaseName;
         await AppPrefsClient.setPrefs(window, prefs);
         setContext('prefs', prefs);
-      } catch (err) {
-        // TBD
+      } catch (err: any) {
+        errorMessage = err.message;
       }
     }
   });
@@ -57,14 +57,11 @@
 
 <div class="dialog">
   <form class="container g-0" on:submit|preventDefault={handleSubmit}>
-    <div class="row">
-      <h2 class="col">Application Preferences</h2>
-    </div>
     <div class="row mb-2">
-      <div class="col-3">
+      <div class="col-sm-3">
         <label for="database-host" class="col-form-label">Database host</label>
       </div>
-      <div class="col-6">
+      <div class="col-sm-9">
         <Input
           id="database-host"
           class="form-control"
@@ -77,14 +74,14 @@
         />
       </div>
     </div>
-    <div class="row mb-3">
-      <div class="col-3">
-        <label for="database-port" class="col-form-label">Database port</label>
+    <div class="row mb-3 justify-content-start">
+      <div class="col-sm-3">
+        <label for="database-port-str" class="col-form-label">Database port</label>
       </div>
-      <div class="col-6">
+      <div class="col-sm-9">
         <Input
-          id="database-port"
-          class="form-control"
+          id="database-port-str"
+          class="form-control rw-sm-3"
           type="string"
           on:change={handleChange}
           on:blur={handleChange}
@@ -94,14 +91,14 @@
         />
       </div>
     </div>
-    <div class="row mb-3">
-      <div class="col-3">
+    <div class="row mb-3 justify-content-start">
+      <div class="col-sm-3">
         <label for="database-name" class="col-form-label">Database name</label>
       </div>
-      <div class="col-6">
+      <div class="col-sm-9">
         <Input
           id="database-name"
-          class="form-control"
+          class="form-control rw-sm-6"
           type="text"
           on:change={handleChange}
           on:blur={handleChange}
@@ -112,10 +109,10 @@
       </div>
     </div>
     <div class="row mb-3">
-      <div class="col-3">
+      <div class="col-sm-3">
         <label for="data-folder" class="col-form-label">Data Folder</label>
       </div>
-      <div class="col-6">
+      <div class="col-sm-9">
         <Input
           id="data-folder"
           class="form-control"
@@ -147,13 +144,6 @@
 </div>
 
 <style>
-  form h2 {
-    margin: 0 0 1rem 0;
-    font-weight: bold;
-    font-size: 105%;
-    text-align: center;
-  }
-
   button {
     width: 100%;
     margin-top: 1rem;

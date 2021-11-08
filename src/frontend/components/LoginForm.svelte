@@ -50,10 +50,10 @@
         <h2 class="col">{title}</h2>
       </div>
       <div class="row mb-2 justify-content-center">
-        <div class="col-3">
+        <div class="col-sm-3">
           <label for="username" class="col-form-label">Username</label>
         </div>
-        <div class="col-6">
+        <div class="col-sm-6">
           <Input
             id="username"
             class="form-control"
@@ -66,10 +66,10 @@
         </div>
       </div>
       <div class="row mb-3 justify-content-center">
-        <div class="col-3">
+        <div class="col-sm-3">
           <label for="password" class="col-form-label">Password</label>
         </div>
-        <div class="col-6">
+        <div class="col-sm-6">
           <Input
             id="password"
             class="form-control"
