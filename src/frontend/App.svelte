@@ -1,7 +1,11 @@
 <script lang="ts">
+  import { setContext, getContext } from 'svelte';
   import { User } from './lib/user';
   import { loggedInUser } from './stores/loggedInUser';
   import { screenStack } from './stores/screenStack';
+  import type { AppPrefs } from './shared/app_prefs';
+  import { AppPrefsClient } from './clients/app_prefs_client';
+  import AppPrefsScreen from './app_prefs_screen.svelte';
   import ModalFlash from './layout/ModalFlash.svelte';
   import ModalNotice from './layout/ModalNotice.svelte';
   import ActivityMenu from './activities/ActivityMenu.svelte';
@@ -9,12 +13,21 @@
   import ActivityBar from './components/ActivityBar.svelte';
   import StatusBar from './components/StatusBar.svelte';
 
+  setContext('prefs', AppPrefsClient.getPrefs(window));
   $loggedInUser = User.getLoggedInUser();
-  screenStack.push({
-    title: 'Activities',
-    componentType: ActivityMenu,
-    params: {}
-  });
+  if (!getContext<AppPrefs>('prefs').dataFolder) {
+    screenStack.push({
+      title: 'Application Preferences',
+      componentType: AppPrefsScreen,
+      params: {}
+    });
+  } else {
+    screenStack.push({
+      title: 'Activities',
+      componentType: ActivityMenu,
+      params: {}
+    });
+  }
 
   function currentScreen() {
     return $screenStack[$screenStack.length - 1];

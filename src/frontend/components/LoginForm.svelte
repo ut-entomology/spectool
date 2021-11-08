@@ -1,7 +1,7 @@
 <script lang="ts">
   import { createForm } from 'svelte-forms-lib';
   import * as yup from 'yup';
-  import InputAndError from '../layout/InputAndError.svelte';
+  import Input from '../layout/Input.svelte';
   import Modal, { hideModal } from '../layout/Modal.svelte';
 
   export let id: string;
@@ -44,7 +44,7 @@
 </script>
 
 <Modal {id} fade maxWidth="400px">
-  <div class="dialog login-dialog">
+  <div class="dialog">
     <form class="container g-0" on:submit|preventDefault={handleSubmit}>
       <div class="row">
         <h2 class="col">{title}</h2>
@@ -54,7 +54,7 @@
           <label for="username" class="col-form-label">Username</label>
         </div>
         <div class="col-6">
-          <InputAndError
+          <Input
             id="username"
             class="form-control"
             type="text"
@@ -70,7 +70,7 @@
           <label for="password" class="col-form-label">Password</label>
         </div>
         <div class="col-6">
-          <InputAndError
+          <Input
             id="password"
             class="form-control"
             type="password"

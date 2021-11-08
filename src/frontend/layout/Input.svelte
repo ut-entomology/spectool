@@ -1,7 +1,9 @@
 <script lang="ts">
   let classNames: string;
   export { classNames as class };
+  export let id: string;
   export let value = '';
+  export let description = '';
   export let error = '';
 
   function errorMessage(error: string) {
@@ -15,6 +17,7 @@
 
 <input
   {...$$restProps}
+  {id}
   class={error ? classNames + ' is-invalid' : classNames}
   on:blur
   on:change
@@ -24,5 +27,9 @@
   on:keypress
   on:keyup
   bind:value
+  aria-describedby={description ? id + '-form-text' : undefined}
 />
 <div class="invalid-feedback">{errorMessage(error)}</div>
+{#if description}
+  <div id={id + '-form-text'} class="form-text">{@html description}</div>
+{/if}
