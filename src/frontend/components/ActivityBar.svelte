@@ -8,9 +8,9 @@
 
 <div class="activity_bar">
   {#if $screenStack.length == 1}
-    <div>{$screenStack[0].title}</div>
+    <div class="title">{$screenStack[0].title}</div>
   {:else}
-    <div>{$screenStack[1].title}</div>
+    <div class="title">{$screenStack[1].title}</div>
     <button class="btn btn-minor compact" on:click={closeActivity}>Close</button>
   {/if}
 </div>

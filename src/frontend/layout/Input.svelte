@@ -29,7 +29,9 @@
   bind:value
   aria-describedby={description ? id + '-form-text' : undefined}
 />
-<div class="invalid-feedback">{errorMessage(error)}</div>
+{#if error}
+  <div class="invalid-feedback">{errorMessage(error)}</div>
+{/if}
 {#if description}
   <div id={id + '-form-text'} class="form-text">{@html description}</div>
 {/if}

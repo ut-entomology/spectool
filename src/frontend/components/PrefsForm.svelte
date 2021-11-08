@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { getContext, setContext } from 'svelte';
+  import { getContext, tick } from 'svelte';
   import { createEventDispatcher } from 'svelte';
   import { createForm } from 'svelte-forms-lib';
   import * as yup from 'yup';
@@ -11,19 +11,24 @@
   const dispatch = createEventDispatcher();
   let errorMessage = '';
 
-  const initialPrefs = getContext<AppPrefs>('prefs');
+  const appPrefs = getContext<AppPrefs>('prefs');
   const { form, errors, handleChange, handleSubmit } = createForm({
     initialValues: {
-      dataFolder: initialPrefs.dataFolder,
-      databaseHost: initialPrefs.databaseHost,
-      databasePortStr: initialPrefs.databasePort.toString(),
-      databaseName: initialPrefs.databaseName
+      dataFolder: appPrefs.dataFolder,
+      databaseHost: appPrefs.databaseHost,
+      databasePortStr: appPrefs.databasePort.toString(),
+      databaseName: appPrefs.databaseName
     },
     validationSchema: yup.object().shape({
       databaseHost: yup
         .string()
         .label('Database host')
         .trim()
+        .transform((value, _) => {
+          // This transformation does not affect the input value,
+          // but is necessary to satisfy the YUP URL schema.
+          return value.startsWith('//') ? value : '//' + value;
+        })
         .url()
         .required()
         .test(
@@ -42,13 +47,13 @@
     }),
     onSubmit: async (formPrefs) => {
       try {
-        const prefs = new AppPrefs();
-        prefs.dataFolder = formPrefs.dataFolder;
-        prefs.databaseHost = formPrefs.databaseHost;
-        prefs.databasePort = parseInt(formPrefs.databasePortStr);
-        prefs.databaseName = formPrefs.databaseName;
-        await AppPrefsClient.setPrefs(window, prefs);
-        setContext('prefs', prefs);
+        const newPrefs = new AppPrefs();
+        newPrefs.dataFolder = formPrefs.dataFolder;
+        newPrefs.databaseHost = formPrefs.databaseHost;
+        newPrefs.databasePort = parseInt(formPrefs.databasePortStr);
+        newPrefs.databaseName = formPrefs.databaseName;
+        await AppPrefsClient.setPrefs(window, newPrefs);
+        appPrefs.copyFrom(newPrefs);
         dispatch('submit');
       } catch (err: any) {
         errorMessage = err.message;
@@ -56,13 +61,16 @@
     }
   });
 
-  function chooseFolder() {
+  async function chooseFolder() {
     const folderPath = DialogClient.openDirectoryDialog(
       window,
       'Choose the data folder'
     );
     if (folderPath) {
       $form.dataFolder = folderPath;
+      // Force re-validation
+      await tick();
+      document.getElementById('dataFolder')!.dispatchEvent(new Event('change'));
     }
   }
 
@@ -71,8 +79,8 @@
 
 <div class="dialog">
   <form
-    class="g-0"
-    style="max-width:40rem; margin: 0 auto"
+    class="container-fluid g-0"
+    style="max-width:45rem; margin: 0 auto"
     on:submit|preventDefault={handleSubmit}
   >
     <div class="row mb-2">
@@ -126,12 +134,12 @@
         />
       </div>
     </div>
-    <div class="row mb-3">
+    <div class="row mb-4">
       <div class="col-sm-3">
         <label for="dataFolder" class="col-form-label">Data Folder</label>
       </div>
       <div class="col-sm-9">
-        <div class="input-group">
+        <div class={$errors.dataFolder ? 'input-group is-invalid' : 'input-group'}>
           <Input
             id="dataFolder"
             class="form-control"
@@ -139,17 +147,22 @@
             on:change={handleChange}
             on:blur={handleChange}
             bind:value={$form.dataFolder}
-            error={$errors.dataFolder}
-            description="Folder for saved application data"
+            aria-describedby="dataFolder-form-text"
           />
-          <button class="btn btn-secondary" type="button" on:click={chooseFolder}
-            >Choose</button
-          >
+          <div class="input-group-btn">
+            <button class="btn btn-secondary" type="button" on:click={chooseFolder}
+              >Choose</button
+            >
+          </div>
+        </div>
+        <div class="invalid-feedback">{$errors.dataFolder}</div>
+        <div id="dataFolder-form-text" class="form-text">
+          Folder for saved application data
         </div>
       </div>
     </div>
     <div class="row justify-content-end">
-      {#if initialPrefs.dataFolder !== ''}
+      {#if appPrefs.dataFolder}
         <div class="col-3">
           <button class="btn btn-minor" type="button" on:click={cancelForm}
             >Cancel</button
@@ -171,7 +184,6 @@
 <style>
   button {
     width: 100%;
-    margin-top: 1rem;
   }
 
   .error-region {

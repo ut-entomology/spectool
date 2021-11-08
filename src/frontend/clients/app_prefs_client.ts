@@ -1,9 +1,9 @@
 import { ClientIpc } from '../util/client_ipc';
-import type { AppPrefs } from '../shared/app_prefs';
+import { AppPrefs } from '../shared/app_prefs';
 
 export class AppPrefsClient {
   static getPrefs(window: Window): AppPrefs {
-    return ClientIpc.sendSync(window, 'get_app_prefs');
+    return new AppPrefs(ClientIpc.sendSync(window, 'get_app_prefs'));
   }
 
   static setPrefs(window: Window, appPrefs: AppPrefs): Promise<void> {

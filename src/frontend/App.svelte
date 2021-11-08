@@ -14,7 +14,6 @@
   import StatusBar from './components/StatusBar.svelte';
 
   const initialPrefs = AppPrefsClient.getPrefs(window);
-  console.log('DATA FOLDER', initialPrefs);
   $appDisabled = !initialPrefs.dataFolder;
 
   setContext('prefs', initialPrefs);
@@ -121,6 +120,7 @@
   button.btn-major:hover,
   button.btn-minor:hover {
     border: 1px solid $blueLinkColor;
+    color: $blueLinkColor;
   }
 
   button.compact {
