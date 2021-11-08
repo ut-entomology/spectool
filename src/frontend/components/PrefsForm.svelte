@@ -148,7 +148,7 @@
 
 <style>
   form h2 {
-    margin: 0 0 1em 0;
+    margin: 0 0 1rem 0;
     font-weight: bold;
     font-size: 105%;
     text-align: center;
@@ -156,10 +156,10 @@
 
   button {
     width: 100%;
-    margin-top: 1em;
+    margin-top: 1rem;
   }
 
   .error-region {
-    margin-top: 1em;
+    margin-top: 1rem;
   }
 </style>

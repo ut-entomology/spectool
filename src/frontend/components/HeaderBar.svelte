@@ -67,7 +67,7 @@
     width: 100%;
     background-color: $pageBarBackgroundColor;
     color: $pageBarTextColor;
-    padding: 0.3em $horizontalMargin;
+    padding: 0.3rem $horizontalMargin;
   }
 
   .app_title,

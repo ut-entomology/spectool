@@ -70,8 +70,8 @@
   button.btn-major,
   button.btn-minor {
     color: $blueLinkColor;
-    padding: 0.2em 0.6em;
-    border-radius: 0.5em;
+    padding: 0.2rem 0.6rem;
+    border-radius: 0.5rem;
   }
 
   button.btn-major {
@@ -90,14 +90,14 @@
   }
 
   button.compact {
-    padding: 0 0.5em;
+    padding: 0 0.5rem;
     font-size: 90%;
   }
 
   // Modals
 
   .dialog {
-    padding: 1.5em 1em;
+    padding: 1.5rem 1rem;
   }
 
   .dialog,
@@ -110,11 +110,11 @@
   }
 
   .modal-notice {
-    padding: 1em;
+    padding: 1rem;
   }
 
   .modal-flash {
-    padding: 1.5em;
+    padding: 1.5rem;
     text-align: center;
   }
 

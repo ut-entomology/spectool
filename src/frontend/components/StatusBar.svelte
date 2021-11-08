@@ -13,14 +13,14 @@
     flex: 0;
     width: 100%;
     background-color: $pageBarBackgroundColor;
-    padding: 0.4em 0;
+    padding: 0.4rem 0;
   }
 
   .content {
     position: relative;
     margin: 0 $horizontalMargin;
     font-size: 90%;
-    height: 1em;
+    height: 1rem;
     text-align: right;
   }
 </style>

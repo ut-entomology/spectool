@@ -42,12 +42,12 @@
 
   .activity {
     width: 350px;
-    margin: 2em;
+    margin: 2rem;
   }
 
   .description {
-    margin-top: 0.5em;
-    margin-left: 1em;
+    margin-top: 0.5rem;
+    margin-left: 1rem;
     font-size: 90%;
   }
 </style>

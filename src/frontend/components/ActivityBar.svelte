@@ -19,13 +19,13 @@
   .activity_bar {
     display: flex;
     font-size: 110%;
-    margin: 0.4em 0;
+    margin: 0.4rem 0;
   }
 
   .activity_bar div {
     display: flex;
     flex-direction: column;
     justify-content: center;
-    margin-right: 0.5em;
+    margin-right: 0.5rem;
   }
 </style>
