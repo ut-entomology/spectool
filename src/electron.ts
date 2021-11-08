@@ -4,6 +4,7 @@ import 'source-map-support/register';
 
 import appPrefsApi from './backend/api/app_prefs_api';
 import databaseApi from './backend/api/database_api';
+import dialogApi from './backend/api/dialog_api';
 import firstNamesApi from './backend/api/first_names_api';
 import { AppKernel } from './kernel/app_kernel';
 
@@ -48,6 +49,7 @@ async function configure() {
   const ipcHandlerSets = [
     appPrefsApi(kernel), // multiline
     databaseApi(kernel),
+    dialogApi(kernel),
     firstNamesApi(kernel)
   ];
   ipcHandlerSets.forEach((handlerSet) => {

@@ -14,7 +14,8 @@
   import StatusBar from './components/StatusBar.svelte';
 
   const initialPrefs = AppPrefsClient.getPrefs(window);
-  $appDisabled = initialPrefs.dataFolder === '';
+  console.log('DATA FOLDER', initialPrefs);
+  $appDisabled = !initialPrefs.dataFolder;
 
   setContext('prefs', initialPrefs);
   $loggedInUser = User.getLoggedInUser();

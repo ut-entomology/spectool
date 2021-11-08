@@ -6,6 +6,7 @@
   import { AppPrefs } from '../shared/app_prefs';
   import Input from '../layout/Input.svelte';
   import { AppPrefsClient } from '../clients/app_prefs_client';
+  import { DialogClient } from '../clients/dialog_client';
 
   const dispatch = createEventDispatcher();
   let errorMessage = '';
@@ -54,6 +55,16 @@
       }
     }
   });
+
+  function chooseFolder() {
+    const folderPath = DialogClient.openDirectoryDialog(
+      window,
+      'Choose the data folder'
+    );
+    if (folderPath) {
+      $form.dataFolder = folderPath;
+    }
+  }
 
   async function cancelForm() {}
 </script>
@@ -120,16 +131,21 @@
         <label for="dataFolder" class="col-form-label">Data Folder</label>
       </div>
       <div class="col-sm-9">
-        <Input
-          id="dataFolder"
-          class="form-control"
-          type="file"
-          on:change={handleChange}
-          on:blur={handleChange}
-          bind:value={$form.dataFolder}
-          error={$errors.dataFolder}
-          description="Folder for saved application data"
-        />
+        <div class="input-group">
+          <Input
+            id="dataFolder"
+            class="form-control"
+            type="text"
+            on:change={handleChange}
+            on:blur={handleChange}
+            bind:value={$form.dataFolder}
+            error={$errors.dataFolder}
+            description="Folder for saved application data"
+          />
+          <button class="btn btn-secondary" type="button" on:click={chooseFolder}
+            >Choose</button
+          >
+        </div>
       </div>
     </div>
     <div class="row justify-content-end">
