@@ -3,12 +3,12 @@
   import PrefsForm from './components/PrefsForm.svelte';
 </script>
 
-<main class="container-md">
+<main class="container-md g-0">
   <div class="row mt-3">
     <div class="intro col-12">Please configure this application for use.</div>
   </div>
   <div class="row justify-content-center">
-    <div class="col-sm-11 col-md-9">
+    <div class="col-lg-9">
       <PrefsForm
         on:submit={() => {
           $appDisabled = false;

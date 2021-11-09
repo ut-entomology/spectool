@@ -80,7 +80,7 @@
 <div class="dialog">
   <form
     class="container-fluid g-0"
-    style="max-width:45rem; margin: 0 auto"
+    style="max-width:40rem; margin: 0 auto"
     on:submit|preventDefault={handleSubmit}
   >
     <div class="row mb-2">
@@ -96,7 +96,7 @@
           on:blur={handleChange}
           bind:value={$form.databaseHost}
           error={$errors.databaseHost}
-          description="URL of database (e.g. <b>//subdomain.domain.com</b>)"
+          description="URL of database (e.g. <b>subdomain.domain.com</b>)"
         />
       </div>
     </div>
