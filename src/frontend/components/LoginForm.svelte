@@ -2,6 +2,7 @@
   import { createForm } from 'svelte-forms-lib';
   import * as yup from 'yup';
   import Input from '../layout/Input.svelte';
+  import Form from '../layout/Form.svelte';
   import Modal, { hideModal } from '../layout/Modal.svelte';
 
   export let id: string;
@@ -14,12 +15,13 @@
 
   let errorMessage = '';
 
-  const { form, errors, handleChange, handleSubmit, handleReset } = createForm({
-    initialValues: {
-      username: '',
-      password: '',
-      saving: false
-    },
+  const initialValues = {
+    username: '',
+    password: '',
+    saving: false
+  };
+  const context = createForm({
+    initialValues,
     validationSchema: yup.object().shape({
       username: yup.string().required().label('Username'),
       password: yup.string().required().label('Password'),
@@ -27,27 +29,27 @@
     }),
     onSubmit: async (values) => {
       try {
-        console.log('Saving?', values.saving);
         await login(values.username, values.password, values.saving);
         // reset prior to next viewing
-        handleReset();
+        $form.username = '';
         errorMessage = '';
       } catch (err) {
         errorMessage = (err as Error).message;
       }
     }
   });
+  const { form } = context;
 
   async function cancelForm() {
     await hideModal();
-    handleReset();
+    $form.username = '';
     errorMessage = '';
   }
 </script>
 
 <Modal {id} fade maxWidth="400px">
   <div class="dialog">
-    <form class="container g-0" on:submit|preventDefault={handleSubmit}>
+    <Form class="container g-0" {context}>
       <div class="row">
         <h2 class="col">{title}</h2>
       </div>
@@ -56,14 +58,7 @@
           <label for="username" class="col-form-label">Username</label>
         </div>
         <div class="col-sm-6">
-          <Input
-            id="username"
-            type="text"
-            on:change={handleChange}
-            on:blur={handleChange}
-            bind:value={$form.username}
-            error={$errors.username}
-          />
+          <Input id="username" type="text" />
         </div>
       </div>
       <div class="row mb-3 justify-content-center">
@@ -71,27 +66,13 @@
           <label for="password" class="col-form-label">Password</label>
         </div>
         <div class="col-sm-6">
-          <Input
-            id="password"
-            type="password"
-            on:change={handleChange}
-            on:blur={handleChange}
-            bind:value={$form.password}
-            error={$errors.password}
-          />
+          <Input id="password" type="password" />
         </div>
       </div>
       <div class="row justify-content-center">
         <div class="col-auto">
           <div class="form-check">
-            <Input
-              id="saving"
-              role="button"
-              type="checkbox"
-              on:change={handleChange}
-              on:blur={handleChange}
-              bind:checked={$form.saving}
-            />
+            <Input id="saving" role="button" type="checkbox" />
             <label class="form-check-label" for="saving">
               Stay logged in on this computer
             </label>
@@ -113,12 +94,12 @@
           <div class="alert alert-danger" role="alert">{errorMessage}</div>
         </div>
       {/if}
-    </form>
+    </Form>
   </div>
 </Modal>
 
 <style>
-  form h2 {
+  h2 {
     margin: 0 0 1rem 0;
     font-weight: bold;
     font-size: 105%;
