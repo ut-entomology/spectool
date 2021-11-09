@@ -9,18 +9,33 @@
 </script>
 
 <script lang="ts">
-  let classNames: string;
+  let classNames: string = '';
   export { classNames as class };
   export let id: string;
+  let typeAttr: string;
+  export { typeAttr as type };
   export let value = '';
+  export let checked = false;
   export let description = '';
   export let error = '';
+
+  let baseClass: string;
+  switch (typeAttr) {
+    case 'checkbox':
+      baseClass = 'form-check-input';
+      break;
+    default:
+      baseClass = 'form-control';
+  }
+  const classes = classNames ? baseClass + ' ' + classNames : baseClass;
 </script>
 
 <input
-  {...$$restProps}
   {id}
-  class={error ? classNames + ' is-invalid' : classNames}
+  class={error ? classes + ' is-invalid' : classes}
+  type={typeAttr}
+  {value}
+  {checked}
   on:blur
   on:change
   on:focus
@@ -28,8 +43,8 @@
   on:keydown
   on:keypress
   on:keyup
-  bind:value
   aria-describedby={description ? id + '-form-text' : undefined}
+  {...$$restProps}
 />
 {#if error}
   <div class="invalid-feedback">{normalizeError(error)}</div>

@@ -22,10 +22,12 @@
     },
     validationSchema: yup.object().shape({
       username: yup.string().required().label('Username'),
-      password: yup.string().required().label('Password')
+      password: yup.string().required().label('Password'),
+      saving: yup.bool()
     }),
     onSubmit: async (values) => {
       try {
+        console.log('Saving?', values.saving);
         await login(values.username, values.password, values.saving);
         // reset prior to next viewing
         handleReset();
@@ -56,7 +58,6 @@
         <div class="col-sm-6">
           <Input
             id="username"
-            class="form-control"
             type="text"
             on:change={handleChange}
             on:blur={handleChange}
@@ -72,7 +73,6 @@
         <div class="col-sm-6">
           <Input
             id="password"
-            class="form-control"
             type="password"
             on:change={handleChange}
             on:blur={handleChange}
@@ -84,12 +84,13 @@
       <div class="row justify-content-center">
         <div class="col-auto">
           <div class="form-check">
-            <input
+            <Input
               id="saving"
               role="button"
-              class="form-check-input"
-              bind:checked={$form.saving}
               type="checkbox"
+              on:change={handleChange}
+              on:blur={handleChange}
+              bind:checked={$form.saving}
             />
             <label class="form-check-label" for="saving">
               Stay logged in on this computer
