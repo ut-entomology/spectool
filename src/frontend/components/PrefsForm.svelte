@@ -5,6 +5,7 @@
   import * as yup from 'yup';
   import { AppPrefs } from '../shared/app_prefs';
   import Input from '../layout/Input.svelte';
+  import InputGroup from '../layout/InputGroup.svelte';
   import { AppPrefsClient } from '../clients/app_prefs_client';
   import { DialogClient } from '../clients/dialog_client';
 
@@ -47,6 +48,7 @@
     }),
     onSubmit: async (formPrefs) => {
       try {
+        console.log('called submit');
         const newPrefs = new AppPrefs();
         newPrefs.dataFolder = formPrefs.dataFolder;
         newPrefs.databaseHost = formPrefs.databaseHost;
@@ -139,7 +141,11 @@
         <label for="dataFolder" class="col-form-label">Data Folder</label>
       </div>
       <div class="col-sm-9">
-        <div class={$errors.dataFolder ? 'input-group is-invalid' : 'input-group'}>
+        <InputGroup
+          id="dataFolderGroup"
+          error={$errors.dataFolder}
+          description="Folder for saved application data"
+        >
           <Input
             id="dataFolder"
             class="form-control"
@@ -147,18 +153,13 @@
             on:change={handleChange}
             on:blur={handleChange}
             bind:value={$form.dataFolder}
-            aria-describedby="dataFolder-form-text"
           />
           <div class="input-group-btn">
             <button class="btn btn-secondary" type="button" on:click={chooseFolder}
               >Choose</button
             >
           </div>
-        </div>
-        <div class="invalid-feedback">{$errors.dataFolder}</div>
-        <div id="dataFolder-form-text" class="form-text">
-          Folder for saved application data
-        </div>
+        </InputGroup>
       </div>
     </div>
     <div class="row justify-content-end">
