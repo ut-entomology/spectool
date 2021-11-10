@@ -35,23 +35,6 @@
     };
   }
 
-  export function resetInputs(rootID: string, initialValues?: any) {
-    const inputGroupElem = document.getElementById(rootID);
-    const inputElems = inputGroupElem!.querySelectorAll('input, select, textarea');
-    inputElems!.forEach((elem) => {
-      const inputElem = elem as HTMLInputElement;
-      let newValue: any = '';
-      if (inputElem.id && initialValues && initialValues[inputElem.id]) {
-        newValue = initialValues[inputElem.id];
-      }
-      if (inputElem.type == 'checkbox') {
-        inputElem.checked = newValue === true;
-      } else {
-        inputElem.value = newValue;
-      }
-    });
-  }
-
   export function normalizeError(error: string) {
     const requiredOffset = error.indexOf(' is a required field');
     if (requiredOffset > 0) {
@@ -66,26 +49,19 @@
 
   const { form, errors, handleChange } = getContext<FormContext>(inputKey);
 
-  let classes: string = '';
-  export { classes as class };
   export let id: string;
+  let classAttr: string = '';
+  export { classAttr as class };
   let typeAttr: string;
   export { typeAttr as type };
   export let description = '';
 
-  let baseClass: string;
-  let checked: any = undefined;
-  let value: any = undefined;
-  switch (typeAttr) {
-    case 'checkbox':
-      baseClass = 'form-check-input';
-      checked = $form[id]; // for initial value only
-      break;
-    default:
-      baseClass = 'form-control';
-      value = $form[id]; // for initial value only
-  }
-  classes = classes ? baseClass + ' ' + classes : baseClass;
+  const inputClasses: { [key: string]: string } = {
+    checkbox: 'form-check-input',
+    text: 'form-control'
+  };
+  const baseClass = inputClasses[typeAttr] || inputClasses['text'];
+  classAttr = classAttr ? baseClass + ' ' + classAttr : baseClass;
 
   const groupErrors: ReturnType<typeof createErrorsStore> =
     getContext('input-group-errors');
@@ -96,11 +72,12 @@
 
 <input
   {id}
-  class={!groupErrors && $errors[id] ? classes + ' is-invalid' : classes}
+  name={id}
+  class={!groupErrors && $errors[id] ? classAttr + ' is-invalid' : classAttr}
   type={typeAttr}
-  {checked}
-  {value}
+  value={$form[id]}
   on:change={handleChange}
+  on:blur={handleChange}
   on:focus
   on:input
   on:keydown
