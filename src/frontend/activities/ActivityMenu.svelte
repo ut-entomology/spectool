@@ -1,5 +1,5 @@
 <script lang="ts">
-  import 'bootstrap';
+  import FormTest from '../components/FormTest.svelte';
   import { screenStack } from '../stores/screenStack';
   import type { Activity } from '../lib/activity';
   import FirstNames from '../activities/FirstNames.svelte';
@@ -20,6 +20,8 @@
     });
   }
 </script>
+
+<FormTest />
 
 <nav>
   {#each activities as activity}
