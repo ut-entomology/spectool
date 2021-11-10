@@ -1,7 +1,7 @@
 <script lang="ts">
   import { createForm } from 'svelte-forms-lib';
   import * as yup from 'yup';
-  import Input from '../layout/Input.svelte';
+  import Input, { resetInputs } from '../layout/Input.svelte';
   import Form from '../layout/Form.svelte';
   import Modal, { hideModal } from '../layout/Modal.svelte';
 
@@ -18,7 +18,7 @@
   const initialValues = {
     username: '',
     password: '',
-    saving: false
+    saving: true
   };
   const context = createForm({
     initialValues,
@@ -31,7 +31,8 @@
       try {
         await login(values.username, values.password, values.saving);
         // reset prior to next viewing
-        $form.username = '';
+        Object.assign($form, initialValues); // resets form lib values
+        resetInputs(id, initialValues); // resets form values
         errorMessage = '';
       } catch (err) {
         errorMessage = (err as Error).message;
@@ -42,7 +43,8 @@
 
   async function cancelForm() {
     await hideModal();
-    $form.username = '';
+    Object.assign($form, initialValues); // resets form lib values
+    resetInputs(id, initialValues); // resets form values
     errorMessage = '';
   }
 </script>

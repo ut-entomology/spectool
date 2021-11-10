@@ -72,7 +72,6 @@
 
 <script lang="ts">
   import * as bootstrap from 'bootstrap';
-  import { onMount } from 'svelte';
   import { writable } from 'svelte/store';
 
   export let id: string;
@@ -80,11 +79,6 @@
   export { classNames as class };
   export let fade = false;
   export let maxWidth = '';
-
-  onMount(() => {
-    // Only clear current modal when it is really hidden, and always do so.
-    addListener(id, 'hidden', () => currentModalIDStore.set(null));
-  });
 </script>
 
 <div {id} class={'modal' + (fade ? ' fade' : '')} tabindex="-1" aria-hidden="true">

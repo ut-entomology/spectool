@@ -4,17 +4,14 @@
 
   export let context: FormContext;
 
-  export function resetForm(initialValues: { [key: string]: any }) {
-    for (const id of initialValues) {
-      const elem = document.getElementById(id);
-      if (elem!.type == 'text') {
-      }
-    }
-  }
-
   setContext(inputKey, context);
+
+  const submit = (event: Event) => {
+    console.log('telling lib to submit');
+    context.handleSubmit(event);
+  };
 </script>
 
-<form on:submit={context.handleSubmit} {...$$restProps}>
+<form on:submit={submit} {...$$restProps}>
   <slot />
 </form>

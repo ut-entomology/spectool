@@ -4,6 +4,7 @@
   import { createForm } from 'svelte-forms-lib';
   import * as yup from 'yup';
   import { AppPrefs } from '../shared/app_prefs';
+  import Form from '../layout/Form.svelte';
   import Input from '../layout/Input.svelte';
   import InputGroup from '../layout/InputGroup.svelte';
   import { AppPrefsClient } from '../clients/app_prefs_client';
@@ -13,7 +14,7 @@
   let errorMessage = '';
 
   const appPrefs = getContext<AppPrefs>('prefs');
-  const { form, errors, handleChange, handleSubmit } = createForm({
+  const context = createForm({
     initialValues: {
       dataFolder: appPrefs.dataFolder,
       databaseHost: appPrefs.databaseHost,
@@ -62,6 +63,7 @@
       }
     }
   });
+  const { errors } = context;
 
   async function chooseFolder() {
     const folderPath = DialogClient.openDirectoryDialog(
@@ -69,10 +71,12 @@
       'Choose the data folder'
     );
     if (folderPath) {
-      $form.dataFolder = folderPath;
+      const elem = document.getElementById('dataFolder');
+      (elem as HTMLInputElement).value = folderPath;
       // Force re-validation
       await tick();
-      document.getElementById('dataFolder')!.dispatchEvent(new Event('change'));
+      elem!.dispatchEvent(new Event('change'));
+      console.log('issued change for dataFolder');
     }
   }
 
@@ -80,11 +84,7 @@
 </script>
 
 <div class="dialog">
-  <form
-    class="container-fluid g-0"
-    style="max-width:40rem; margin: 0 auto"
-    on:submit|preventDefault={handleSubmit}
-  >
+  <Form class="container-fluid g-0" style="max-width:40rem; margin: 0 auto" {context}>
     <div class="row mb-2">
       <div class="col-sm-3">
         <label for="databaseHost" class="col-form-label">Database host</label>
@@ -94,10 +94,6 @@
           id="databaseHost"
           class="form-control"
           type="text"
-          on:change={handleChange}
-          on:blur={handleChange}
-          bind:value={$form.databaseHost}
-          error={$errors.databaseHost}
           description="URL of database (e.g. <b>subdomain.domain.com</b>)"
         />
       </div>
@@ -111,10 +107,6 @@
           id="databasePortStr"
           class="form-control rw-sm-3"
           type="string"
-          on:change={handleChange}
-          on:blur={handleChange}
-          bind:value={$form.databasePortStr}
-          error={$errors.databasePortStr}
           description="Server port (usually 3306)"
         />
       </div>
@@ -128,10 +120,6 @@
           id="databaseName"
           class="form-control rw-sm-6"
           type="text"
-          on:change={handleChange}
-          on:blur={handleChange}
-          bind:value={$form.databaseName}
-          error={$errors.databaseName}
           description="Name of the database at the above host and port"
         />
       </div>
@@ -143,17 +131,9 @@
       <div class="col-sm-9">
         <InputGroup
           id="dataFolderGroup"
-          error={$errors.dataFolder}
           description="Folder for saved application data"
         >
-          <Input
-            id="dataFolder"
-            class="form-control"
-            type="text"
-            on:change={handleChange}
-            on:blur={handleChange}
-            bind:value={$form.dataFolder}
-          />
+          <Input id="dataFolder" class="form-control" type="text" />
           <div class="input-group-btn">
             <button class="btn btn-secondary" type="button" on:click={chooseFolder}
               >Choose</button
@@ -179,7 +159,8 @@
         <div class="alert alert-danger" role="alert">{errorMessage}</div>
       </div>
     {/if}
-  </form>
+  </Form>
+  <div>{$errors['dataFolder']}</div>
 </div>
 
 <style>
