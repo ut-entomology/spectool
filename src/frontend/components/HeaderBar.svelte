@@ -48,10 +48,12 @@
       {#if $loggedInUser === null}
         <span>not logged in</span>
       {:else}
-        {$loggedInUser.username}
-        {#if $loggedInUser.saved}
-          <span>(saved login)</span>
-        {/if}
+        <div>
+          {$loggedInUser.username}
+          {#if $loggedInUser.saved}
+            <span>(saved login)</span>
+          {/if}
+        </div>
       {/if}
     </div>
     <div class="col-3 login_logout">
