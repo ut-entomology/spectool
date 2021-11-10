@@ -101,7 +101,6 @@
   {checked}
   {value}
   on:change={handleChange}
-  on:blur={handleChange}
   on:focus
   on:input
   on:keydown

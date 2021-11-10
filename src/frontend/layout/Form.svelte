@@ -5,13 +5,8 @@
   export let context: FormContext;
 
   setContext(inputKey, context);
-
-  const submit = (event: Event) => {
-    console.log('telling lib to submit');
-    context.handleSubmit(event);
-  };
 </script>
 
-<form on:submit={submit} {...$$restProps}>
+<form on:submit={context.handleSubmit} {...$$restProps}>
   <slot />
 </form>
