@@ -68,6 +68,14 @@
   $: if (groupErrors) {
     groupErrors.error(id, $errors[id]);
   }
+
+  const handleOnKeyUp = (event: Event) => {
+    // Ensures that submit button doesn't move when pressed (thereby
+    // ignoring the submit) as a result of error messages being removed.
+    if ($errors[id]) {
+      return handleChange(event);
+    }
+  };
 </script>
 
 <input
@@ -82,7 +90,7 @@
   on:input
   on:keydown
   on:keypress
-  on:keyup
+  on:keyup={handleOnKeyUp}
   aria-describedby={description ? id + '-form-text' : undefined}
   {...$$restProps}
 />
