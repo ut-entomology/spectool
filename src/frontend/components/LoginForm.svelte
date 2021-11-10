@@ -1,11 +1,20 @@
 <script lang="ts">
+  /*
+    Displays the modal dialog using Sveltestrap. Cannot user Bootstrap's modal
+    JavaScript with svelte-forms-lib because the latter assumes that the form
+    is constructed for each viewing, whereas the former only constructs the
+    modal once and hides and displays it. The problem was that initial values
+    were only ever used on the first opening of the modal form.
+  */
+
   import { createForm } from 'svelte-forms-lib';
   import * as yup from 'yup';
-  import Input, { resetInputs } from '../layout/Input.svelte';
+  import { Modal } from 'sveltestrap';
+  import Input from '../layout/Input.svelte';
   import Form from '../layout/Form.svelte';
-  import Modal, { hideModal } from '../layout/Modal.svelte';
 
-  export let id: string;
+  export let isOpen: boolean;
+  export let toggle: () => void;
   export let title = '';
   export let login: (
     username: string,
@@ -15,13 +24,12 @@
 
   let errorMessage = '';
 
-  const initialValues = {
-    username: '',
-    password: '',
-    saving: true
-  };
   const context = createForm({
-    initialValues,
+    initialValues: {
+      username: '',
+      password: '',
+      saving: false
+    },
     validationSchema: yup.object().shape({
       username: yup.string().required().label('Username'),
       password: yup.string().required().label('Password'),
@@ -30,26 +38,14 @@
     onSubmit: async (values) => {
       try {
         await login(values.username, values.password, values.saving);
-        // reset prior to next viewing
-        Object.assign($form, initialValues); // resets form lib values
-        resetInputs(id, initialValues); // resets form values
-        errorMessage = '';
       } catch (err) {
         errorMessage = (err as Error).message;
       }
     }
   });
-  const { form } = context;
-
-  async function cancelForm() {
-    await hideModal();
-    Object.assign($form, initialValues); // resets form lib values
-    resetInputs(id, initialValues); // resets form values
-    errorMessage = '';
-  }
 </script>
 
-<Modal {id} fade maxWidth="400px">
+<Modal {isOpen} contentClassName="login-form-content">
   <div class="dialog">
     <Form class="container g-0" {context}>
       <div class="row">
@@ -83,9 +79,7 @@
       </div>
       <div class="row justify-content-evenly g-2">
         <div class="col-6 col-sm-3">
-          <button class="btn btn-minor" type="button" on:click={cancelForm}
-            >Cancel</button
-          >
+          <button class="btn btn-minor" type="button" on:click={toggle}>Cancel</button>
         </div>
         <div class="col-6 col-sm-3">
           <button class="btn btn-major" type="submit">Login</button>
@@ -101,6 +95,11 @@
 </Modal>
 
 <style>
+  :global(.login-form-content) {
+    margin: 0 auto;
+    max-width: 24rem;
+  }
+
   h2 {
     margin: 0 0 1rem 0;
     font-weight: bold;

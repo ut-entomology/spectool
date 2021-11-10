@@ -53,6 +53,7 @@
     "sirv-cli": "^1.0.0",
     "source-map-support": "^0.5.20",
     "svelte-forms-lib": "^1.10.7",
+    "sveltestrap": "^5.6.3",
     "yup": "^0.32.11"
   },
   "build": {

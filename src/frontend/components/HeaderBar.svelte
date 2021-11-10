@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { showModal, hideModal } from '../layout/Modal.svelte';
   import { flashMessage } from '../layout/ModalFlash.svelte';
   import { showNotice } from '../layout/ModalNotice.svelte';
   import LoginForm from './LoginForm.svelte';
@@ -9,10 +8,15 @@
   export let appTitle = 'untitled';
   export let disabled: boolean;
 
+  let showLoginForm = false;
+  const toggleLoginForm = () => {
+    showLoginForm = !showLoginForm;
+  };
+
   async function login(username: string, password: string, save: boolean) {
     await User.login(username, password, save);
     $loggedInUser = new User(username, save);
-    await hideModal();
+    toggleLoginForm();
     flashMessage('You are logged in');
   }
 
@@ -28,7 +32,14 @@
   }
 </script>
 
-<LoginForm id="login-form" title="Enter your database credentials" {login} />
+{#if showLoginForm}
+  <LoginForm
+    isOpen={showLoginForm}
+    title="Enter your database credentials"
+    {login}
+    toggle={toggleLoginForm}
+  />
+{/if}
 
 <div class="header_bar container-flud g-0">
   <div class="row">
@@ -46,11 +57,7 @@
     <div class="col-3 login_logout">
       <div>
         {#if $loggedInUser === null}
-          <button
-            class="btn btn-major compact"
-            on:click={() => showModal('login-form')}
-            {disabled}
-          >
+          <button class="btn btn-major compact" on:click={toggleLoginForm} {disabled}>
             Login
           </button>
         {:else}
