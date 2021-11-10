@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { flashMessage } from '../layout/ModalFlash.svelte';
-  import { showNotice } from '../layout/ModalNotice.svelte';
+  import { flashToast } from '../layout/FlashToast.svelte';
+  import { showNotice } from '../layout/Notice.svelte';
   import LoginForm from './LoginForm.svelte';
   import { loggedInUser } from '../stores/loggedInUser';
   import { User } from '../lib/user';
@@ -17,17 +17,17 @@
     await User.login(username, password, save);
     $loggedInUser = new User(username, save);
     toggleLoginForm();
-    flashMessage('You are logged in');
+    flashToast('You are logged in');
   }
 
   function logout() {
     User.logout()
       .then(() => {
         $loggedInUser = null;
-        flashMessage('You have logged out');
+        flashToast('You have logged out');
       })
       .catch((err: Error) => {
-        showNotice(`Failed to log out: ${err.message}`);
+        showNotice(`Failed to log out: ${err.message}`, 'ERROR', 'danger');
       });
   }
 </script>

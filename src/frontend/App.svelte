@@ -6,8 +6,8 @@
   import { screenStack } from './stores/screenStack';
   import { AppPrefsClient } from './clients/app_prefs_client';
   import AppPrefsScreen from './AppPrefsScreen.svelte';
-  import ModalFlash from './layout/ModalFlash.svelte';
-  import ModalNotice from './layout/ModalNotice.svelte';
+  import FlashToast from './layout/FlashToast.svelte';
+  import Notice from './layout/Notice.svelte';
   import ActivityMenu from './activities/ActivityMenu.svelte';
   import HeaderBar from './components/HeaderBar.svelte';
   import ActivityBar from './components/ActivityBar.svelte';
@@ -44,8 +44,8 @@
 </div>
 <StatusBar />
 
-<ModalNotice />
-<ModalFlash maxWidth="220px" />
+<Notice />
+<FlashToast />
 
 <style lang="scss" global>
   // Svelte is not allowing a component to have both local and global SCSS.
@@ -139,11 +139,9 @@
   }
 
   .dialog,
-  .modal-notice,
-  .modal-flash {
+  .modal-notice {
     margin: 0 auto;
     border-radius: 8px;
-    background: white;
     pointer-events: auto;
   }
 

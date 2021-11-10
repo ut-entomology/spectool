@@ -1,0 +1,50 @@
+<script lang="ts" context="module">
+  import { writable } from 'svelte/store';
+
+  interface Message {
+    text: string;
+    alert: string;
+  }
+
+  const messageStore = writable<Message | null>(null);
+
+  export function flashToast(text: string, alert = 'warning', millis = 1250) {
+    messageStore.set({ text, alert });
+    setTimeout(() => {
+      closeToast();
+    }, millis);
+  }
+
+  function closeToast() {
+    messageStore.set(null);
+  }
+</script>
+
+<script lang="ts">
+  import { Toast } from 'sveltestrap';
+</script>
+
+{#if $messageStore}
+  <div class="position-fixed top-50 start-50 translate-middle">
+    <Toast
+      class="flash-toast bg-{$messageStore.alert} bg-opacity-25"
+      isOpen={$messageStore !== null}
+      body
+      fade={false}
+      on:close={closeToast}
+    >
+      {$messageStore.text}
+    </Toast>
+  </div>
+{/if}
+
+<style lang="scss">
+  :global {
+    .flash-toast {
+      text-align: center;
+      font-size: 110%;
+      font-weight: bold;
+      padding: 1em;
+    }
+  }
+</style>
