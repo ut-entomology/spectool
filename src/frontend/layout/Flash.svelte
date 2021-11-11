@@ -25,9 +25,12 @@
 </script>
 
 {#if $messageStore}
-  <div class="position-fixed top-50 start-50 translate-middle">
+  <div
+    class="position-fixed start-50 translate-middle-x"
+    style="top: 15% !important; filter: brightness(135%) saturate(20%)"
+  >
     <Toast
-      class="flash-toast bg-{$messageStore.alert} bg-opacity-25"
+      class="flash-toast bg-{$messageStore.alert}"
       isOpen={$messageStore !== null}
       body
       fade={false}

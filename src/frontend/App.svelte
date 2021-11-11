@@ -6,7 +6,7 @@
   import { screenStack } from './stores/screenStack';
   import { AppPrefsClient } from './clients/app_prefs_client';
   import AppPrefsScreen from './AppPrefsScreen.svelte';
-  import FlashToast from './layout/FlashToast.svelte';
+  import Flash from './layout/Flash.svelte';
   import Notice from './layout/Notice.svelte';
   import ActivityMenu from './activities/ActivityMenu.svelte';
   import HeaderBar from './components/HeaderBar.svelte';
@@ -44,8 +44,8 @@
 </div>
 <StatusBar />
 
+<Flash />
 <Notice />
-<FlashToast />
 
 <style lang="scss" global>
   // Svelte is not allowing a component to have both local and global SCSS.

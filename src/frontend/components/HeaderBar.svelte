@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { flashToast } from '../layout/FlashToast.svelte';
+  import { flashToast } from '../layout/Flash.svelte';
   import { showNotice } from '../layout/Notice.svelte';
   import LoginForm from './LoginForm.svelte';
   import { loggedInUser } from '../stores/loggedInUser';
