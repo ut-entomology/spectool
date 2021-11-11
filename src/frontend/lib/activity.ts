@@ -4,4 +4,5 @@ export interface Activity {
   title: string;
   componentType: typeof SvelteComponent;
   description: string;
+  requiresLogin: boolean;
 }

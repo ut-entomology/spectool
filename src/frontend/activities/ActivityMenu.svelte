@@ -7,7 +7,8 @@
     {
       title: 'Query for first names',
       componentType: FirstNames,
-      description: 'Returns all first names for a given last name.'
+      description: 'Returns all first names for a given last name.',
+      requiresLogin: true
     }
   ];
 
