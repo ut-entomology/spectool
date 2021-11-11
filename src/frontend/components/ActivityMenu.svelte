@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { screenStack } from '../stores/screenStack';
   import type { Activity } from '../lib/activity';
+  import { openActivity } from './ActivityBar.svelte';
   import FirstNames from '../activities/FirstNames.svelte';
 
   const activities: Activity[] = [
@@ -11,14 +11,6 @@
       requiresLogin: true
     }
   ];
-
-  function openActivity(activity: Activity) {
-    screenStack.push({
-      title: activity.title,
-      componentType: activity.componentType,
-      params: []
-    });
-  }
 </script>
 
 <nav>

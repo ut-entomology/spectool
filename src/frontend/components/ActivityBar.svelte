@@ -1,8 +1,38 @@
-<script lang="ts">
+<script lang="ts" context="module">
+  import type { User } from '../lib/user';
+  import type { Activity } from '../lib/activity';
+  import { loggedInUser } from '../stores/loggedInUser';
   import { screenStack } from '../stores/screenStack';
+  import { currentActivity } from '../stores/currentActivity';
+  import { showNotice } from '../layout/Notice.svelte';
+
+  let currentUser: User | null = null;
+  loggedInUser.subscribe((user) => {
+    currentUser = user;
+  });
+
+  export function openActivity(activity: Activity) {
+    if (!activity.requiresLogin || currentUser !== null) {
+      screenStack.push({
+        title: activity.title,
+        componentType: activity.componentType,
+        params: []
+      });
+      currentActivity.set(activity);
+    } else {
+      showNotice('Please login before using this activity.', 'NOTICE', 'warning');
+    }
+  }
 
   function closeActivity() {
-    screenStack.pop();
+    screenStack.reset();
+  }
+</script>
+
+<script lang="ts">
+  $: if ($loggedInUser === null && $currentActivity && $currentActivity.requiresLogin) {
+    console.log('resetting stack');
+    closeActivity();
   }
 </script>
 

@@ -8,7 +8,7 @@
   import AppPrefsScreen from './AppPrefsScreen.svelte';
   import Flash from './layout/Flash.svelte';
   import Notice from './layout/Notice.svelte';
-  import ActivityMenu from './activities/ActivityMenu.svelte';
+  import ActivityMenu from './components/ActivityMenu.svelte';
   import HeaderBar from './components/HeaderBar.svelte';
   import ActivityBar from './components/ActivityBar.svelte';
   import StatusBar from './components/StatusBar.svelte';

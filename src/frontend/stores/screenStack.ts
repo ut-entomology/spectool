@@ -21,7 +21,8 @@ function createScreenStack() {
       update((screens) => {
         screens[screens.length - 1] = screen;
         return screens;
-      })
+      }),
+    reset: () => update((screens) => [screens[0]])
   };
 }
 
