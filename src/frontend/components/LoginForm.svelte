@@ -10,8 +10,7 @@
   import { createForm } from 'svelte-forms-lib';
   import * as yup from 'yup';
   import { Modal } from 'sveltestrap';
-  import Input from '../layout/Input.svelte';
-  import Form from '../layout/Form.svelte';
+  import { Form, Input } from '../layout/forms';
 
   export let isOpen: boolean;
   export let toggle: () => void;

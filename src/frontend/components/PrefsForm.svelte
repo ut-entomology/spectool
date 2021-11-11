@@ -4,9 +4,7 @@
   import { createForm } from 'svelte-forms-lib';
   import * as yup from 'yup';
   import { AppPrefs } from '../shared/app_prefs';
-  import Form from '../layout/Form.svelte';
-  import Input, { SetInputValue } from '../layout/Input.svelte';
-  import InputGroup from '../layout/InputGroup.svelte';
+  import { Form, Input, InputGroup, SetInputValue } from '../layout/forms';
   import { AppPrefsClient } from '../clients/app_prefs_client';
   import { DialogClient } from '../clients/dialog_client';
 
@@ -102,7 +100,6 @@
           id="databasePortStr"
           name="databasePortStr"
           class="form-control rw-sm-3"
-          type="string"
           description="Server port (usually 3306)"
         />
       </div>
