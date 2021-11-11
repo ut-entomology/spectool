@@ -4,6 +4,7 @@ import { Platform } from '../app-util/platform';
 import { AppPrefs } from '../shared/app_prefs';
 import { PreferencesFile } from '../app-util/prefs_file';
 import { DatabaseCredentials } from './db_creds';
+import { Specify } from './specify';
 
 // TODO: Need to reconcile the fact that I'd like this name here but
 // Electron pulls the name out of package.json, which can't have spaces.
@@ -28,6 +29,7 @@ export class AppKernel {
   readonly appName: string;
   readonly platform: Platform;
   readonly appPrefsFile: AppPrefsFile;
+  readonly specify: Specify;
 
   private __prefs?: AppPrefs;
   private __databaseCreds?: DatabaseCredentials;
@@ -42,6 +44,7 @@ export class AppKernel {
     this.appName = appName;
     this.platform = new Platform(appName);
     this.appPrefsFile = new AppPrefsFile(this.platform);
+    this.specify = new Specify();
   }
 
   /**

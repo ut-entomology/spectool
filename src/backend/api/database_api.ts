@@ -16,7 +16,7 @@ class GetDatabaseUsernameIpc extends SyncIpcHandler {
   }
 }
 
-class DatabseLoginIsSavedIpc extends SyncIpcHandler {
+class DatabaseLoginIsSavedIpc extends SyncIpcHandler {
   private kernel: AppKernel;
 
   constructor(kernel: AppKernel) {
@@ -85,7 +85,7 @@ class LogoutOfDatabaseIpc extends AsyncIpcHandler {
 export default function (kernel: AppKernel): IpcHandler[] {
   return [
     new GetDatabaseUsernameIpc(kernel), // multiline
-    new DatabseLoginIsSavedIpc(kernel),
+    new DatabaseLoginIsSavedIpc(kernel),
     new LoginToDatabaseIpc(kernel),
     new LoginToDatabaseAndSaveIpc(kernel),
     new LogoutOfDatabaseIpc(kernel)
