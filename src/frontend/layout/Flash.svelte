@@ -8,7 +8,7 @@
 
   const messageStore = writable<Message | null>(null);
 
-  export function flashToast(text: string, alert = 'warning', millis = 1250) {
+  export function flashMessage(text: string, alert = 'warning', millis = 1250) {
     messageStore.set({ text, alert });
     setTimeout(() => {
       closeToast();
