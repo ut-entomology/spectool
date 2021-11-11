@@ -1,10 +1,10 @@
 <script lang="ts">
   import { setContext } from 'svelte';
-  import { inputKey, FormContext } from './Input.svelte';
+  import { formContextKey, FormContext } from './Input.svelte';
 
   export let context: FormContext;
 
-  setContext(inputKey, context);
+  setContext(formContextKey, context);
 </script>
 
 <form on:submit={context.handleSubmit} {...$$restProps}>

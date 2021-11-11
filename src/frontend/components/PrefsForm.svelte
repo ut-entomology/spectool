@@ -1,17 +1,18 @@
 <script lang="ts">
-  import { getContext, tick } from 'svelte';
+  import { getContext } from 'svelte';
   import { createEventDispatcher } from 'svelte';
   import { createForm } from 'svelte-forms-lib';
   import * as yup from 'yup';
   import { AppPrefs } from '../shared/app_prefs';
   import Form from '../layout/Form.svelte';
-  import Input from '../layout/Input.svelte';
+  import Input, { SetInputValue } from '../layout/Input.svelte';
   import InputGroup from '../layout/InputGroup.svelte';
   import { AppPrefsClient } from '../clients/app_prefs_client';
   import { DialogClient } from '../clients/dialog_client';
 
   const dispatch = createEventDispatcher();
   let errorMessage = '';
+  let setDataFolder: SetInputValue;
 
   const appPrefs = getContext<AppPrefs>('prefs');
   const context = createForm({
@@ -63,7 +64,6 @@
       }
     }
   });
-  const { errors } = context;
 
   async function chooseFolder() {
     const folderPath = DialogClient.openDirectoryDialog(
@@ -71,12 +71,7 @@
       'Choose the data folder'
     );
     if (folderPath) {
-      const elem = document.getElementById('dataFolder');
-      (elem as HTMLInputElement).value = folderPath;
-      // Force re-validation
-      await tick();
-      elem!.dispatchEvent(new Event('change'));
-      console.log('issued change for dataFolder');
+      await setDataFolder(folderPath);
     }
   }
 
@@ -92,8 +87,8 @@
       <div class="col-sm-9">
         <Input
           id="databaseHost"
+          name="databaseHost"
           class="form-control"
-          type="text"
           description="URL of database (e.g. <b>subdomain.domain.com</b>)"
         />
       </div>
@@ -105,6 +100,7 @@
       <div class="col-sm-9">
         <Input
           id="databasePortStr"
+          name="databasePortStr"
           class="form-control rw-sm-3"
           type="string"
           description="Server port (usually 3306)"
@@ -118,8 +114,8 @@
       <div class="col-sm-9">
         <Input
           id="databaseName"
+          name="databaseName"
           class="form-control rw-sm-6"
-          type="text"
           description="Name of the database at the above host and port"
         />
       </div>
@@ -133,7 +129,12 @@
           id="dataFolderGroup"
           description="Folder for saved application data"
         >
-          <Input id="dataFolder" class="form-control" type="text" />
+          <Input
+            id="dataFolder"
+            name="dataFolder"
+            class="form-control"
+            bind:setValue={setDataFolder}
+          />
           <div class="input-group-btn">
             <button class="btn btn-secondary" type="button" on:click={chooseFolder}
               >Choose</button
@@ -160,7 +161,6 @@
       </div>
     {/if}
   </Form>
-  <div>{$errors['dataFolder']}</div>
 </div>
 
 <style>

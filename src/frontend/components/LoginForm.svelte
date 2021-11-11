@@ -56,7 +56,7 @@
           <label for="username" class="col-form-label">Username</label>
         </div>
         <div class="col-sm-6">
-          <Input id="username" type="text" />
+          <Input id="username" name="username" />
         </div>
       </div>
       <div class="row mb-3 justify-content-center">
@@ -64,13 +64,13 @@
           <label for="password" class="col-form-label">Password</label>
         </div>
         <div class="col-sm-6">
-          <Input id="password" type="password" />
+          <Input id="password" name="password" type="password" />
         </div>
       </div>
       <div class="row justify-content-center">
         <div class="col-auto">
           <div class="form-check">
-            <Input id="saving" role="button" type="checkbox" />
+            <Input id="saving" name="saving" role="button" type="checkbox" />
             <label class="form-check-label" for="saving">
               Stay logged in on this computer
             </label>
