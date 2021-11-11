@@ -1,6 +1,6 @@
 <script lang="ts">
   import { setContext } from 'svelte';
-  import { groupErrorsKey, createErrorsStore, normalizeError } from './group_errors';
+  import { groupErrorsKey, createErrorsStore, toErrorText } from './form_errors';
 
   export let id: string | undefined = undefined;
   export let description = '';
@@ -15,18 +15,6 @@
   errorsStore.subscribe((value) => {
     errors = value;
   });
-
-  function errorMessages(errors: { [key: string]: string }) {
-    let messages = '';
-    for (const key in errors) {
-      const error = errors[key];
-      if (error) {
-        if (messages) messages += '<br/>';
-        messages += normalizeError(error);
-      }
-    }
-    return messages;
-  }
 </script>
 
 <div
@@ -36,7 +24,7 @@
   <slot />
 </div>
 {#if errors != {}}
-  <div class="invalid-feedback">{errorMessages(errors)}</div>
+  <div class="invalid-feedback">{toErrorText(errors)}</div>
 {/if}
 {#if description}
   <div id={id + '-form-text'} class="form-text">{@html description}</div>

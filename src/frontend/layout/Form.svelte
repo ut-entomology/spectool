@@ -1,6 +1,6 @@
 <script lang="ts">
   import { setContext } from 'svelte';
-  import { formContextKey, FormContext } from './Input.svelte';
+  import { formContextKey, FormContext } from './form_context';
 
   export let context: FormContext;
 

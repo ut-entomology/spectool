@@ -1,13 +1,15 @@
 import { writable } from 'svelte/store';
 
+export type ErrorValues = { [key: string]: string };
+
 export const groupErrorsKey = {};
 
 export function createErrorsStore() {
-  const { set, subscribe, update } = writable<{ [key: string]: string }>({});
+  const { set, subscribe, update } = writable<ErrorValues>({});
   return {
     set,
     subscribe,
-    error: (name: string, error: string) => {
+    setError: (name: string, error: string) => {
       update((errors) => {
         errors[name] = error;
         for (const key in errors) {
@@ -17,6 +19,18 @@ export function createErrorsStore() {
       });
     }
   };
+}
+
+export function toErrorText(errors: ErrorValues) {
+  let text = '';
+  for (const key in errors) {
+    const error = errors[key];
+    if (error) {
+      if (text) text += '<br/>';
+      text += normalizeError(error);
+    }
+  }
+  return text;
 }
 
 export function normalizeError(error: string) {

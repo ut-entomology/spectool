@@ -1,38 +1,28 @@
 <script lang="ts" context="module">
-  import type { Readable, Writable } from 'svelte/store';
-
   export type SetInputValue = (value: any) => Promise<void>;
-
-  type Values = { [key: string]: any };
-  export type FormContext = {
-    form: Writable<Values>;
-    errors: Writable<Values>;
-    touched: Writable<Values>;
-    modified: Readable<Values>;
-    isValid: Readable<boolean>;
-    isSubmitting: Writable<boolean>;
-    isValidating: Writable<boolean>;
-    handleReset: () => void;
-    handleChange: (event: Event) => any;
-    handleSubmit: (event: Event) => any;
-  };
-
-  export const formContextKey = {};
 </script>
 
 <script lang="ts">
   import { getContext, tick } from 'svelte';
-  import { groupErrorsKey, createErrorsStore, normalizeError } from './group_errors';
+  import { formContextKey, FormContext } from './form_context';
+  import { groupErrorsKey, createErrorsStore, normalizeError } from './form_errors';
 
-  const { form, errors, handleChange } = getContext<FormContext>(formContextKey);
+  // Component parameters
 
   export let id: string | undefined = undefined;
   export let name: string;
+
   let classAttr: string = '';
   export { classAttr as class };
+
   let typeAttr: string = 'text';
   export { typeAttr as type };
+
   export let description = '';
+  if (description && !id) {
+    throw Error(`id required for description of Input '${name}'`);
+  }
+
   let element: HTMLInputElement;
   export const setValue: SetInputValue = async (value: any) => {
     switch (typeAttr) {
@@ -46,6 +36,8 @@
     element.dispatchEvent(new Event('change')); // force re-validation
   };
 
+  // Derived values
+
   const inputClasses: { [key: string]: string } = {
     checkbox: 'form-check-input',
     text: 'form-control'
@@ -53,9 +45,9 @@
   const baseClass = inputClasses[typeAttr] || inputClasses['text'];
   classAttr = classAttr ? baseClass + ' ' + classAttr : baseClass;
 
-  if (description && !id) {
-    throw Error(`id required for description of Input '${name}'`);
-  }
+  // Handlers
+
+  const { form, errors, handleChange } = getContext<FormContext>(formContextKey);
 
   const handleOnKeyUp = (event: Event) => {
     // Ensures that submit button doesn't move when pressed (thereby
@@ -67,7 +59,7 @@
 
   const groupErrors: ReturnType<typeof createErrorsStore> = getContext(groupErrorsKey);
   $: if (groupErrors) {
-    groupErrors.error(name, $errors[name]);
+    groupErrors.setError(name, $errors[name]);
   }
 </script>
 
