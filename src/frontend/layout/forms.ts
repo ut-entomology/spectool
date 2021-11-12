@@ -1,3 +1,4 @@
+import { createForm } from './forms/form_context';
 import Form from './forms/Form.svelte';
 import Input from './forms/Input.svelte';
 import InputGroup from './forms/InputGroup.svelte';
@@ -9,4 +10,4 @@ export * from './forms/Input.svelte';
 
 // Export svelte components
 
-export { Form, Input, InputGroup, Select };
+export { createForm, Form, Input, InputGroup, Select };

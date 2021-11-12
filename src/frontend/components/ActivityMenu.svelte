@@ -1,9 +1,16 @@
 <script lang="ts">
   import type { Activity } from '../lib/activity';
   import { openActivity } from './ActivityBar.svelte';
+  import LocalityConsolidation from '../activities/LocalityConsolidation.svelte';
   import FirstNames from '../activities/FirstNames.svelte';
 
   const activities: Activity[] = [
+    {
+      title: 'Consolidate localities',
+      componentType: LocalityConsolidation,
+      description: 'Find and merge different entries for the same localities.',
+      requiresLogin: true
+    },
     {
       title: 'Query for first names',
       componentType: FirstNames,

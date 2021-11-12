@@ -7,10 +7,9 @@
     were only ever used on the first opening of the modal form.
   */
 
-  import { createForm } from 'svelte-forms-lib';
   import * as yup from 'yup';
   import { Modal } from 'sveltestrap';
-  import { Form, Input } from '../layout/forms';
+  import { createForm, Form, Input } from '../layout/forms';
 
   export let isOpen: boolean;
   export let toggle: () => void;

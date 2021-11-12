@@ -1,10 +1,9 @@
 <script lang="ts">
   import { getContext } from 'svelte';
   import { createEventDispatcher } from 'svelte';
-  import { createForm } from 'svelte-forms-lib';
   import * as yup from 'yup';
   import { AppPrefs } from '../shared/app_prefs';
-  import { Form, Input, InputGroup, SetInputValue } from '../layout/forms';
+  import { createForm, Form, Input, InputGroup, SetInputValue } from '../layout/forms';
   import { AppPrefsClient } from '../clients/app_prefs_client';
   import { DialogClient } from '../clients/dialog_client';
 
