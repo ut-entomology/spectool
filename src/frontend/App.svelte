@@ -13,7 +13,7 @@
   import ActivityBar from './components/ActivityBar.svelte';
   import StatusBar from './components/StatusBar.svelte';
 
-  const initialPrefs = AppPrefsClient.getPrefs(window);
+  const initialPrefs = AppPrefsClient.getPrefs();
   $appDisabled = !initialPrefs.dataFolder;
 
   setContext('prefs', initialPrefs);

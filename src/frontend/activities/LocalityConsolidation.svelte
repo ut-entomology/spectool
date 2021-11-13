@@ -12,12 +12,12 @@
 
   async function onChangeCountry() {
     stateID = 0;
-    states = countryID == 0 ? {} : await GeographyClient.getStates(window, countryID);
+    states = countryID == 0 ? {} : await GeographyClient.getStates(countryID);
   }
 
   async function preparation() {
-    await GeographyClient.loadGeography(window);
-    countries = await GeographyClient.getCountries(window);
+    await GeographyClient.loadGeography();
+    countries = await GeographyClient.getCountries();
   }
 </script>
 

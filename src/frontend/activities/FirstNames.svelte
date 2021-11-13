@@ -6,7 +6,7 @@
   let message: string = '';
 
   async function getFirstNames() {
-    FirstNamesClient.getFirstNames(window, lastName)
+    FirstNamesClient.getFirstNames(lastName)
       .then((firstNames) => {
         message = '';
         names = firstNames!;

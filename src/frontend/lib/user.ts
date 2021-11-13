@@ -10,21 +10,21 @@ export class User {
   }
 
   static getLoggedInUser() {
-    const initialUsername = DatabaseClient.getUsername(window);
-    const saved = DatabaseClient.isSaved(window);
+    const initialUsername = DatabaseClient.getUsername();
+    const saved = DatabaseClient.isSaved();
     return initialUsername ? new User(initialUsername, saved) : null;
   }
 
   static async login(username: string, password: string, save: boolean) {
     if (save) {
-      await DatabaseClient.loginAndSave(window, { username, password });
+      await DatabaseClient.loginAndSave({ username, password });
     } else {
-      await DatabaseClient.login(window, { username, password });
+      await DatabaseClient.login({ username, password });
     }
     return new User(username, save);
   }
 
   static async logout() {
-    await DatabaseClient.logout(window);
+    await DatabaseClient.logout();
   }
 }

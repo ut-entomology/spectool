@@ -2,15 +2,15 @@ import { ClientIpc } from '../util/client_ipc';
 import type { GeoDictionary } from '../shared/specify_data';
 
 export class GeographyClient {
-  static loadGeography(window: Window): Promise<void> {
+  static loadGeography(): Promise<void> {
     return ClientIpc.sendAsync(window, 'load_geography');
   }
 
-  static getCountries(window: Window): Promise<GeoDictionary> {
+  static getCountries(): Promise<GeoDictionary> {
     return ClientIpc.sendAsync(window, 'get_countries');
   }
 
-  static getStates(window: Window, countryID: number): Promise<GeoDictionary> {
+  static getStates(countryID: number): Promise<GeoDictionary> {
     return ClientIpc.sendAsync(window, 'get_states', countryID);
   }
 }

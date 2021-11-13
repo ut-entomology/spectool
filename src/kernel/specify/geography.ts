@@ -1,5 +1,4 @@
 import type { Knex } from 'knex';
-import * as log from 'electron-log';
 
 import { SpecGeography, SpecGeographyTreeDefItem } from '../../shared/schema';
 import { GeoDictionary } from '../../shared/specify_data';
@@ -53,7 +52,6 @@ export class Geography {
   }
 
   getCountries(): GeoDictionary {
-    log.info('collecting countries');
     const countries: GeoDictionary = {};
     for (const entry of Object.entries(this.records)) {
       const record = entry[1];
@@ -65,7 +63,6 @@ export class Geography {
         };
       }
     }
-    log.info(`returning ${Object.keys(countries).length} countries`);
     return countries;
   }
 
