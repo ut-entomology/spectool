@@ -25,10 +25,7 @@
 </script>
 
 {#if $messageStore}
-  <div
-    class="position-fixed start-50 translate-middle-x"
-    style="top: 15% !important; filter: brightness(135%) saturate(20%)"
-  >
+  <div class="flash-container position-fixed start-50 translate-middle">
     <Toast
       class="flash-toast bg-{$messageStore.alert}"
       isOpen={$messageStore !== null}
@@ -42,6 +39,13 @@
 {/if}
 
 <style lang="scss">
+  @import '../values.scss';
+
+  .flash-container {
+    top: $verticalMessagePosition !important;
+    filter: brightness(135%) saturate(20%);
+  }
+
   :global {
     .flash-toast {
       text-align: center;

@@ -3,7 +3,7 @@
   import type { GeoDictionary } from '../shared/specify_data';
   import Notice from '../layout/Notice.svelte';
   import { closeActivity } from '../components/ActivityBar.svelte';
-  import CenteredSpinner from '../components/CenteredSpinner.svelte';
+  import BigSpinner from '../components/BigSpinner.svelte';
 
   let countries: GeoDictionary = {};
   let countryID = 0;
@@ -22,7 +22,7 @@
 </script>
 
 {#await preparation()}
-  <CenteredSpinner />
+  <BigSpinner />
 {:then}
   <main>
     <form>
