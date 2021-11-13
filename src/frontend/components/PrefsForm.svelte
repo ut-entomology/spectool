@@ -47,7 +47,6 @@
     }),
     onSubmit: async (formPrefs) => {
       try {
-        console.log('called submit');
         const newPrefs = new AppPrefs();
         newPrefs.dataFolder = formPrefs.dataFolder;
         newPrefs.databaseHost = formPrefs.databaseHost;

@@ -1,6 +1,6 @@
 <script lang="ts">
   import { flashMessage } from '../layout/Flash.svelte';
-  import { showNotice } from '../layout/Notice.svelte';
+  import { showNotice } from '../layout/DynamicNotice.svelte';
   import LoginForm from './LoginForm.svelte';
   import { loggedInUser } from '../stores/loggedInUser';
   import { User } from '../lib/user';

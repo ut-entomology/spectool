@@ -4,7 +4,7 @@
   import { loggedInUser } from '../stores/loggedInUser';
   import { screenStack } from '../stores/screenStack';
   import { currentActivity } from '../stores/currentActivity';
-  import { showNotice } from '../layout/Notice.svelte';
+  import { showNotice } from '../layout/DynamicNotice.svelte';
 
   let currentUser: User | null = null;
   loggedInUser.subscribe((user) => {
@@ -24,14 +24,13 @@
     }
   }
 
-  function closeActivity() {
+  export function closeActivity() {
     screenStack.reset();
   }
 </script>
 
 <script lang="ts">
   $: if ($loggedInUser === null && $currentActivity && $currentActivity.requiresLogin) {
-    console.log('resetting stack');
     closeActivity();
   }
 </script>

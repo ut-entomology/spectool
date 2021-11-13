@@ -6,11 +6,11 @@ export class GeographyClient {
     return ClientIpc.sendAsync(window, 'load_geography');
   }
 
-  static getCountries(window: Window): GeoDictionary {
-    return ClientIpc.sendSync(window, 'get_countries');
+  static getCountries(window: Window): Promise<GeoDictionary> {
+    return ClientIpc.sendAsync(window, 'get_countries');
   }
 
-  static getStates(window: Window, countryID: number): GeoDictionary {
-    return ClientIpc.sendSync(window, 'get_states', countryID);
+  static getStates(window: Window, countryID: number): Promise<GeoDictionary> {
+    return ClientIpc.sendAsync(window, 'get_states', countryID);
   }
 }

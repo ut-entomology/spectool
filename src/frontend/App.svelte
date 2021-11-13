@@ -7,7 +7,7 @@
   import { AppPrefsClient } from './clients/app_prefs_client';
   import AppPrefsScreen from './AppPrefsScreen.svelte';
   import Flash from './layout/Flash.svelte';
-  import Notice from './layout/Notice.svelte';
+  import DynamicNotice from './layout/DynamicNotice.svelte';
   import ActivityMenu from './components/ActivityMenu.svelte';
   import HeaderBar from './components/HeaderBar.svelte';
   import ActivityBar from './components/ActivityBar.svelte';
@@ -45,7 +45,7 @@
 <StatusBar />
 
 <Flash />
-<Notice />
+<DynamicNotice />
 
 <style lang="scss" global>
   // Svelte is not allowing a component to have both local and global SCSS.

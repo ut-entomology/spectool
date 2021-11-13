@@ -1,10 +1,12 @@
 import { app, BrowserWindow, ipcMain } from 'electron';
 import * as path from 'path';
+import * as log from 'electron-log';
 import 'source-map-support/register';
 
 import appPrefsApi from './backend/api/app_prefs_api';
 import databaseApi from './backend/api/database_api';
 import dialogApi from './backend/api/dialog_api';
+import geographyApi from './backend/api/geography_api';
 import firstNamesApi from './backend/api/first_names_api';
 import { AppKernel } from './kernel/app_kernel';
 
@@ -13,7 +15,7 @@ let mainWindow: BrowserWindow | null;
 function createWindow() {
   // Without this handler, electron was not reporting all exceptions.
   process.on('uncaughtException', function (error) {
-    console.log(error);
+    log.error(error);
     app.exit(1);
   });
 
@@ -35,10 +37,13 @@ function createWindow() {
       'http://localhost:5000'
     : // in production, use the statically build version of our application
       `file://${path.join(__dirname, '../public/index.html')}`;
-  mainWindow.loadURL(url).catch((_err) => {
-    // TODO: log the error somewhere
-    app.quit();
-  });
+  mainWindow
+    .loadURL(url)
+    .then(() => log.info('started application'))
+    .catch((err) => {
+      log.error('loadURL failed:', err.message);
+      app.quit();
+    });
   mainWindow.on('closed', () => {
     mainWindow = null;
   });
@@ -50,6 +55,7 @@ async function configure() {
     appPrefsApi(kernel), // multiline
     databaseApi(kernel),
     dialogApi(kernel),
+    geographyApi(kernel),
     firstNamesApi(kernel)
   ];
   ipcHandlerSets.forEach((handlerSet) => {
@@ -75,5 +81,6 @@ async function configure() {
 configure()
   .then(() => {})
   .catch((err) => {
-    console.log(err);
+    log.error('configuration failed:', err.message);
+    app.quit();
   });

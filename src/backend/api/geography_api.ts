@@ -1,4 +1,4 @@
-import { IpcHandler, AsyncIpcHandler, SyncIpcHandler } from '../util/ipc_handler';
+import { IpcHandler, AsyncIpcHandler } from '../util/ipc_handler';
 import { AppKernel } from '../../kernel/app_kernel';
 
 class LoadGeographyIpc extends AsyncIpcHandler {
@@ -9,13 +9,13 @@ class LoadGeographyIpc extends AsyncIpcHandler {
     this.kernel = kernel;
   }
 
-  async handle(_data: any): Promise<void> {
+  async handle(_data: any) {
     const db = this.kernel.database;
     await this.kernel.specify.geography.load(db);
   }
 }
 
-class GetCountriesIpc extends SyncIpcHandler {
+class GetCountriesIpc extends AsyncIpcHandler {
   private kernel: AppKernel;
 
   constructor(kernel: AppKernel) {
@@ -23,12 +23,12 @@ class GetCountriesIpc extends SyncIpcHandler {
     this.kernel = kernel;
   }
 
-  handle(_data: any) {
+  async handle(_data: any) {
     return this.kernel.specify.geography.getCountries();
   }
 }
 
-class GetStatesIpc extends SyncIpcHandler {
+class GetStatesIpc extends AsyncIpcHandler {
   private kernel: AppKernel;
 
   constructor(kernel: AppKernel) {
@@ -36,7 +36,7 @@ class GetStatesIpc extends SyncIpcHandler {
     this.kernel = kernel;
   }
 
-  handle(countryID: number) {
+  async handle(countryID: number) {
     return this.kernel.specify.geography.getStates(countryID);
   }
 }

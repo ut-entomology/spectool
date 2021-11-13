@@ -1,41 +1,25 @@
-<script lang="ts" context="module">
-  import { writable } from 'svelte/store';
-
-  interface Notice {
-    message: string;
-    header: string;
-    alert: string;
-  }
-
-  const noticeStore = writable<Notice | null>(null);
-
-  export function showNotice(
-    message: string,
-    header: string = 'Notice',
-    alert: string = 'light'
-  ) {
-    noticeStore.set({ message, header, alert });
-  }
-</script>
-
 <script lang="ts">
   import { Toast, ToastHeader, ToastBody } from 'sveltestrap';
 
+  export let alert = 'light';
+  export let header = 'Notice';
+  export let message = '';
+
+  let isOpen = true;
+
   const closeNotice = () => {
-    noticeStore.set(null);
+    isOpen = false;
   };
 </script>
 
-{#if $noticeStore}
+{#if isOpen}
   <div
-    class="p-3 position-fixed top-50 start-50 translate-middle bg-{$noticeStore.alert} bg-opacity-75"
+    class="p-3 position-fixed top-50 start-50 translate-middle bg-{alert} bg-opacity-75"
   >
-    <Toast fade={false} on:close={closeNotice}>
-      <ToastHeader class="text-{$noticeStore.alert}" toggle={closeNotice}
-        >{$noticeStore.header}</ToastHeader
-      >
+    <Toast fade={false} on:close={closeNotice} on:close>
+      <ToastHeader class="text-{alert}" toggle={closeNotice}>{header}</ToastHeader>
       <ToastBody>
-        {@html $noticeStore.message}
+        {@html message}
       </ToastBody>
     </Toast>
   </div>

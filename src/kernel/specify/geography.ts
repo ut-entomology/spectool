@@ -1,4 +1,5 @@
 import type { Knex } from 'knex';
+import * as log from 'electron-log';
 
 import { SpecGeography, SpecGeographyTreeDefItem } from '../../shared/schema';
 import { GeoDictionary } from '../../shared/specify_data';
@@ -28,7 +29,7 @@ export class Geography {
 
     // Load assignments of rank IDs to geographic categories.
     const rankRows = await db
-      .select<SpecGeographyTreeDefItem[]>('rankID, name')
+      .select<SpecGeographyTreeDefItem[]>('rankID', 'name')
       .from('geographytreedefitem');
     for (const row of rankRows) {
       const geoRank = GeoRank[row.name as keyof typeof GeoRank];
@@ -39,7 +40,7 @@ export class Geography {
 
     // Load all geographic entities.
     const geoRows = await db
-      .select<SpecGeography[]>('geographyID, rankID, name, parentID')
+      .select<SpecGeography[]>('geographyID', 'rankID', 'name', 'parentID')
       .from('geography');
     for (const row of geoRows) {
       const record = {
@@ -52,6 +53,7 @@ export class Geography {
   }
 
   getCountries(): GeoDictionary {
+    log.info('collecting countries');
     const countries: GeoDictionary = {};
     for (const entry of Object.entries(this.records)) {
       const record = entry[1];
@@ -63,6 +65,7 @@ export class Geography {
         };
       }
     }
+    log.info(`returning ${Object.keys(countries).length} countries`);
     return countries;
   }
 
