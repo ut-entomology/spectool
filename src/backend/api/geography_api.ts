@@ -9,7 +9,7 @@ class LoadGeographyIpc extends AsyncIpcHandler {
     this.kernel = kernel;
   }
 
-  async handle(_data: any) {
+  async handler(_data: any) {
     const db = this.kernel.database;
     await this.kernel.specify.geography.load(db);
   }
@@ -23,7 +23,7 @@ class GetCountriesIpc extends AsyncIpcHandler {
     this.kernel = kernel;
   }
 
-  async handle(_data: any) {
+  async handler(_data: any) {
     return this.kernel.specify.geography.getCountries();
   }
 }
@@ -36,7 +36,7 @@ class GetStatesIpc extends AsyncIpcHandler {
     this.kernel = kernel;
   }
 
-  async handle(countryID: number) {
+  async handler(countryID: number) {
     return this.kernel.specify.geography.getStates(countryID);
   }
 }

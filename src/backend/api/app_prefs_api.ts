@@ -10,7 +10,7 @@ class GetAppPrefsIpc extends SyncIpcHandler {
     this.kernel = kernel;
   }
 
-  handle(_data: any) {
+  handler(_data: any) {
     return this.kernel.prefs;
   }
 }
@@ -23,7 +23,7 @@ class SetAppPrefsIpc extends AsyncIpcHandler {
     this.kernel = kernel;
   }
 
-  async handle(prefs: AppPrefs) {
+  async handler(prefs: AppPrefs) {
     return await this.kernel.savePrefs(prefs);
   }
 }

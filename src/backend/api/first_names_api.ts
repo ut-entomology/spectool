@@ -10,7 +10,7 @@ class GetFirstNamesIpc extends AsyncIpcHandler {
     this.kernel = kernel;
   }
 
-  async handle(lastName: string) {
+  async handler(lastName: string) {
     const rows = await this.kernel.database
       .select('firstname')
       .from<SpecUser>('agent')

@@ -10,7 +10,7 @@ class GetDatabaseUsernameIpc extends SyncIpcHandler {
     this.kernel = kernel;
   }
 
-  handle(_data: any): string | null {
+  handler(_data: any): string | null {
     const creds = this.kernel.databaseCreds.get();
     return creds ? creds.username : null;
   }
@@ -24,7 +24,7 @@ class DatabaseLoginIsSavedIpc extends SyncIpcHandler {
     this.kernel = kernel;
   }
 
-  handle(_data: any) {
+  handler(_data: any) {
     return this.kernel.databaseCreds.isSaved();
   }
 }
@@ -37,7 +37,7 @@ class LoginToDatabaseIpc extends AsyncIpcHandler {
     this.kernel = kernel;
   }
 
-  async handle(creds: Credentials) {
+  async handler(creds: Credentials) {
     const databaseCreds = this.kernel.databaseCreds;
     await databaseCreds.set(creds.username, creds.password);
     await databaseCreds.test(this.kernel.database);
@@ -52,7 +52,7 @@ class LoginToDatabaseAndSaveIpc extends AsyncIpcHandler {
     this.kernel = kernel;
   }
 
-  async handle(creds: Credentials) {
+  async handler(creds: Credentials) {
     const databaseCreds = this.kernel.databaseCreds;
     await databaseCreds.set(creds.username, creds.password);
     await databaseCreds.test(this.kernel.database);
@@ -68,7 +68,7 @@ class LogoutOfDatabaseIpc extends AsyncIpcHandler {
     this.kernel = kernel;
   }
 
-  async handle(_data: any) {
+  async handler(_data: any) {
     const obj = this;
     await this.kernel.databaseCreds.clear().then(async () => {
       try {
