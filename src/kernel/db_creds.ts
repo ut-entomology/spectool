@@ -38,15 +38,19 @@ export class DatabaseCredentials extends SavableCredentials {
   }
 
   /**
-   * Tests the credentials to make sure they are valid. If they are not,
-   * clears the username and password and throws an exception.
+   * Tests the credentials to make sure they are valid. Returns a list of
+   * the available collections if they are. If they are not, clears the
+   * username and password and throws an exception.
    */
-  async test(db: Knex): Promise<void> {
+  async test(db: Knex): Promise<SpecCollection[]> {
     try {
-      const rows = await db.select('CollectionName').from<SpecCollection>('collection');
-      if (rows.length == 0) {
-        throw Error('No collections found');
-      }
+      const rows = await db
+        .select('collectionID', 'collectionName')
+        .from<SpecCollection>('collection');
+      return rows.map((row) => ({
+        collectionID: row.collectionID,
+        collectionName: row.collectionName
+      }));
     } catch (err) {
       await this.clear();
       throw err;

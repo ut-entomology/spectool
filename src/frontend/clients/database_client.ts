@@ -1,4 +1,5 @@
 import { ClientIpc } from '../util/client_ipc';
+import type { SpecCollection } from '../../shared/schema';
 import type { Credentials } from '../../shared/credentials';
 
 export class DatabaseClient {
@@ -10,11 +11,11 @@ export class DatabaseClient {
     return ClientIpc.sendSync(window, 'database_login_is_saved');
   }
 
-  static login(creds: Credentials): Promise<void> {
+  static login(creds: Credentials): Promise<SpecCollection[]> {
     return ClientIpc.sendAsync(window, 'login_to_database', creds);
   }
 
-  static loginAndSave(creds: Credentials): Promise<void> {
+  static loginAndSave(creds: Credentials): Promise<SpecCollection[]> {
     return ClientIpc.sendAsync(window, 'login_to_database_and_save', creds);
   }
 

@@ -40,7 +40,7 @@ class LoginToDatabaseIpc extends AsyncIpcHandler {
   async handler(creds: Credentials) {
     const databaseCreds = this.kernel.databaseCreds;
     await databaseCreds.set(creds.username, creds.password);
-    await databaseCreds.test(this.kernel.database);
+    return await databaseCreds.test(this.kernel.database);
   }
 }
 
@@ -55,8 +55,9 @@ class LoginToDatabaseAndSaveIpc extends AsyncIpcHandler {
   async handler(creds: Credentials) {
     const databaseCreds = this.kernel.databaseCreds;
     await databaseCreds.set(creds.username, creds.password);
-    await databaseCreds.test(this.kernel.database);
+    const collections = await databaseCreds.test(this.kernel.database);
     await databaseCreds.save();
+    return collections;
   }
 }
 
