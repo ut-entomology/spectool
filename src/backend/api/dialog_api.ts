@@ -7,7 +7,7 @@ class OpenDirectoryDialogIpc extends SyncIpcHandler {
     super('open_directory_dialog');
   }
 
-  handle(title: string): string | null {
+  handle(title: string) {
     const selections = dialog.showOpenDialogSync({
       title,
       properties: [
