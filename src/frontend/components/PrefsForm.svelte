@@ -52,7 +52,7 @@
         newPrefs.databaseHost = formPrefs.databaseHost;
         newPrefs.databasePort = parseInt(formPrefs.databasePortStr);
         newPrefs.databaseName = formPrefs.databaseName;
-        await AppPrefsClient.setPrefs(window, newPrefs);
+        await AppPrefsClient.setPrefs(newPrefs);
         appPrefs.copyFrom(newPrefs);
         dispatch('submit');
       } catch (err: any) {
@@ -62,10 +62,7 @@
   });
 
   async function chooseFolder() {
-    const folderPath = DialogClient.openDirectoryDialog(
-      window,
-      'Choose the data folder'
-    );
+    const folderPath = DialogClient.openDirectoryDialog('Choose the data folder');
     if (folderPath) {
       await setDataFolder(folderPath);
     }

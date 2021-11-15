@@ -1,8 +1,10 @@
-import { app, BrowserWindow, ipcMain } from 'electron';
+import { app, BrowserWindow, Menu, ipcMain } from 'electron';
 import * as path from 'path';
 import * as log from 'electron-log';
 import 'source-map-support/register';
 
+import { APP_NAME } from './app_name';
+import { createAppMenu } from './app_menu';
 import appPrefsApi from './backend/api/app_prefs_api';
 import databaseApi from './backend/api/database_api';
 import dialogApi from './backend/api/dialog_api';
@@ -37,6 +39,9 @@ function createWindow() {
       'http://localhost:5000'
     : // in production, use the statically build version of our application
       `file://${path.join(__dirname, '../public/index.html')}`;
+
+  Menu.setApplicationMenu(createAppMenu(mainWindow));
+
   mainWindow
     .loadURL(url)
     .then(() => log.info('started application'))
@@ -50,7 +55,7 @@ function createWindow() {
 }
 
 async function configure() {
-  const kernel = new AppKernel();
+  const kernel = new AppKernel(APP_NAME);
   const ipcHandlerSets = [
     appPrefsApi(kernel), // multiline
     databaseApi(kernel),

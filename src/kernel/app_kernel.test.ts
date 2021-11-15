@@ -1,5 +1,6 @@
+import { APP_NAME } from '../app_name';
 import { TestCredentials } from '../test_config';
-import { APP_NAME, AppKernel } from './app_kernel';
+import { AppKernel } from './app_kernel';
 import { AppPrefs } from '../shared/app_prefs';
 
 const DUMMY_APP_NAME = '__ Temp Dummy App';
@@ -68,21 +69,19 @@ describe('the database', () => {
   test('should read database with valid credentials', async () => {
     await kernel1.databaseCreds.clear();
     await kernel1.databaseCreds.set(username, password);
-    const db = kernel1.database;
-    await kernel1.databaseCreds.test(db);
+    await kernel1.databaseCreds.validate();
   });
 
   test('should invalidate connection on clearing credentials', async () => {
     expect.assertions(1);
     await kernel1.databaseCreds.clear();
     await kernel1.databaseCreds.set(username, password);
-    const db = kernel1.database;
     await kernel1.databaseCreds.clear();
     try {
-      await kernel1.databaseCreds.test(db);
+      await kernel1.databaseCreds.validate();
     } catch (err) {
       if (err instanceof Error) {
-        expect(err.message.toLowerCase()).toContain('connection');
+        expect(err.message.toLowerCase()).toContain('credentials');
       }
     }
   });
@@ -91,9 +90,8 @@ describe('the database', () => {
     expect.assertions(1);
     await kernel1.databaseCreds.clear();
     await kernel1.databaseCreds.set('invalid-username', password);
-    const db = kernel1.database;
     try {
-      await kernel1.databaseCreds.test(db);
+      await kernel1.databaseCreds.validate();
     } catch (err) {
       if (err instanceof Error) {
         expect(err.message.toLowerCase()).toContain('access denied');
@@ -105,9 +103,8 @@ describe('the database', () => {
     expect.assertions(1);
     await kernel1.databaseCreds.clear();
     await kernel1.databaseCreds.set(username, 'invalid-password');
-    const db = kernel1.database;
     try {
-      await kernel1.databaseCreds.test(db);
+      await kernel1.databaseCreds.validate();
     } catch (err) {
       if (err instanceof Error) {
         expect(err.message.toLowerCase()).toContain('access denied');

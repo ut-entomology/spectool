@@ -6,11 +6,6 @@ import { PreferencesFile } from '../app-util/prefs_file';
 import { DatabaseCredentials } from './db_creds';
 import { Specify } from './specify';
 
-// TODO: Need to reconcile the fact that I'd like this name here but
-// Electron pulls the name out of package.json, which can't have spaces.
-// Consequently, my code and Electron are using different user directories.
-export const APP_NAME = 'UT SpecTool';
-
 /**
  * AppPrefsFile manages the non-Electron user preferences.
  */
@@ -40,7 +35,7 @@ export class AppKernel {
    * app configuration and user preferences. The caller must call
    * `init()` after construction and prior to use.
    */
-  constructor(appName: string = APP_NAME) {
+  constructor(appName: string) {
     this.appName = appName;
     this.platform = new Platform(appName);
     this.appPrefsFile = new AppPrefsFile(this.platform);

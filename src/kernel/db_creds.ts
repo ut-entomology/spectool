@@ -38,13 +38,13 @@ export class DatabaseCredentials extends SavableCredentials {
   }
 
   /**
-   * Tests the credentials to make sure they are valid. Returns a list of
-   * the available collections if they are. If they are not, clears the
-   * username and password and throws an exception.
+   * Validates the credentials. Returns a list of the available collections
+   * if they are. If they are not, clears the username and password and
+   * throws an exception.
    */
-  async test(db: Knex): Promise<SpecCollection[]> {
+  async validate(): Promise<SpecCollection[]> {
     try {
-      const rows = await db
+      const rows = await this.kernel.database
         .select('collectionID', 'collectionName')
         .from<SpecCollection>('collection');
       return rows.map((row) => ({

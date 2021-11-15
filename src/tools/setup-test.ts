@@ -1,6 +1,6 @@
 import readlineSync from 'readline-sync';
 
-import { APP_NAME } from '../kernel/app_kernel';
+import { APP_NAME } from '../app_name';
 import { Platform } from '../app-util/platform';
 import { TestPrefsFile, TestCredentials } from '../test_config';
 
