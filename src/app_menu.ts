@@ -75,7 +75,17 @@ export function createAppMenu(mainWindow: BrowserWindow) {
           type: 'separator'
         },
         {
+          label: 'Connect',
+          id: 'connect_database',
+          enabled: false,
+          click: (_item, _focusedWindow, _event) => {
+            mainWindow.webContents.send('connect_database');
+          }
+        },
+        {
           label: 'Disconnect',
+          id: 'disconnect_database',
+          visible: false,
           click: (_item, _focusedWindow, _event) => {
             mainWindow.webContents.send('disconnect_database');
           }

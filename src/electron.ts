@@ -12,14 +12,16 @@ import geographyApi from './backend/api/geography_api';
 import firstNamesApi from './backend/api/first_names_api';
 import { AppKernel } from './kernel/app_kernel';
 
+// Without this handler, electron was not reporting all exceptions.
+process.on('uncaughtException', function (error) {
+  log.error(error);
+  app.exit(1);
+});
+
 let mainWindow: BrowserWindow | null;
 
-function createWindow() {
-  // Without this handler, electron was not reporting all exceptions.
-  process.on('uncaughtException', function (error) {
-    log.error(error);
-    app.exit(1);
-  });
+function createMainWindow() {
+  // Can be called from a menu item event, so assign global window here.
 
   mainWindow = new BrowserWindow({
     width: 900,
@@ -40,8 +42,6 @@ function createWindow() {
     : // in production, use the statically build version of our application
       `file://${path.join(__dirname, '../public/index.html')}`;
 
-  Menu.setApplicationMenu(createAppMenu(mainWindow));
-
   mainWindow
     .loadURL(url)
     .then(() => log.info('started application'))
@@ -54,38 +54,42 @@ function createWindow() {
   });
 }
 
-async function configure() {
-  const kernel = new AppKernel(APP_NAME);
-  const ipcHandlerSets = [
-    appPrefsApi(kernel), // multiline
-    databaseApi(kernel),
-    dialogApi(kernel),
-    geographyApi(kernel),
-    firstNamesApi(kernel)
-  ];
-  ipcHandlerSets.forEach((handlerSet) => {
-    handlerSet.forEach((handler) => {
-      handler.register(ipcMain);
+app
+  .whenReady()
+  .then(async () => {
+    // Initialize kernel.
+    const kernel = new AppKernel(APP_NAME);
+    const ipcHandlerSets = [
+      appPrefsApi(kernel), // multiline
+      databaseApi(kernel),
+      dialogApi(kernel),
+      geographyApi(kernel),
+      firstNamesApi(kernel)
+    ];
+    ipcHandlerSets.forEach((handlerSet) => {
+      handlerSet.forEach((handler) => {
+        handler.register(ipcMain);
+      });
     });
-  });
+    await kernel.init();
 
-  // Must follow initializing IPC handlers.
-  app.on('ready', createWindow);
+    // Must follow initializing IPC handlers.
+    createMainWindow();
+    Menu.setApplicationMenu(createAppMenu(mainWindow!));
 
-  // Implement expected Mac OS behavior.
-  app.on('window-all-closed', () => {
-    if (process.platform !== 'darwin') app.quit();
-  });
-  app.on('activate', () => {
-    if (mainWindow === null) createWindow();
-  });
-
-  await kernel.init();
-}
-
-configure()
-  .then(() => {})
+    // Implement expected Mac OS behavior.
+    app.on('window-all-closed', () => {
+      if (process.platform !== 'darwin') {
+        app.quit();
+      }
+    });
+    app.on('activate', () => {
+      if (mainWindow === null) {
+        createMainWindow();
+      }
+    });
+  })
   .catch((err) => {
-    log.error('configuration failed:', err.message);
+    log.error(err.message);
     app.quit();
   });
