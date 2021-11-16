@@ -47,7 +47,7 @@ export class AppKernel {
    * user preferences, and app-specific login credentials stored within the OS.
    */
   async init(): Promise<void> {
-    this.__prefs = await this.appPrefsFile.load();
+    this.__prefs = new AppPrefs(await this.appPrefsFile.load());
     this.__databaseCreds = new DatabaseCredentials(this);
     await this.__databaseCreds.init();
   }

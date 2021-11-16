@@ -1,4 +1,4 @@
-import { APP_NAME } from '../app_name';
+import { APP_NAME } from '../app/app_name';
 import { TestCredentials } from '../test_config';
 import { AppKernel } from './app_kernel';
 import { AppPrefs } from '../shared/app_prefs';

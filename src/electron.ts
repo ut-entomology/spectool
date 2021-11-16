@@ -3,14 +3,16 @@ import * as path from 'path';
 import * as log from 'electron-log';
 import 'source-map-support/register';
 
-import { APP_NAME } from './app_name';
-import { createAppMenu } from './app_menu';
+import { APP_NAME } from './app/app_name';
+import { createAppMenu } from './app/app_menu';
 import appPrefsApi from './backend/api/app_prefs_api';
 import databaseApi from './backend/api/database_api';
 import dialogApi from './backend/api/dialog_api';
 import geographyApi from './backend/api/geography_api';
 import firstNamesApi from './backend/api/first_names_api';
 import { AppKernel } from './kernel/app_kernel';
+import { Connection } from './shared/connection';
+import { connectionPub } from './app/connectionPub';
 
 // Without this handler, electron was not reporting all exceptions.
 process.on('uncaughtException', function (error) {
@@ -31,7 +33,7 @@ function createMainWindow() {
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
-      preload: path.join(__dirname, 'preload.js')
+      preload: path.join(__dirname, './app/preload.js')
     }
   });
 
@@ -72,6 +74,13 @@ app
       });
     });
     await kernel.init();
+
+    // Establish database connection status.
+    log.info(kernel.prefs);
+    connectionPub.value = new Connection(
+      kernel.prefs.isComplete(),
+      kernel.databaseCreds.get()?.username
+    );
 
     // Must follow initializing IPC handlers.
     createMainWindow();

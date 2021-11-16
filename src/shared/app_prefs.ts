@@ -16,4 +16,13 @@ export class AppPrefs {
     this.databasePort = otherPrefs.databasePort;
     this.databaseName = otherPrefs.databaseName;
   }
+
+  isComplete() {
+    return (
+      this.dataFolder != '' &&
+      this.databaseHost != '' &&
+      this.databasePort != 0 &&
+      this.databaseName != ''
+    );
+  }
 }

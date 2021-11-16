@@ -1,6 +1,37 @@
 import { app, BrowserWindow, Menu, MenuItemConstructorOptions } from 'electron';
 
 import { APP_NAME } from './app_name';
+import { Connection } from '../shared/connection';
+import { connectionPub } from './connectionPub';
+
+let connection = new Connection();
+
+// TODO: base initial menu properties on connection (I think -- are they set yet?)
+connectionPub.subscribe((conn) => {
+  connection = conn;
+  const menu = Menu.getApplicationMenu();
+  if (menu) {
+    const connectItem = menu.getMenuItemById('connect_database');
+    const disconnectItem = menu.getMenuItemById('disconnect_database');
+    if (connectItem && disconnectItem) {
+      if (conn.configured) {
+        if (conn.username) {
+          connectItem!.visible = false;
+          disconnectItem!.visible = true;
+          disconnectItem!.enabled = true;
+        } else {
+          connectItem!.visible = true;
+          connectItem!.enabled = true;
+          disconnectItem!.visible = false;
+        }
+      } else {
+        connectItem!.visible = true;
+        connectItem!.enabled = false;
+        disconnectItem!.visible = false;
+      }
+    }
+  }
+});
 
 export function createAppMenu(mainWindow: BrowserWindow) {
   // Electron automatically adds the associated labels and key shortcuts.
