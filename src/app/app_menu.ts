@@ -1,14 +1,9 @@
 import { app, BrowserWindow, Menu, MenuItemConstructorOptions } from 'electron';
 
 import { APP_NAME } from './app_name';
-import { Connection } from '../shared/connection';
 import { connectionPub } from './connectionPub';
 
-let connection = new Connection();
-
-// TODO: base initial menu properties on connection (I think -- are they set yet?)
 connectionPub.subscribe((conn) => {
-  connection = conn;
   const menu = Menu.getApplicationMenu();
   if (menu) {
     const connectItem = menu.getMenuItemById('connect_database');

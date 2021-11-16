@@ -75,16 +75,15 @@ app
     });
     await kernel.init();
 
-    // Establish database connection status.
-    log.info(kernel.prefs);
+    // Must follow initializing IPC handlers.
+    createMainWindow();
+    Menu.setApplicationMenu(createAppMenu(mainWindow!));
+
+    // Must follow setting application menu.
     connectionPub.value = new Connection(
       kernel.prefs.isComplete(),
       kernel.databaseCreds.get()?.username
     );
-
-    // Must follow initializing IPC handlers.
-    createMainWindow();
-    Menu.setApplicationMenu(createAppMenu(mainWindow!));
 
     // Implement expected Mac OS behavior.
     app.on('window-all-closed', () => {
