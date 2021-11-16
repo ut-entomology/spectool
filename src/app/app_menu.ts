@@ -149,6 +149,14 @@ export function createAppMenu(mainWindow: BrowserWindow) {
         },
         { type: 'separator' },
         {
+          label: 'Preferences...',
+          accelerator: 'CommandOrControl+,',
+          click: (_item, _focusedWindow, _event) => {
+            mainWindow.webContents.send('set_preferences');
+          }
+        },
+        { type: 'separator' },
+        {
           label: 'Services',
           role: 'services',
           submenu: []
@@ -174,6 +182,21 @@ export function createAppMenu(mainWindow: BrowserWindow) {
           accelerator: 'Command+Q',
           click: () => {
             app.quit();
+          }
+        }
+      ]
+    });
+  } else {
+    menuTemplate.unshift({
+      label: 'File',
+      id: 'file-menu',
+      visible: false,
+      submenu: [
+        {
+          label: 'Preferences',
+          accelerator: 'CommandOrControl+,',
+          click: (_item, _focusedWindow, _event) => {
+            mainWindow.webContents.send('set_preferences');
           }
         }
       ]
