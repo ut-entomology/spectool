@@ -3,26 +3,26 @@ import { app, BrowserWindow, Menu, MenuItemConstructorOptions } from 'electron';
 import { APP_NAME } from './app_name';
 import { connectionPub } from './connectionPub';
 
-connectionPub.subscribe((conn) => {
+connectionPub.subscribe((connection) => {
   const menu = Menu.getApplicationMenu();
   if (menu) {
     const connectItem = menu.getMenuItemById('connect_database');
     const disconnectItem = menu.getMenuItemById('disconnect_database');
     if (connectItem && disconnectItem) {
-      if (conn.configured) {
-        if (conn.username) {
-          connectItem!.visible = false;
-          disconnectItem!.visible = true;
-          disconnectItem!.enabled = true;
+      if (connection.configured) {
+        if (connection.username) {
+          connectItem.visible = false;
+          disconnectItem.visible = true;
+          disconnectItem.enabled = true;
         } else {
-          connectItem!.visible = true;
-          connectItem!.enabled = true;
-          disconnectItem!.visible = false;
+          connectItem.visible = true;
+          connectItem.enabled = true;
+          disconnectItem.visible = false;
         }
       } else {
-        connectItem!.visible = true;
-        connectItem!.enabled = false;
-        disconnectItem!.visible = false;
+        connectItem.visible = true;
+        connectItem.enabled = false;
+        disconnectItem.visible = false;
       }
     }
   }
