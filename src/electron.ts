@@ -7,6 +7,7 @@ import { APP_NAME } from './app/app_name';
 import { createAppMenu } from './app/app_menu';
 import appPrefsApi from './backend/api/app_prefs_api';
 import databaseApi from './backend/api/database_api';
+import databaseConfigApi from './backend/api/db_config_api';
 import dialogApi from './backend/api/dialog_api';
 import geographyApi from './backend/api/geography_api';
 import firstNamesApi from './backend/api/first_names_api';
@@ -64,6 +65,7 @@ app
     const ipcHandlerSets = [
       appPrefsApi(kernel), // multiline
       databaseApi(kernel),
+      databaseConfigApi(kernel),
       dialogApi(kernel),
       geographyApi(kernel),
       firstNamesApi(kernel)
@@ -81,7 +83,7 @@ app
 
     // Must follow setting application menu.
     connectionPub.value = new Connection(
-      kernel.prefs.isComplete(),
+      kernel.databaseConfig.isReady(),
       kernel.databaseCreds.get()?.username
     );
 

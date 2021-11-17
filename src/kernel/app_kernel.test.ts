@@ -1,37 +1,37 @@
 import { APP_NAME } from '../app/app_name';
 import { TestCredentials } from '../test_config';
 import { AppKernel } from './app_kernel';
-import { AppPrefs } from '../shared/app_prefs';
+import { DatabaseConfig } from '../shared/db_config';
 
 const DUMMY_APP_NAME = '__ Temp Dummy App';
 
-describe('app preferences', () => {
+describe('database configuration', () => {
   const kernel1 = new AppKernel(DUMMY_APP_NAME);
   beforeAll(async () => {
     await kernel1.init();
   });
 
   test('should initially equal the defaults', () => {
-    expect(kernel1.prefs).toEqual(new AppPrefs());
+    expect(kernel1.databaseConfig).toEqual(new DatabaseConfig());
   });
 
   test('should change when saved', async () => {
-    const prefs = kernel1.prefs;
-    prefs.databaseName = 'dummy';
-    await kernel1.savePrefs(prefs);
+    const config = kernel1.databaseConfig;
+    config.databaseName = 'dummy';
+    await kernel1.saveDatabaseConfig(config);
     const kernel2 = new AppKernel(DUMMY_APP_NAME);
     await kernel2.init();
-    expect(kernel2.prefs).toEqual(prefs);
+    expect(kernel2.databaseConfig).toEqual(config);
   });
 
   test('should return to defaults when dropped', async () => {
-    const prefs = kernel1.prefs;
-    prefs.databaseName = 'dummy';
-    await kernel1.savePrefs(prefs);
-    await kernel1.dropPrefs();
+    const config = kernel1.databaseConfig;
+    config.databaseName = 'dummy';
+    await kernel1.saveDatabaseConfig(config);
+    await kernel1.dropDatabaseConfig();
     const kernel2 = new AppKernel(DUMMY_APP_NAME);
     await kernel2.init();
-    expect(kernel2.prefs).toEqual(new AppPrefs());
+    expect(kernel2.databaseConfig).toEqual(new DatabaseConfig());
   });
 
   afterAll(async () => {

@@ -1,24 +1,17 @@
 <script lang="ts">
-  import { flashMessage } from '../layout/Flash.svelte';
-  import { showNotice } from '../layout/DynamicNotice.svelte';
-  import LoginForm from './LoginForm.svelte';
+  import { flashMessage } from '../layout/VariableFlash.svelte';
+  import { showNotice } from '../layout/VariableNotice.svelte';
+  import { currentDialog } from '../stores/currentDialog';
   import { loggedInUser } from '../stores/loggedInUser';
+  import { databaseConfigReady } from '../stores/dbConfigReady';
   import { User } from '../lib/user';
+  import DBLoginDialog from '../dialogs/DBLoginDialog.svelte';
 
   export let appTitle = 'untitled';
-  export let disabled: boolean;
 
-  let showLoginForm = false;
-  const toggleLoginForm = () => {
-    showLoginForm = !showLoginForm;
+  const showLoginDialog = () => {
+    $currentDialog = DBLoginDialog;
   };
-
-  async function login(username: string, password: string, save: boolean) {
-    await User.login(username, password, save);
-    $loggedInUser = new User(username, save);
-    toggleLoginForm();
-    flashMessage('You are logged in');
-  }
 
   function logout() {
     User.logout()
@@ -31,15 +24,6 @@
       });
   }
 </script>
-
-{#if showLoginForm}
-  <LoginForm
-    isOpen={showLoginForm}
-    title="Enter your database credentials"
-    {login}
-    toggle={toggleLoginForm}
-  />
-{/if}
 
 <div class="header_bar container-flud g-0">
   <div class="row">
@@ -59,7 +43,11 @@
     <div class="col-3 login_logout">
       <div>
         {#if $loggedInUser === null}
-          <button class="btn btn-major compact" on:click={toggleLoginForm} {disabled}>
+          <button
+            class="btn btn-major compact"
+            on:click={showLoginDialog}
+            disabled={!$databaseConfigReady}
+          >
             Login
           </button>
         {:else}

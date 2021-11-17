@@ -5,35 +5,35 @@ import { SavableCredentials } from '../app-util/savable_creds';
 import { SpecCollection } from '../shared/schema';
 
 export class DatabaseCredentials extends SavableCredentials {
-  private kernel: AppKernel;
-  private __database?: Knex;
+  private _kernel: AppKernel;
+  private _database?: Knex;
 
   constructor(kernel: AppKernel) {
     super(kernel.appName, 'database');
-    this.kernel = kernel;
+    this._kernel = kernel;
   }
 
   async clear(): Promise<void> {
     await super.clear();
-    if (this.__database) {
-      await this.__database.destroy();
+    if (this._database) {
+      await this._database.destroy();
     }
-    this.__database = undefined;
+    this._database = undefined;
   }
 
   connect(): Knex {
-    if (this.__database) {
-      return this.__database;
+    if (this._database) {
+      return this._database;
     }
-    this.__database = this.createDatabaseClient();
-    return this.__database;
+    this._database = this._createDatabaseClient();
+    return this._database;
   }
 
   async set(username: string, password: string): Promise<void> {
     super.set(username, password);
-    if (this.__database) {
-      await this.__database.destroy();
-      this.__database = this.createDatabaseClient();
+    if (this._database) {
+      await this._database.destroy();
+      this._database = this._createDatabaseClient();
     }
   }
 
@@ -44,7 +44,7 @@ export class DatabaseCredentials extends SavableCredentials {
    */
   async validate(): Promise<SpecCollection[]> {
     try {
-      const rows = await this.kernel.database
+      const rows = await this._kernel.database
         .select('collectionID', 'collectionName')
         .from<SpecCollection>('collection');
       return rows.map((row) => ({
@@ -59,16 +59,16 @@ export class DatabaseCredentials extends SavableCredentials {
 
   //// PRIVATE METHODS ////
 
-  private createDatabaseClient(): Knex {
+  private _createDatabaseClient(): Knex {
     if (!this.username || !this.password)
       throw Error('No database credentials assigned');
-    const prefs = this.kernel.prefs;
+    const config = this._kernel.databaseConfig;
     return knex({
       client: 'mysql2',
       connection: {
-        host: prefs.databaseHost,
-        database: prefs.databaseName,
-        port: prefs.databasePort,
+        host: config.databaseHost,
+        database: config.databaseName,
+        port: config.databasePort,
         user: this.username,
         password: this.password
       }

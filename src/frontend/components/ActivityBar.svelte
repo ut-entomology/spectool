@@ -4,7 +4,7 @@
   import { loggedInUser } from '../stores/loggedInUser';
   import { screenStack } from '../stores/screenStack';
   import { currentActivity } from '../stores/currentActivity';
-  import { showNotice } from '../layout/DynamicNotice.svelte';
+  import { showNotice } from '../layout/VariableNotice.svelte';
 
   let currentUser: User | null = null;
   loggedInUser.subscribe((user) => {

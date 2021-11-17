@@ -1,13 +1,13 @@
 import { writable } from 'svelte/store';
 
-import type { Screen } from '../lib/screen';
+import type { AppScreen } from '../lib/app_screen';
 
 function createScreenStack() {
-  const { subscribe, update } = writable<Screen[]>([]);
+  const { subscribe, update } = writable<AppScreen[]>([]);
 
   return {
     subscribe,
-    push: (screen: Screen) =>
+    push: (screen: AppScreen) =>
       update((screens) => {
         screens.push(screen);
         return screens;
@@ -17,7 +17,7 @@ function createScreenStack() {
         screens.pop();
         return screens;
       }),
-    replace: (screen: Screen) =>
+    replace: (screen: AppScreen) =>
       update((screens) => {
         screens[screens.length - 1] = screen;
         return screens;

@@ -8,11 +8,18 @@
 
   const messageStore = writable<Message | null>(null);
 
-  export function flashMessage(text: string, alert = 'warning', millis = 1250) {
+  export function flashMessage(
+    text: string,
+    alert = 'warning',
+    millis = 1250
+  ): Promise<void> {
     messageStore.set({ text, alert });
-    setTimeout(() => {
-      closeToast();
-    }, millis);
+    return new Promise<void>((resolve) => {
+      setTimeout(() => {
+        closeToast();
+        resolve();
+      }, millis);
+    });
   }
 
   function closeToast() {

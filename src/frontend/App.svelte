@@ -1,51 +1,62 @@
 <script lang="ts">
   import { setContext } from 'svelte';
+  import type { AppScreen } from './lib/app_screen';
   import { User } from './lib/user';
-  import { appDisabled } from './stores/appDisabled';
+  import { appPrefsReady } from './stores/appPrefsReady';
+  import { databaseConfigReady } from './stores/dbConfigReady';
   import { loggedInUser } from './stores/loggedInUser';
   import { screenStack } from './stores/screenStack';
+  import { currentDialog } from './stores/currentDialog';
   import { AppPrefsClient } from './clients/app_prefs_client';
-  import AppPrefsScreen from './AppPrefsScreen.svelte';
-  import Flash from './layout/Flash.svelte';
-  import DynamicNotice from './layout/DynamicNotice.svelte';
+  import { DatabaseConfigClient } from './clients/db_config_client';
+  import VariableFlash from './layout/VariableFlash.svelte';
+  import VariableNotice from './layout/VariableNotice.svelte';
+  import VariableDialog from './layout/VariableDialog.svelte';
   import ActivityMenu from './components/ActivityMenu.svelte';
   import HeaderBar from './components/HeaderBar.svelte';
   import ActivityBar from './components/ActivityBar.svelte';
   import StatusBar from './components/StatusBar.svelte';
+  import AppPrefsDialog from './dialogs/AppPrefsDialog.svelte';
+  import DBConfigDialog from './dialogs/DBConfigDialog.svelte';
 
-  const initialPrefs = AppPrefsClient.getPrefs();
-  $appDisabled = !initialPrefs.dataFolder;
+  const initialAppPrefs = AppPrefsClient.getPrefs();
+  setContext('app-prefs', initialAppPrefs);
+  $appPrefsReady = initialAppPrefs.isReady();
 
-  setContext('prefs', initialPrefs);
+  const initialDatabaseConfig = DatabaseConfigClient.getConfig();
+  setContext('db-config', initialDatabaseConfig);
+  $databaseConfigReady = initialDatabaseConfig.isReady();
+
+  let currentScreen: AppScreen;
+  screenStack.subscribe((screens) => {
+    currentScreen = screens[screens.length - 1];
+  });
+
   $loggedInUser = User.getLoggedInUser();
-  $: if ($appDisabled) {
-    screenStack.push({
-      title: 'Application Preferences',
-      componentType: AppPrefsScreen,
-      params: {}
-    });
-  } else {
-    screenStack.push({
-      title: 'Activities',
-      componentType: ActivityMenu,
-      params: {}
-    });
-  }
-
-  function currentScreen() {
-    return $screenStack[$screenStack.length - 1];
-  }
+  screenStack.push({
+    title: 'Activities',
+    componentType: ActivityMenu,
+    params: {}
+  });
+  $: (async () => {
+    if (!$databaseConfigReady) {
+      $currentDialog = DBConfigDialog;
+    } else if (!$appPrefsReady && $currentDialog == null) {
+      $currentDialog = AppPrefsDialog;
+    }
+  })();
 </script>
 
-<HeaderBar appTitle="UT SpecTool" disabled={$appDisabled} />
+<HeaderBar appTitle="UT SpecTool" />
 <div class="page-content">
   <ActivityBar />
-  <svelte:component this={currentScreen().componentType} {...currentScreen().params} />
+  <svelte:component this={currentScreen.componentType} {...currentScreen.params} />
 </div>
 <StatusBar />
 
-<Flash />
-<DynamicNotice />
+<VariableDialog />
+<VariableNotice />
+<VariableFlash />
 
 <style lang="scss" global>
   // Svelte is not allowing a component to have both local and global SCSS.
@@ -135,17 +146,17 @@
   // Modals
 
   .dialog {
-    padding: 1.5rem 1rem;
+    padding: 1.5rem;
   }
 
   .dialog,
   .modal-notice {
-    margin: 0 auto;
     border-radius: 8px;
     pointer-events: auto;
   }
 
   .modal-notice {
+    margin: 0 auto;
     padding: 1rem;
   }
 
