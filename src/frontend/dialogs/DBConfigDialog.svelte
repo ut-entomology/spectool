@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { getContext } from 'svelte';
+  import { getContext, onDestroy } from 'svelte';
   import * as yup from 'yup';
 
   import { createForm, Form, Input } from '../layout/forms';
@@ -51,15 +51,20 @@
         config.databaseName = values.databaseName;
         await DatabaseConfigClient.setConfig(config);
         databaseConfig.copyFrom(config);
-        $databaseConfigReady = true;
-        $currentDialog = null;
+        closeForm();
       } catch (err: any) {
         errorMessage = err.message;
       }
     }
   });
 
-  async function cancelForm() {}
+  onDestroy(() => {
+    databaseConfigReady.set(true);
+  });
+
+  function closeForm() {
+    currentDialog.set(null);
+  }
 </script>
 
 <Dialog title="Configure the Database Connection" size="md">
@@ -106,7 +111,7 @@
     <div class="row justify-content-end">
       {#if $databaseConfigReady}
         <div class="col-3">
-          <button class="btn btn-minor" type="button" on:click={cancelForm}
+          <button class="btn btn-minor" type="button" on:click={closeForm}
             >Cancel</button
           >
         </div>

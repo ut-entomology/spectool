@@ -9,6 +9,7 @@
   let isOpen = false;
 
   onMount(async () => {
+    console.log('showing dialog');
     // If the app opens with a modal open, there's no backdrop, so
     // wait for the modal component to render with the modal off
     // before turning the modal on. I can't include the backdrop

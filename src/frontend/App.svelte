@@ -41,7 +41,7 @@
   $: (async () => {
     if (!$databaseConfigReady) {
       $currentDialog = DBConfigDialog;
-    } else if (!$appPrefsReady && $currentDialog == null) {
+    } else if (!$appPrefsReady) {
       $currentDialog = AppPrefsDialog;
     }
   })();
