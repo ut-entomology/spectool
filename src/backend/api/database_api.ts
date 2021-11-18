@@ -43,7 +43,12 @@ class LoginToDatabaseIpc extends AsyncIpcHandler {
   async handler(creds: Credentials) {
     const databaseCreds = this.kernel.databaseCreds;
     await databaseCreds.set(creds.username, creds.password);
-    return await databaseCreds.validate();
+    const collections = await databaseCreds.validate();
+    connectionPub.value = {
+      isConfigured: true,
+      username: creds.username
+    };
+    return collections;
   }
 }
 
@@ -60,6 +65,10 @@ class LoginToDatabaseAndSaveIpc extends AsyncIpcHandler {
     await databaseCreds.set(creds.username, creds.password);
     const collections = await databaseCreds.validate();
     await databaseCreds.save();
+    connectionPub.value = {
+      isConfigured: true,
+      username: creds.username
+    };
     return collections;
   }
 }
@@ -78,6 +87,10 @@ class LogoutOfDatabaseIpc extends AsyncIpcHandler {
       try {
         await obj.kernel.databaseCreds.validate();
       } catch (err) {
+        connectionPub.value = {
+          isConfigured: true,
+          username: null
+        };
         return;
       }
       throw Error('Failed to disconnect from database');

@@ -11,7 +11,7 @@ contextBridge.exposeInMainWorld('ipc', {
   send: (channel: string, data: any) => {
     ipcRenderer.send(channel, data);
   },
-  receive: (channel: string, func: (data: any) => void) => {
+  on: (channel: string, func: (data: any) => void) => {
     // Don't pass along event as it includes `sender`
     ipcRenderer.on(channel, (_event, args) => func(args));
   }

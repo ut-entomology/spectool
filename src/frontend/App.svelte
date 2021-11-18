@@ -10,6 +10,7 @@
   import { DatabaseConfigClient } from './clients/db_config_client';
   import { DatabaseClient } from './clients/database_client';
   import { UserClient } from './clients/user_client';
+  import './clients/event_client.svelte';
   import VariableFlash from './layout/VariableFlash.svelte';
   import VariableNotice, { showNotice } from './layout/VariableNotice.svelte';
   import VariableDialog from './layout/VariableDialog.svelte';

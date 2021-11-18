@@ -9,6 +9,8 @@
   import { currentDialog } from '../stores/currentDialog';
   import Dialog from '../layout/Dialog.svelte';
 
+  export let onSuccess: () => void = () => {};
+
   let errorMessage = '';
   let setDataFolder: SetInputValue;
 
@@ -25,7 +27,8 @@
         prefs.dataFolder = values.dataFolder;
         await AppPrefsClient.setPrefs(prefs);
         $currentPrefs = prefs;
-        $currentDialog = null;
+        cancelForm();
+        onSuccess();
       } catch (err: any) {
         errorMessage = err.message;
       }
@@ -39,7 +42,9 @@
     }
   }
 
-  async function cancelForm() {}
+  function cancelForm() {
+    $currentDialog = null;
+  }
 </script>
 
 <Dialog title="Set Data Folder" size="md">
