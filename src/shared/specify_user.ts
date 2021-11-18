@@ -14,6 +14,7 @@ export interface SpecifyUser {
   id: number;
   name: string;
   access: CollectionAccess[];
+  saved: boolean;
 }
 
 export function toPermissions(specUserType: string): Permissions {

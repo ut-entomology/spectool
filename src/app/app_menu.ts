@@ -9,7 +9,7 @@ connectionPub.subscribe((connection) => {
     const connectItem = menu.getMenuItemById('connect_database');
     const disconnectItem = menu.getMenuItemById('disconnect_database');
     if (connectItem && disconnectItem) {
-      if (connection.configured) {
+      if (connection.isConfigured) {
         if (connection.username) {
           connectItem.visible = false;
           disconnectItem.visible = true;

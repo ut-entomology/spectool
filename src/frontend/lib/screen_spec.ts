@@ -1,8 +1,8 @@
 import type { SvelteComponent } from 'svelte';
 
-export interface AppScreen {
+export interface ScreenSpec {
   // Electron also defines 'Screen'
   title: string;
-  componentType: typeof SvelteComponent;
+  target: typeof SvelteComponent;
   params: { [key: string]: any };
 }

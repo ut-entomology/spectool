@@ -12,6 +12,6 @@ export class AppPrefs {
   }
 
   isReady() {
-    return this.dataFolder;
+    return !!this.dataFolder;
   }
 }

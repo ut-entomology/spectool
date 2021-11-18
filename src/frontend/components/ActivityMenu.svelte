@@ -1,21 +1,29 @@
 <script lang="ts">
   import type { Activity } from '../lib/activity';
   import { openActivity } from './ActivityBar.svelte';
+  import * as prereqs from '../lib/prereqs.svelte';
   import LocalityConsolidation from '../activities/LocalityConsolidation.svelte';
   import FirstNames from '../activities/FirstNames.svelte';
 
   const activities: Activity[] = [
     {
       title: 'Consolidate localities',
-      componentType: LocalityConsolidation,
+      target: LocalityConsolidation,
       description: 'Find and merge different entries for the same localities.',
-      requiresLogin: true
+      requiresLogin: true,
+      prerequisites: [
+        prereqs.databaseConfigPrereq,
+        prereqs.connectionPrereq,
+        prereqs.userLoginPrereq,
+        prereqs.dataFolderPrereq
+      ]
     },
     {
       title: 'Query for first names',
-      componentType: FirstNames,
+      target: FirstNames,
       description: 'Returns all first names for a given last name.',
-      requiresLogin: true
+      requiresLogin: false,
+      prerequisites: [prereqs.databaseConfigPrereq, prereqs.connectionPrereq]
     }
   ];
 </script>

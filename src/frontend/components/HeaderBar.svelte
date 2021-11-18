@@ -1,22 +1,23 @@
 <script lang="ts">
   import { flashMessage } from '../layout/VariableFlash.svelte';
   import { showNotice } from '../layout/VariableNotice.svelte';
-  import { currentDialog } from '../stores/currentDialog';
-  import { loggedInUser } from '../stores/loggedInUser';
-  import { databaseConfigReady } from '../stores/dbConfigReady';
-  import { User } from '../lib/user';
-  import DBLoginDialog from '../dialogs/DBLoginDialog.svelte';
+  import { currentConnection } from '../stores/currentConnection';
+  import { currentUser } from '../stores/currentUser';
+  import * as prereqs from '../lib/prereqs.svelte';
+  import { UserClient } from '../clients/user_client';
 
   export let appTitle = 'untitled';
 
-  const showLoginDialog = () => {
-    $currentDialog = DBLoginDialog;
+  const loginPrereqs = [prereqs.connectionPrereq, prereqs.userLoginPrereq];
+
+  const login = () => {
+    prereqs.satisfyAll(loginPrereqs, () => {});
   };
 
   function logout() {
-    User.logout()
+    UserClient.logout()
       .then(() => {
-        $loggedInUser = null;
+        $currentUser = null;
         flashMessage('You have logged out');
       })
       .catch((err: Error) => {
@@ -29,12 +30,12 @@
   <div class="row">
     <div class="col-3 app_title">{appTitle}</div>
     <div class="col-6 logged_in_user">
-      {#if $loggedInUser === null}
+      {#if $currentUser === null}
         <span>not logged in</span>
       {:else}
         <div>
-          {$loggedInUser.username}
-          {#if $loggedInUser.saved}
+          {$currentUser.name}
+          {#if $currentUser.saved}
             <span>(saved login)</span>
           {/if}
         </div>
@@ -42,11 +43,11 @@
     </div>
     <div class="col-3 login_logout">
       <div>
-        {#if $loggedInUser === null}
+        {#if $currentUser === null}
           <button
             class="btn btn-major compact"
-            on:click={showLoginDialog}
-            disabled={!$databaseConfigReady}
+            on:click={login}
+            disabled={!$currentConnection.isConfigured}
           >
             Login
           </button>

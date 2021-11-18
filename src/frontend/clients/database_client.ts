@@ -1,10 +1,11 @@
 import { ClientIpc } from '../util/client_ipc';
 import type { SpecCollection } from '../../shared/schema';
+import type { Connection } from '../../shared/connection';
 import type { Credentials } from '../../shared/credentials';
 
 export class DatabaseClient {
-  static getUsername(): string | null {
-    return ClientIpc.sendSync(window, 'get_database_username');
+  static getConnection(): Connection {
+    return ClientIpc.sendSync(window, 'get_connection');
   }
 
   static isSaved(): boolean {

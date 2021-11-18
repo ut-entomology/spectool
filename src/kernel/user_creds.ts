@@ -32,7 +32,7 @@ export class UserCredentials extends SavableCredentials {
           'r.userType',
           'r.collectionID'
         )
-        .from('user as u')
+        .from('specifyuser as u')
         .join('spappresourcedir as r', 'u.specifyUserID', 'r.specifyUserID')
         .where('u.name', this.username)
         .whereNotNull('r.collectionID');
@@ -58,7 +58,8 @@ export class UserCredentials extends SavableCredentials {
         access: rows.map((row) => ({
           collectionID: row.collectionID,
           permissions: toPermissions(row.userType)
-        }))
+        })),
+        saved: false // assume for now
       };
     } catch (err) {
       await this.clear();

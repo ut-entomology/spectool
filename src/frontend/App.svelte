@@ -1,56 +1,62 @@
 <script lang="ts">
-  import { setContext } from 'svelte';
-  import type { AppScreen } from './lib/app_screen';
-  import { User } from './lib/user';
-  import { appPrefsReady } from './stores/appPrefsReady';
-  import { databaseConfigReady } from './stores/dbConfigReady';
-  import { loggedInUser } from './stores/loggedInUser';
+  import { setContext, onMount } from 'svelte';
+  import type { ScreenSpec } from './lib/screen_spec';
+  import { Context } from './lib/contexts';
+  import { currentPrefs } from './stores/currentPrefs';
+  import { currentConnection } from './stores/currentConnection';
+  import { currentUser } from './stores/currentUser';
   import { screenStack } from './stores/screenStack';
-  import { currentDialog } from './stores/currentDialog';
   import { AppPrefsClient } from './clients/app_prefs_client';
   import { DatabaseConfigClient } from './clients/db_config_client';
+  import { DatabaseClient } from './clients/database_client';
+  import { UserClient } from './clients/user_client';
   import VariableFlash from './layout/VariableFlash.svelte';
-  import VariableNotice from './layout/VariableNotice.svelte';
+  import VariableNotice, { showNotice } from './layout/VariableNotice.svelte';
   import VariableDialog from './layout/VariableDialog.svelte';
   import ActivityMenu from './components/ActivityMenu.svelte';
   import HeaderBar from './components/HeaderBar.svelte';
   import ActivityBar from './components/ActivityBar.svelte';
   import StatusBar from './components/StatusBar.svelte';
-  import AppPrefsDialog from './dialogs/AppPrefsDialog.svelte';
-  import DBConfigDialog from './dialogs/DBConfigDialog.svelte';
 
-  const initialAppPrefs = AppPrefsClient.getPrefs();
-  setContext('app-prefs', initialAppPrefs);
-  $appPrefsReady = initialAppPrefs.isReady();
+  $currentPrefs = AppPrefsClient.getPrefs();
 
   const initialDatabaseConfig = DatabaseConfigClient.getConfig();
-  setContext('db-config', initialDatabaseConfig);
-  $databaseConfigReady = initialDatabaseConfig.isReady();
+  setContext(Context.DatabaseConfig, initialDatabaseConfig);
+  $currentConnection = DatabaseClient.getConnection();
 
-  let currentScreen: AppScreen;
+  let currentScreen: ScreenSpec;
   screenStack.subscribe((screens) => {
     currentScreen = screens[screens.length - 1];
   });
 
-  $loggedInUser = User.getLoggedInUser();
   screenStack.push({
     title: 'Activities',
-    componentType: ActivityMenu,
+    target: ActivityMenu,
     params: {}
   });
-  $: (async () => {
-    if (!$databaseConfigReady) {
-      $currentDialog = DBConfigDialog;
-    } else if (!$appPrefsReady) {
-      $currentDialog = AppPrefsDialog;
+
+  onMount(async () => {
+    if ($currentConnection.isConfigured) {
+      const userCreds = UserClient.getSavedUserCreds();
+      if (userCreds) {
+        try {
+          $currentUser = await UserClient.loginAndSave(userCreds);
+        } catch (err: any) {
+          showNotice(
+            `Login failed for user '${userCreds.username}': ${err.message}`,
+            'FAILED',
+            'warning'
+          );
+        }
+      }
     }
-  })();
+  });
 </script>
 
 <HeaderBar appTitle="UT SpecTool" />
 <div class="page-content">
   <ActivityBar />
-  <svelte:component this={currentScreen.componentType} {...currentScreen.params} />
+  <svelte:component this={currentScreen.target} {...currentScreen.params} />
 </div>
 <StatusBar />
 

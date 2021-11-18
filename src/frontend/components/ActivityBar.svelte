@@ -1,27 +1,19 @@
 <script lang="ts" context="module">
-  import type { User } from '../lib/user';
   import type { Activity } from '../lib/activity';
-  import { loggedInUser } from '../stores/loggedInUser';
+  import * as prereqs from '../lib/prereqs.svelte';
+  import { currentUser } from '../stores/currentUser';
   import { screenStack } from '../stores/screenStack';
   import { currentActivity } from '../stores/currentActivity';
-  import { showNotice } from '../layout/VariableNotice.svelte';
-
-  let currentUser: User | null = null;
-  loggedInUser.subscribe((user) => {
-    currentUser = user;
-  });
 
   export function openActivity(activity: Activity) {
-    if (!activity.requiresLogin || currentUser !== null) {
+    prereqs.satisfyAll(activity.prerequisites, () => {
       screenStack.push({
         title: activity.title,
-        componentType: activity.componentType,
+        target: activity.target,
         params: []
       });
       currentActivity.set(activity);
-    } else {
-      showNotice('Please login before using this activity.', 'NOTICE', 'warning');
-    }
+    });
   }
 
   export function closeActivity() {
@@ -30,7 +22,7 @@
 </script>
 
 <script lang="ts">
-  $: if ($loggedInUser === null && $currentActivity && $currentActivity.requiresLogin) {
+  $: if ($currentUser === null && $currentActivity && $currentActivity.requiresLogin) {
     closeActivity();
   }
 </script>

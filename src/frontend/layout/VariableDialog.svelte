@@ -3,5 +3,5 @@
 </script>
 
 {#if $currentDialog !== null}
-  <svelte:component this={$currentDialog} />
+  <svelte:component this={$currentDialog.target} {...$currentDialog.params} />
 {/if}

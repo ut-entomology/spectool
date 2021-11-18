@@ -1,4 +1,5 @@
-import type { SvelteComponent } from 'svelte';
 import { writable } from 'svelte/store';
 
-export const currentDialog = writable<typeof SvelteComponent | null>(null);
+import type { DialogSpec } from '../lib/dialog_spec';
+
+export const currentDialog = writable<DialogSpec | null>(null);

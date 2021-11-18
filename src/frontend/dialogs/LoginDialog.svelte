@@ -14,12 +14,13 @@
 
   export let toggle: () => void;
   export let title: string;
+  export let loggedInText = 'logged in';
+  export let submitLabel = 'Login';
   export let login: (
     username: string,
     password: string,
     save: boolean
   ) => Promise<void>;
-  export let submitLabel: string;
 
   let errorMessage = '';
 
@@ -67,7 +68,7 @@
         <div class="form-check">
           <Input id="saving" name="saving" role="button" type="checkbox" />
           <label class="form-check-label" for="saving">
-            Stay logged in on this computer
+            Stay {loggedInText} on this computer
           </label>
         </div>
       </div>

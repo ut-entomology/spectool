@@ -1,17 +1,20 @@
 <script lang="ts">
-  import { getContext, onDestroy } from 'svelte';
+  import { getContext } from 'svelte';
   import * as yup from 'yup';
 
+  import { Context } from '../lib/contexts';
   import { createForm, Form, Input } from '../layout/forms';
   import { DatabaseConfig } from '../shared/db_config';
+  import { Connection } from '../shared/connection';
   import { DatabaseConfigClient } from '../clients/db_config_client';
-  import { databaseConfigReady } from '../stores/dbConfigReady';
+  import { currentConnection } from '../stores/currentConnection';
   import { currentDialog } from '../stores/currentDialog';
   import Dialog from '../layout/Dialog.svelte';
 
+  export let onSuccess: () => void = () => {};
   let errorMessage = '';
 
-  const databaseConfig = getContext<DatabaseConfig>('db-config');
+  const databaseConfig = getContext<DatabaseConfig>(Context.DatabaseConfig);
   const context = createForm({
     initialValues: {
       databaseHost: databaseConfig.databaseHost,
@@ -51,15 +54,13 @@
         config.databaseName = values.databaseName;
         await DatabaseConfigClient.setConfig(config);
         databaseConfig.copyFrom(config);
+        currentConnection.set(new Connection(true, values.databaseName));
         closeForm();
+        onSuccess();
       } catch (err: any) {
         errorMessage = err.message;
       }
     }
-  });
-
-  onDestroy(() => {
-    databaseConfigReady.set(true);
   });
 
   function closeForm() {
@@ -109,7 +110,7 @@
       </div>
     </div>
     <div class="row justify-content-end">
-      {#if $databaseConfigReady}
+      {#if $currentConnection.isConfigured}
         <div class="col-3">
           <button class="btn btn-minor" type="button" on:click={closeForm}
             >Cancel</button

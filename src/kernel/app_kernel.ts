@@ -3,8 +3,11 @@ import { Knex } from 'knex';
 import { Platform } from '../app-util/platform';
 import { AppPrefs } from '../shared/app_prefs';
 import { DatabaseConfig } from '../shared/db_config';
+import { SpecifyUser } from '../shared/specify_user';
+import { Credentials } from '../shared/Credentials';
 import { PreferencesFile } from '../app-util/prefs_file';
 import { DatabaseCredentials } from './db_creds';
+import { UserCredentials } from './user_creds';
 import { Specify } from './specify';
 
 // TODO: Can I move some of these globals to their own modules (and still test)?
@@ -40,10 +43,12 @@ export class AppKernel {
   readonly appPrefsFile: AppPrefsFile;
   readonly databaseConfigFile: DatabaseConfigFile;
   readonly specify: Specify;
+  loggedInUser: SpecifyUser | null = null;
 
   private _appPrefs?: AppPrefs;
   private _databaseConfig?: DatabaseConfig;
   private _databaseCreds?: DatabaseCredentials;
+  private _userCreds?: UserCredentials;
 
   /**
    * Constructs a kernel for the given application name. The name is
@@ -67,7 +72,9 @@ export class AppKernel {
     this._appPrefs = new AppPrefs(await this.appPrefsFile.load());
     this._databaseConfig = new DatabaseConfig(await this.databaseConfigFile.load());
     this._databaseCreds = new DatabaseCredentials(this);
+    this._userCreds = new UserCredentials(this);
     await this._databaseCreds.init();
+    await this._userCreds.init();
   }
 
   /**
@@ -126,5 +133,44 @@ export class AppKernel {
    */
   async dropDatabaseConfig(): Promise<void> {
     await this.databaseConfigFile.drop();
+  }
+
+  /**
+   * Returns saved Specify user credentials or null if none.
+   */
+  getSavedUserCreds() {
+    const userCreds = this._userCreds!;
+    return userCreds.isSaved() ? userCreds.get() : null;
+  }
+
+  /**
+   * Logs in the provided Specify user.
+   */
+  async loginUser(creds: Credentials, save: boolean) {
+    const userCreds = this._userCreds!;
+    await userCreds.set(creds.username, creds.password);
+    this.loggedInUser = await userCreds.validate();
+    if (save) {
+      await userCreds.save();
+      this.loggedInUser.saved = true;
+    }
+    return this.loggedInUser;
+  }
+
+  /**
+   * Logs out the currently logged-in Specify user.
+   */
+  async logoutUser() {
+    const kernel = this;
+    const userCreds = this._userCreds!;
+    await userCreds.clear().then(async () => {
+      try {
+        await userCreds.validate();
+      } catch (err) {
+        kernel.loggedInUser = null;
+        return;
+      }
+      throw Error('Failed to log user out of Specify');
+    });
   }
 }

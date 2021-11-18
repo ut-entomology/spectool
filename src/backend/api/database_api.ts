@@ -1,18 +1,21 @@
 import { IpcHandler, AsyncIpcHandler, SyncIpcHandler } from '../util/ipc_handler';
 import { AppKernel } from '../../kernel/app_kernel';
 import { Credentials } from '../../shared/credentials';
+import { Connection } from '../../shared/connection';
+import { connectionPub } from '../../app/connectionPub';
 
-class GetDatabaseUsernameIpc extends SyncIpcHandler {
-  private kernel: AppKernel;
+let connection: Connection;
+connectionPub.subscribe((conn) => {
+  connection = conn;
+});
 
-  constructor(kernel: AppKernel) {
-    super('get_database_username');
-    this.kernel = kernel;
+class GetConnectionIpc extends SyncIpcHandler {
+  constructor(_kernel: AppKernel) {
+    super('get_connection');
   }
 
-  handler(_data: any): string | null {
-    const creds = this.kernel.databaseCreds.get();
-    return creds ? creds.username : null;
+  handler(_data: any) {
+    return connection;
   }
 }
 
@@ -77,14 +80,14 @@ class LogoutOfDatabaseIpc extends AsyncIpcHandler {
       } catch (err) {
         return;
       }
-      throw Error('Failed to log out of database');
+      throw Error('Failed to disconnect from database');
     });
   }
 }
 
 export default function (kernel: AppKernel): IpcHandler[] {
   return [
-    new GetDatabaseUsernameIpc(kernel), // multiline
+    new GetConnectionIpc(kernel), // multiline
     new DatabaseLoginIsSavedIpc(kernel),
     new LoginToDatabaseIpc(kernel),
     new LoginToDatabaseAndSaveIpc(kernel),

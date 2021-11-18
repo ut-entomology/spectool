@@ -1,33 +1,30 @@
 <script lang="ts">
-  import { getContext } from 'svelte';
   import * as yup from 'yup';
 
   import { createForm, Form, Input, InputGroup, SetInputValue } from '../layout/forms';
   import { AppPrefs } from '../shared/app_prefs';
   import { AppPrefsClient } from '../clients/app_prefs_client';
   import { DirDialogClient } from '../clients/dir_dialog_client';
-  import { appPrefsReady } from '../stores/appPrefsReady';
+  import { currentPrefs } from '../stores/currentPrefs';
   import { currentDialog } from '../stores/currentDialog';
   import Dialog from '../layout/Dialog.svelte';
 
   let errorMessage = '';
   let setDataFolder: SetInputValue;
 
-  const appPrefs = getContext<AppPrefs>('app-prefs');
   const context = createForm({
     initialValues: {
-      dataFolder: appPrefs.dataFolder
+      dataFolder: $currentPrefs.dataFolder
     },
     validationSchema: yup.object().shape({
       dataFolder: yup.string().label('Data folder').trim().required()
     }),
     onSubmit: async (values) => {
       try {
-        const newPrefs = new AppPrefs();
-        newPrefs.dataFolder = values.dataFolder;
-        await AppPrefsClient.setPrefs(newPrefs);
-        appPrefs.copyFrom(newPrefs);
-        $appPrefsReady = true;
+        const prefs = new AppPrefs();
+        prefs.dataFolder = values.dataFolder;
+        await AppPrefsClient.setPrefs(prefs);
+        $currentPrefs = prefs;
         $currentDialog = null;
       } catch (err: any) {
         errorMessage = err.message;
@@ -45,7 +42,7 @@
   async function cancelForm() {}
 </script>
 
-<Dialog title="Set Application Preferences" size="md">
+<Dialog title="Set Data Folder" size="md">
   <Form class="container-fluid g-0" {context}>
     <div class="row mb-4 justify-content-center">
       <div class="col-sm-3">
@@ -71,7 +68,7 @@
       </div>
     </div>
     <div class="row justify-content-end">
-      {#if appPrefs.dataFolder}
+      {#if $currentPrefs.dataFolder}
         <div class="col-3">
           <button class="btn btn-minor" type="button" on:click={cancelForm}
             >Cancel</button

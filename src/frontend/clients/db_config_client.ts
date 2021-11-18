@@ -6,7 +6,7 @@ export class DatabaseConfigClient {
     return new DatabaseConfig(ClientIpc.sendSync(window, 'get_database_config'));
   }
 
-  static setConfig(appPrefs: DatabaseConfig): Promise<void> {
-    return ClientIpc.sendAsync(window, 'set_database_config', appPrefs);
+  static setConfig(config: DatabaseConfig): Promise<void> {
+    return ClientIpc.sendAsync(window, 'set_database_config', config);
   }
 }
