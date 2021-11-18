@@ -8,7 +8,11 @@
 
   export let appTitle = 'untitled';
 
-  const loginPrereqs = [prereqs.connectionPrereq, prereqs.userLoginPrereq];
+  const loginPrereqs = [
+    prereqs.databaseConfigPrereq,
+    prereqs.connectionPrereq,
+    prereqs.userLoginPrereq
+  ];
 
   const login = () => {
     prereqs.satisfyAll(loginPrereqs, () => {});
