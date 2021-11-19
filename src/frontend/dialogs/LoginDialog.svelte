@@ -45,7 +45,7 @@
   });
 </script>
 
-<Dialog {title} contentClassName="login-form-content">
+<Dialog {title} contentClasses="login-form-content">
   <Form class="container g-0" {context}>
     <div class="row mb-2 justify-content-center">
       <div class="col-sm-3">

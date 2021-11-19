@@ -1,24 +1,14 @@
 <script lang="ts">
   // Intended for use in VariableDialog.
 
-  // import { onMount, tick } from 'svelte';
-  import { Modal } from 'sveltestrap';
+  import Modal from './Modal.svelte';
 
   export let title: string;
-  //const isOpen = true;
-
-  // onMount(async () => {
-  //   // If the app opens with a modal open, there's no backdrop, so
-  //   // wait for the modal component to render with the modal off
-  //   // before turning the modal on. I can't include the backdrop
-  //   // with each modal because then I get a double backdrop (extra
-  //   // dark) on subsequent modals.
-  //   await tick();
-  //   isOpen = true;
-  // });
+  export let dialogClasses = '';
+  export let contentClasses = '';
 </script>
 
-<Modal isOpen={true} {title} {...$$restProps}>
+<Modal {dialogClasses} {contentClasses}>
   <div class="dialog">
     <div class="row">
       <h2 class="col">{title}</h2>
