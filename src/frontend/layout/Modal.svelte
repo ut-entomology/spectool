@@ -10,23 +10,20 @@
   export let dialogClasses = '';
   export let contentClasses = '';
 
-  let _triggeringElement: Element | null;
+  let triggeringElement: Element | null;
   try {
-    _triggeringElement = document.activeElement;
+    triggeringElement = document.activeElement;
   } catch (err) {
-    _triggeringElement = null;
+    triggeringElement = null;
   }
   document.body.classList.add('modal-open');
 
   onDestroy(() => {
-    if (document.body.classList.contains('modal-open')) {
-      document.body.classList.remove('modal-open');
-    }
-    if (_triggeringElement && _triggeringElement instanceof HTMLElement) {
-      if (typeof _triggeringElement.focus === 'function') {
-        _triggeringElement.focus();
+    document.body.classList.remove('modal-open');
+    if (triggeringElement && triggeringElement instanceof HTMLElement) {
+      if (typeof triggeringElement.focus === 'function') {
+        triggeringElement.focus();
       }
-      _triggeringElement = null;
     }
   });
 </script>

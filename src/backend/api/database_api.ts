@@ -9,9 +9,9 @@ connectionPub.subscribe((conn) => {
   connection = conn;
 });
 
-class GetConnectionIpc extends SyncIpcHandler {
+class GetExistingConnectionIpc extends SyncIpcHandler {
   constructor(_kernel: AppKernel) {
-    super('get_connection');
+    super('get_existing_connection');
   }
 
   handler(_data: any) {
@@ -19,16 +19,16 @@ class GetConnectionIpc extends SyncIpcHandler {
   }
 }
 
-class DatabaseLoginIsSavedIpc extends SyncIpcHandler {
+class GetSavedDatabaseCredsIpc extends SyncIpcHandler {
   private kernel: AppKernel;
 
   constructor(kernel: AppKernel) {
-    super('database_login_is_saved');
+    super('get_saved_database_creds');
     this.kernel = kernel;
   }
 
   handler(_data: any) {
-    return this.kernel.databaseCreds.isSaved();
+    return this.kernel.getSavedDatabaseCreds();
   }
 }
 
@@ -43,12 +43,9 @@ class LoginToDatabaseIpc extends AsyncIpcHandler {
   async handler(creds: Credentials) {
     const databaseCreds = this.kernel.databaseCreds;
     await databaseCreds.set(creds.username, creds.password);
-    const collections = await databaseCreds.validate();
-    connectionPub.value = {
-      isConfigured: true,
-      username: creds.username
-    };
-    return collections;
+    const conn = new Connection(true, creds.username, await databaseCreds.validate());
+    connectionPub.set(conn);
+    return conn;
   }
 }
 
@@ -63,13 +60,10 @@ class LoginToDatabaseAndSaveIpc extends AsyncIpcHandler {
   async handler(creds: Credentials) {
     const databaseCreds = this.kernel.databaseCreds;
     await databaseCreds.set(creds.username, creds.password);
-    const collections = await databaseCreds.validate();
     await databaseCreds.save();
-    connectionPub.value = {
-      isConfigured: true,
-      username: creds.username
-    };
-    return collections;
+    const conn = new Connection(true, creds.username, await databaseCreds.validate());
+    connectionPub.set(conn);
+    return conn;
   }
 }
 
@@ -87,10 +81,7 @@ class LogoutOfDatabaseIpc extends AsyncIpcHandler {
       try {
         await obj.kernel.databaseCreds.validate();
       } catch (err) {
-        connectionPub.value = {
-          isConfigured: true,
-          username: null
-        };
+        connectionPub.set(new Connection(true));
         return;
       }
       throw Error('Failed to disconnect from database');
@@ -100,8 +91,8 @@ class LogoutOfDatabaseIpc extends AsyncIpcHandler {
 
 export default function (kernel: AppKernel): IpcHandler[] {
   return [
-    new GetConnectionIpc(kernel), // multiline
-    new DatabaseLoginIsSavedIpc(kernel),
+    new GetExistingConnectionIpc(kernel), // multiline
+    new GetSavedDatabaseCredsIpc(kernel),
     new LoginToDatabaseIpc(kernel),
     new LoginToDatabaseAndSaveIpc(kernel),
     new LogoutOfDatabaseIpc(kernel)

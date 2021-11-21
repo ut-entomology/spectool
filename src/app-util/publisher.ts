@@ -11,11 +11,11 @@ export class Publisher<T> {
     this._value = initialValue;
   }
 
-  get value() {
+  get() {
     return this._value;
   }
 
-  set value(value: T) {
+  set(value: T) {
     this._value = value;
     this._subscribers.forEach((callback) => callback(value));
   }

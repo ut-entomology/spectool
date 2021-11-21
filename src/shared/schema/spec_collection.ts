@@ -1,4 +1,4 @@
 export interface SpecCollection {
-  collectionID: string;
+  collectionID: number;
   collectionName: string;
 }

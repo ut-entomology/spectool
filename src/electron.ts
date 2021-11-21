@@ -84,9 +84,11 @@ app
     Menu.setApplicationMenu(createAppMenu(mainWindow!));
 
     // Must follow setting application menu.
-    connectionPub.value = new Connection(
-      kernel.databaseConfig.isReady(),
-      kernel.databaseCreds.get()?.username
+    connectionPub.set(
+      new Connection(
+        kernel.databaseConfig.isReady(),
+        kernel.databaseCreds.get()?.username
+      )
     );
 
     // Implement expected Mac OS behavior.

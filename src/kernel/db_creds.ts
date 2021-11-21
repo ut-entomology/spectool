@@ -4,6 +4,8 @@ import { AppKernel } from './app_kernel';
 import { SavableCredentials } from '../app-util/savable_creds';
 import { SpecCollection } from '../shared/schema';
 
+const CONNECTION_TIMEOUT_MILLIS = 15000;
+
 export class DatabaseCredentials extends SavableCredentials {
   private _kernel: AppKernel;
   private _database?: Knex;
@@ -71,7 +73,8 @@ export class DatabaseCredentials extends SavableCredentials {
         port: config.databasePort,
         user: this.username,
         password: this.password
-      }
+      },
+      acquireConnectionTimeout: CONNECTION_TIMEOUT_MILLIS
     });
   }
 }

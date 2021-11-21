@@ -1,6 +1,7 @@
 import { AppKernel } from './app_kernel';
 import { SavableCredentials } from '../app-util/savable_creds';
-import { SpecifyUser, toPermissions } from '../shared/specify_user';
+import { toAccessLevel } from '../shared/access';
+import { SpecifyUser } from '../shared/specify_user';
 import * as crypto from './specify/crypto';
 
 interface UserAccess {
@@ -57,7 +58,7 @@ export class UserCredentials extends SavableCredentials {
         name: this.username as string,
         access: rows.map((row) => ({
           collectionID: row.collectionID,
-          permissions: toPermissions(row.userType)
+          accessLevel: toAccessLevel(row.userType)
         })),
         saved: false // assume for now
       };

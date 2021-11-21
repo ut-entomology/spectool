@@ -3,7 +3,7 @@ import type { Credentials } from '../../shared/credentials';
 import type { SpecifyUser } from '../../shared/specify_user';
 
 export class UserClient {
-  static getSavedUserCreds(): Credentials | null {
+  static getSavedCreds(): Credentials | null {
     return ClientIpc.sendSync(window, 'get_saved_user_creds');
   }
 

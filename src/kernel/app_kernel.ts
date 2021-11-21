@@ -136,6 +136,14 @@ export class AppKernel {
   }
 
   /**
+   * Returns saved Database user credentials or null if none.
+   */
+  getSavedDatabaseCreds() {
+    const databaseCreds = this._databaseCreds!;
+    return databaseCreds.isSaved() ? databaseCreds.get() : null;
+  }
+
+  /**
    * Returns saved Specify user credentials or null if none.
    */
   getSavedUserCreds() {

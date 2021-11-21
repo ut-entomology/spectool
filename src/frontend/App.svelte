@@ -4,12 +4,13 @@
   import { Context } from './lib/contexts';
   import { currentPrefs } from './stores/currentPrefs';
   import { currentConnection } from './stores/currentConnection';
-  import { currentUser } from './stores/currentUser';
   import { screenStack } from './stores/screenStack';
+  import type { Connection } from './shared/connection';
   import { AppPrefsClient } from './clients/app_prefs_client';
   import { DatabaseConfigClient } from './clients/db_config_client';
   import { DatabaseClient } from './clients/database_client';
   import { UserClient } from './clients/user_client';
+  import { recordUserLogin } from './dialogs/UserLoginDialog.svelte';
   import './clients/event_client.svelte';
   import VariableFlash from './layout/VariableFlash.svelte';
   import VariableNotice, { showNotice } from './layout/VariableNotice.svelte';
@@ -21,9 +22,12 @@
 
   $currentPrefs = AppPrefsClient.getPrefs();
 
+  let connection: Connection;
   const initialDatabaseConfig = DatabaseConfigClient.getConfig();
   setContext(Context.DatabaseConfig, initialDatabaseConfig);
-  $currentConnection = DatabaseClient.getConnection();
+  currentConnection.subscribe((conn) => {
+    connection = conn;
+  });
 
   let currentScreen: ScreenSpec;
   screenStack.subscribe((screens) => {
@@ -36,19 +40,44 @@
     params: {}
   });
 
+  async function connectDatabase() {
+    const databaseCreds = DatabaseClient.getSavedCreds();
+    if (databaseCreds) {
+      try {
+        $currentConnection = await DatabaseClient.loginAndSave(databaseCreds);
+      } catch (err: any) {
+        showNotice(
+          `Login failed to connect to database: ${err.message}`,
+          'FAILED',
+          'warning'
+        );
+      }
+    }
+  }
+
+  async function loginUser() {
+    const userCreds = UserClient.getSavedCreds();
+    if (userCreds) {
+      try {
+        recordUserLogin(await UserClient.loginAndSave(userCreds));
+      } catch (err: any) {
+        showNotice(
+          `Login failed for user '${userCreds.username}': ${err.message}`,
+          'FAILED',
+          'warning'
+        );
+      }
+    }
+  }
+
   onMount(async () => {
-    if ($currentConnection.isConfigured) {
-      const userCreds = UserClient.getSavedUserCreds();
-      if (userCreds) {
-        try {
-          $currentUser = await UserClient.loginAndSave(userCreds);
-        } catch (err: any) {
-          showNotice(
-            `Login failed for user '${userCreds.username}': ${err.message}`,
-            'FAILED',
-            'warning'
-          );
-        }
+    $currentConnection = DatabaseClient.getExistingConnection();
+    if (connection.username) {
+      if (!connection.isActive()) {
+        await connectDatabase();
+      }
+      if (connection.isActive()) {
+        await loginUser();
       }
     }
   });
