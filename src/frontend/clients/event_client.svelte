@@ -41,4 +41,8 @@
     localStorage.clear();
     localStorage.setItem('app_mode', mode);
   });
+
+  window.ipc.on('set_preferences', (_data) => {
+    currentDialog.set(new DialogSpec('DataFolderDialog'));
+  });
 </script>
