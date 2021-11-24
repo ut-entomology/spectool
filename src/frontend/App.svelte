@@ -22,17 +22,17 @@
 
   // Wait for app mode before building any components.
   (async () => {
-    const wait = (resolve: (value: any) => {}) => {
+    const wait = (resolve: () => {}) => {
       if (localStorage.getItem('app_mode') === null) {
         setTimeout(() => {
           wait(resolve);
         }, 100);
       } else {
         console.log('got app mode');
-        resolve(null);
+        resolve();
       }
     };
-    await new Promise<void>((resolve: any) => {
+    await new Promise((resolve: any) => {
       wait(resolve);
     });
   })();
