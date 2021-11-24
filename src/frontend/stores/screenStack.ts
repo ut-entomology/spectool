@@ -1,9 +1,9 @@
-import { writable } from 'svelte/store';
+import { createStore } from '../util/create_store';
 
 import type { ScreenSpec } from '../lib/screen_spec';
 
 function createScreenStack() {
-  const { subscribe, update } = writable<ScreenSpec[]>([]);
+  const { subscribe, update } = createStore<ScreenSpec[]>('screen_stack', []);
 
   return {
     subscribe,

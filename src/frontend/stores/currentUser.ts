@@ -1,5 +1,5 @@
-import { writable } from 'svelte/store';
+import { createStore } from '../util/create_store';
 
 import type { SpecifyUser } from '../shared/specify_user';
 
-export const currentUser = writable<SpecifyUser | null>(null);
+export const currentUser = createStore<SpecifyUser | null>('current_user', null);

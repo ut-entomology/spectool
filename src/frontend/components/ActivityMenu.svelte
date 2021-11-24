@@ -2,13 +2,11 @@
   import type { Activity } from '../lib/activity';
   import { openActivity } from './ActivityBar.svelte';
   import * as prereqs from '../lib/prereqs.svelte';
-  import LocalityConsolidation from '../activities/LocalityConsolidation.svelte';
-  import FirstNames from '../activities/FirstNames.svelte';
 
   const activities: Activity[] = [
     {
       title: 'Consolidate localities',
-      target: LocalityConsolidation,
+      targetName: 'LocalityConsolidation',
       description: 'Find and merge different entries for the same localities.',
       requiresLogin: true,
       prerequisites: [
@@ -20,7 +18,7 @@
     },
     {
       title: 'Query for first names',
-      target: FirstNames,
+      targetName: 'FirstNames',
       description: 'Returns all first names for a given last name.',
       requiresLogin: false,
       prerequisites: [prereqs.databaseConfigPrereq, prereqs.connectionPrereq]

@@ -28,6 +28,29 @@ class GetCountriesIpc extends AsyncIpcHandler {
   }
 }
 
+class GetCountriesOfIpc extends AsyncIpcHandler {
+  private kernel: AppKernel;
+
+  constructor(kernel: AppKernel) {
+    super('get_countries_of');
+    this.kernel = kernel;
+  }
+
+  async handler(collectionID: number) {
+    try {
+      const db = this.kernel.database;
+      const geoIDs = await this.kernel.specify.collectionObjects.getGeographyIDs(
+        db,
+        collectionID
+      );
+      return this.kernel.specify.geography.getCountriesOf(geoIDs);
+    } catch (err) {
+      console.log(err);
+      throw err;
+    }
+  }
+}
+
 class GetStatesIpc extends AsyncIpcHandler {
   private kernel: AppKernel;
 
@@ -41,10 +64,30 @@ class GetStatesIpc extends AsyncIpcHandler {
   }
 }
 
+class GetStatesOfIpc extends AsyncIpcHandler {
+  private kernel: AppKernel;
+
+  constructor(kernel: AppKernel) {
+    super('get_states_of');
+    this.kernel = kernel;
+  }
+
+  async handler(data: { collectionID: number; countryID: number }) {
+    const db = this.kernel.database;
+    const geoIDs = await this.kernel.specify.collectionObjects.getGeographyIDs(
+      db,
+      data.collectionID
+    );
+    return this.kernel.specify.geography.getStatesOf(data.countryID, geoIDs);
+  }
+}
+
 export default function (kernel: AppKernel): IpcHandler[] {
   return [
     new LoadGeographyIpc(kernel), // multiline
     new GetCountriesIpc(kernel),
-    new GetStatesIpc(kernel)
+    new GetCountriesOfIpc(kernel),
+    new GetStatesIpc(kernel),
+    new GetStatesOfIpc(kernel)
   ];
 }

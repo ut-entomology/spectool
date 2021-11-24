@@ -11,14 +11,31 @@
   import { DatabaseClient } from './clients/database_client';
   import { UserClient } from './clients/user_client';
   import { recordUserLogin } from './dialogs/UserLoginDialog.svelte';
+  import { toSvelteTarget } from './util/svelte_targets.svelte';
   import './clients/event_client.svelte';
   import VariableFlash from './layout/VariableFlash.svelte';
   import VariableNotice, { showNotice } from './layout/VariableNotice.svelte';
   import VariableDialog from './layout/VariableDialog.svelte';
-  import ActivityMenu from './components/ActivityMenu.svelte';
   import HeaderBar from './components/HeaderBar.svelte';
   import ActivityBar from './components/ActivityBar.svelte';
   import StatusBar from './components/StatusBar.svelte';
+
+  // Wait for app mode before building any components.
+  (async () => {
+    const wait = (resolve: (value: any) => {}) => {
+      if (localStorage.getItem('app_mode') === null) {
+        setTimeout(() => {
+          wait(resolve);
+        }, 100);
+      } else {
+        console.log('got app mode');
+        resolve(null);
+      }
+    };
+    await new Promise<void>((resolve: any) => {
+      wait(resolve);
+    });
+  })();
 
   $currentPrefs = AppPrefsClient.getPrefs();
 
@@ -34,11 +51,14 @@
     currentScreen = screens[screens.length - 1];
   });
 
-  screenStack.push({
-    title: 'Activities',
-    target: ActivityMenu,
-    params: {}
-  });
+  // @ts-ignore TS doesn't understand that the subscriber is immediately called
+  if (!currentScreen) {
+    screenStack.push({
+      title: 'Activities',
+      targetName: 'ActivityMenu',
+      params: {}
+    });
+  }
 
   async function connectDatabase() {
     const databaseCreds = DatabaseClient.getSavedCreds();
@@ -71,6 +91,7 @@
   }
 
   onMount(async () => {
+    console.log('mounted');
     $currentConnection = DatabaseClient.getExistingConnection();
     if (connection.username) {
       if (!connection.isActive()) {
@@ -86,7 +107,10 @@
 <HeaderBar appTitle="UT SpecTool" />
 <div class="page-content">
   <ActivityBar />
-  <svelte:component this={currentScreen.target} {...currentScreen.params} />
+  <svelte:component
+    this={toSvelteTarget(currentScreen.targetName)}
+    {...currentScreen.params}
+  />
 </div>
 <StatusBar />
 
@@ -205,5 +229,12 @@
 
   .alert {
     margin-bottom: 0; // override default 1rem
+  }
+
+  // Activities
+
+  .activity-instructions {
+    padding: 1rem;
+    background-color: rgb(255, 234, 167);
   }
 </style>

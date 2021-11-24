@@ -68,7 +68,7 @@
   }
 </script>
 
-<Dialog title="Configure the Database Connection" size="md">
+<Dialog title="Configure the Database Connection" dialogClasses="container-md">
   <Form class="container-fluid g-0" {context}>
     <div class="row mb-2">
       <div class="col-sm-3">

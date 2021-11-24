@@ -48,7 +48,10 @@ function createMainWindow() {
 
   mainWindow
     .loadURL(url)
-    .then(() => log.info('started application'))
+    .then(() => {
+      mainWindow!.webContents.send('set_app_mode', process.env.NODE_ENV);
+      log.info('started application');
+    })
     .catch((err) => {
       log.error('loadURL failed:', err.message);
       app.quit();

@@ -1,3 +1,3 @@
-import { writable } from 'svelte/store';
+import { createStore } from '../util/create_store';
 
-export const statusMessage = writable<string>('');
+export const statusMessage = createStore<string>('status_message', '');

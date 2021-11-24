@@ -1,23 +1,36 @@
 <script lang="ts">
   import { GeographyClient } from '../clients/geography_client';
-  import type { GeoDictionary } from '../shared/specify_data';
-  import Notice from '../layout/Notice.svelte';
+  import type { GeoEntity } from '../shared/geo_entity';
+  import { currentCollectionID } from '../stores/currentCollectionID';
   import { closeActivity } from '../components/ActivityBar.svelte';
+  import Notice from '../layout/Notice.svelte';
   import BigSpinner from '../components/BigSpinner.svelte';
 
-  let countries: GeoDictionary = {};
+  let countries: GeoEntity[] = [];
   let countryID = 0;
+  let states: GeoEntity[] = [];
   let stateID = 0;
-  let states: GeoDictionary = {};
 
   async function onChangeCountry() {
+    if (countryID == 0) {
+      states = [];
+    } else {
+      states = await GeographyClient.getStatesOf($currentCollectionID, countryID);
+    }
     stateID = 0;
-    states = countryID == 0 ? {} : await GeographyClient.getStates(countryID);
   }
 
   async function preparation() {
     await GeographyClient.loadGeography();
-    countries = await GeographyClient.getCountries();
+    countries = await GeographyClient.getCountriesOf($currentCollectionID);
+    for (let i = 0; i < countries.length; ++i) {
+      const country = countries[i];
+      if (country.name == 'United States') {
+        countries.splice(i, 1);
+        countries.unshift(country);
+        break;
+      }
+    }
   }
 </script>
 
@@ -27,34 +40,49 @@
   <main>
     <form>
       <div class="row mb-2 justify-content-center">
-        <div class="col-sm-3">
-          <label for="country" class="col-form-label">Country</label>
+        <div class="col-sm-8 activity-instructions">
+          Select the geographic regions whose localities for which you'd like to
+          consolidate duplicate localities.
         </div>
-        <div class="col-sm-6">
-          <select
-            id="country"
-            name="country"
-            bind:value={countryID}
-            on:change={onChangeCountry}
-          >
-            <option value={0}>All Countries</option>
-            {#each Object.values(countries) as country}
-              <option value={country.id}>{country.name}</option>
-            {/each}
-          </select>
+        <div class="row mb-2 justify-content-center">
+          <div class="col-sm-2">
+            <label for="country" class="col-form-label">Country</label>
+          </div>
+          <div class="col-sm-6">
+            <select
+              id="country"
+              name="country"
+              bind:value={countryID}
+              on:change={onChangeCountry}
+            >
+              <option value={0}>all countries in collection</option>
+              {#each countries as country}
+                <option value={country.id}>{country.name}</option>
+              {/each}
+            </select>
+          </div>
         </div>
-      </div>
-      <div class="row mb-3 justify-content-center">
-        <div class="col-sm-3">
-          <label for="state" class="col-form-label">State/Province</label>
-        </div>
-        <div class="col-sm-6">
-          <select id="state" name="state" bind:value={stateID} disabled={states == {}}>
-            <option value={0}>All States/Provinces</option>
-            {#each Object.values(states) as state}
-              <option value={state.id}>{state.name}</option>
-            {/each}
-          </select>
+        <div class="row mb-3 justify-content-center">
+          <div class="col-sm-2">
+            <label for="state" class="col-form-label">State/Province</label>
+          </div>
+          <div class="col-sm-6">
+            <select
+              id="state"
+              name="state"
+              bind:value={stateID}
+              disabled={states == []}
+            >
+              {#if countryID == 0}
+                <option value={0}>all states/provinces</option>
+              {:else}
+                <option value={0}>all states/provinces in country</option>
+              {/if}
+              {#each states as state}
+                <option value={state.id}>{state.name}</option>
+              {/each}
+            </select>
+          </div>
         </div>
       </div>
     </form>
@@ -69,4 +97,7 @@
 {/await}
 
 <style>
+  main {
+    padding-top: 2rem;
+  }
 </style>

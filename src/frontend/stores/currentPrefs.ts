@@ -1,5 +1,5 @@
-import { writable } from 'svelte/store';
+import { createStore } from '../util/create_store';
 
 import { AppPrefs } from '../shared/app_prefs';
 
-export const currentPrefs = writable(new AppPrefs());
+export const currentPrefs = createStore('app_prefs', new AppPrefs());

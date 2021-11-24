@@ -17,7 +17,7 @@
     prereqs.satisfyAll(activity.prerequisites, () => {
       screenStack.push({
         title: activity.title,
-        target: activity.target,
+        targetName: activity.targetName,
         params: []
       });
       currentActivity.set(activity);

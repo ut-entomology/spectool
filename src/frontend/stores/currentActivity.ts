@@ -1,5 +1,5 @@
-import { writable } from 'svelte/store';
+import { createStore } from '../util/create_store';
 
 import type { Activity } from '../lib/activity';
 
-export const currentActivity = writable<Activity | null>(null);
+export const currentActivity = createStore<Activity | null>('current_activity', null);

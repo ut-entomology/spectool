@@ -1,3 +1,3 @@
-import { writable } from 'svelte/store';
+import { createStore } from '../util/create_store';
 
-export const currentCollectionID = writable(0);
+export const currentCollectionID = createStore('current_collection_id', 0);

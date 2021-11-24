@@ -1,11 +1,9 @@
-import type { SvelteComponent } from 'svelte';
-
 export class DialogSpec {
-  target: typeof SvelteComponent;
-  params: { [key: string]: any };
+  targetName: string;
+  params: Record<string, any>;
 
-  constructor(target: typeof SvelteComponent, params: { [key: string]: any } = {}) {
-    this.target = target;
+  constructor(targetName: string, params: { [key: string]: any } = {}) {
+    this.targetName = targetName;
     this.params = params;
   }
 }

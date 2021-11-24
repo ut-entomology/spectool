@@ -47,7 +47,7 @@
   }
 </script>
 
-<Dialog title="Set Data Folder" size="md">
+<Dialog title="Set Data Folder" dialogClasses="container-md">
   <Form class="container-fluid g-0" {context}>
     <div class="row mb-4 justify-content-center">
       <div class="col-sm-3">

@@ -2,13 +2,10 @@
   import { currentConnection } from '../stores/currentConnection';
   import { currentDialog } from '../stores/currentDialog';
   import { DialogSpec } from '../lib/dialog_spec';
-  import type { Connection } from '../shared/connection';
+  import { Connection } from '../shared/connection';
   import { DatabaseClient } from './database_client';
   import { flashMessage } from '../layout/VariableFlash.svelte';
   import { showNotice } from '../layout/VariableNotice.svelte';
-  import DataFolderDialog from '../dialogs/DataFolderDialog.svelte';
-  import DBConfigDialog from '../dialogs/DBConfigDialog.svelte';
-  import DBLoginDialog from '../dialogs/DBLoginDialog.svelte';
 
   let connection: Connection;
   currentConnection.subscribe((conn) => {
@@ -16,12 +13,12 @@
   });
 
   window.ipc.on('configure_database', (_data) => {
-    currentDialog.set(new DialogSpec(DBConfigDialog));
+    currentDialog.set(new DialogSpec('DBConfigDialog'));
   });
 
   window.ipc.on('connect_database', (_data) => {
     if (!connection.isConfigured) throw Error('Connection has not been configured');
-    currentDialog.set(new DialogSpec(DBLoginDialog));
+    currentDialog.set(new DialogSpec('DBLoginDialog'));
   });
 
   window.ipc.on('disconnect_database', async (_data) => {
@@ -29,10 +26,7 @@
     try {
       await DatabaseClient.logout();
       flashMessage('Disconnected from database');
-      currentConnection.set({
-        isConfigured: true,
-        username: null
-      });
+      currentConnection.set(new Connection(true, null));
     } catch (err: any) {
       showNotice(
         `Failed to disconnect from database: ${err.message}`,
@@ -42,7 +36,9 @@
     }
   });
 
-  window.ipc.on('set_preferences', (_data) => {
-    currentDialog.set(new DialogSpec(DataFolderDialog));
+  window.ipc.on('set_app_mode', (mode: string) => {
+    // Only clear local storage when app is first run.
+    localStorage.clear();
+    localStorage.setItem('app_mode', mode);
   });
 </script>
