@@ -169,6 +169,12 @@
     margin: 0 $horizontalMargin;
   }
 
+  h2 {
+    font-size: 1.2rem;
+    text-align: center;
+    margin-bottom: 1.5rem;
+  }
+
   // Buttons
 
   button.btn-major,
@@ -234,9 +240,9 @@
   // Activities
 
   .activity-instructions {
-    margin: 1.5rem 0;
-    padding: 1rem;
-    background-color: rgb(255, 239, 187);
-    border-radius: $border-radius;
+    margin: 1rem 0 2rem 0;
+    // padding: 1rem;
+    // background-color: rgb(255, 239, 187);
+    // border-radius: $border-radius;
   }
 </style>

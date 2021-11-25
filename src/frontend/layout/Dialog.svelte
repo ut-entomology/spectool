@@ -16,12 +16,3 @@
     <slot />
   </div>
 </Modal>
-
-<style>
-  h2 {
-    font-size: 1.1rem;
-    text-align: center;
-    font-style: italic;
-    margin-bottom: 1.5rem;
-  }
-</style>

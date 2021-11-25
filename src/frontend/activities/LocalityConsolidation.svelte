@@ -39,17 +39,20 @@
   <BigSpinner />
 {:then}
   <main>
-    <ActivityInstructions classes="rw-sm-8 rw-md-6">
+    <ActivityInstructions>
       Select the geographic regions whose localities for which you'd like to consolidate
-      duplicate localities.!
+      duplicate localities.
     </ActivityInstructions>
     <form class="row justify-content-center">
-      <div class="mb-2 rw-md-10">
+      <div class="col-auto">
+        <div class="row">
+          <h2 class="col">Consolidate in which region?</h2>
+        </div>
         <div class="row mb-2">
-          <div class="col-sm-3">
+          <div class="field_name">
             <label for="country" class="col-form-label">Country</label>
           </div>
-          <div class="col-sm-9">
+          <div class="col-auto">
             <select
               id="country"
               name="country"
@@ -64,10 +67,10 @@
           </div>
         </div>
         <div class="row mb-3">
-          <div class="col-sm-3">
+          <div class="field_name">
             <label for="state" class="col-form-label">State/Province</label>
           </div>
-          <div class="col-sm-9">
+          <div class="col-auto">
             <select
               id="state"
               name="state"
@@ -85,6 +88,11 @@
             </select>
           </div>
         </div>
+        <div class="row justify-content-end">
+          <div class="col-3">
+            <button class="btn btn-major" type="submit">Start</button>
+          </div>
+        </div>
       </div>
     </form>
   </main>
@@ -96,3 +104,9 @@
     on:close={closeActivity}
   />
 {/await}
+
+<style>
+  .field_name {
+    width: 9em;
+  }
+</style>

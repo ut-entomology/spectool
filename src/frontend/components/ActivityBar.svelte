@@ -104,7 +104,7 @@
     display: flex;
     flex-direction: column;
     justify-content: center;
-    margin: 0.2rem 0.5rem 0.15rem 0.5rem;
+    margin: 0.2rem 0.8rem 0.15rem 0.8rem;
   }
 
   .collection_box {
