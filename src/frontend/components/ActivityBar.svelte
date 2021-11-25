@@ -88,19 +88,23 @@
     padding-top: 0.5rem;
     background-color: $pageBarBackgroundColor;
     padding: 0 $horizontalMargin;
+    border-bottom: 1px solid $pageBarBorderColor;
   }
 
   .title_box {
+    margin-bottom: -1px;
     background-color: $activityAreaBackgroudColor;
     border-top-left-radius: $border-radius;
     border-top-right-radius: $border-radius;
+    border: 1px solid $pageBarBorderColor;
+    border-bottom: none;
   }
 
   .title_box div {
     display: flex;
     flex-direction: column;
     justify-content: center;
-    margin: 0.2rem 0.5rem 0.1rem 0.5rem;
+    margin: 0.2rem 0.5rem 0.15rem 0.5rem;
   }
 
   .collection_box {

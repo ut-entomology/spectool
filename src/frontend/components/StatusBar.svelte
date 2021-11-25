@@ -14,6 +14,7 @@
     width: 100%;
     background-color: $pageBarBackgroundColor;
     padding: 0.4rem 0;
+    border-top: 1px solid $pageBarBorderColor;
   }
 
   .content {
