@@ -36,9 +36,11 @@
     }
   });
 
-  window.ipc.on('set_app_mode', (mode: string) => {
-    // Only clear local storage when app is first run.
+  window.ipc.on('clear_local_storage', (_data) => {
     localStorage.clear();
+  });
+
+  window.ipc.on('set_app_mode', (mode: string) => {
     localStorage.setItem('app_mode', mode);
   });
 

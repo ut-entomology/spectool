@@ -2,6 +2,7 @@ import { app, BrowserWindow, Menu, MenuItemConstructorOptions } from 'electron';
 
 import { APP_NAME } from './app_name';
 import { connectionPub } from './connectionPub';
+import { devMode } from './dev_mode';
 
 connectionPub.subscribe((connection) => {
   const menu = Menu.getApplicationMenu();
@@ -140,66 +141,86 @@ export function createAppMenu(mainWindow: BrowserWindow) {
   ];
 
   if (process.platform == 'darwin') {
+    let submenu: Electron.MenuItemConstructorOptions[] = [
+      {
+        label: `About ${APP_NAME}`,
+        role: 'about'
+      },
+      { type: 'separator' },
+      {
+        label: 'Preferences...',
+        accelerator: 'CommandOrControl+,',
+        click: (_item, _focusedWindow, _event) => {
+          mainWindow.webContents.send('set_preferences');
+        }
+      }
+    ];
+    if (devMode()) {
+      submenu.push({
+        label: 'Clear Local Storage',
+        click: (_item, _focusedWindow, _event) => {
+          mainWindow.webContents.send('clear_local_storage');
+        }
+      });
+    }
+    submenu = submenu.concat([
+      { type: 'separator' },
+      {
+        label: 'Services',
+        role: 'services',
+        submenu: []
+      },
+      { type: 'separator' },
+      {
+        label: `Hide ${APP_NAME}`,
+        accelerator: 'Command+H',
+        role: 'hide'
+      },
+      {
+        label: 'Hide Others',
+        accelerator: 'Command+Alt+H',
+        role: 'hideOthers'
+      },
+      {
+        label: 'Show All',
+        role: 'unhide'
+      },
+      { type: 'separator' },
+      {
+        label: `Quit ${APP_NAME}`,
+        accelerator: 'Command+Q',
+        click: () => {
+          app.quit();
+        }
+      }
+    ]);
     menuTemplate.unshift({
       label: APP_NAME,
-      submenu: [
-        {
-          label: `About ${APP_NAME}`,
-          role: 'about'
-        },
-        { type: 'separator' },
-        {
-          label: 'Preferences...',
-          accelerator: 'CommandOrControl+,',
-          click: (_item, _focusedWindow, _event) => {
-            mainWindow.webContents.send('set_preferences');
-          }
-        },
-        { type: 'separator' },
-        {
-          label: 'Services',
-          role: 'services',
-          submenu: []
-        },
-        { type: 'separator' },
-        {
-          label: `Hide ${APP_NAME}`,
-          accelerator: 'Command+H',
-          role: 'hide'
-        },
-        {
-          label: 'Hide Others',
-          accelerator: 'Command+Alt+H',
-          role: 'hideOthers'
-        },
-        {
-          label: 'Show All',
-          role: 'unhide'
-        },
-        { type: 'separator' },
-        {
-          label: `Quit ${APP_NAME}`,
-          accelerator: 'Command+Q',
-          click: () => {
-            app.quit();
-          }
-        }
-      ]
+      submenu
     });
   } else {
+    let submenu: Electron.MenuItemConstructorOptions[] = [
+      {
+        label: 'Preferences',
+        accelerator: 'CommandOrControl+,',
+        click: (_item, _focusedWindow, _event) => {
+          mainWindow.webContents.send('set_preferences');
+        }
+      }
+    ];
+    if (devMode()) {
+      submenu.push({
+        label: 'Clear Local Storage',
+        click: (_item, _focusedWindow, _event) => {
+          mainWindow.webContents.send('clear_local_storage');
+        }
+      });
+    }
     menuTemplate.unshift({
       label: 'File',
       id: 'file-menu',
       visible: false,
-      submenu: [
-        {
-          label: 'Preferences',
-          accelerator: 'CommandOrControl+,',
-          click: (_item, _focusedWindow, _event) => {
-            mainWindow.webContents.send('set_preferences');
-          }
-        }
-      ]
+      submenu
     });
   }
 

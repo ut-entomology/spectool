@@ -15,6 +15,7 @@ import firstNamesApi from './backend/api/first_names_api';
 import { AppKernel } from './kernel/app_kernel';
 import { Connection } from './shared/connection';
 import { connectionPub } from './app/connectionPub';
+import { devMode } from './app/dev_mode';
 
 // Without this handler, electron was not reporting all exceptions.
 process.on('uncaughtException', function (error) {
@@ -39,8 +40,8 @@ function createMainWindow() {
     }
   });
 
-  const inDevMode = process.env.NODE_ENV === 'development';
-  const url = inDevMode
+  devMode(process.env.NODE_ENV === 'development');
+  const url = devMode()
     ? // in dev, target the host and port of the local rollup web server
       'http://localhost:5000'
     : // in production, use the statically build version of our application

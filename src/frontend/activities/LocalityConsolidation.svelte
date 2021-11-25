@@ -38,7 +38,7 @@
 {#await preparation()}
   <BigSpinner />
 {:then}
-  <main class="activity-border">
+  <main>
     <ActivityInstructions classes="rw-sm-8 rw-md-6">
       Select the geographic regions whose localities for which you'd like to consolidate
       duplicate localities.

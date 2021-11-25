@@ -28,7 +28,6 @@
           wait(resolve);
         }, 100);
       } else {
-        console.log('got app mode');
         resolve();
       }
     };
@@ -91,7 +90,6 @@
   }
 
   onMount(async () => {
-    console.log('mounted');
     $currentConnection = DatabaseClient.getExistingConnection();
     if (connection.username) {
       if (!connection.isActive()) {
@@ -240,13 +238,5 @@
     padding: 1rem;
     background-color: rgb(255, 239, 187);
     border-radius: $border-radius;
-  }
-
-  .activity-border {
-    flex: auto;
-    border: 1px solid #000;
-    border-radius: $border-radius;
-    margin-bottom: 0.5rem;
-    padding: 0 1rem;
   }
 </style>
