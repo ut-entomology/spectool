@@ -105,8 +105,8 @@
 </script>
 
 <HeaderBar appTitle="UT SpecTool" />
+<ActivityBar />
 <div class="page-content">
-  <ActivityBar />
   <svelte:component
     this={toSvelteTarget(currentScreen.targetName)}
     {...currentScreen.params}

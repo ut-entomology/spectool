@@ -43,17 +43,24 @@
   }
 </script>
 
-<div class="activity_bar row g-0">
-  <div class="title_box col-sm-6">
+<div class="activity_bar row g-0 justify-content-between">
+  <div class="title_box col-auto">
     {#if $screenStack.length == 1}
       <div>{$screenStack[0].title}</div>
     {:else}
-      <div>{$screenStack[1].title}</div>
-      <button class="btn btn-minor compact" on:click={closeActivity}>Close</button>
+      <div class="d-block">
+        {$screenStack[1].title}
+        <button
+          type="button"
+          class="btn-close btn-sm"
+          aria-label="Close"
+          on:click={closeActivity}
+        />
+      </div>
     {/if}
   </div>
   {#if $currentUser !== null}
-    <div class="collection_box col-sm-6">
+    <div class="collection_box col-auto">
       <select
         name="collection"
         class="selected_collection"
@@ -78,18 +85,22 @@
   .activity_bar {
     flex: 0;
     font-size: 110%;
-    margin: 0.4rem 0;
+    padding-top: 0.5rem;
+    background-color: $pageBarBackgroundColor;
+    padding: 0 $horizontalMargin;
   }
 
   .title_box {
-    display: flex;
+    background-color: $activityAreaBackgroudColor;
+    border-top-left-radius: $border-radius;
+    border-top-right-radius: $border-radius;
   }
 
   .title_box div {
     display: flex;
     flex-direction: column;
     justify-content: center;
-    margin-right: 0.5rem;
+    margin: 0.2rem 0.5rem 0.1rem 0.5rem;
   }
 
   .collection_box {
