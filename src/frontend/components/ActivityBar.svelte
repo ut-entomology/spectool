@@ -76,6 +76,7 @@
   @import '../values';
 
   .activity_bar {
+    flex: 0;
     font-size: 110%;
     margin: 0.4rem 0;
   }

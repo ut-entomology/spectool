@@ -166,6 +166,8 @@
 
   .page-content {
     flex: auto;
+    display: flex;
+    flex-direction: column;
     margin: 0 $horizontalMargin;
   }
 
@@ -234,7 +236,17 @@
   // Activities
 
   .activity-instructions {
+    margin: 1.5rem 0;
     padding: 1rem;
-    background-color: rgb(255, 234, 167);
+    background-color: rgb(255, 239, 187);
+    border-radius: $border-radius;
+  }
+
+  .activity-border {
+    flex: auto;
+    border: 1px solid #000;
+    border-radius: $border-radius;
+    margin-bottom: 0.5rem;
+    padding: 0 1rem;
   }
 </style>

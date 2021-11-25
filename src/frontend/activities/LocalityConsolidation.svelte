@@ -3,6 +3,7 @@
   import type { GeoEntity } from '../shared/geo_entity';
   import { currentCollectionID } from '../stores/currentCollectionID';
   import { closeActivity } from '../components/ActivityBar.svelte';
+  import ActivityInstructions from '../components/ActivityInstructions.svelte';
   import Notice from '../layout/Notice.svelte';
   import BigSpinner from '../components/BigSpinner.svelte';
 
@@ -37,18 +38,18 @@
 {#await preparation()}
   <BigSpinner />
 {:then}
-  <main>
-    <form>
-      <div class="row mb-2 justify-content-center">
-        <div class="col-sm-8 activity-instructions">
-          Select the geographic regions whose localities for which you'd like to
-          consolidate duplicate localities.
-        </div>
-        <div class="row mb-2 justify-content-center">
-          <div class="col-sm-2">
+  <main class="activity-border">
+    <ActivityInstructions classes="rw-sm-8 rw-md-6">
+      Select the geographic regions whose localities for which you'd like to consolidate
+      duplicate localities.
+    </ActivityInstructions>
+    <form class="row justify-content-center">
+      <div class="mb-2 rw-md-10">
+        <div class="row mb-2">
+          <div class="col-sm-3">
             <label for="country" class="col-form-label">Country</label>
           </div>
-          <div class="col-sm-6">
+          <div class="col-sm-9">
             <select
               id="country"
               name="country"
@@ -62,11 +63,11 @@
             </select>
           </div>
         </div>
-        <div class="row mb-3 justify-content-center">
-          <div class="col-sm-2">
+        <div class="row mb-3">
+          <div class="col-sm-3">
             <label for="state" class="col-form-label">State/Province</label>
           </div>
-          <div class="col-sm-6">
+          <div class="col-sm-9">
             <select
               id="state"
               name="state"
@@ -95,9 +96,3 @@
     on:close={closeActivity}
   />
 {/await}
-
-<style>
-  main {
-    padding-top: 2rem;
-  }
-</style>
