@@ -9,7 +9,7 @@
   import { DatabaseConfigClient } from '../clients/db_config_client';
   import { currentConnection } from '../stores/currentConnection';
   import { currentDialog } from '../stores/currentDialog';
-  import Dialog from '../layout/Dialog.svelte';
+  import ModalDialog from '../layout/ModalDialog.svelte';
 
   export let onSuccess: () => void = () => {};
   let errorMessage = '';
@@ -68,7 +68,7 @@
   }
 </script>
 
-<Dialog title="Configure the Database Connection" dialogClasses="container-md">
+<ModalDialog title="Configure the Database Connection">
   <Form class="container-fluid g-0" {context}>
     <div class="row mb-2">
       <div class="col-sm-3">
@@ -127,7 +127,7 @@
       </div>
     {/if}
   </Form>
-</Dialog>
+</ModalDialog>
 
 <style>
   button {

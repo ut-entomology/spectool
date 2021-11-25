@@ -7,7 +7,7 @@
   import { DirDialogClient } from '../clients/dir_dialog_client';
   import { currentPrefs } from '../stores/currentPrefs';
   import { currentDialog } from '../stores/currentDialog';
-  import Dialog from '../layout/Dialog.svelte';
+  import ModalDialog from '../layout/ModalDialog.svelte';
 
   export let onSuccess: () => void = () => {};
 
@@ -47,7 +47,7 @@
   }
 </script>
 
-<Dialog title="Set Data Folder" dialogClasses="container-md">
+<ModalDialog title="Set Data Folder">
   <Form class="container-fluid g-0" {context}>
     <div class="row mb-4 justify-content-center">
       <div class="col-sm-3">
@@ -90,7 +90,7 @@
       </div>
     {/if}
   </Form>
-</Dialog>
+</ModalDialog>
 
 <style lang="scss">
   button {

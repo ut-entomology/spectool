@@ -10,7 +10,7 @@
   import * as yup from 'yup';
   import { createForm, Form, Input } from '../layout/forms';
 
-  import Dialog from '../layout/Dialog.svelte';
+  import ModalDialog from '../layout/ModalDialog.svelte';
 
   export let toggle: () => void;
   export let title: string;
@@ -45,7 +45,7 @@
   });
 </script>
 
-<Dialog {title} contentClasses="login-form-content">
+<ModalDialog {title} contentClasses="login-form-content">
   <Form class="container g-0" {context}>
     <div class="row mb-2 justify-content-center">
       <div class="col-sm-3">
@@ -85,7 +85,7 @@
       </div>
     {/if}
   </Form>
-</Dialog>
+</ModalDialog>
 
 <style>
   :global(.login-form-content) {
