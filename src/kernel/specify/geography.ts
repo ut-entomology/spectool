@@ -79,6 +79,23 @@ export class Geography {
     return entity;
   }
 
+  getContainedGeographyIDs(underGeoID: number): number[] {
+    const geoIDs: number[] = [];
+    for (let entity of Object.values(this.entities)) {
+      const descendantGeoIDs: number[] = [];
+      while (entity.id !== null) {
+        if (entity.id === underGeoID) {
+          geoIDs.push(...descendantGeoIDs);
+          break;
+        } else {
+          descendantGeoIDs.push(entity.id);
+        }
+        entity = this.entities[entity.parentID];
+      }
+    }
+    return geoIDs;
+  }
+
   getStates(countryID: number): GeoDictionary {
     this._assertLoaded();
     const states: GeoDictionary = {};
