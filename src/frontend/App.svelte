@@ -53,7 +53,7 @@
   // @ts-ignore TS doesn't understand that the subscriber is immediately called
   if (!currentScreen) {
     screenStack.push({
-      title: 'Activities',
+      title: 'Activity Menu',
       targetName: 'ActivityMenu',
       params: {}
     });

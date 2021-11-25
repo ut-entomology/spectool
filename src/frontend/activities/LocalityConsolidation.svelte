@@ -41,7 +41,7 @@
   <main>
     <ActivityInstructions classes="rw-sm-8 rw-md-6">
       Select the geographic regions whose localities for which you'd like to consolidate
-      duplicate localities.
+      duplicate localities.!
     </ActivityInstructions>
     <form class="row justify-content-center">
       <div class="mb-2 rw-md-10">

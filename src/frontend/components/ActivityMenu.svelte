@@ -5,7 +5,7 @@
 
   const activities: Activity[] = [
     {
-      title: 'Consolidate localities',
+      title: 'Consolidate Localities',
       targetName: 'LocalityConsolidation',
       description: 'Find and merge different entries for the same localities.',
       requiresLogin: true,
@@ -17,7 +17,7 @@
       ]
     },
     {
-      title: 'Query for first names',
+      title: 'Query for First Names',
       targetName: 'FirstNames',
       description: 'Returns all first names for a given last name.',
       requiresLogin: false,

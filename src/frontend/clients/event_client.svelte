@@ -37,7 +37,12 @@
   });
 
   window.ipc.on('clear_local_storage', (_data) => {
+    const appMode = localStorage.getItem('app_mode');
     localStorage.clear();
+    if (appMode !== null) {
+      localStorage.setItem('app_mode', appMode);
+    }
+    location.reload();
   });
 
   window.ipc.on('set_app_mode', (mode: string) => {
