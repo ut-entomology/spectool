@@ -1,7 +1,13 @@
 <script lang="ts">
   import * as yup from 'yup';
 
-  import { createForm, Form, Input, InputGroup, SetInputValue } from '../layout/forms';
+  import {
+    createForm,
+    ContextForm,
+    Input,
+    InputGroup,
+    SetInputValue
+  } from '../layout/forms';
   import { AppPrefs } from '../shared/app_prefs';
   import { AppPrefsClient } from '../clients/app_prefs_client';
   import { DirDialogClient } from '../clients/dir_dialog_client';
@@ -48,7 +54,7 @@
 </script>
 
 <ModalDialog title="Set Data Folder">
-  <Form class="container-fluid g-0" {context}>
+  <ContextForm class="container-fluid g-0" {context}>
     <div class="row mb-4 justify-content-center">
       <div class="col-sm-3">
         <label for="dataFolder" class="col-form-label">Data Folder</label>
@@ -89,7 +95,7 @@
         <div class="alert alert-danger" role="alert">{errorMessage}</div>
       </div>
     {/if}
-  </Form>
+  </ContextForm>
 </ModalDialog>
 
 <style lang="scss">

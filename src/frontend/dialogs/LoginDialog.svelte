@@ -8,7 +8,7 @@
   */
 
   import * as yup from 'yup';
-  import { createForm, Form, Input } from '../layout/forms';
+  import { createForm, ContextForm, Input } from '../layout/forms';
 
   import ModalDialog from '../layout/ModalDialog.svelte';
 
@@ -46,7 +46,7 @@
 </script>
 
 <ModalDialog {title} contentClasses="login-form-content">
-  <Form class="container g-0" {context}>
+  <ContextForm class="container g-0" {context}>
     <div class="row mb-2 justify-content-center">
       <div class="col-sm-3">
         <label for="username" class="col-form-label">Username</label>
@@ -84,7 +84,7 @@
         <div class="alert alert-danger" role="alert">{errorMessage}</div>
       </div>
     {/if}
-  </Form>
+  </ContextForm>
 </ModalDialog>
 
 <style>

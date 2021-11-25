@@ -3,7 +3,7 @@
   import * as yup from 'yup';
 
   import { Context } from '../lib/contexts';
-  import { createForm, Form, Input } from '../layout/forms';
+  import { createForm, ContextForm, Input } from '../layout/forms';
   import { DatabaseConfig } from '../shared/db_config';
   import { Connection } from '../shared/connection';
   import { DatabaseConfigClient } from '../clients/db_config_client';
@@ -69,7 +69,7 @@
 </script>
 
 <ModalDialog title="Configure the Database Connection">
-  <Form class="container-fluid g-0" {context}>
+  <ContextForm class="container-fluid g-0" {context}>
     <div class="row mb-2">
       <div class="col-sm-3">
         <label for="databaseHost" class="col-form-label">Database host</label>
@@ -126,7 +126,7 @@
         <div class="alert alert-danger" role="alert">{errorMessage}</div>
       </div>
     {/if}
-  </Form>
+  </ContextForm>
 </ModalDialog>
 
 <style>
