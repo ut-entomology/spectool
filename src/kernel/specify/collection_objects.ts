@@ -1,7 +1,5 @@
 import type { Knex } from 'knex';
 
-// import type { SpecLocality } from '../../shared/schema';
-
 export class CollectionObjects {
   async getGeographyIDs(db: Knex, collectionID: number): Promise<number[]> {
     const rows = await db.raw<{ GeographyID: number }[][]>(`
@@ -23,7 +21,4 @@ export class CollectionObjects {
     }
     return geographyIDs;
   }
-
-  // async getLocalities(db: Knex, forGeoIDs: number[]): Promise<SpecLocality> {
-  // }
 }

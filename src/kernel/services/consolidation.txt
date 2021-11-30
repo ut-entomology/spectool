@@ -1,0 +1,14 @@
+export class PhoneticWord {
+  word: string;
+  phonetics: string;
+
+  constructor(word: string) {
+    this.word = word;
+  }
+}
+
+export class ConsolidationService {
+  static phoneticizeWords(text: string): PhoneticWord[] {
+    // TBD
+  }
+}
