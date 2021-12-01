@@ -5,13 +5,13 @@
  * abbreviations prefixed with the letter 'm'.
  */
 
-export default {
+export const stateAdjacencies: Record<string, string[]> = {
   // U.S. States
   AL: ['TN', 'GA', 'FL', 'MS'],
   AK: ['YT', 'BC'],
   AR: ['MO', 'TN', 'MS', 'LA', 'TX', 'OK'],
-  AZ: ['UT', 'CO', 'NM', 'CA', 'NV'],
-  CA: ['OR', 'NV', 'AZ'],
+  AZ: ['UT', 'CO', 'NM', 'CA', 'NV', 'mSO'],
+  CA: ['OR', 'NV', 'AZ', 'mBC'],
   CO: ['WY', 'NE', 'KS', 'OK', 'NM', 'AZ', 'UT'],
   CT: ['MA', 'RI', 'NY'],
   DC: ['MD', 'VA'],
@@ -29,7 +29,7 @@ export default {
   MA: ['NH', 'RI', 'CT', 'NY', 'VT'],
   MD: ['PA', 'DE', 'DC', 'VA', 'WV'],
   ME: ['NH', 'QC', 'NB', 'NS'],
-  MI: ['OH', 'IN', 'WI', 'IL', 'MN'],
+  MI: ['OH', 'IN', 'WI', 'IL', 'MN', 'ON'],
   MN: ['WI', 'IA', 'SD', 'ND', 'MI', 'MB', 'ON'],
   MO: ['IA', 'IL', 'KY', 'TN', 'AR', 'OK', 'KS', 'NE'],
   MS: ['TN', 'AL', 'LA', 'AR'],
@@ -39,7 +39,7 @@ export default {
   NE: ['SD', 'IA', 'MO', 'KS', 'CO', 'WY'],
   NH: ['ME', 'MA', 'VT', 'QC'],
   NJ: ['NY', 'DE', 'PA'],
-  NM: ['CO', 'OK', 'TX', 'AZ', 'UT'],
+  NM: ['CO', 'OK', 'TX', 'AZ', 'UT', 'mCH', 'mSO'],
   NV: ['ID', 'UT', 'AZ', 'CA', 'OR'],
   NY: ['VT', 'MA', 'CT', 'NJ', 'PA', 'RI', 'ON', 'QC'],
   OH: ['PA', 'WV', 'KY', 'IN', 'MI', 'ON'],
@@ -50,7 +50,7 @@ export default {
   SC: ['NC', 'GA'],
   SD: ['ND', 'MN', 'IA', 'NE', 'WY', 'MT'],
   TN: ['KY', 'VA', 'NC', 'GA', 'AL', 'MS', 'AR', 'MO'],
-  TX: ['OK', 'AR', 'LA', 'NM'],
+  TX: ['OK', 'AR', 'LA', 'NM', 'mCH', 'mCO', 'mNL', 'mTM'],
   UT: ['ID', 'WY', 'CO', 'NM', 'AZ', 'NV'],
   VA: ['MD', 'DC', 'NC', 'TN', 'KY', 'WV'],
   VT: ['NH', 'MA', 'NY', 'QC'],
@@ -69,7 +69,7 @@ export default {
   VI: ['PR'],
   // Canadian Provinces and Territories
   AB: ['BC', 'NT', 'SK', 'MT'],
-  BC: ['NT', 'AB', 'AK', 'WA', 'ID', 'MT'],
+  BC: ['YT', 'NT', 'AB', 'AK', 'WA', 'ID', 'MT'],
   MB: ['SK', 'NU', 'ON', 'ND', 'MN'],
   NB: ['QC', 'PE', 'NS', 'ME'],
   NL: ['QC', 'NS'],
@@ -77,7 +77,7 @@ export default {
   NS: ['NB', 'PE', 'NL', 'ME'],
   NU: ['NT', 'MB', 'ON', 'QC'],
   ON: ['MB', 'NU', 'QC', 'MN', 'MI', 'OH', 'PA', 'NY'],
-  PE: ['NB', 'NS'],
+  PE: ['NB', 'NS', 'QC'],
   QC: ['NU', 'ON', 'NB', 'PE', 'NL', 'NY', 'VT', 'NH', 'ME'],
   SK: ['AB', 'NT', 'MB', 'MT', 'ND'],
   YT: ['NT', 'BC', 'AK'],
@@ -109,7 +109,7 @@ export default {
   mSL: ['mZA', 'mCO', 'mNL', 'mTM', 'mVE', 'mJA', 'mGT', 'mQE', 'mHG'],
   mSO: ['mBC', 'mBS', 'mCH', 'mSI', 'AZ', 'NM'],
   mTB: ['mVE', 'mCS', 'mCM'],
-  mTL: ['mME', 'mGH', 'mPB'],
+  mTL: ['mME', 'mPB', 'mHG'],
   mTM: ['mCO', 'mNL', 'mSL', 'mVE', 'TX'],
   mVE: ['mTM', 'mSL', 'mHG', 'mPB', 'mOA', 'mTB', 'mCS'],
   mYU: ['mCM', 'mQR'],
