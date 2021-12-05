@@ -4,6 +4,9 @@
  * File found at https://www.census.gov/programs-surveys/geography/library/reference/county-adjacency-file.html
  */
 
+// TODO: Round-tripping the census data to and from the storage format here
+// results in mangled foreign characters.
+
 import fs, { promises as fsp } from 'fs';
 import readline from 'readline';
 

@@ -2,7 +2,7 @@ import { join } from 'path';
 import level from 'level';
 import sub from 'subleveldown';
 
-export interface PendingLocality {
+export interface CachedLocality {
   id: number; // locality ID
   geoID: number; // geographic ID
   lat: number; // latitude
@@ -13,9 +13,11 @@ export interface PendingLocality {
   codes: string; // phonetic codes
 }
 
+// TODO: this should represent a file, not the individual data structures
+
 export class LocalityWork {
   private _store: level.LevelDB<any, any>;
-  private _pendingLocalityStore: level.LevelDB<number, PendingLocality>;
+  private _pendingLocalityStore: level.LevelDB<number, CachedLocality>;
   private _phoneticCodeStore: level.LevelDB<string, number[]>;
 
   constructor(folderPath: string) {
@@ -26,7 +28,7 @@ export class LocalityWork {
     this._phoneticCodeStore = sub(this._store, 'phonetic', { valueEncoding: 'json' });
   }
 
-  async addPendingLocality(locality: PendingLocality): Promise<void> {
+  async addPendingLocality(locality: CachedLocality): Promise<void> {
     return this._pendingLocalityStore.put(locality.id, locality);
   }
 
