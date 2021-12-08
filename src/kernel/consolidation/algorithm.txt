@@ -1,0 +1,143 @@
+# Locality Consolidation Algorithm
+
+## Important Notes
+
+(+) Because multiple users on the same computer or across multiple computers could be simultaneously doing consolidations, I'll need to verify that associated data in Specify has not changed prior to modifying the database.
+
+## Terminology
+
+(+) Domain: The set of all geographic regions whose localities are all to be examined for consolidation with other localities, whether these other localities belong to regions within the domain or not. For any region that contains a region in the domain, the containing region is also in the domain.
+
+(+) Word delimiter: any of the characters (".:;/!&()+-=[]{}?<>|\), plus em dash and en dash, plus the comma if not immediately adjacent to two digits, plus the single quote if not immediately adjacent to two alphabetic (non-numeric, non-punctuation) characters, plus CR or LF, plus the start or end of a string. Dashes are intentionally word delimiters so that occurrences with and without dashes can be found equivalent.
+
+(+) Word: A sequence of one more characters either beginning with an alphabetic character or else containing only digits (representing an integer), and bounded on each side within text by a word delimiter.
+
+(+) Normalized word: A word latinized by removing all accents and diacritics, by converting to lowercase, and by deleting single quotes.
+
+(+) Word series: A set of one or more consecutive words found in text excluding words of fewer than 3 characters and other specific words, normalized and then alphanumerically ordered. Words of fewer than 3 characters are ignored for purposes of determining whether words are consecutive, as are the following words: and, for, from, the, with.
+
+(+) Phonetic code: The phonetic code of a word containing no digits is the phonetic encoding of the word, according to some phonetic encoding algorithm. The phonetic code of a word containing at least one digit is the exact word itself, preceded by a pound ('#'), assuming that the pound does not appear in any phonetic encoding. The phonetic code for any other word that the phonetic encoding algorithm cannot code is also the exact word preceded by a pound.
+
+(+) Phonetic series: A set of one or more phonetic codes together corresponding to a word series, with each phonetic code being the phonetic code for its corresponding (normalized) word in the word series, ordered alphanumerically by phonetic code.
+
+(+) Locality key: A storage key that is a hybrid of the ID for the most-specific geographic region associated with the locality and the locality ID.
+
+## Persistent Data Structures
+
+### ExcludedMatchesStore (X)
+
+Stores permanent knowledge about which pairs of word series having identical phonetic series are not to be considered suggestive of having duplicate localities.
+
+The key is a word series. The value is a list of word series, possibly empty. If the key is found in two different localities, their common phonetic series will not be considered a match for purposes of presenting a potential duplicate to the user. Similarly, if the key is found in one locality and one of its value word series is found in another locality, their common phonetic series will not be considered a match for purposes of presenting a potential duplicate to the user.
+
+Each value of each key K also appears as a key in ExcludedMatchesStore indicating that it is not a match for the word series given by key K.
+
+### AdjacentRegionsGraph
+
+Indicates which geographic regions touch one another, associating regions by their Specify geographic IDs. This data structure could be kept in memory once read from storage, because it's not very large. In particular, this structure indicates:
+
+(+) Adjacencies among U.S. counties.
+(+) Adjacencies among U.S. counties and Mexican states.
+(+) Adjacencies among U.S. counties and Canadian provinces.
+(+) Adjacencies among U.S. states, Mexican states, and Canadian provinces.
+(+) Adjacencies among North American countries.
+
+The relationships that Specify provides also make it possible to navigate from county to state and from state or province to country. Each containing region is treated as adjacent to each of the regions it contains (and vice versa).
+
+### CompletedAdjacenciesStore (U)
+
+Indicates how many regions adjacent to each region have completed processing of their localities during the consolidation process. Its purpose is to allow for minimizing the number of locality records that are cached at any time, doing so by trying to process regions adjacent to the most regions already processed before moving on to other regions. This structure only contains entries for regions all of whose localities need to be processed, and whenever all the localities of a region have finished processing, the entry for the region is removed from the structure.
+
+The key is a geographic ID for a region, and the value contains both a rank for the region (county, state/province, or country) and a count of the number of adjacent regions whose localities have been completely consolidated. Counts initialize to zero.
+
+The CompletedAdjacenciesStore only ever contains regions in the domain.
+
+### RemainingAdjacenciesStore (V)
+
+Indicates how many regions adjacent to each region remain to have their localities processed for consolidation. Its purpose is to determine when to remove the locality records that are cached for a region. Entries are removed from the store when the localities of their associated regions are no longer needed. The cached localities for the region are removed at the same time.
+
+The key is the geographic ID for a region, and the value is an integer. When the integer is greater than zero, it indicates the number of so-far-known adjacent regions that are both in the domain and are pending processing for consolidation. When the integer is less than zero, it indicates (the negative of) the number of adjacent regions that have been process for consolidation. Negative numbers occur in regions of the domain that have not yet been processed. When the integer is zero, the region is a region of the domain none of whose neighbors have been processed yet. This latter situation is brief, as the region is added with a count of zero because it's next to a region that is being processed.
+
+The RemainingAdjacenciesStore always contains regions in the domain (until consolidation completes), and periodically contains regions adjacent to those in the domain. The count for each region in the domain initializes to zero, and the count for each region not in the domain initializes to the number of regions that are both adjacent to it (according to AdjacentRegionsGraph) and in the domain.
+
+Whenever the integer transitions to zero (any time after initialization), the associated region is removed from RemainingAdjacenciesStore (V) and its localities are removed from CachedLocalitiesStore.
+
+### CachedLocalitiesStore
+
+Provides localities that were previously loaded and pre-processed but which may still be needed during the remainder of the consolidation procedure. It's likely important to cache localities because they contain word series and phonetic series, which take time to compute.
+
+The key is a locality key, allowing localities to be looked up or deleted as a group by specific geographic ID, and allowing individual localities to be retrieved. The value contains TBD.
+
+### ActiveRegionsStore
+
+Provides the regions that remain to be processed in some way, indicating the state of processing of each region. It includes all regions of the domain and all regions adjacent to regions in the domain (according to AdjacentRegionsGraph).
+
+The key is the geographic ID of the region. The value is the state of the region. The values are as follows:
+
+(+) pending: The region has localities remaining to be consolidated, but no localities have yet been cached in CachedLocalitiesStore.
+(+) current: The region requires that all of its localities be consolidated, has participated in consolidation, and has its localities cached in CachedLocalitiesStore.
+(+) adjacent: The region is adjacent to at least one region that must be consolidated but is not itself among the regions for which all localities must be consolidated, and the region has participated in consolidation, having localities cached in CachedLocalitiesStore.
+
+Regions are removed from ActiveRegionsStore when their localities are no longer needed.
+
+### PhoneticLocalityIndex (Y)
+
+Associates phonetic codes with cached localities whose phonetically-encoded text contains at least one instance of the phonetic code. Used to process groups of localities all sharing phonetic codes for possible presentation to the user to consider for consolidation.
+
+They key is a phonetic code. The value is a list of locality keys.
+
+When a cached locality is removed from the CachedLocalitiesStore, its locality keys are removed from all of its phonetic codes in PhoneticLocalityIndex. When a phonetic key loses all of its associated locality keys, the record is removed from PhoneticLocalityIndex, thus keeping the size of PhoneticLocalityIndex to the minimum needed.
+
+## Storage Files
+
+### LocalitySmarts
+
+This is a data storage file stored in a preference-indicated directory and containing the following structures:
+
+(+) CompletedAdjacenciesStore
+
+All users share this file.
+
+### LocalityWork
+
+This is a data storage file having a separate version stored in each user's directory and containing the following structures:
+
+(+) CompletedAdjacenciesStore
+(+) RemainingAdjacenciesStore
+(+) CachedLocalitiesStore
+(+) ActiveRegionsStore
+(+) PhoneticLocalityIndex
+
+The file also indicates the domain selected for consolidation.
+
+The file is deleted after consolidation completes.
+
+## Initialization for the Consolidation Algorithm
+
+(+) If the user's LocalityWork file does not yet exist:
+
+	(+) Create the LocalityWork file and its data structures.
+	(+) Add each geographic region of the selected domain to ActiveRegionsStore, setting their states to 'pending'. This includes all of the regions that contain these regions, up through country.
+	(+) Set currentRegion (R) to an arbitrary region of ActiveRegionsStore, selected from among the most specific regions available.
+	(+) Add currentRegion (R) to both CompletedAdjacenciesStore (U) and RemainingAdjacenciesStore (V).
+	
+(+) If the user's LocalityWork already exists:
+
+	(+) Determine the highest count of any region in CompletedAdjacenciesStore (U).
+	(+) Set currentRegion (R) to an arbitrary region of CompletedAdjacenciesStore (U), selected from among the regions having this highest count.
+
+## Outer Processing Loop
+
+(+) Process currentRegion (R) according to the region processing algorithm. (Note that this algorithm caches the localities of all regions adjacent to currentRegion (R), if they aren't already cached. It also updates the states of regions in ActiveRegionsStore. Entries are added to CompletedAdjacenciesStore (U) and RemainingAdjacenciesStore (V) as they are encountered adjacent to currentRegion.)
+(+) Remove currentRegion (R) from CompletedAdjacenciesStore (U).
+
+(+) Determine the set of regions adjacentRemainingRegions that are adjacent to currentRegion (according to AdjacentRegionsGraph) and in RemainingAdjacenciesStore (V).
+(+) Add sizeof(adjacentRemainingRegions) to the count for currentRegion (R) in RemainingAdjacenciesStore (V). If the count is zero after adding this number, remove all localities for currentRegion (R) from CachedLocalitiesStore, and remove currentRegion (R) from both RemainingAdjacenciesStore (V) and ActiveRegionsStore.
+(+) For each region in adjacentRemainingRegions, decrement the integer for that region in RemainingAdjacenciesStore (V). If the integer is zero after the decrement, remove all localities for currentRegion (R) from CachedLocalitiesStore, and remove currentRegion (R) from both RemainingAdjacenciesStore (V) and ActiveRegionsStore.
+
+(+) TBD: revisit this... Determine the set of regions adjacentCompletedRegions that are adjacent to currentRegion (according to AdjacentRegionsGraph), in CompletedAdjacenciesStore (U), and all of the same lowest-available geographic rank. That is, adjacentCompletedRegions contains all regions adjacent to currentRegion (R) and in CompletedAdjacenciesStore (U).
+
+
+
+
+ 

@@ -1,6 +1,5 @@
 /*
 TODO: Enhance algorithm to handle adjacencies spanning geographic ranks.
-
 TODO: Create a clearer representation of the algorithm to help verify it.
 
 Proposed Locality Consolidation Algorithm
@@ -47,12 +46,14 @@ Initialize:
 (+) Have a structure V associate a count with each geographic ID, this count indicating the number of regions remaining in U that are adjacent to the geographic ID. Initialize all counts to zero. Counts may go negative when the geographic ID hasn't been processed yet. Whenever a count transitions to zero (after initialization), remove all localities associated with the region from the locality cache.
 (+) Arbitrarily pick a geographic region R from among the most specific regions in U.
 
+TODO: Revisit algorithm for Texas-designated specimens and neighboring countries and their provinces.
+
 Loop:
 (+) Process region R per the above locality consolidation algorithm.
 (+) Remove R from U.
 (+) Determine the set of regions AV both adjacent to R and in V.
 (+) Add the number of regions in AV to the count for region R in V. If after adding this number, the count is zero, remove all localities for the region from the locality cache, and remove R from V.
-(+) For each region in AV, decrement the count for the region in V, even if the number ends up being negative. If after adding this number, the count is zero, remove all localities for the region from the locality cache, and remove R from V.
+(+) For each region in AV, decrement the count for the region in V, even if the number ends up being negative. If after decrementing this number, the count is zero, remove all localities for the region from the locality cache, and remove R from V.
 (+) Determine the set of regions AU both adjacent to R and in U.
 (+) If AU is empty:
   (+) If V is empty, end the loop.
