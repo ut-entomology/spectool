@@ -133,14 +133,14 @@ The file is deleted after consolidation completes.
 	(+) Remove currentRegion (R) from CompletedAdjacenciesStore (U).
 
 (+) Remove the localities cached for the current region and its adjacent regions when no long required by any remaining adjacent region:
-	(+) Determine the set of regions adjacentCachedRegions that are adjacent to currentRegion (according to AdjacentRegionsGraph) and in RemainingAdjacenciesStore (V).
-	TODO: I think I need to add just the number of adjencies in V and in the domain, as otherwise I wait for non-domain regions to complete before deleting from V.
-	(+) Add sizeof(adjacentCachedRegions) to the count for currentRegion (R) in RemainingAdjacenciesStore (V). If the count is zero after adding this number, remove all localities for currentRegion (R) from CachedLocalitiesStore, and remove currentRegion (R) from both RemainingAdjacenciesStore (V) and ActiveRegionsStore.
+	(+) Determine the set of regions adjacentDependentRegions that are adjacent to currentRegion (according to AdjacentRegionsGraph) and in both the domain and RemainingAdjacenciesStore (V).
+	(+) Add sizeof(adjacentDependentRegions) to the count for currentRegion (R) in RemainingAdjacenciesStore (V). If the count is zero after adding this number, remove all localities for currentRegion (R) from CachedLocalitiesStore, and remove currentRegion (R) from both RemainingAdjacenciesStore (V) and ActiveRegionsStore.
+	(+) Determine the set of regions adjacentCachedRegions that are adjacent to currentRegion (according to AdjacentRegionsGraph) and in RemainingAdjacenciesStore (V), regardless of whether the region is in the domain.
 	(+) For each region in adjacentCachedRegions, decrement the integer for that region in RemainingAdjacenciesStore (V). If the integer is zero after the decrement, remove all localities for currentRegion (R) from CachedLocalitiesStore, and remove currentRegion (R) from both RemainingAdjacenciesStore (V) and ActiveRegionsStore.
 
 (+) Select the next region to consolidate:
-	(+) Determine the set of regions adjacentPendingRegions that are adjacent to currentRegion (according to AdjacentRegionsGraph) and in CompletedAdjacenciesStore (U).
-	(+) If adjacentPendingRegions is empty:
+	(+) Determine the set of regions adjacentInProgressRegions that are adjacent to currentRegion (according to AdjacentRegionsGraph) and in CompletedAdjacenciesStore (U).
+	(+) If adjacentInProgressRegions is empty:
 		(+) If RemainingAdjacenciesStore is empty:
 			(+) Set currentRegion (R) to null (to end the loop).
 		(+) Else:
@@ -149,10 +149,10 @@ The file is deleted after consolidation completes.
 			(+) Set currentRegion (R) to a region arbitrarily selected from the regions of CompletedAdjacenciesStore (U) having this lowest geographic rank and highest adjacency count.
 			(TBD) How do I do the above efficiently?
 	(+) Else:
-		(+) For each region in adjacentPendingRegions, increment the region's count in CompletedAdjacenciesStore (U).
-		(+) Determine the lowest geographic rank among the regions in adjacentPendingRegions.
-		(+) Determine the highest count in CompletedAdjacenciesStore (U) of all regions in adjacentPendingRegions having this lowest geographic rank.
-		(+) Set currentRegion (R) to a region arbitrarily selected from the regions of adjacentPendingRegions having this lowest geographic rank and highest count.
+		(+) For each region in adjacentInProgressRegions, increment the region's count in CompletedAdjacenciesStore (U).
+		(+) Determine the lowest geographic rank among the regions in adjacentInProgressRegions.
+		(+) Determine the highest count in CompletedAdjacenciesStore (U) of all regions in adjacentInProgressRegions having this lowest geographic rank.
+		(+) Set currentRegion (R) to a region arbitrarily selected from the regions of adjacentInProgressRegions having this lowest geographic rank and highest count.
 		(TBD) How do I do the above efficiently?
 
 (+) Repeat the loop if currentRegion (R) is not null.
