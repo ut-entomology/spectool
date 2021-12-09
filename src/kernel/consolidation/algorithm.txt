@@ -50,7 +50,11 @@ Regions are removed from ActiveRegionsStore when their localities are no longer 
 
 ### CompletedAdjacenciesStore (U)
 
-Indicates how many regions adjacent to each region have completed processing of their localities during the consolidation process. Its purpose is to allow for minimizing the number of locality records that are cached at any time, doing so by trying to process regions adjacent to the most regions already processed before moving on to other regions. This structure only contains entries for regions all of whose localities need to be processed, and whenever all the localities of a region have finished processing, the entry for the region is removed from the structure.
+Indicates how many regions adjacent to each region have completed processing of their localities during the consolidation process. Its purpose is to determine which domain region to process at each next step in a way that minimizes the number of locality records that are cached at any time. It does this by selecting regions according to which are next to 
+
+NOTE: there is no reason to pick each next region according to the number of completed regions is adjoins, because it's already been compared to those completed regions. So what algorithm should I use instead?
+
+s purpose is to allow for minimizing the number of locality records that are cached at any time, doing so by trying to process regions adjacent to the most regions already processed before moving on to other regions. This structure only contains entries for regions all of whose localities need to be processed, and whenever all the localities of a region have finished processing, the entry for the region is removed from the structure.
 
 The key is a geographic ID for a region, and the value contains both a rank for the region (county, state/province, or country) and a count of the number of adjacent regions whose localities have been completely consolidated. Counts initialize to zero.
 
