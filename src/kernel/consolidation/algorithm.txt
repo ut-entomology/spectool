@@ -24,14 +24,6 @@
 
 ## Persistent Data Structures
 
-### ExcludedMatchesStore (X)
-
-Stores permanent knowledge about which pairs of word series having identical phonetic series are not to be considered suggestive of having duplicate localities.
-
-The key is a word series. The value is a list of word series, possibly empty. If the key is found in two different localities, their common phonetic series will not be considered a match for purposes of presenting a potential duplicate to the user. Similarly, if the key is found in one locality and one of its value word series is found in another locality, their common phonetic series will not be considered a match for purposes of presenting a potential duplicate to the user.
-
-Each value of each key K also appears as a key in ExcludedMatchesStore indicating that it is not a match for the word series given by key K.
-
 ### AdjacentRegionsGraph
 
 Indicates which geographic regions touch one another, associating regions by their Specify geographic IDs. This data structure could be kept in memory once read from storage, because it's not very large. In particular, this structure indicates:
@@ -42,7 +34,19 @@ Indicates which geographic regions touch one another, associating regions by the
 (+) Adjacencies among U.S. states, Mexican states, and Canadian provinces.
 (+) Adjacencies among North American countries.
 
-The relationships that Specify provides also make it possible to navigate from county to state and from state or province to country. Each containing region is treated as adjacent to each of the regions it contains (and vice versa).
+The relationships that Specify provides also make it possible to navigate from county to state and from state or province to country. Each containing region is treated as adjacent to each of the regions it contains (and vice versa). And each region is considered adjacent to each region that contains an adjacent region (and vice versa).
+
+### ActiveRegionsStore
+
+Provides the regions that remain to be processed in some way, indicating the state of processing of each region. It initializes to all regions of the domain, but regions adjacent to those of the domain (according to AdjacentRegionsGraph) are also added during processing.
+
+The key is the geographic ID of the region. The value is the state of the region. The values are as follows:
+
+(+) pending: The region has localities remaining to be consolidated, but no localities have yet been cached in CachedLocalitiesStore.
+(+) in-progress: The region requires that all of its localities be consolidated, has participated in consolidation, and has its localities cached in CachedLocalitiesStore.
+(+) adjacent: The region is adjacent to at least one region that must be consolidated but is not itself among the regions for which all localities must be consolidated, and the region has participated in consolidation, having localities cached in CachedLocalitiesStore.
+
+Regions are removed from ActiveRegionsStore when their localities are no longer needed.
 
 ### CompletedAdjacenciesStore (U)
 
@@ -68,18 +72,6 @@ Provides localities that were previously loaded and pre-processed but which may 
 
 The key is a locality key, allowing localities to be looked up or deleted as a group by specific geographic ID, and allowing individual localities to be retrieved. The value contains TBD.
 
-### ActiveRegionsStore
-
-Provides the regions that remain to be processed in some way, indicating the state of processing of each region. It includes all regions of the domain and all regions adjacent to regions in the domain (according to AdjacentRegionsGraph).
-
-The key is the geographic ID of the region. The value is the state of the region. The values are as follows:
-
-(+) pending: The region has localities remaining to be consolidated, but no localities have yet been cached in CachedLocalitiesStore.
-(+) current: The region requires that all of its localities be consolidated, has participated in consolidation, and has its localities cached in CachedLocalitiesStore.
-(+) adjacent: The region is adjacent to at least one region that must be consolidated but is not itself among the regions for which all localities must be consolidated, and the region has participated in consolidation, having localities cached in CachedLocalitiesStore.
-
-Regions are removed from ActiveRegionsStore when their localities are no longer needed.
-
 ### PhoneticLocalityIndex (Y)
 
 Associates phonetic codes with cached localities whose phonetically-encoded text contains at least one instance of the phonetic code. Used to process groups of localities all sharing phonetic codes for possible presentation to the user to consider for consolidation.
@@ -87,6 +79,14 @@ Associates phonetic codes with cached localities whose phonetically-encoded text
 They key is a phonetic code. The value is a list of locality keys.
 
 When a cached locality is removed from the CachedLocalitiesStore, its locality keys are removed from all of its phonetic codes in PhoneticLocalityIndex. When a phonetic key loses all of its associated locality keys, the record is removed from PhoneticLocalityIndex, thus keeping the size of PhoneticLocalityIndex to the minimum needed.
+
+### ExcludedMatchesStore (X)
+
+Stores permanent knowledge about which pairs of word series having identical phonetic series are not to be considered suggestive of having duplicate localities.
+
+The key is a word series. The value is a list of word series, possibly empty. If the key is found in two different localities, their common phonetic series will not be considered a match for purposes of presenting a potential duplicate to the user. Similarly, if the key is found in one locality and one of its value word series is found in another locality, their common phonetic series will not be considered a match for purposes of presenting a potential duplicate to the user.
+
+Each value of each key K also appears as a key in ExcludedMatchesStore indicating that it is not a match for the word series given by key K.
 
 ## Storage Files
 
@@ -117,7 +117,7 @@ The file is deleted after consolidation completes.
 (+) If the user's LocalityWork file does not yet exist:
 
 	(+) Create the LocalityWork file and its data structures.
-	(+) Add each geographic region of the selected domain to ActiveRegionsStore, setting their states to 'pending'. This includes all of the regions that contain these regions, up through country.
+	(+) Add each geographic region of the selected domain to ActiveRegionsStore, setting their states to 'pending'. This only includes containing regions if the containing regions are themselves in the domain.
 	(+) Set currentRegion (R) to an arbitrary region of ActiveRegionsStore, selected from among the most specific regions available.
 	(+) Add currentRegion (R) to both CompletedAdjacenciesStore (U) and RemainingAdjacenciesStore (V).
 	
@@ -128,16 +128,34 @@ The file is deleted after consolidation completes.
 
 ## Outer Processing Loop
 
-(+) Process currentRegion (R) according to the region processing algorithm. (Note that this algorithm caches the localities of all regions adjacent to currentRegion (R), if they aren't already cached. It also updates the states of regions in ActiveRegionsStore. Entries are added to CompletedAdjacenciesStore (U) and RemainingAdjacenciesStore (V) as they are encountered adjacent to currentRegion.)
-(+) Remove currentRegion (R) from CompletedAdjacenciesStore (U).
+(+) Consolidate and remove the current region:
+	(+) Process currentRegion (R) according to the region processing algorithm. (Note that this algorithm caches the localities of the currentRegion and of all regions adjacent to currentRegion (R), if they aren't already cached. It also updates the states of regions in ActiveRegionsStore. Entries are added to CompletedAdjacenciesStore (U) and RemainingAdjacenciesStore (V) as they are encountered adjacent to currentRegion.)
+	(+) Remove currentRegion (R) from CompletedAdjacenciesStore (U).
 
-(+) Determine the set of regions adjacentRemainingRegions that are adjacent to currentRegion (according to AdjacentRegionsGraph) and in RemainingAdjacenciesStore (V).
-(+) Add sizeof(adjacentRemainingRegions) to the count for currentRegion (R) in RemainingAdjacenciesStore (V). If the count is zero after adding this number, remove all localities for currentRegion (R) from CachedLocalitiesStore, and remove currentRegion (R) from both RemainingAdjacenciesStore (V) and ActiveRegionsStore.
-(+) For each region in adjacentRemainingRegions, decrement the integer for that region in RemainingAdjacenciesStore (V). If the integer is zero after the decrement, remove all localities for currentRegion (R) from CachedLocalitiesStore, and remove currentRegion (R) from both RemainingAdjacenciesStore (V) and ActiveRegionsStore.
+(+) Remove the localities cached for the current region and its adjacent regions when no long required by any remaining adjacent region:
+	(+) Determine the set of regions adjacentCachedRegions that are adjacent to currentRegion (according to AdjacentRegionsGraph) and in RemainingAdjacenciesStore (V).
+	TODO: I think I need to add just the number of adjencies in V and in the domain, as otherwise I wait for non-domain regions to complete before deleting from V.
+	(+) Add sizeof(adjacentCachedRegions) to the count for currentRegion (R) in RemainingAdjacenciesStore (V). If the count is zero after adding this number, remove all localities for currentRegion (R) from CachedLocalitiesStore, and remove currentRegion (R) from both RemainingAdjacenciesStore (V) and ActiveRegionsStore.
+	(+) For each region in adjacentCachedRegions, decrement the integer for that region in RemainingAdjacenciesStore (V). If the integer is zero after the decrement, remove all localities for currentRegion (R) from CachedLocalitiesStore, and remove currentRegion (R) from both RemainingAdjacenciesStore (V) and ActiveRegionsStore.
 
-(+) TBD: revisit this... Determine the set of regions adjacentCompletedRegions that are adjacent to currentRegion (according to AdjacentRegionsGraph), in CompletedAdjacenciesStore (U), and all of the same lowest-available geographic rank. That is, adjacentCompletedRegions contains all regions adjacent to currentRegion (R) and in CompletedAdjacenciesStore (U).
+(+) Select the next region to consolidate:
+	(+) Determine the set of regions adjacentPendingRegions that are adjacent to currentRegion (according to AdjacentRegionsGraph) and in CompletedAdjacenciesStore (U).
+	(+) If adjacentPendingRegions is empty:
+		(+) If RemainingAdjacenciesStore is empty:
+			(+) Set currentRegion (R) to null (to end the loop).
+		(+) Else:
+			(+) Determine the lowest geographic rank of all regions remaining in CompletedAdjacenciesStore (U).
+			(+) Determine the highest adjacency count among the regions of CompletedAdjacenciesStore (U) having this lowest rank.
+			(+) Set currentRegion (R) to a region arbitrarily selected from the regions of CompletedAdjacenciesStore (U) having this lowest geographic rank and highest adjacency count.
+			(TBD) How do I do the above efficiently?
+	(+) Else:
+		(+) For each region in adjacentPendingRegions, increment the region's count in CompletedAdjacenciesStore (U).
+		(+) Determine the lowest geographic rank among the regions in adjacentPendingRegions.
+		(+) Determine the highest count in CompletedAdjacenciesStore (U) of all regions in adjacentPendingRegions having this lowest geographic rank.
+		(+) Set currentRegion (R) to a region arbitrarily selected from the regions of adjacentPendingRegions having this lowest geographic rank and highest count.
+		(TBD) How do I do the above efficiently?
 
-
+(+) Repeat the loop if currentRegion (R) is not null.
 
 
  
