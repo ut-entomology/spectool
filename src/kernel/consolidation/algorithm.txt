@@ -69,7 +69,7 @@ Define function setUncachedCounts(newlyCachedRegions):
 	[Note: all newlyCachedRegions must have been previously added to RegionCacheStatusStore (W).]
 	(+) For each region (N) in newlyCachedRegions:
 		(+) If (N) is in the domain:
-			(+) Add to RegionCacheStatusStore (W) all regions simultaneously adjacent to (N) and not already in RegionCacheStatusStore (W), adding them as uncached regions. 
+			(+) Add to RegionCacheStatusStore (W) all regions adjacent to (N) not already in RegionCacheStatusStore (W), adding them as uncached regions. 
 		(+) Else:
 			(+) Add to RegionCacheStatusStore (W) all regions simultaneously adjacent to (N), not already in RegionCacheStatusStore (W), and in the domain, adding them as uncached regions.
 	(+) For each region (N) in newlyCachedRegions:
@@ -130,24 +130,27 @@ The file is deleted after consolidation completes.
 (+) If the user's LocalityWork already exists:
 
 	(+) Determine the lowest adjacentUncachedCount of any region in RegionCacheStatusStore (W).
-	(+) Set currentRegion (R) to an arbitrary region of RegionCacheStatusStore (W), selected from among the regions having this lowest adjacentUncachedCount.
+	(+) Set currentRegion (R) to an arbitrary region of RegionCacheStatusStore (W), selected from among the cached regions having this lowest adjacentUncachedCount.
 
 ## Outer Processing Loop
 
 [Note that currentRegion (R) must be a cached region of RegionCacheStatusStore (W).]
 
 (+) Consolidate and remove the current region:
-	(+) If currentRegion (R) is in the domain:
-		(+) Let adjacentRegions be a list of all regions adjacent to currentRegion (R).
-	(+) Else:
-		(+) Let adjacentRegions be a list of all in-domain regions adjacent to currentRegion (R).
-	(+) Let newlyCachedRegions be an empty list.
-	(+) For each uncached region (A) in adjacentRegions (necessarily also already in RegionCacheStatusStore (W)):
-		(+) Cache (A)'s localities in CachedLocalitiesStore (C).
-		(+) Mark (A) as cached in RegionCacheStatusStore (W).
-		(+) Temporarily set (A)'s adjacentUncachedCount to zero.
-		(+) Add (A) to newlyCachedRegions.
-	(+) Call RegionCacheStatusStore.setUncachedCounts(newlyCachedRegions).
+	(+) If currenRegion (R)'s adjacentUncachedCount is not zero:
+		(+) If currentRegion (R) is in the domain:
+			(+) Let toBeCachedRegions be a list of all uncached regions adjacent to currentRegion (R).
+		(+) Else:
+			(+) Let toBeCachedRegions be a list of all uncached in-domain regions adjacent to currentRegion (R).
+		(+) If toBeCachedRegions is non-empty:
+			(+) For each region (T) in toBeCachedRegions (necessarily also already in RegionCacheStatusStore (W)):
+				(+) Cache (T)'s localities in CachedLocalitiesStore (C).
+				(+) Mark (T) as cached in RegionCacheStatusStore (W).
+				(+) Temporarily set (T)'s adjacentUncachedCount to zero.
+				(+) For each cached region (A) adjacent to (T) in RegionCacheStatusStore (W):
+					(+) Subtract (T)'s localityTotal from (A)'s adjacentUncachedCount.
+					TODO: I think this oversubtracts.
+			(+) Call RegionCacheStatusStore.setUncachedCounts(toBeCachedRegions).
 	(+) Process currentRegion (R) according to the region processing algorithm.
 	(+) Remove the localities cached for currentRegion (R).
 	(+) Remove currentRegion (R) from RegionCacheStatusStore (W).
