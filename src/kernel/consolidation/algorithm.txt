@@ -61,17 +61,19 @@ The key is a geography ID for a region. The value is a structure containing the 
 (+) inDomain: Whether the region is in the domain. If it is not in the domain, it is a region adjacent  to a region in the domain.
 (+) isCached: Whether localities for the region have been cached. If the region has no localities, this indicates whether the localities would have been cached were there any.
 (+) localityTotal: The number of localities in the region not also designated to a region that the region contains.
-(+) adjacentUncachedCount: The total number of localities remaining to be cached in all adjacent regions. This value is only defined in cached regions but is always initialized to zero for the calculation algorithm.
+(+) adjacentUncachedCount: The total number of localities remaining to be cached in all adjacent regions. This value is initialized to zero but only meaningful in cached regions.
 
 When a region is added to RegionStatuses, it is added either cached or uncached. When adding a cached region of the domain, any region adjacent to it (whether in the domain or not) not already in RegionStatuses is also added uncached, taking care to keep each affected region's adjacentUncachedCount accurate. Likewise, when caching localities for any previously-uncached domain region of RegionStatuses, any region adjacent to the region not already in RegionStatuses is also added uncached, taking care to keep each affected region's adjacentUncachedCount accurate.
 
-Define function addAdjacentUncachedRegions(aroundRegion):
-	[Note: aroundRegion must have been previously added to RegionStatuses.]
-	(+) For each region (U) adjacent to aroundRegion not already in RegionStatuses:
-		(+) If either aroundRegion or (U) is in the domain:
-			(+) Add (U) to RegionStatuses as an uncached region.
-			(+) For each cached region (N) adjacent to (U):
-				(+) Add (U)'s localityTotal to (N)'s adjacentUncachedCount.
+Define function cacheRegion(region to cache (C)):
+	(+) Cache the localities for (C) in LocalityCache.
+	(+) Mark (C) as cached in RegionStatuses.
+	(+) For each region (A) adjacent to (C):
+		(+) If either (A) or (C) is in the domain:
+			(+) If (A) is not present in RegionStatuses:
+				(+) Add (A) to RegionStatuses as an uncached region.
+			(+) If (A) is an uncached region:
+				(+) Add (A)'s localityTotal to (C)'s adjacentUncachedCount.
 
 (There is a solution that keeps even fewer localities cached at a time, but it jumps around from region to region, preventing the user from focusing on evaluating one locality against all possible similar localities before moving on to the next locality. The present approach should help the user be more efficient, less error-prone, and less frustrated.)
 
@@ -121,9 +123,7 @@ The file is deleted after consolidation completes.
 	(+) Create the LocalityWork file and its data structures.
 	(+) Add each geographic region of the selected domain to PendingRegions. This only includes containing regions if the containing regions are themselves in the domain.
 	(+) Set the current region (R) to an arbitrary region of PendingRegions, selected from among the most specific regions available.
-	(+) Cache the localities for (R) in LocalityCache.
-	(+) Mark (R) as cached in RegionStatuses.
-	(+) Call RegionStatuses.addAdjacentUncachedRegions(R).
+	(+) Call RegionStatuses.cacheRegion(R).
 	
 (+) If the user's LocalityWork already exists:
 
@@ -135,15 +135,13 @@ Processes the current region (R), which must be a cached region of RegionStatuse
 
 (+) Consolidate and remove (R) as follows:
 	(+) If (R)'s adjacentUncachedCount is not zero:
-		(+) For each uncached region (N) adjacent to (R):
-			[Note: (N) is necessarily in RegionStatuses]
-			(+) If either (R) or (N) is in the domain:
-				[Note: (N)'s adjacentUncachedCount was initialized to zero]
-				(+) Cache (N)'s localities in LocalityCache.
-				(+) Mark (N) as cached in RegionStatuses.
-				(+) For each cached region (A) adjacent to (N):
-					(+) Subtract (N)'s localityTotal from (A)'s adjacentUncachedCount.
-				(+) Call RegionStatuses.addAdjacentUncachedRegions(N).
+		(+) For each uncached region (U) adjacent to (R):
+			[Note: (U) is necessarily in RegionStatuses]
+			(+) If either (R) or (U) is in the domain:
+				(+) Call RegionStatuses.cacheRegion(U).
+				(+) For each cached region (A) adjacent to (U):
+					(+) If either (A) or (U) is in the domain:
+						(+) Subtract (U)'s localityTotal from (A)'s adjacentUncachedCount.
 	(+) Process (R) according to the region processing algorithm.
 	(+) Remove (R)'s cached localities from LocalityCache.
 	(+) Remove (R) from RegionStatuses.
