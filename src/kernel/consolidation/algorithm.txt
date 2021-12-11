@@ -38,44 +38,40 @@ The relationships that Specify provides also make it possible to navigate from c
 
 For the remainder of this document, regions are considered "adjacent" when they are adjacent according to AdjacentRegionsGraph.
 
+### PendingRegions
+
+A list of regions awaiting consolidation, serving as a to-do list for the consolidation algorithm. A region is removed from PendingRegions when all of its localities have been processed for consolidation and the caches for these localities have been removed.
+
+The key is the region's geography ID. The value is a structure containing the following information:
+
+(+) rank: The region's geographic rank (in Specify)
+(+) inDomain: Whether the region is in the domain
+(+) localityTotal: The number of localities that point to the region as the most-specific region for the locality. The implementation could compute this on-demand and save computed values for reuse later.
+(+) isCached: Whether localities for the region have been cached. Initialize to false.
+(+) adjacentUncachedCount: The total number of localities remaining to be cached in all adjacent regions. This value is initialized to zero but only meaningful in cached regions.
+
+PendingRegions is initialized to the regions of the domain, including all regions contained within regions of the domain.
+
+Define function cacheRegion(region to cache (C)):
+	(+) Cache the localities for (C) in LocalityCache.
+	(+) Mark (C) as cached in PendingRegions.
+	(+) For each region (A) adjacent to (C):
+		(+) If (C) is in the domain:
+			(+) If (A) is not in PendingRegions:
+				(+) Add (A) to PendingRegions.
+			(+) If (A) is uncached:
+				(+) Add (A)'s localityTotal to (C)'s adjacentUncachedCount.
+		(+) Else if (A) is in the domain:
+			(+) If (A) is uncached:
+				(+) Add (A)'s localityTotal to (C)'s adjacentUncachedCount.
+
+TODO: Look for a more efficient way to lookup regions by rank.
+
 ### LocalityCache
 
 Cached preprocessed localities. Prior to use, localities must be preprocessed to produce their word series and phonetic series. This is a time-consuming process, so the results are cached to prevent having to repeat the process. The algorithm manages this structure to try to minimize the number of localities that are cached at any time, thereby reducing the amount of memory required.
 
 The key is a locality key, allowing localities to be looked up or deleted as a group by specific geographic ID, and allowing individual localities to be retrieved. The value is the preprocessed locality (details TBD).
-
-### PendingRegions
-
-A list of all regions of the domain, at all levels of geographic rank, that have not yet been processed for consolidation. Serves as a to-do list for the consolidation algorithm. A region is removed from PendingRegions when all of its localities have been processed for consolidation and the caches for these localities have been removed.
-
-The key is the region's geographic ID. The value is the region's rank.
-
-TODO: Examine whether it would be more efficient to store pending regions grouped by rank.
-
-### RegionStatuses
-
-Indicates the status of locality caches for regions adjacent to each region currently undergoing processing. Used to select each next region to process in a way that minimizes the number of localities cached at any time while still allowing the user to evaluate one locality at a time before forever moving on to other localities. This structure should be small enough to be kept in memory for speed but mirrored to disk for recovery purposes.
-
-The key is a geography ID for a region. The value is a structure containing the following information:
-
-(+) inDomain: Whether the region is in the domain. If it is not in the domain, it is a region adjacent  to a region in the domain.
-(+) isCached: Whether localities for the region have been cached. If the region has no localities, this indicates whether the localities would have been cached were there any.
-(+) localityTotal: The number of localities in the region not also designated to a region that the region contains.
-(+) adjacentUncachedCount: The total number of localities remaining to be cached in all adjacent regions. This value is initialized to zero but only meaningful in cached regions.
-
-When a region is added to RegionStatuses, it is added either cached or uncached. When adding a cached region of the domain, any region adjacent to it (whether in the domain or not) not already in RegionStatuses is also added uncached, taking care to keep each affected region's adjacentUncachedCount accurate. Likewise, when caching localities for any previously-uncached domain region of RegionStatuses, any region adjacent to the region not already in RegionStatuses is also added uncached, taking care to keep each affected region's adjacentUncachedCount accurate.
-
-Define function cacheRegion(region to cache (C)):
-	(+) Cache the localities for (C) in LocalityCache.
-	(+) Mark (C) as cached in RegionStatuses.
-	(+) For each region (A) adjacent to (C):
-		(+) If either (A) or (C) is in the domain:
-			(+) If (A) is not present in RegionStatuses:
-				(+) Add (A) to RegionStatuses as an uncached region.
-			(+) If (A) is an uncached region:
-				(+) Add (A)'s localityTotal to (C)'s adjacentUncachedCount.
-
-(There is a solution that keeps even fewer localities cached at a time, but it jumps around from region to region, preventing the user from focusing on evaluating one locality against all possible similar localities before moving on to the next locality. The present approach should help the user be more efficient, less error-prone, and less frustrated.)
 
 ### PhoneticLocalityIndex (Y)
 
@@ -121,40 +117,41 @@ The file is deleted after consolidation completes.
 (+) If the user's LocalityWork file does not yet exist:
 
 	(+) Create the LocalityWork file and its data structures.
-	(+) Add each geographic region of the selected domain to PendingRegions. This only includes containing regions if the containing regions are themselves in the domain.
+	(+) Add each geographic region of the selected domain to PendingRegions, including all regions contained within regions of the domain.
 	(+) Set the current region (R) to an arbitrary region of PendingRegions, selected from among the most specific regions available.
 	(+) Call RegionStatuses.cacheRegion(R).
 	
 (+) If the user's LocalityWork already exists:
 
-	(+) Set (R) to an arbitrarily selected cached region of RegionStatuses having the lowest value of adjacentUncachedCount of all cached regions of RegionStatuses.
+	(+) Set (R) to an arbitrarily selected cached region of PendingRegions having the lowest candidate value of adjacentUncachedCount.
 
 ## Outer Processing Loop
 
-Processes the current region (R), which must be a cached region of RegionStatuses.
+Select each next region to process in a way that minimizes the number of localities cached at any time while still allowing the user to evaluate one locality at a time before forever moving on to other localities.
+
+Processes the current region (R), which must be a cached region of PendingRegions.
 
 (+) Consolidate and remove (R) as follows:
 	(+) If (R)'s adjacentUncachedCount is not zero:
-		(+) For each uncached region (U) adjacent to (R):
-			[Note: (U) is necessarily in RegionStatuses]
+		(+) For each region (U) adjacent to (R):
+			[Note: All regions adjacent to (R) are guaranteed to already be in PendingRegions, because cacheRegion() does this.]
 			(+) If either (R) or (U) is in the domain:
-				(+) Call RegionStatuses.cacheRegion(U).
-				(+) For each cached region (A) adjacent to (U):
-					(+) If either (A) or (U) is in the domain:
-						(+) Subtract (U)'s localityTotal from (A)'s adjacentUncachedCount.
+				(+) If (U) is uncached:
+					(+) Call RegionStatuses.cacheRegion(U).
+					(+) For each cached region (A) adjacent to (U):
+						(+) If either (A) or (U) is in the domain:
+							(+) Subtract (U)'s localityTotal from (A)'s adjacentUncachedCount.
 	(+) Process (R) according to the region processing algorithm.
 	(+) Remove (R)'s cached localities from LocalityCache.
-	(+) Remove (R) from RegionStatuses.
-	(+) If (R) is in the domain:
-		(+) Remove (R) from PendingRegions.
+	(+) Remove (R) from PendingRegions.
 
 (+) Select the next region to consolidate as follows:
 	(+) If PendingRegions is empty:
 		(+) Set (R) to end the loop.
 	(+) Else:
-		(+) Set (R) to an arbitrarily selected cached region of RegionStatuses having the lowest value of adjacentUncachedCount of all cached regions of RegionStatuses.
+		(+) Set (R) to an arbitrarily selected cached region of PendingRegions having the lowest candidate value of adjacentUncachedCount.
 
 (+) Repeat the loop if (R) is not null.
 
-
+[Note: There is a solution that keeps even fewer localities cached at a time, but it jumps around from region to region, preventing the user from focusing on evaluating one locality against all possible similar localities before moving on to the next locality. The present approach should help the user be more efficient, less error-prone, and less frustrated.]
  
