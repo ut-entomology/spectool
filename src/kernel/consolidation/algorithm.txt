@@ -127,8 +127,7 @@ The file is deleted after consolidation completes.
 	
 (+) If the user's LocalityWork already exists:
 
-	(+) Determine the lowest adjacentUncachedCount of any region in RegionStatuses.
-	(+) Set the current region (R) to an arbitrary region of RegionStatuses, selected from among the cached regions having this lowest adjacentUncachedCount.
+	(+) Set (R) to an arbitrarily selected cached region of RegionStatuses having the lowest value of adjacentUncachedCount of all cached regions of RegionStatuses.
 
 ## Outer Processing Loop
 
@@ -155,8 +154,7 @@ Processes the current region (R), which must be a cached region of RegionStatuse
 	(+) If PendingRegions is empty:
 		(+) Set (R) to end the loop.
 	(+) Else:
-		(+) Determine the lowest value of adjacentUncachedCount among the cached regions of RegionStatuses.
-		(+) Set (R) to an arbitrarily selected cached region of RegionStatuses having this lowest value of adjacentUncachedCount.
+		(+) Set (R) to an arbitrarily selected cached region of RegionStatuses having the lowest value of adjacentUncachedCount of all cached regions of RegionStatuses.
 
 (+) Repeat the loop if (R) is not null.
 
