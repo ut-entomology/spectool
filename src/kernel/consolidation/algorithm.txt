@@ -38,21 +38,21 @@ The relationships that Specify provides also make it possible to navigate from c
 
 For the remainder of this document, regions are considered "adjacent" when they are adjacent according to AdjacentRegionsGraph.
 
-### CachedLocalitiesStore (C)
+### LocalityCache
 
 Cached preprocessed localities. Prior to use, localities must be preprocessed to produce their word series and phonetic series. This is a time-consuming process, so the results are cached to prevent having to repeat the process. The algorithm manages this structure to try to minimize the number of localities that are cached at any time, thereby reducing the amount of memory required.
 
 The key is a locality key, allowing localities to be looked up or deleted as a group by specific geographic ID, and allowing individual localities to be retrieved. The value is the preprocessed locality (details TBD).
 
-### PendingRegionsStore (P)
+### PendingRegions
 
-A list of all regions of the domain, at all levels of geographic rank, that have not yet been processed for consolidation. Serves as a to-do list for the consolidation algorithm. A region is removed from PendingRegionsStore when all of its localities have been processed for consolidation and the caches for these localities have been removed.
+A list of all regions of the domain, at all levels of geographic rank, that have not yet been processed for consolidation. Serves as a to-do list for the consolidation algorithm. A region is removed from PendingRegions when all of its localities have been processed for consolidation and the caches for these localities have been removed.
 
 The key is the region's geographic ID. The value is the region's rank.
 
 TODO: Examine whether it would be more efficient to store pending regions grouped by rank.
 
-### RegionCacheStatusStore (W)
+### RegionStatuses
 
 Indicates the status of locality caches for regions adjacent to each region currently undergoing processing. Used to select each next region to process in a way that minimizes the number of localities cached at any time while still allowing the user to evaluate one locality at a time before forever moving on to other localities. This structure should be small enough to be kept in memory for speed but mirrored to disk for recovery purposes.
 
@@ -63,17 +63,15 @@ The key is a geography ID for a region. The value is a structure containing the 
 (+) localityTotal: The number of localities in the region not also designated to a region that the region contains.
 (+) adjacentUncachedCount: The total number of localities remaining to be cached in all adjacent regions. This value is only defined in cached regions but is always initialized to zero for the calculation algorithm.
 
-When a region is added to RegionCacheStatusStore, it is added either cached or uncached. When adding a cached region of the domain, any region adjacent to it (whether in the domain or not) not already in RegionCacheStatusStore is also added uncached, taking care to keep each affected region's adjacentUncachedCount accurate. Likewise, when caching localities for any previously-uncached domain region of RegionCacheStatusStore, any region adjacent to the region not already in RegionCacheStatusStore is also added uncached, taking care to keep each affected region's adjacentUncachedCount accurate.
+When a region is added to RegionStatuses, it is added either cached or uncached. When adding a cached region of the domain, any region adjacent to it (whether in the domain or not) not already in RegionStatuses is also added uncached, taking care to keep each affected region's adjacentUncachedCount accurate. Likewise, when caching localities for any previously-uncached domain region of RegionStatuses, any region adjacent to the region not already in RegionStatuses is also added uncached, taking care to keep each affected region's adjacentUncachedCount accurate.
 
-Define function setUncachedCounts(newlyCachedRegions):
-	[Note: all newlyCachedRegions must have been previously added to RegionCacheStatusStore (W).]
-	(+) For each region (N) in newlyCachedRegions:
-		(+) If (N) is in the domain:
-			(+) Add to RegionCacheStatusStore (W) all regions adjacent to (N) not already in RegionCacheStatusStore (W), adding them as uncached regions. 
-		(+) Else:
-			(+) Add to RegionCacheStatusStore (W) all regions simultaneously adjacent to (N), not already in RegionCacheStatusStore (W), and in the domain, adding them as uncached regions.
-	(+) For each region (N) in newlyCachedRegions:
-		(+) Add to (N)'s adjacentUncachedCount (initialy zero) the localityTotal of each uncached region adjacent to (N) found in RegionCacheStatusStore (W).
+Define function addAdjacentUncachedRegions(aroundRegion):
+	[Note: aroundRegion must have been previously added to RegionStatuses.]
+	(+) For each region (U) adjacent to aroundRegion not already in RegionStatuses:
+		(+) If either aroundRegion or (U) is in the domain:
+			(+) Add (U) to RegionStatuses as an uncached region.
+			(+) For each cached region (N) adjacent to (U):
+				(+) Add (U)'s localityTotal to (N)'s adjacentUncachedCount.
 
 (There is a solution that keeps even fewer localities cached at a time, but it jumps around from region to region, preventing the user from focusing on evaluating one locality against all possible similar localities before moving on to the next locality. The present approach should help the user be more efficient, less error-prone, and less frustrated.)
 
@@ -83,7 +81,7 @@ Associates phonetic codes with cached localities whose phonetically-encoded text
 
 They key is a phonetic code. The value is a list of locality keys.
 
-When a cached locality is removed from the CachedLocalitiesStore (C), its locality keys are removed from all of its phonetic codes in PhoneticLocalityIndex. When a phonetic key loses all of its associated locality keys, the record is removed from PhoneticLocalityIndex, thus keeping the size of PhoneticLocalityIndex to the minimum needed.
+When a cached locality is removed from the LocalityCache, its locality keys are removed from all of its phonetic codes in PhoneticLocalityIndex. When a phonetic key loses all of its associated locality keys, the record is removed from PhoneticLocalityIndex, thus keeping the size of PhoneticLocalityIndex to the minimum needed.
 
 ### ExcludedMatchesStore (X)
 
@@ -107,9 +105,9 @@ All users share this file.
 
 This is a data storage file having a separate version stored in each user's directory and containing the following structures:
 
-(+) CachedLocalitiesStore (C)
-(+) PendingRegionsStore (P)
-(+) RegionCacheStatusStore (W)
+(+) LocalityCache
+(+) PendingRegions
+(+) RegionStatuses
 (+) PhoneticLocalityIndex (Y)
 
 The file also indicates the domain selected for consolidation.
@@ -121,50 +119,46 @@ The file is deleted after consolidation completes.
 (+) If the user's LocalityWork file does not yet exist:
 
 	(+) Create the LocalityWork file and its data structures.
-	(+) Add each geographic region of the selected domain to PendingRegionsStore (P). This only includes containing regions if the containing regions are themselves in the domain.
-	(+) Set currentRegion (R) to an arbitrary region of PendingRegionsStore (P), selected from among the most specific regions available.
-	(+) Cache the localities for currentRegion (R) in CachedLocalitiesStore (C).
-	(+) Mark currentRegion (R) as cached in RegionCacheStatusStore (W), initializing its adjacentUncachedCount to zero.
-	(+) Call RegionCacheStatusStore.setUncachedCounts([currentRegion (R)]).
+	(+) Add each geographic region of the selected domain to PendingRegions. This only includes containing regions if the containing regions are themselves in the domain.
+	(+) Set the current region (R) to an arbitrary region of PendingRegions, selected from among the most specific regions available.
+	(+) Cache the localities for (R) in LocalityCache.
+	(+) Mark (R) as cached in RegionStatuses.
+	(+) Call RegionStatuses.addAdjacentUncachedRegions(R).
 	
 (+) If the user's LocalityWork already exists:
 
-	(+) Determine the lowest adjacentUncachedCount of any region in RegionCacheStatusStore (W).
-	(+) Set currentRegion (R) to an arbitrary region of RegionCacheStatusStore (W), selected from among the cached regions having this lowest adjacentUncachedCount.
+	(+) Determine the lowest adjacentUncachedCount of any region in RegionStatuses.
+	(+) Set the current region (R) to an arbitrary region of RegionStatuses, selected from among the cached regions having this lowest adjacentUncachedCount.
 
 ## Outer Processing Loop
 
-[Note that currentRegion (R) must be a cached region of RegionCacheStatusStore (W).]
+Processes the current region (R), which must be a cached region of RegionStatuses.
 
-(+) Consolidate and remove the current region:
-	(+) If currenRegion (R)'s adjacentUncachedCount is not zero:
-		(+) If currentRegion (R) is in the domain:
-			(+) Let toBeCachedRegions be a list of all uncached regions adjacent to currentRegion (R).
-		(+) Else:
-			(+) Let toBeCachedRegions be a list of all uncached in-domain regions adjacent to currentRegion (R).
-		(+) If toBeCachedRegions is non-empty:
-			(+) For each region (T) in toBeCachedRegions (necessarily also already in RegionCacheStatusStore (W)):
-				(+) Cache (T)'s localities in CachedLocalitiesStore (C).
-				(+) Mark (T) as cached in RegionCacheStatusStore (W).
-				(+) Temporarily set (T)'s adjacentUncachedCount to zero.
-				(+) For each cached region (A) adjacent to (T) in RegionCacheStatusStore (W):
-					(+) Subtract (T)'s localityTotal from (A)'s adjacentUncachedCount.
-					TODO: I think this oversubtracts.
-			(+) Call RegionCacheStatusStore.setUncachedCounts(toBeCachedRegions).
-	(+) Process currentRegion (R) according to the region processing algorithm.
-	(+) Remove the localities cached for currentRegion (R).
-	(+) Remove currentRegion (R) from RegionCacheStatusStore (W).
-	(+) If currentRegion (R) is in the domain:
-		(+) Remove currentRegion (R) from PendingRegionsStore (P).
+(+) Consolidate and remove (R) as follows:
+	(+) If (R)'s adjacentUncachedCount is not zero:
+		(+) For each uncached region (N) adjacent to (R):
+			[Note: (N) is necessarily in RegionStatuses]
+			(+) If either (R) or (N) is in the domain:
+				[Note: (N)'s adjacentUncachedCount was initialized to zero]
+				(+) Cache (N)'s localities in LocalityCache.
+				(+) Mark (N) as cached in RegionStatuses.
+				(+) For each cached region (A) adjacent to (N):
+					(+) Subtract (N)'s localityTotal from (A)'s adjacentUncachedCount.
+				(+) Call RegionStatuses.addAdjacentUncachedRegions(N).
+	(+) Process (R) according to the region processing algorithm.
+	(+) Remove (R)'s cached localities from LocalityCache.
+	(+) Remove (R) from RegionStatuses.
+	(+) If (R) is in the domain:
+		(+) Remove (R) from PendingRegions.
 
-(+) Select the next region to consolidate:
-	(+) If PendingRegionsStore (P) is empty:
-		(+) Set currentRegion (R) to end the loop.
+(+) Select the next region to consolidate as follows:
+	(+) If PendingRegions is empty:
+		(+) Set (R) to end the loop.
 	(+) Else:
-		(+) Determine the lowest value of adjacentUncachedCount among the cached regions of RegionCacheStatusStore (W).
-		(+) Set currentRegion (R) to an arbitrarily selected cached region of RegionCacheStatusStore (W) having this lowest value of adjacentUncachedCount.
+		(+) Determine the lowest value of adjacentUncachedCount among the cached regions of RegionStatuses.
+		(+) Set (R) to an arbitrarily selected cached region of RegionStatuses having this lowest value of adjacentUncachedCount.
 
-(+) Repeat the loop if currentRegion (R) is not null.
+(+) Repeat the loop if (R) is not null.
 
 
  
