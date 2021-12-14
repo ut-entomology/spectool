@@ -166,17 +166,44 @@ function getTouchingRegions(rowIndex: number, columnIndex: number): ProtoRegion[
 }
 
 function getAdjacentRegions(region: ProtoRegion): ProtoRegion[] {
-  if (['US', 'MX'].includes(region.code)) {
-    throw Error(`Requested regions adjacent to ${region.code}`);
-  }
   const adjacentRegions: ProtoRegion[] = [];
-  if (region.code == 'TX') {
+  if (region.code == 'NM') {
+    adjacentRegions.push(mexico);
+  }
+  if (['NM', 'LA'].includes(region.code)) {
+    adjacentRegions.push(texas);
     adjacentRegions.push(usa);
+  } else if (['US', 'TX'].includes(region.code)) {
+    if (region.code == 'US') {
+      adjacentRegions.push(texas);
+    } else {
+      adjacentRegions.push(usa);
+    }
     adjacentRegions.push(mexico);
     for (const regionRow of regions) {
       for (const touchingRegion of regionRow) {
         if (!adjacentRegions.includes(touchingRegion)) {
           adjacentRegions.push(touchingRegion);
+        }
+      }
+    }
+    return adjacentRegions;
+  } else if (region.code == 'MX') {
+    adjacentRegions.push(texas);
+    adjacentRegions.push(usa);
+    for (const regionRow of regions) {
+      for (const testRegion of regionRow) {
+        if (testRegion.code[0] == 'M') {
+          if (!adjacentRegions.includes(testRegion)) {
+            adjacentRegions.push(testRegion);
+          }
+          for (const adjacentRegion of getAdjacentRegions(testRegion)) {
+            if (adjacentRegion != mexico) {
+              if (!adjacentRegions.includes(adjacentRegion)) {
+                adjacentRegions.push(adjacentRegion);
+              }
+            }
+          }
         }
       }
     }
@@ -244,8 +271,7 @@ async function run() {
       }
     }
   }
-  showState('After initialization');
-  await inputKey();
+  await showState('After initialization');
 
   let region = regions[1][1];
   cacheRegion(region);
@@ -254,8 +280,7 @@ async function run() {
 
   // Loop
   while (true) {
-    showState('Start of loop');
-    await inputKey();
+    await showState('Start of loop');
 
     // Consolidate
     if (region.adjacentUncachedCount != 0) {
@@ -263,7 +288,7 @@ async function run() {
         if (region.inDomain || adjacentU.inDomain) {
           if (!adjacentU.isCached) {
             cacheRegion(adjacentU);
-            showState(`Cached adjacent region ${adjacentU.code}`);
+            await showState(`Cached adjacent region ${adjacentU.code}`);
             for (const adjacentA of getAdjacentRegions(adjacentU)) {
               if (adjacentA.inDomain || adjacentU.inDomain) {
                 adjacentA.adjacentUncachedCount -= adjacentU.localityTotal;
@@ -292,10 +317,10 @@ async function run() {
     }
     sequence += 1;
   }
-  showState('Completion');
+  await showState('Completion');
 }
 
-function showState(point: string) {
+async function showState(point: string) {
   console.log(point + ':');
   console.log('  Pending regions: ', pendingRegions.map((r) => r.code).join(', '));
   console.log('  Cached localities: ', cachedLocalities.map((r) => r.code).join(', '));
@@ -303,7 +328,9 @@ function showState(point: string) {
   for (const regionRow of regions) {
     console.log('  ' + regionRow.map((column) => column.toState()).join(' | '));
   }
+  console.log('\n  ' + [texas, usa, mexico].map((r) => r.toState()).join(' | '));
   console.log();
+  await inputKey();
 }
 
 async function inputKey() {

@@ -187,12 +187,21 @@ function getTouchingRegions(rowIndex, columnIndex) {
     return touchingRegions;
 }
 function getAdjacentRegions(region) {
-    if (['US', 'MX'].includes(region.code)) {
-        throw Error("Requested regions adjacent to " + region.code);
-    }
     var adjacentRegions = [];
-    if (region.code == 'TX') {
+    if (region.code == 'NM') {
+        adjacentRegions.push(mexico);
+    }
+    if (['NM', 'LA'].includes(region.code)) {
+        adjacentRegions.push(texas);
         adjacentRegions.push(usa);
+    }
+    else if (['US', 'TX'].includes(region.code)) {
+        if (region.code == 'US') {
+            adjacentRegions.push(texas);
+        }
+        else {
+            adjacentRegions.push(usa);
+        }
         adjacentRegions.push(mexico);
         for (var _i = 0, regions_1 = regions; _i < regions_1.length; _i++) {
             var regionRow = regions_1[_i];
@@ -203,16 +212,41 @@ function getAdjacentRegions(region) {
                 }
             }
         }
+        console.log(region.code, 'adjacencies:', adjacentRegions);
+        return adjacentRegions;
+    }
+    else if (region.code == 'MX') {
+        adjacentRegions.push(texas);
+        adjacentRegions.push(usa);
+        for (var _b = 0, regions_2 = regions; _b < regions_2.length; _b++) {
+            var regionRow = regions_2[_b];
+            for (var _c = 0, regionRow_2 = regionRow; _c < regionRow_2.length; _c++) {
+                var testRegion = regionRow_2[_c];
+                if (testRegion.code[0] == 'M') {
+                    if (!adjacentRegions.includes(testRegion)) {
+                        adjacentRegions.push(testRegion);
+                    }
+                    for (var _d = 0, _e = getAdjacentRegions(testRegion); _d < _e.length; _d++) {
+                        var adjacentRegion = _e[_d];
+                        if (adjacentRegion != mexico) {
+                            if (!adjacentRegions.includes(adjacentRegion)) {
+                                adjacentRegions.push(adjacentRegion);
+                            }
+                        }
+                    }
+                }
+            }
+        }
         return adjacentRegions;
     }
     var indexPairs = getRegionIndexPairs(region);
-    for (var _b = 0, indexPairs_1 = indexPairs; _b < indexPairs_1.length; _b++) {
-        var indexPair = indexPairs_1[_b];
+    for (var _f = 0, indexPairs_1 = indexPairs; _f < indexPairs_1.length; _f++) {
+        var indexPair = indexPairs_1[_f];
         // console.log('indexPair', indexPair);
         var touchingRegions = getTouchingRegions(indexPair[0], indexPair[1]);
         // console.log('touchingRegions', touchingRegions);
-        for (var _c = 0, touchingRegions_1 = touchingRegions; _c < touchingRegions_1.length; _c++) {
-            var touchingRegion = touchingRegions_1[_c];
+        for (var _g = 0, touchingRegions_1 = touchingRegions; _g < touchingRegions_1.length; _g++) {
+            var touchingRegion = touchingRegions_1[_g];
             if (!adjacentRegions.includes(touchingRegion)) {
                 adjacentRegions.push(touchingRegion);
             }
@@ -257,7 +291,7 @@ function removeRegion(fromList, region) {
 }
 function run() {
     return __awaiter(this, void 0, void 0, function () {
-        var _i, regions_2, regionRow, _a, regionRow_2, region_1, region, sequence, _b, _c, adjacentU, _d, _e, adjacentA, lowestUncachedCount, nextRegion, _f, pendingRegions_1, prospect;
+        var _i, regions_3, regionRow, _a, regionRow_3, region_1, region, sequence, _b, _c, adjacentU, _d, _e, adjacentA, lowestUncachedCount, nextRegion, _f, pendingRegions_1, prospect;
         return __generator(this, function (_g) {
             switch (_g.label) {
                 case 0:
@@ -265,17 +299,16 @@ function run() {
                     console.log('*** RESTARTING ***');
                     regions = makeRegionMatrix(regionData);
                     pendingRegions.push(texas);
-                    for (_i = 0, regions_2 = regions; _i < regions_2.length; _i++) {
-                        regionRow = regions_2[_i];
-                        for (_a = 0, regionRow_2 = regionRow; _a < regionRow_2.length; _a++) {
-                            region_1 = regionRow_2[_a];
+                    for (_i = 0, regions_3 = regions; _i < regions_3.length; _i++) {
+                        regionRow = regions_3[_i];
+                        for (_a = 0, regionRow_3 = regionRow; _a < regionRow_3.length; _a++) {
+                            region_1 = regionRow_3[_a];
                             if (region_1.inDomain) {
                                 pendingRegions.push(region_1);
                             }
                         }
                     }
-                    showState('After initialization');
-                    return [4 /*yield*/, inputKey()];
+                    return [4 /*yield*/, showState('After initialization')];
                 case 1:
                     _g.sent();
                     region = regions[1][1];
@@ -284,65 +317,85 @@ function run() {
                     region.sequence = sequence;
                     _g.label = 2;
                 case 2:
-                    if (!true) return [3 /*break*/, 4];
-                    showState('Start of loop');
-                    return [4 /*yield*/, inputKey()];
+                    if (!true) return [3 /*break*/, 9];
+                    return [4 /*yield*/, showState('Start of loop')];
                 case 3:
                     _g.sent();
-                    // Consolidate
-                    if (region.adjacentUncachedCount != 0) {
-                        for (_b = 0, _c = getAdjacentRegions(region); _b < _c.length; _b++) {
-                            adjacentU = _c[_b];
-                            if (region.inDomain || adjacentU.inDomain) {
-                                if (!adjacentU.isCached) {
-                                    cacheRegion(adjacentU);
-                                    showState("Cached adjacent region " + adjacentU.code);
-                                    for (_d = 0, _e = getAdjacentRegions(adjacentU); _d < _e.length; _d++) {
-                                        adjacentA = _e[_d];
-                                        if (adjacentA.inDomain || adjacentU.inDomain) {
-                                            adjacentA.adjacentUncachedCount -= adjacentU.localityTotal;
-                                        }
-                                    }
-                                }
-                            }
+                    if (!(region.adjacentUncachedCount != 0)) return [3 /*break*/, 8];
+                    _b = 0, _c = getAdjacentRegions(region);
+                    _g.label = 4;
+                case 4:
+                    if (!(_b < _c.length)) return [3 /*break*/, 7];
+                    adjacentU = _c[_b];
+                    if (!(region.inDomain || adjacentU.inDomain)) return [3 /*break*/, 6];
+                    if (!!adjacentU.isCached) return [3 /*break*/, 6];
+                    cacheRegion(adjacentU);
+                    return [4 /*yield*/, showState("Cached adjacent region " + adjacentU.code)];
+                case 5:
+                    _g.sent();
+                    for (_d = 0, _e = getAdjacentRegions(adjacentU); _d < _e.length; _d++) {
+                        adjacentA = _e[_d];
+                        if (adjacentA.inDomain || adjacentU.inDomain) {
+                            adjacentA.adjacentUncachedCount -= adjacentU.localityTotal;
                         }
-                        processRegion(region);
-                        cachedLocalities = removeRegion(cachedLocalities, region);
-                        pendingRegions = removeRegion(pendingRegions, region);
-                        // Select next region
-                        if (pendingRegions.length == 0) {
-                            return [3 /*break*/, 4];
-                        }
-                        lowestUncachedCount = Infinity;
-                        nextRegion = null;
-                        for (_f = 0, pendingRegions_1 = pendingRegions; _f < pendingRegions_1.length; _f++) {
-                            prospect = pendingRegions_1[_f];
-                            if (prospect.adjacentUncachedCount < lowestUncachedCount) {
-                                lowestUncachedCount = prospect.adjacentUncachedCount;
-                                nextRegion = prospect;
-                            }
-                        }
-                        region = nextRegion;
                     }
+                    _g.label = 6;
+                case 6:
+                    _b++;
+                    return [3 /*break*/, 4];
+                case 7:
+                    processRegion(region);
+                    cachedLocalities = removeRegion(cachedLocalities, region);
+                    pendingRegions = removeRegion(pendingRegions, region);
+                    // Select next region
+                    if (pendingRegions.length == 0) {
+                        return [3 /*break*/, 9];
+                    }
+                    lowestUncachedCount = Infinity;
+                    nextRegion = null;
+                    for (_f = 0, pendingRegions_1 = pendingRegions; _f < pendingRegions_1.length; _f++) {
+                        prospect = pendingRegions_1[_f];
+                        if (prospect.adjacentUncachedCount < lowestUncachedCount) {
+                            lowestUncachedCount = prospect.adjacentUncachedCount;
+                            nextRegion = prospect;
+                        }
+                    }
+                    region = nextRegion;
+                    _g.label = 8;
+                case 8:
                     sequence += 1;
                     return [3 /*break*/, 2];
-                case 4:
-                    showState('Completion');
+                case 9: return [4 /*yield*/, showState('Completion')];
+                case 10:
+                    _g.sent();
                     return [2 /*return*/];
             }
         });
     });
 }
 function showState(point) {
-    console.log(point + ':');
-    console.log('  Pending regions: ', pendingRegions.map(function (r) { return r.code; }).join(', '));
-    console.log('  Cached localities: ', cachedLocalities.map(function (r) { return r.code; }).join(', '));
-    console.log();
-    for (var _i = 0, regions_3 = regions; _i < regions_3.length; _i++) {
-        var regionRow = regions_3[_i];
-        console.log('  ' + regionRow.map(function (column) { return column.toState(); }).join(' | '));
-    }
-    console.log();
+    return __awaiter(this, void 0, void 0, function () {
+        var _i, regions_4, regionRow;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    console.log(point + ':');
+                    console.log('  Pending regions: ', pendingRegions.map(function (r) { return r.code; }).join(', '));
+                    console.log('  Cached localities: ', cachedLocalities.map(function (r) { return r.code; }).join(', '));
+                    console.log();
+                    for (_i = 0, regions_4 = regions; _i < regions_4.length; _i++) {
+                        regionRow = regions_4[_i];
+                        console.log('  ' + regionRow.map(function (column) { return column.toState(); }).join(' | '));
+                    }
+                    console.log('\n  ' + [texas, usa, mexico].map(function (r) { return r.toState(); }).join(' | '));
+                    console.log();
+                    return [4 /*yield*/, inputKey()];
+                case 1:
+                    _a.sent();
+                    return [2 /*return*/];
+            }
+        });
+    });
 }
 function inputKey() {
     return __awaiter(this, void 0, void 0, function () {
