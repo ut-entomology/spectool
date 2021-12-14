@@ -1,5 +1,7 @@
 # Locality Consolidation Algorithm
 
+// TODO: Regions outside the domain should only cache by staleness, as pulling in their adjacenies to determine completion is potentially a huge waste of resources.
+
 ## Important Notes
 
 (+) Because multiple users on the same computer or across multiple computers could be simultaneously doing consolidations, I'll need to verify that associated data in Specify has not changed prior to modifying the database.
