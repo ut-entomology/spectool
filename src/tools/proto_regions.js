@@ -37,7 +37,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 exports.__esModule = true;
 var regions = [];
-var pendingRegions = [];
+var regionRoster = [];
 var cachedLocalities = [];
 // 'a' prefix means it's adjacen, not in the domain
 // 'c-' prefix means county or municipality
@@ -48,28 +48,33 @@ var cachedLocalities = [];
 // < indicates that the region to the left extends to this point
 // ^ indicates that the region above extends to this point
 var regionData = "\n  as-MA-1|<     |<     |as-MB-1\n  c-CA-1 |c-CB-1|c-CC-1|c-CD-1 |as-NM-1\n  c-CE-1 |c-CF-1|c-CG-1|c-CH-1 |^\n  c-CI-1 |c-CJ-1|c-CK-1|c-CL-1 |as-LA-1\n";
+var RegionStatus;
+(function (RegionStatus) {
+    RegionStatus[RegionStatus["Pending"] = 0] = "Pending";
+    RegionStatus[RegionStatus["Cached"] = 1] = "Cached";
+    RegionStatus[RegionStatus["Complete"] = 2] = "Complete";
+})(RegionStatus || (RegionStatus = {}));
 var ProtoRegion = /** @class */ (function () {
     function ProtoRegion(code, rank, inDomain, localityTotal) {
-        this.isCached = false;
+        this.status = RegionStatus.Pending;
         this.adjacentUncachedCount = 0;
         this.sequence = 0;
+        this.processed = false;
         this.code = code;
         this.rank = rank;
         this.inDomain = inDomain;
         this.localityTotal = localityTotal;
     }
     ProtoRegion.prototype.toState = function () {
-        var s = this.code;
+        var s = this.status == RegionStatus.Cached ? '*' : '';
+        s += this.code + ":" + this.adjacentUncachedCount;
         if (this.sequence > 0) {
-            s = "(" + this.sequence + ") " + s;
+            s = "(" + this.sequence + ")" + s;
         }
-        if (this.isCached) {
-            s += ':' + this.adjacentUncachedCount;
+        if (this.processed && this.status == RegionStatus.Complete) {
+            s = '✓' + s;
         }
-        else if (this.adjacentUncachedCount > 0) {
-            s += '*';
-        }
-        return s.padEnd(9, ' ');
+        return s.padEnd(10, ' ');
     };
     ProtoRegion.prototype.toString = function () {
         var rankToAbbrev = {
@@ -158,13 +163,16 @@ function getRegionIndexPairs(region) {
     }
     return indexPairs;
 }
-function getTouchingRegions(rowIndex, columnIndex) {
+function getTouchingRegions(rowIndex, columnIndex, withCornerTouching) {
     var touchingRegions = [];
     for (var deltaI = -1; deltaI <= 1; ++deltaI) {
         for (var deltaJ = -1; deltaJ <= 1; ++deltaJ) {
             var i = rowIndex + deltaI;
             var j = columnIndex + deltaJ;
-            if (i != 0 || j != 0) {
+            if (!withCornerTouching && deltaI != 0 && deltaJ != 0) {
+                continue;
+            }
+            if (deltaI != 0 || deltaJ != 0) {
                 if (i >= 0 && i < regions.length) {
                     if (j >= 0 && j < regions[i].length) {
                         var region = regions[i][j];
@@ -212,7 +220,6 @@ function getAdjacentRegions(region) {
                 }
             }
         }
-        console.log(region.code, 'adjacencies:', adjacentRegions);
         return adjacentRegions;
     }
     else if (region.code == 'MX') {
@@ -240,11 +247,17 @@ function getAdjacentRegions(region) {
         return adjacentRegions;
     }
     var indexPairs = getRegionIndexPairs(region);
+    // console.log(
+    //   `index pairs for ${region.code}:`,
+    //   indexPairs.map((p) => `(${p[0]},${p[1]})`).join(', ')
+    // );
     for (var _f = 0, indexPairs_1 = indexPairs; _f < indexPairs_1.length; _f++) {
         var indexPair = indexPairs_1[_f];
-        // console.log('indexPair', indexPair);
-        var touchingRegions = getTouchingRegions(indexPair[0], indexPair[1]);
-        // console.log('touchingRegions', touchingRegions);
+        var touchingRegions = getTouchingRegions(indexPair[0], indexPair[1], false);
+        // console.log(
+        //   `touching ${region.code}:`,
+        //   touchingRegions.map((r) => r.code).join(', ')
+        // );
         for (var _g = 0, touchingRegions_1 = touchingRegions; _g < touchingRegions_1.length; _g++) {
             var touchingRegion = touchingRegions_1[_g];
             if (!adjacentRegions.includes(touchingRegion)) {
@@ -260,25 +273,27 @@ function cacheRegion(region) {
         throw Error("Already cached region " + region.code);
     }
     cachedLocalities.push(region);
-    region.isCached = true;
+    region.status = RegionStatus.Cached;
     for (var _i = 0, _a = getAdjacentRegions(region); _i < _a.length; _i++) {
         var adjacentRegion = _a[_i];
         if (region.inDomain) {
-            if (!pendingRegions.includes(adjacentRegion)) {
-                pendingRegions.push(adjacentRegion);
+            if (!regionRoster.includes(adjacentRegion)) {
+                regionRoster.push(adjacentRegion);
             }
-            if (!adjacentRegion.isCached) {
+            if (adjacentRegion.status == RegionStatus.Pending) {
                 region.adjacentUncachedCount += adjacentRegion.localityTotal;
             }
         }
         else if (adjacentRegion.inDomain) {
-            if (!adjacentRegion.isCached) {
+            if (adjacentRegion.status == RegionStatus.Pending) {
                 region.adjacentUncachedCount += adjacentRegion.localityTotal;
             }
         }
     }
 }
-function processRegion(_region) { }
+function processRegion(region) {
+    region.processed = true;
+}
 function removeRegion(fromList, region) {
     var newList = [];
     for (var _i = 0, fromList_1 = fromList; _i < fromList_1.length; _i++) {
@@ -291,20 +306,20 @@ function removeRegion(fromList, region) {
 }
 function run() {
     return __awaiter(this, void 0, void 0, function () {
-        var _i, regions_3, regionRow, _a, regionRow_3, region_1, region, sequence, _b, _c, adjacentU, _d, _e, adjacentA, lowestUncachedCount, nextRegion, _f, pendingRegions_1, prospect;
+        var _i, regions_3, regionRow, _a, regionRow_3, region_1, region, sequence, _b, _c, adjacentU, _d, _e, adjacentA, lowestUncachedCount, _f, regionRoster_1, prospect;
         return __generator(this, function (_g) {
             switch (_g.label) {
                 case 0:
                     // Initialize
                     console.log('*** RESTARTING ***');
                     regions = makeRegionMatrix(regionData);
-                    pendingRegions.push(texas);
+                    regionRoster.push(texas);
                     for (_i = 0, regions_3 = regions; _i < regions_3.length; _i++) {
                         regionRow = regions_3[_i];
                         for (_a = 0, regionRow_3 = regionRow; _a < regionRow_3.length; _a++) {
                             region_1 = regionRow_3[_a];
                             if (region_1.inDomain) {
-                                pendingRegions.push(region_1);
+                                regionRoster.push(region_1);
                             }
                         }
                     }
@@ -313,32 +328,41 @@ function run() {
                     _g.sent();
                     region = regions[1][1];
                     cacheRegion(region);
-                    sequence = 1;
-                    region.sequence = sequence;
+                    sequence = 0;
                     _g.label = 2;
                 case 2:
-                    if (!true) return [3 /*break*/, 9];
+                    if (!(region != null)) return [3 /*break*/, 8];
+                    region.sequence = ++sequence;
                     return [4 /*yield*/, showState('Start of loop')];
                 case 3:
                     _g.sent();
-                    if (!(region.adjacentUncachedCount != 0)) return [3 /*break*/, 8];
+                    if (!(region.adjacentUncachedCount != 0)) return [3 /*break*/, 7];
                     _b = 0, _c = getAdjacentRegions(region);
                     _g.label = 4;
                 case 4:
                     if (!(_b < _c.length)) return [3 /*break*/, 7];
                     adjacentU = _c[_b];
                     if (!(region.inDomain || adjacentU.inDomain)) return [3 /*break*/, 6];
-                    if (!!adjacentU.isCached) return [3 /*break*/, 6];
+                    if (!(adjacentU.status == RegionStatus.Pending)) return [3 /*break*/, 6];
                     cacheRegion(adjacentU);
+                    // console.log(
+                    //   `Adjacent to ${adjacentU.code}:`,
+                    //   getAdjacentRegions(adjacentU)
+                    //     .map((r) => r.code)
+                    //     .join(', ')
+                    // );
+                    for (_d = 0, _e = getAdjacentRegions(adjacentU); _d < _e.length; _d++) {
+                        adjacentA = _e[_d];
+                        if (adjacentA.status == RegionStatus.Cached) {
+                            if (adjacentA.inDomain || adjacentU.inDomain) {
+                                adjacentA.adjacentUncachedCount -= adjacentU.localityTotal;
+                                //console.log(`**** ${adjacentA.code} -= ${adjacentU.code}`);
+                            }
+                        }
+                    }
                     return [4 /*yield*/, showState("Cached adjacent region " + adjacentU.code)];
                 case 5:
                     _g.sent();
-                    for (_d = 0, _e = getAdjacentRegions(adjacentU); _d < _e.length; _d++) {
-                        adjacentA = _e[_d];
-                        if (adjacentA.inDomain || adjacentU.inDomain) {
-                            adjacentA.adjacentUncachedCount -= adjacentU.localityTotal;
-                        }
-                    }
                     _g.label = 6;
                 case 6:
                     _b++;
@@ -346,27 +370,20 @@ function run() {
                 case 7:
                     processRegion(region);
                     cachedLocalities = removeRegion(cachedLocalities, region);
-                    pendingRegions = removeRegion(pendingRegions, region);
-                    // Select next region
-                    if (pendingRegions.length == 0) {
-                        return [3 /*break*/, 9];
-                    }
+                    region.status = RegionStatus.Complete;
                     lowestUncachedCount = Infinity;
-                    nextRegion = null;
-                    for (_f = 0, pendingRegions_1 = pendingRegions; _f < pendingRegions_1.length; _f++) {
-                        prospect = pendingRegions_1[_f];
-                        if (prospect.adjacentUncachedCount < lowestUncachedCount) {
+                    region = null;
+                    for (_f = 0, regionRoster_1 = regionRoster; _f < regionRoster_1.length; _f++) {
+                        prospect = regionRoster_1[_f];
+                        if (prospect.status == RegionStatus.Cached &&
+                            prospect.adjacentUncachedCount < lowestUncachedCount) {
                             lowestUncachedCount = prospect.adjacentUncachedCount;
-                            nextRegion = prospect;
+                            region = prospect;
                         }
                     }
-                    region = nextRegion;
-                    _g.label = 8;
-                case 8:
-                    sequence += 1;
                     return [3 /*break*/, 2];
-                case 9: return [4 /*yield*/, showState('Completion')];
-                case 10:
+                case 8: return [4 /*yield*/, showState('Completion')];
+                case 9:
                     _g.sent();
                     return [2 /*return*/];
             }
@@ -380,8 +397,8 @@ function showState(point) {
             switch (_a.label) {
                 case 0:
                     console.log(point + ':');
-                    console.log('  Pending regions: ', pendingRegions.map(function (r) { return r.code; }).join(', '));
-                    console.log('  Cached localities: ', cachedLocalities.map(function (r) { return r.code; }).join(', '));
+                    console.log('  Region roster:', regionRoster.map(function (r) { return r.code; }).join(', '));
+                    console.log('  Cached localities(*):', cachedLocalities.map(function (r) { return r.code; }).join(', '));
                     console.log();
                     for (_i = 0, regions_4 = regions; _i < regions_4.length; _i++) {
                         regionRow = regions_4[_i];
@@ -419,6 +436,7 @@ function inputKey() {
             case 0: return [4 /*yield*/, run()];
             case 1:
                 _a.sent();
+                process.exit(0);
                 return [2 /*return*/];
         }
     });

@@ -1,7 +1,7 @@
 export {};
 
 let regions: ProtoRegion[][] = [];
-let pendingRegions: ProtoRegion[] = [];
+let regionRoster: ProtoRegion[] = [];
 let cachedLocalities: ProtoRegion[] = [];
 
 // 'a' prefix means it's adjacen, not in the domain
@@ -19,14 +19,21 @@ const regionData = `
   c-CI-1 |c-CJ-1|c-CK-1|c-CL-1 |as-LA-1
 `;
 
+enum RegionStatus {
+  Pending,
+  Cached,
+  Complete
+}
+
 class ProtoRegion {
   code: string;
   rank: string;
   inDomain: boolean;
   localityTotal: number;
-  isCached = false;
+  status = RegionStatus.Pending;
   adjacentUncachedCount = 0;
   sequence = 0;
+  processed = false;
 
   constructor(code: string, rank: string, inDomain: boolean, localityTotal: number) {
     this.code = code;
@@ -36,16 +43,15 @@ class ProtoRegion {
   }
 
   toState(): string {
-    let s = this.code;
+    let s = this.status == RegionStatus.Cached ? '*' : '';
+    s += `${this.code}:${this.adjacentUncachedCount}`;
     if (this.sequence > 0) {
-      s = `(${this.sequence}) ${s}`;
+      s = `(${this.sequence})${s}`;
     }
-    if (this.isCached) {
-      s += ':' + this.adjacentUncachedCount;
-    } else if (this.adjacentUncachedCount > 0) {
-      s += '*';
+    if (this.processed && this.status == RegionStatus.Complete) {
+      s = '✓' + s;
     }
-    return s.padEnd(9, ' ');
+    return s.padEnd(10, ' ');
   }
 
   toString(): string {
@@ -138,13 +144,20 @@ function getRegionIndexPairs(region: ProtoRegion): number[][] {
   return indexPairs;
 }
 
-function getTouchingRegions(rowIndex: number, columnIndex: number): ProtoRegion[] {
+function getTouchingRegions(
+  rowIndex: number,
+  columnIndex: number,
+  withCornerTouching: boolean
+): ProtoRegion[] {
   const touchingRegions: ProtoRegion[] = [];
   for (let deltaI = -1; deltaI <= 1; ++deltaI) {
     for (let deltaJ = -1; deltaJ <= 1; ++deltaJ) {
       const i = rowIndex + deltaI;
       const j = columnIndex + deltaJ;
-      if (i != 0 || j != 0) {
+      if (!withCornerTouching && deltaI != 0 && deltaJ != 0) {
+        continue;
+      }
+      if (deltaI != 0 || deltaJ != 0) {
         if (i >= 0 && i < regions.length) {
           if (j >= 0 && j < regions[i].length) {
             const region = regions[i][j];
@@ -210,10 +223,16 @@ function getAdjacentRegions(region: ProtoRegion): ProtoRegion[] {
     return adjacentRegions;
   }
   const indexPairs = getRegionIndexPairs(region);
+  // console.log(
+  //   `index pairs for ${region.code}:`,
+  //   indexPairs.map((p) => `(${p[0]},${p[1]})`).join(', ')
+  // );
   for (const indexPair of indexPairs) {
-    // console.log('indexPair', indexPair);
-    const touchingRegions = getTouchingRegions(indexPair[0], indexPair[1]);
-    // console.log('touchingRegions', touchingRegions);
+    const touchingRegions = getTouchingRegions(indexPair[0], indexPair[1], false);
+    // console.log(
+    //   `touching ${region.code}:`,
+    //   touchingRegions.map((r) => r.code).join(', ')
+    // );
     for (const touchingRegion of touchingRegions) {
       if (!adjacentRegions.includes(touchingRegion)) {
         adjacentRegions.push(touchingRegion);
@@ -229,24 +248,26 @@ function cacheRegion(region: ProtoRegion) {
     throw Error(`Already cached region ${region.code}`);
   }
   cachedLocalities.push(region);
-  region.isCached = true;
+  region.status = RegionStatus.Cached;
   for (const adjacentRegion of getAdjacentRegions(region)) {
     if (region.inDomain) {
-      if (!pendingRegions.includes(adjacentRegion)) {
-        pendingRegions.push(adjacentRegion);
+      if (!regionRoster.includes(adjacentRegion)) {
+        regionRoster.push(adjacentRegion);
       }
-      if (!adjacentRegion.isCached) {
+      if (adjacentRegion.status == RegionStatus.Pending) {
         region.adjacentUncachedCount += adjacentRegion.localityTotal;
       }
     } else if (adjacentRegion.inDomain) {
-      if (!adjacentRegion.isCached) {
+      if (adjacentRegion.status == RegionStatus.Pending) {
         region.adjacentUncachedCount += adjacentRegion.localityTotal;
       }
     }
   }
 }
 
-function processRegion(_region: ProtoRegion) {}
+function processRegion(region: ProtoRegion) {
+  region.processed = true;
+}
 
 function removeRegion(fromList: ProtoRegion[], region: ProtoRegion) {
   const newList: ProtoRegion[] = [];
@@ -263,67 +284,77 @@ async function run() {
 
   console.log('*** RESTARTING ***');
   regions = makeRegionMatrix(regionData);
-  pendingRegions.push(texas);
+  regionRoster.push(texas);
   for (const regionRow of regions) {
     for (const region of regionRow) {
       if (region.inDomain) {
-        pendingRegions.push(region);
+        regionRoster.push(region);
       }
     }
   }
   await showState('After initialization');
 
-  let region = regions[1][1];
+  let region: ProtoRegion | null = regions[1][1];
   cacheRegion(region);
-  let sequence = 1;
-  region.sequence = sequence;
+  let sequence = 0;
 
   // Loop
-  while (true) {
+  while (region != null) {
+    region.sequence = ++sequence;
     await showState('Start of loop');
 
     // Consolidate
     if (region.adjacentUncachedCount != 0) {
       for (const adjacentU of getAdjacentRegions(region)) {
         if (region.inDomain || adjacentU.inDomain) {
-          if (!adjacentU.isCached) {
+          if (adjacentU.status == RegionStatus.Pending) {
             cacheRegion(adjacentU);
-            await showState(`Cached adjacent region ${adjacentU.code}`);
+            // console.log(
+            //   `Adjacent to ${adjacentU.code}:`,
+            //   getAdjacentRegions(adjacentU)
+            //     .map((r) => r.code)
+            //     .join(', ')
+            // );
             for (const adjacentA of getAdjacentRegions(adjacentU)) {
-              if (adjacentA.inDomain || adjacentU.inDomain) {
-                adjacentA.adjacentUncachedCount -= adjacentU.localityTotal;
+              if (adjacentA.status == RegionStatus.Cached) {
+                if (adjacentA.inDomain || adjacentU.inDomain) {
+                  adjacentA.adjacentUncachedCount -= adjacentU.localityTotal;
+                  //console.log(`**** ${adjacentA.code} -= ${adjacentU.code}`);
+                }
               }
             }
+            await showState(`Cached adjacent region ${adjacentU.code}`);
           }
         }
       }
-      processRegion(region);
-      cachedLocalities = removeRegion(cachedLocalities, region);
-      pendingRegions = removeRegion(pendingRegions, region);
-
-      // Select next region
-      if (pendingRegions.length == 0) {
-        break;
-      }
-      let lowestUncachedCount = Infinity;
-      let nextRegion: ProtoRegion | null = null;
-      for (const prospect of pendingRegions) {
-        if (prospect.adjacentUncachedCount < lowestUncachedCount) {
-          lowestUncachedCount = prospect.adjacentUncachedCount;
-          nextRegion = prospect;
-        }
-      }
-      region = nextRegion!;
     }
-    sequence += 1;
+    processRegion(region);
+    cachedLocalities = removeRegion(cachedLocalities, region);
+    region.status = RegionStatus.Complete;
+
+    // Select next region
+    let lowestUncachedCount = Infinity;
+    region = null;
+    for (const prospect of regionRoster) {
+      if (
+        prospect.status == RegionStatus.Cached &&
+        prospect.adjacentUncachedCount < lowestUncachedCount
+      ) {
+        lowestUncachedCount = prospect.adjacentUncachedCount;
+        region = prospect;
+      }
+    }
   }
   await showState('Completion');
 }
 
 async function showState(point: string) {
   console.log(point + ':');
-  console.log('  Pending regions: ', pendingRegions.map((r) => r.code).join(', '));
-  console.log('  Cached localities: ', cachedLocalities.map((r) => r.code).join(', '));
+  console.log('  Region roster:', regionRoster.map((r) => r.code).join(', '));
+  console.log(
+    '  Cached localities(*):',
+    cachedLocalities.map((r) => r.code).join(', ')
+  );
   console.log();
   for (const regionRow of regions) {
     console.log('  ' + regionRow.map((column) => column.toState()).join(' | '));
@@ -348,4 +379,5 @@ async function inputKey() {
 
 (async () => {
   await run();
+  process.exit(0);
 })();
