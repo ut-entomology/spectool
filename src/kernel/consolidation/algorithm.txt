@@ -146,7 +146,6 @@ Processes the current region (R), which must be a cached region of RegionRoster.
 							(+) Subtract (U)'s localityTotal from (A)'s adjacentUncachedCount.
 	[Note: At this point, there are no pending regions adjacent to (R).]
 	(+) Process (R) according to the region consolidation algorithm.
-	(+) Remove (R)'s cached localities from LocalityCache.
 	(+) Mark (R) as complete in RegionRoster.
 
 (+) Select the next region to consolidate as follows:
@@ -179,6 +178,7 @@ Process the region (R), which must be a cached region.
 						(+) If the user answers "no":
 							(+) Add all pairs of word series from (L1) and (L2) having identical phonetic series to ExcludedMatchesStore, where not already in ExcludedMatchesStore.
 	(+) Remove (L1)'s contribution to PhoneticLocalityIndex.
+	(+) Remove (L1) from LocalityCache.
 
 * This could probably be made efficient by keeping a list of string representations of the geographic IDs adjacent to (R) and first looking up the geographic ID in PhoneticLocalityIndex's lookup key for (L2) in this list.
 
