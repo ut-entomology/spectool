@@ -1,6 +1,6 @@
 # Locality Consolidation Algorithm
 
-// TODO: Regions outside the domain should only cache by staleness, as pulling in their adjacenies to determine completion is potentially a huge waste of resources.
+// TODO: Support localities/regions pulled in via CSV.
 
 ## Important Notes
 
@@ -56,6 +56,7 @@ RegionRoster is initialized to the regions of the domain, including all regions 
 
 Define function cacheRegion(region to cache (C)):
 	(+) Cache the localities for (C) in LocalityCache.
+	(+) Update PhoneticLocalityIndex for (C)'s phonetic codes.
 	(+) Mark (C) as cached in RegionRoster.
 	(+) For each region (A) adjacent to (C):
 		(+) If (C) is in the domain:
@@ -88,6 +89,8 @@ Stores permanent knowledge about which pairs of word series having identical pho
 The key is a word series. The value is a list of word series, possibly empty. If the key is found in two different localities, their common phonetic series will not be considered a match for purposes of presenting a potential duplicate to the user. Similarly, if the key is found in one locality and one of its value word series is found in another locality, their common phonetic series will not be considered a match for purposes of presenting a potential duplicate to the user.
 
 Each value of each key K also appears as a key in ExcludedMatchesStore indicating that it is not a match for the word series given by key K.
+
+A word series is said to be paired with another word series in ExcludedMatchesStore if using one word series as a key yields a value containing the other word series.
 
 ## Storage Files
 
@@ -141,7 +144,8 @@ Processes the current region (R), which must be a cached region of RegionRoster.
 					(+) For each cached region (A) adjacent to (U):
 						(+) If either (A) or (U) is in the domain:
 							(+) Subtract (U)'s localityTotal from (A)'s adjacentUncachedCount.
-	(+) Process (R) according to the region processing algorithm.
+	[Note: At this point, there are no pending regions adjacent to (R).]
+	(+) Process (R) according to the region consolidation algorithm.
 	(+) Remove (R)'s cached localities from LocalityCache.
 	(+) Mark (R) as complete in RegionRoster.
 
@@ -154,3 +158,35 @@ Processes the current region (R), which must be a cached region of RegionRoster.
 (+) Repeat the loop if (R) is not null.
 
 [Note: There is a solution that keeps even fewer localities cached at a time, but it jumps around from region to region, preventing the user from focusing on evaluating one locality against all possible similar localities before moving on to the next locality. The present approach should help the user be more efficient, less error-prone, and less frustrated.]
+
+## Consolidate a Region
+
+// TODO: Explore more efficient alternatives than iterating over phonetic codes in (L1). Can I better take advantage of adjacency?
+
+Process the region (R), which must be a cached region.
+
+(+) For each locality (L1) in (R):
+	(+) For each phonetic code (P) in (L1):
+		(+) For each locality (L2) associated with (P) in PhoneticLocalityIndex:
+			(+) If (L2)'s region is adjacent to (R)*:
+				(+) If at least one word series (W1) in (L1) has a phonetic series identical to a word series (W2) in (L2) such that (W1) is not paired with (W2) in ExcludedMatchesStore:
+					(+) Ask the user whether (L1) represents the same locality as (L2).
+						(+) If the user answers "yes":
+							(+) Have the user to select one of the localities.
+							(+) Give the user a chance to edit the selected locality.
+							(+) If (L1) and (L2) are both in the DB, merge them as the newly selected/edited locality.
+							(+) If (L1) or (L2) is in the CSV, either update the DB or the CSV, as required.
+						(+) If the user answers "no":
+							(+) Add all pairs of word series from (L1) and (L2) having identical phonetic series to ExcludedMatchesStore, where not already in ExcludedMatchesStore.
+	(+) Remove (L1)'s contribution to PhoneticLocalityIndex.
+
+* This could probably be made efficient by keeping a list of string representations of the geographic IDs adjacent to (R) and first looking up the geographic ID in PhoneticLocalityIndex's lookup key for (L2) in this list.
+
+NOTE: I'll need to experiment with phonetic algorithms. I'll do this by running the program on different algorithms. But this may require faking locality mergers so that I'm not correcting the database and preventing myself from running the same experiment with another algorithm. I'm punting on how to handle algorithms until then.
+
+NOTE: This algorithm assumes geographic IDs are correct but that coordinates could be incorrect. Another tool or another pass might present localities at similar coordinates for possible merger. For this reason, the merger code needs to be shared between activities.
+
+NOTE: When displaying localities for comparison and then for merger, I need to display geography and coordinates too to help the user make a decision; and then the user may need to update geography, coordinates, or locality text.
+
+break 4:20pm - 4:50pm
+
