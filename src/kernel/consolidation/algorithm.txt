@@ -10,6 +10,8 @@
 
 (+) Domain: The set of all geographic regions whose localities are all to be examined for consolidation with other localities, whether these other localities belong to regions within the domain or not. For any region that contains a region in the domain, the containing region is also in the domain.
 
+(+) Over Domain: The set of all geographic regions each containing at least one region of the domain but not itself in the domain.
+
 (+) Word delimiter: any of the characters (".:;/!&()+-=[]{}?<>|\), plus em dash and en dash, plus the comma if not immediately adjacent to two digits, plus the single quote if not immediately adjacent to two alphabetic (non-numeric, non-punctuation) characters, plus CR or LF, plus the start or end of a string. Dashes are intentionally word delimiters so that occurrences with and without dashes can be found equivalent.
 
 (+) Word: A sequence of one more characters either beginning with an alphabetic character or else containing only digits (representing an integer), and bounded on each side within text by a word delimiter.
@@ -58,15 +60,20 @@ Define function cacheRegion(region to cache (C)):
 	(+) Cache the localities for (C) in LocalityCache.
 	(+) Update PhoneticLocalityIndex for (C)'s phonetic codes.
 	(+) Mark (C) as cached in RegionRoster.
-	(+) For each region (A) adjacent to (C):
-		(+) If (C) is in the domain:
+	(+) If (C) is in the domain:
+		(+) For each region (A) in the set containing regions strictly adjacent to (C), regions containing (C), and regions contained in (C):
 			(+) If (A) is not in RegionRoster:
 				(+) Add (A) to RegionRoster with status "pending".
 			(+) If (A) has status "pending":
 				(+) Add (A)'s localityTotal to (C)'s adjacentUncachedCount.
-		(+) Else if (A) is in the domain:
-			(+) If (A) has status "pending":
+	(+) Else:
+		(+) For each region (A) strictly adjacent to (C):
+			(+) If (A) is in the domain and has status "pending":
 				(+) Add (A)'s localityTotal to (C)'s adjacentUncachedCount.
+		(+) If (C) is in the over domain:
+			(+) For each region (A) contained in (C):
+				(+) If (A) is in the domain and has status "pending":
+					(+) Add (A)'s localityTotal to (C)'s adjacentUncachedCount.
 
 ### LocalityCache
 
@@ -136,13 +143,32 @@ Processes the current region (R), which must be a cached region of RegionRoster.
 
 (+) Consolidate and remove (R) as follows:
 	(+) If (R)'s adjacentUncachedCount is not zero:
-		(+) For each region (U) adjacent to (R):
-			[Note: All regions adjacent to (R) are guaranteed to already be in RegionRoster, because cacheRegion() does this.]
-			(+) If either (R) or (U) is in the domain:
+		(+) If (R) is in the domain:
+			(+) For each region (U) in the set containing regions strictly adjacent to (R), regions containing (R), and regions contained in (R):
 				(+) If (U) has status "pending":
 					(+) Call RegionStatuses.cacheRegion(U).
-					(+) For each cached region (A) adjacent to (U):
-						(+) If either (A) or (U) is in the domain:
+					(+) If (U) is in the domain:
+						(+) For each cached region (A) in the set containing regions strictly adjacent to (U), regions containing (U), and regions contained in (U):
+							(+) Subtract (U)'s localityTotal from (A)'s adjacentUncachedCount.
+					(+) Else:
+						(+) For each cached region (A) strictly adjacent to (U):
+							(+) If (A) is in the domain:
+								(+) Subtract (U)'s localityTotal from (A)'s adjacentUncachedCount.
+						(+) If (U) is in the over domain:
+							(+) For each cached region (A) contained in (U):
+								(+) If (A) is in the domain:
+									(+) Subtract (U)'s localityTotal from (A)'s adjacentUncachedCount.
+		(+) Else:
+			(+) For each region (U) strictly adjacent to (R):
+				(+) If (U) is in the domain and has status "pending":
+					(+) Call RegionStatuses.cacheRegion(U).
+					(+) For each cached region (A) in the set containing regions strictly adjacent to (U), regions containing (U), and regions contained in (U):
+						(+) Subtract (U)'s localityTotal from (A)'s adjacentUncachedCount.
+			(+) If (R) is in the over domain:
+				(+) For each region (U) contained in (R):
+					(+) If (U) is in the domain and has status "pending":
+						(+) Call RegionStatuses.cacheRegion(U).
+						(+) For each cached region (A) in the set containing regions strictly adjacent to (U), regions containing (U), and regions contained in (U):
 							(+) Subtract (U)'s localityTotal from (A)'s adjacentUncachedCount.
 	[Note: At this point, there are no pending regions adjacent to (R).]
 	(+) Process (R) according to the region consolidation algorithm.
