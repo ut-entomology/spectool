@@ -6,6 +6,7 @@
   "scripts": {
     "build": "tsc && rollup -c",
     "build-client": "run-s build client",
+    "build-backend": "tsc",
     "check": "svelte-check --tsconfig ./tsconfig.json",
     "server": "kill $(lsof -ti:5000) 2>/dev/null; rollup -c -w",
     "start": "sirv public --no-clear --single",

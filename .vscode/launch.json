@@ -11,13 +11,24 @@
             "type": "pwa-node"
         },
         {
-            "name": "Launch Current File",
+            "name": "Launch Current Tool",
             "program": "${file}",
             "request": "launch",
+            "env": { "NODE_ENV": "development" },
+            "console": "integratedTerminal",
+            "preLaunchTask": "npm: build-backend",
+            "outFiles": ["${workspaceFolder}/build/**/*.js"],
+            "sourceMaps": true,
+            "resolveSourceMapLocations": [
+                "${workspaceFolder}/build/**",
+                "!**/node_modules/**"
+              ],
             "skipFiles": [
+                "${workspaceFolder}/node_modules/**/*.js",
                 "<node_internals>/**"
             ],
-            "type": "pwa-node"
+            "smartStep": true,
+            "type": "node"
         },
         {
             "type": "node",
