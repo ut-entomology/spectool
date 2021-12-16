@@ -79,13 +79,10 @@
       </div>
     </div>
     <div class="row justify-content-end">
-      {#if $currentPrefs.dataFolder}
-        <div class="col-3">
-          <button class="btn btn-minor" type="button" on:click={cancelForm}
-            >Cancel</button
-          >
-        </div>
-      {/if}
+      <div class="col-3">
+        <button class="btn btn-minor" type="button" on:click={cancelForm}>Cancel</button
+        >
+      </div>
       <div class="col-3">
         <button class="btn btn-major" type="submit">Submit</button>
       </div>

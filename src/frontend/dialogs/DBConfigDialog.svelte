@@ -112,13 +112,9 @@
       </div>
     </div>
     <div class="row justify-content-end">
-      {#if $currentConnection.isConfigured}
-        <div class="col-3">
-          <button class="btn btn-minor" type="button" on:click={closeForm}
-            >Cancel</button
-          >
-        </div>
-      {/if}
+      <div class="col-3">
+        <button class="btn btn-minor" type="button" on:click={closeForm}>Cancel</button>
+      </div>
       <div class="col-3">
         <button class="btn btn-major" type="submit">Connect</button>
       </div>

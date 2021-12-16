@@ -21,7 +21,11 @@
       targetName: 'FirstNames',
       description: 'Returns all first names for a given last name.',
       requiresLogin: false,
-      prerequisites: [prereqs.databaseConfigPrereq, prereqs.connectionPrereq]
+      prerequisites: [
+        prereqs.databaseConfigPrereq,
+        prereqs.connectionPrereq,
+        prereqs.userLoginPrereq
+      ]
     }
   ];
 </script>

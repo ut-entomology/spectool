@@ -8,10 +8,6 @@
   import { currentConnection } from '../stores/currentConnection';
   import { currentUser } from '../stores/currentUser';
   import { currentDialog } from '../stores/currentDialog';
-  import DBConfigDialog from '../dialogs/DBConfigDialog.svelte';
-  import DBLoginDialog from '../dialogs/DBLoginDialog.svelte';
-  import UserLoginDialog from '../dialogs/UserLoginDialog.svelte';
-  import DataFolderDialog from '../dialogs/DataFolderDialog.svelte';
 
   let appPrefs: AppPrefs;
   currentPrefs.subscribe((prefs) => {
@@ -46,24 +42,24 @@
   export const databaseConfigPrereq: Prerequisite = {
     check: () => connection.isConfigured,
     satisfy: (onSuccess) =>
-      currentDialog.set(new DialogSpec(DBConfigDialog, { onSuccess }))
+      currentDialog.set(new DialogSpec('DBConfigDialog', { onSuccess }))
   };
 
   export const connectionPrereq: Prerequisite = {
     check: () => connection.username !== null,
     satisfy: (onSuccess) =>
-      currentDialog.set(new DialogSpec(DBLoginDialog, { onSuccess }))
+      currentDialog.set(new DialogSpec('DBLoginDialog', { onSuccess }))
   };
 
   export const userLoginPrereq: Prerequisite = {
     check: () => _currentUser != null,
     satisfy: (onSuccess) =>
-      currentDialog.set(new DialogSpec(UserLoginDialog, { onSuccess }))
+      currentDialog.set(new DialogSpec('UserLoginDialog', { onSuccess }))
   };
 
   export const dataFolderPrereq: Prerequisite = {
     check: () => !!appPrefs.dataFolder,
     satisfy: (onSuccess) =>
-      currentDialog.set(new DialogSpec(DataFolderDialog, { onSuccess }))
+      currentDialog.set(new DialogSpec('DataFolderDialog', { onSuccess }))
   };
 </script>
