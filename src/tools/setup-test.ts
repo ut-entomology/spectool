@@ -10,7 +10,7 @@ import { TestPrefsFile, TestCredentials } from '../test_config';
  */
 
 async function setup(): Promise<void> {
-  const platform = new Platform(APP_NAME);
+  const platform = new Platform(APP_NAME, APP_NAME);
   const prefsFile = new TestPrefsFile(platform);
   const prefs = await prefsFile.load();
 

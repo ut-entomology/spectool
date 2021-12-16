@@ -15,7 +15,7 @@ export class UserCredentials extends SavableCredentials {
   private kernel: AppKernel;
 
   constructor(kernel: AppKernel) {
-    super(kernel.appName, 'user');
+    super(kernel.platform.appName, 'user');
     this.kernel = kernel;
   }
 

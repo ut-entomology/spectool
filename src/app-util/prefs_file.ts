@@ -5,7 +5,7 @@ import { Platform } from './platform';
  * @param T Type containing all user preferences
  */
 
-export class PreferencesFile<T> {
+export abstract class PreferencesFile<T> {
   private platform: Platform;
   private filename: string;
   private version: string;
@@ -55,7 +55,7 @@ export class PreferencesFile<T> {
       prefs = this.update(version, prefs);
       await this.save(prefs);
     }
-    return prefs;
+    return this.typecast(prefs);
   }
 
   /**
@@ -79,6 +79,12 @@ export class PreferencesFile<T> {
   async drop(): Promise<void> {
     await this.platform.dropUserFile(this.platform.userConfigDir, this.filename);
   }
+
+  /**
+   * Typecasts 'any' type to type T for return.
+   */
+
+  abstract typecast(prefs: any): T;
 
   //// PROTECTED METHODS ////
 

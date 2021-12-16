@@ -10,22 +10,32 @@ interface Prefs {
   strValue: string;
 }
 
+class PlainPrefsFile extends PreferencesFile<Prefs> {
+  typecast(prefs: any) {
+    return prefs as Prefs;
+  }
+}
+
 class CustomPrefsFile extends PreferencesFile<Prefs> {
   update(oldVersion: string, oldPrefs: any): Prefs {
     oldPrefs.strValue = 'updated ' + oldVersion;
     return oldPrefs;
   }
+
+  typecast(prefs: any) {
+    return prefs as Prefs;
+  }
 }
 
 describe('a default preferences file', () => {
-  const platform = new Platform(DUMMY_APP_NAME);
-  const prefsFile1 = new PreferencesFile<Prefs>(platform, 'prefs', '1', getDefaults);
-  const prefsFile2 = new PreferencesFile<Prefs>(platform, 'prefs', '2', getDefaults);
+  const platform = new Platform(DUMMY_APP_NAME, DUMMY_APP_NAME);
+  const prefsFile1 = new PlainPrefsFile(platform, 'prefs', '1', getDefaults);
+  const prefsFile2 = new PlainPrefsFile(platform, 'prefs', '2', getDefaults);
 
   test('should not allow a file type suffix', async () => {
     expect.assertions(1);
     try {
-      new PreferencesFile(platform, 'prefs.txt', '1', getDefaults);
+      new PlainPrefsFile(platform, 'prefs.txt', '1', getDefaults);
     } catch (err: any) {
       expect(err.message).toContain('file type suffix');
     }
@@ -52,7 +62,7 @@ describe('a default preferences file', () => {
 });
 
 describe('a custom preferences file', () => {
-  const platform = new Platform(DUMMY_APP_NAME);
+  const platform = new Platform(DUMMY_APP_NAME, DUMMY_APP_NAME);
   const defaults: Prefs = {
     intValue: 32,
     strValue: 'foo'
@@ -76,7 +86,7 @@ describe('a custom preferences file', () => {
 });
 
 afterAll(async () => {
-  const platform = new Platform(DUMMY_APP_NAME);
+  const platform = new Platform(DUMMY_APP_NAME, DUMMY_APP_NAME);
   await platform.dropUserDir(platform.userConfigDir);
 });
 

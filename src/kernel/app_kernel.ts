@@ -2,7 +2,7 @@ import { Knex } from 'knex';
 
 import { Platform } from '../app-util/platform';
 import { AppPrefs } from '../shared/app_prefs';
-import { DatabaseConfig } from '../shared/db_config';
+import { DatabaseConfig, DatabaseValues } from '../shared/db_config';
 import { SpecifyUser } from '../shared/specify_user';
 import { Credentials } from '../shared/Credentials';
 import { PreferencesFile } from '../app-util/prefs_file';
@@ -21,14 +21,27 @@ class AppPrefsFile extends PreferencesFile<AppPrefs> {
   constructor(platform: Platform) {
     super(platform, 'app-prefs', '0.1.0', () => new AppPrefs());
   }
+
+  typecast(prefs: any) {
+    return new AppPrefs(prefs);
+  }
 }
 
 /**
  * AppPrefsFile manages the non-Electron user preferences.
  */
 class DatabaseConfigFile extends PreferencesFile<DatabaseConfig> {
-  constructor(platform: Platform) {
-    super(platform, 'db-config', '0.1.0', () => new DatabaseConfig());
+  constructor(platform: Platform, defaultDatabaseValues: DatabaseValues) {
+    super(
+      platform,
+      'db-config',
+      '0.1.0',
+      () => new DatabaseConfig(defaultDatabaseValues)
+    );
+  }
+
+  typecast(prefs: any) {
+    return new DatabaseConfig(prefs);
   }
 }
 
@@ -38,7 +51,6 @@ class DatabaseConfigFile extends PreferencesFile<DatabaseConfig> {
  * an invocation of node.js. It provides context and globals.
  */
 export class AppKernel {
-  readonly appName: string;
   readonly platform: Platform;
   readonly appPrefsFile: AppPrefsFile;
   readonly databaseConfigFile: DatabaseConfigFile;
@@ -56,11 +68,13 @@ export class AppKernel {
    * app configuration and user preferences. The caller must call
    * `init()` after construction and prior to use.
    */
-  constructor(appName: string) {
-    this.appName = appName;
-    this.platform = new Platform(appName);
+  constructor(platform: Platform, defaultDatabaseValues: DatabaseValues) {
+    this.platform = platform;
     this.appPrefsFile = new AppPrefsFile(this.platform);
-    this.databaseConfigFile = new DatabaseConfigFile(this.platform);
+    this.databaseConfigFile = new DatabaseConfigFile(
+      this.platform,
+      defaultDatabaseValues
+    );
     this.specify = new Specify();
   }
 
@@ -70,7 +84,7 @@ export class AppKernel {
    */
   async init(): Promise<void> {
     this._appPrefs = new AppPrefs(await this.appPrefsFile.load());
-    this._databaseConfig = new DatabaseConfig(await this.databaseConfigFile.load());
+    this._databaseConfig = await this.databaseConfigFile.load();
     this._databaseCreds = new DatabaseCredentials(this);
     this._userCreds = new UserCredentials(this);
     await this._databaseCreds.init();

@@ -6,7 +6,7 @@ import { fileNotFound } from './errors';
 const DUMMY_APP_NAME = '__ Temp Dummy App';
 
 describe('the platform', () => {
-  const platform = new Platform(DUMMY_APP_NAME);
+  const platform = new Platform(DUMMY_APP_NAME, DUMMY_APP_NAME);
 
   test('should set a home directory', () => {
     expect(platform.userHomeDir).toBeTruthy();
@@ -24,7 +24,7 @@ describe('the platform', () => {
 });
 
 describe('user files (using user cache dir)', () => {
-  const platform = new Platform(DUMMY_APP_NAME);
+  const platform = new Platform(DUMMY_APP_NAME, DUMMY_APP_NAME);
   const userDir = platform.userCacheDir;
   const cacheFile = 'test.txt';
   const textOut = 'cached data';
@@ -103,6 +103,6 @@ describe('user files (using user cache dir)', () => {
 });
 
 afterAll(async () => {
-  const platform = new Platform(DUMMY_APP_NAME);
+  const platform = new Platform(DUMMY_APP_NAME, DUMMY_APP_NAME);
   await platform.dropUserDir(platform.userCacheDir);
 });

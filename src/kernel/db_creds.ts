@@ -11,7 +11,7 @@ export class DatabaseCredentials extends SavableCredentials {
   private _database?: Knex;
 
   constructor(kernel: AppKernel) {
-    super(kernel.appName, 'database');
+    super(kernel.platform.appName, 'database');
     this._kernel = kernel;
   }
 

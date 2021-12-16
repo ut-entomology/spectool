@@ -4,6 +4,7 @@ import * as log from 'electron-log';
 import 'source-map-support/register';
 
 import { APP_NAME } from './app/app_name';
+import { Platform } from './app-util/platform';
 import { createAppMenu } from './app/app_menu';
 import appPrefsApi from './backend/api/app_prefs_api';
 import databaseApi from './backend/api/database_api';
@@ -14,6 +15,7 @@ import geographyApi from './backend/api/geography_api';
 import firstNamesApi from './backend/api/first_names_api';
 import { AppKernel } from './kernel/app_kernel';
 import { Connection } from './shared/connection';
+import { DatabaseConfig } from './shared/db_config';
 import { connectionPub } from './app/connectionPub';
 import { devMode } from './app/dev_mode';
 
@@ -65,8 +67,8 @@ function createMainWindow() {
 app
   .whenReady()
   .then(async () => {
-    // Initialize kernel.
-    const kernel = new AppKernel(APP_NAME);
+    const platform = new Platform(APP_NAME, APP_NAME);
+    const kernel = new AppKernel(platform, new DatabaseConfig());
     const ipcHandlerSets = [
       appPrefsApi(kernel), // multiline
       databaseApi(kernel),

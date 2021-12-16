@@ -8,6 +8,7 @@ import { fileNotFound, ConfigError } from './errors';
  */
 
 export class Platform {
+  readonly appName: string;
   readonly userHomeDir: string;
   readonly userCacheDir: string;
   readonly userConfigDir: string;
@@ -17,7 +18,9 @@ export class Platform {
    * expressed to that it may be used as a directory name.
    * @throws ConfigError when a required environment variable is not set
    */
-  constructor(appDirName: string) {
+  constructor(appName: string, appDirName: string) {
+    this.appName = appName;
+
     // Determine the app directories as a function of operating system.
 
     switch (process.platform) {

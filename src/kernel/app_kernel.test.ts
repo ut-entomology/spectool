@@ -1,25 +1,30 @@
 import { APP_NAME } from '../app/app_name';
-import { TestCredentials } from '../test_config';
+import { Platform } from '../app-util/platform';
+import { TestPrefs, TestPrefsFile, TestCredentials } from '../test_config';
 import { AppKernel } from './app_kernel';
-import { DatabaseConfig } from '../shared/db_config';
 
 const DUMMY_APP_NAME = '__ Temp Dummy App';
+const dummyPlatform = new Platform(DUMMY_APP_NAME, DUMMY_APP_NAME);
 
 describe('database configuration', () => {
-  const kernel1 = new AppKernel(DUMMY_APP_NAME);
+  let testPrefs: TestPrefs;
+  let kernel1: AppKernel;
+
   beforeAll(async () => {
+    testPrefs = await new TestPrefsFile(dummyPlatform).load();
+    kernel1 = new AppKernel(dummyPlatform, testPrefs);
     await kernel1.init();
   });
 
   test('should initially equal the defaults', () => {
-    expect(kernel1.databaseConfig).toEqual(new DatabaseConfig());
+    expect(kernel1.databaseConfig).toEqual(testPrefs);
   });
 
   test('should change when saved', async () => {
     const config = kernel1.databaseConfig;
     config.databaseName = 'dummy';
     await kernel1.saveDatabaseConfig(config);
-    const kernel2 = new AppKernel(DUMMY_APP_NAME);
+    const kernel2 = new AppKernel(dummyPlatform, testPrefs);
     await kernel2.init();
     expect(kernel2.databaseConfig).toEqual(config);
   });
@@ -29,18 +34,20 @@ describe('database configuration', () => {
     config.databaseName = 'dummy';
     await kernel1.saveDatabaseConfig(config);
     await kernel1.dropDatabaseConfig();
-    const kernel2 = new AppKernel(DUMMY_APP_NAME);
+    const kernel2 = new AppKernel(dummyPlatform, testPrefs);
     await kernel2.init();
-    expect(kernel2.databaseConfig).toEqual(new DatabaseConfig());
+    expect(kernel2.databaseConfig).toEqual(testPrefs);
   });
 
   afterAll(async () => {
-    await dropUserDir(kernel1);
+    await dropUserDir();
   });
 });
 
 describe('the database', () => {
-  const kernel1 = new AppKernel(DUMMY_APP_NAME);
+  let testPrefs: TestPrefs;
+  let kernel1: AppKernel;
+
   // Use the test database for the application proper, rather
   // than the non-existent test DB for the current temporary app.
   const testCreds = new TestCredentials(APP_NAME);
@@ -48,6 +55,9 @@ describe('the database', () => {
   let password: string;
 
   beforeAll(async () => {
+    const realPlatform = new Platform(APP_NAME, APP_NAME);
+    testPrefs = await new TestPrefsFile(realPlatform).load();
+    kernel1 = new AppKernel(dummyPlatform, testPrefs);
     await kernel1.init();
     await testCreds.init();
     const creds = testCreds.get();
@@ -114,10 +124,10 @@ describe('the database', () => {
 
   afterAll(async () => {
     await kernel1.databaseCreds.clear();
-    await dropUserDir(kernel1);
+    await dropUserDir();
   });
 });
 
-async function dropUserDir(kernel: AppKernel): Promise<void> {
-  await kernel.platform.dropUserDir(kernel.platform.userConfigDir);
+async function dropUserDir(): Promise<void> {
+  await dummyPlatform.dropUserDir(dummyPlatform.userConfigDir);
 }

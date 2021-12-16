@@ -4,7 +4,7 @@
 
   import { Context } from '../lib/contexts';
   import { createForm, ContextForm, Input } from '../layout/forms';
-  import { DatabaseConfig } from '../shared/db_config';
+  import type { DatabaseConfig } from '../shared/db_config';
   import { Connection } from '../shared/connection';
   import { DatabaseConfigClient } from '../clients/db_config_client';
   import { currentConnection } from '../stores/currentConnection';
@@ -48,13 +48,15 @@
     }),
     onSubmit: async (values) => {
       try {
-        const config = new DatabaseConfig();
-        config.databaseHost = values.databaseHost;
-        config.databasePort = parseInt(values.databasePortStr);
-        config.databaseName = values.databaseName;
-        await DatabaseConfigClient.setConfig(config);
-        databaseConfig.copyFrom(config);
-        currentConnection.set(new Connection(true, values.databaseName));
+        databaseConfig.copyFrom({
+          databaseHost: values.databaseHost,
+          databasePort: parseInt(values.databasePortStr),
+          databaseName: values.databaseName
+        });
+        await DatabaseConfigClient.setConfig(databaseConfig);
+        currentConnection.set(
+          new Connection(databaseConfig.isReady(), values.databaseName)
+        );
         closeForm();
         onSuccess();
       } catch (err: any) {

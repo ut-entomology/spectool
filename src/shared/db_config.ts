@@ -1,18 +1,25 @@
-export class DatabaseConfig {
+export interface DatabaseValues {
+  databaseHost: string;
+  databasePort: number;
+  databaseName: string;
+}
+
+export class DatabaseConfig implements DatabaseValues {
+  // Provides the application default values
   databaseHost = 'entomology.tacc.utexas.edu';
   databasePort = 3306;
   databaseName = '';
 
-  constructor(copyFromPrefs?: DatabaseConfig) {
-    if (copyFromPrefs) {
-      this.copyFrom(copyFromPrefs);
+  constructor(initialValues?: DatabaseValues) {
+    if (initialValues) {
+      this.copyFrom(initialValues);
     }
   }
 
-  copyFrom(otherPrefs: DatabaseConfig) {
-    this.databaseHost = otherPrefs.databaseHost;
-    this.databasePort = otherPrefs.databasePort;
-    this.databaseName = otherPrefs.databaseName;
+  copyFrom(values: DatabaseValues) {
+    this.databaseHost = values.databaseHost;
+    this.databasePort = values.databasePort;
+    this.databaseName = values.databaseName;
   }
 
   isReady() {
