@@ -1,5 +1,6 @@
 # Locality Consolidation Algorithm
 
+// TODO: Handle adjacencies not reporting to lowest geographic rank.
 // TODO: Support localities/regions pulled in via CSV.
 
 ## Important Notes

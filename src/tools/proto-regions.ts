@@ -122,13 +122,14 @@ function makeRegionMatrix(regionData: string): ProtoRegion[][] {
 }
 
 function removeDupRegions(regionsWithDups: ProtoRegion[]): ProtoRegion[] {
-  const adjacentRegions: ProtoRegion[] = [];
+  const regions: ProtoRegion[] = [];
   for (const region of regionsWithDups) {
-    if (!adjacentRegions.includes(region)) {
-      adjacentRegions.push(region);
+    if (!regions.includes(region)) {
+      regions.push(region);
     }
   }
-  return adjacentRegions;
+  console.log('Removed dups:', regions.map((r) => r.code).join(', '), '\n');
+  return regions;
 }
 
 // A single region may span multiple cells of the matrix.
@@ -163,16 +164,7 @@ function getTouchingRegions(
       if (deltaI != 0 || deltaJ != 0) {
         if (i >= 0 && i < regions.length) {
           if (j >= 0 && j < regions[i].length) {
-            const region = regions[i][j];
-            if (region.code[0] == 'M') {
-              touchingRegions.push(mexico!);
-            } else if (region.code[0] == 'C') {
-              touchingRegions.push(texas!);
-              touchingRegions.push(usa!);
-            } else if (['NM', 'LA'].includes(region.code)) {
-              touchingRegions.push(usa!);
-            }
-            touchingRegions.push(region);
+            touchingRegions.push(regions[i][j]);
           }
         }
       }
@@ -265,22 +257,22 @@ abstract class RegionVisitor {
         this._visitAroundDomainRegion(nearRegion);
         if (this._visitationRestriction(nearRegion)) {
           await this._visitAdjacentPendingRegion(nearRegion, aroundRegion);
+          await this._showState('after in-domain all', nearRegion, aroundRegion);
         }
-        await this._showState('after in-domain adjacent');
       }
     } else {
       for (const nearRegion of getAdjacentRegions(aroundRegion)) {
         if (nearRegion.inDomain && this._visitationRestriction(nearRegion)) {
           await this._visitAroundNonDomainRegion(nearRegion, aroundRegion);
+          await this._showState('after non-domain adjacent', nearRegion, aroundRegion);
         }
-        await this._showState('after non-domain adjacent');
       }
       if (overDomain.includes(aroundRegion)) {
         for (const childRegion of getChildRegions(aroundRegion)) {
           if (childRegion.inDomain && this._visitationRestriction(childRegion)) {
             await this._visitAroundNonDomainRegion(childRegion, aroundRegion);
+            await this._showState('after non-domain child', childRegion, aroundRegion);
           }
-          await this._showState('after non-domain child');
         }
       }
     }
@@ -310,8 +302,10 @@ abstract class RegionVisitor {
     return regions.concat(getChildRegions(aroundRegion));
   }
 
-  async _showState(context: string) {
-    await showState(`${this.visitorName}: ${context}`);
+  async _showState(context: string, forRegion: ProtoRegion, aroundRegion: ProtoRegion) {
+    await showState(
+      `${this.visitorName} - ${context} (around ${aroundRegion.code}: ${forRegion.code})`
+    );
   }
 }
 
@@ -348,7 +342,7 @@ class PendingNearDomainRegionVisitor extends RegionVisitor {
   }
 }
 const pendingNearDomainRegionVisitor = new PendingNearDomainRegionVisitor(
-  'pending near domain'
+  'prep to remove'
 );
 
 class CacheAroundRegionVisitor extends RegionVisitor {
@@ -439,7 +433,7 @@ function removeRegion(fromList: ProtoRegion[], region: ProtoRegion) {
 async function run() {
   // Initialize
 
-  console.log('*** RESTARTING ***');
+  console.log('\n*** RESTARTING ***\n');
   regions = makeRegionMatrix(regionData);
   regionRoster.push(texas);
   for (const regionRow of regions) {
@@ -458,7 +452,7 @@ async function run() {
   // Loop
   while (region != null) {
     region.sequence = ++sequence;
-    await showState('Start of loop');
+    await showState('Top of loop');
 
     // Consolidate
     if (region.adjacentUncachedCount != 0) {
