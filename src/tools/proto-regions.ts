@@ -4,21 +4,6 @@ let regions: ProtoRegion[][] = [];
 let regionRoster: ProtoRegion[] = [];
 let cachedLocalities: ProtoRegion[] = [];
 
-// 'a' prefix means it's adjacen, not in the domain
-// 'c-' prefix means county or municipality
-// 's-' prefix means state
-// 'y-' prefix means country
-// Capital letter sequence designates a region
-// dash-number indicates the number of localities in the region
-// < indicates that the region to the left extends to this point
-// ^ indicates that the region above extends to this point
-const regionData = `
-  as-MA-1|<     |<     |as-MB-1
-  c-CA-1 |c-CB-1|c-CC-1|c-CD-1 |as-NM-1
-  c-CE-1 |c-CF-1|c-CG-1|c-CH-1 |^
-  c-CI-1 |c-CJ-1|c-CK-1|c-CL-1 |as-LA-1
-`;
-
 enum RegionStatus {
   Pending,
   Cached,
@@ -66,9 +51,24 @@ class ProtoRegion {
   }
 }
 
+// 'a' prefix means it's adjacen, not in the domain
+// 'c-' prefix means county or municipality
+// 's-' prefix means state
+// 'y-' prefix means country
+// Capital letter sequence designates a region
+// dash-number indicates the number of localities in the region
+// < indicates that the region to the left extends to this point
+// ^ indicates that the region above extends to this point
+const regionData = `
+  as-MA-1|<     |<     |as-MB-1
+  c-CA-1 |c-CB-1|c-CC-1|c-CD-1 |as-NM-1
+  c-CE-1 |c-CF-1|c-CG-1|c-CH-1 |^
+  c-CI-1 |c-CJ-1|c-CK-1|c-CL-1 |as-LA-1
+`;
 const usa = new ProtoRegion('US', 'y', false, 1);
 const texas = new ProtoRegion('TX', 's', true, 1);
 const mexico = new ProtoRegion('MX', 'y', false, 1);
+const overDomain = [usa];
 
 function makeRegionMatrix(regionData: string): ProtoRegion[][] {
   const rows = regionData.split('\n');
@@ -121,15 +121,18 @@ function makeRegionMatrix(regionData: string): ProtoRegion[][] {
   return regions;
 }
 
-// verify region data
-// const regions = makeRegionMatrix(regionData);
-// for (const regionRow of regions) {
-//   let rowStr = '';
-//   for (const region of regionRow) {
-//     rowStr += region.toString() + '|';
-//   }
-//   console.log(rowStr);
-// }
+function removeDupRegions(regionsWithDups: ProtoRegion[]): ProtoRegion[] {
+  const adjacentRegions: ProtoRegion[] = [];
+  for (const region of regionsWithDups) {
+    if (!adjacentRegions.includes(region)) {
+      adjacentRegions.push(region);
+    }
+  }
+  return adjacentRegions;
+}
+
+// A single region may span multiple cells of the matrix.
+// Return the indexes of each of those cells.
 
 function getRegionIndexPairs(region: ProtoRegion): number[][] {
   const indexPairs: number[][] = [];
@@ -179,91 +182,245 @@ function getTouchingRegions(
 }
 
 function getAdjacentRegions(region: ProtoRegion): ProtoRegion[] {
-  const adjacentRegions: ProtoRegion[] = [];
-  if (region.code == 'NM') {
-    adjacentRegions.push(mexico);
+  const adjacentRegionsWithDups: ProtoRegion[] = [];
+
+  if (['LA', 'NM'].includes(region.code)) {
+    adjacentRegionsWithDups.push(texas);
+  } else if (['TX', 'US'].includes(region.code)) {
+    adjacentRegionsWithDups.push(mexico);
+  } else if (region.code[0] == 'M') {
+    // "MX" or any municipality
+    adjacentRegionsWithDups.push(texas);
+    adjacentRegionsWithDups.push(usa);
   }
-  if (['NM', 'LA'].includes(region.code)) {
-    adjacentRegions.push(texas);
-    adjacentRegions.push(usa);
-  } else if (['US', 'TX'].includes(region.code)) {
-    if (region.code == 'US') {
-      adjacentRegions.push(texas);
-    } else {
-      adjacentRegions.push(usa);
-    }
-    adjacentRegions.push(mexico);
-    for (const regionRow of regions) {
-      for (const touchingRegion of regionRow) {
-        if (!adjacentRegions.includes(touchingRegion)) {
-          adjacentRegions.push(touchingRegion);
-        }
-      }
-    }
-    return adjacentRegions;
-  } else if (region.code == 'MX') {
-    adjacentRegions.push(texas);
-    adjacentRegions.push(usa);
-    for (const regionRow of regions) {
-      for (const testRegion of regionRow) {
-        if (testRegion.code[0] == 'M') {
-          if (!adjacentRegions.includes(testRegion)) {
-            adjacentRegions.push(testRegion);
-          }
-          for (const adjacentRegion of getAdjacentRegions(testRegion)) {
-            if (adjacentRegion != mexico) {
-              if (!adjacentRegions.includes(adjacentRegion)) {
-                adjacentRegions.push(adjacentRegion);
-              }
-            }
-          }
-        }
-      }
-    }
-    return adjacentRegions;
-  }
+
   const indexPairs = getRegionIndexPairs(region);
-  // console.log(
-  //   `index pairs for ${region.code}:`,
-  //   indexPairs.map((p) => `(${p[0]},${p[1]})`).join(', ')
-  // );
   for (const indexPair of indexPairs) {
     const touchingRegions = getTouchingRegions(indexPair[0], indexPair[1], false);
-    // console.log(
-    //   `touching ${region.code}:`,
-    //   touchingRegions.map((r) => r.code).join(', ')
-    // );
     for (const touchingRegion of touchingRegions) {
-      if (!adjacentRegions.includes(touchingRegion)) {
-        adjacentRegions.push(touchingRegion);
+      if (touchingRegion != region) {
+        adjacentRegionsWithDups.push(touchingRegion);
+        if (touchingRegion.code[0] == 'M' && region.code[0] != 'M') {
+          adjacentRegionsWithDups.push(mexico);
+        }
       }
     }
-    // console.log('adjacentRegions', adjacentRegions);
   }
-  return adjacentRegions;
+
+  return removeDupRegions(adjacentRegionsWithDups);
 }
 
-function cacheRegion(region: ProtoRegion) {
-  if (cachedLocalities.includes(region)) {
-    throw Error(`Already cached region ${region.code}`);
+function getChildRegions(region: ProtoRegion): ProtoRegion[] {
+  if (region.code[0] == 'C' || (region.code != 'MX' && region.code[0] == 'M')) {
+    return [];
   }
-  cachedLocalities.push(region);
-  region.status = RegionStatus.Cached;
-  for (const adjacentRegion of getAdjacentRegions(region)) {
-    if (region.inDomain) {
-      if (!regionRoster.includes(adjacentRegion)) {
-        regionRoster.push(adjacentRegion);
+
+  const childRegionsWithDups: ProtoRegion[] = [];
+  for (const regionRow of regions) {
+    for (const testRegion of regionRow) {
+      if (region.code == 'MX') {
+        if (region.code[0] == 'M') {
+          childRegionsWithDups.push(testRegion);
+        }
+      } else if (region.code == 'US') {
+        if (testRegion.code[0] != 'M') {
+          childRegionsWithDups.push(testRegion);
+        }
+      } else if (region.code == 'TX') {
+        if (testRegion.code[0] == 'C') {
+          childRegionsWithDups.push(testRegion);
+        }
       }
-      if (adjacentRegion.status == RegionStatus.Pending) {
-        region.adjacentUncachedCount += adjacentRegion.localityTotal;
+    }
+  }
+  if (region.code == 'US') {
+    childRegionsWithDups.push(texas);
+  }
+  return removeDupRegions(childRegionsWithDups);
+}
+
+function getParentRegions(region: ProtoRegion): ProtoRegion[] {
+  if (['US', 'MX'].includes(region.code)) {
+    return [];
+  }
+  if (region.code[0] == 'M') {
+    return [mexico];
+  }
+  if (region.code[0] == 'C') {
+    return [texas, usa];
+  }
+  return [usa];
+}
+
+abstract class RegionVisitor {
+  visitorName: string;
+
+  constructor(visitorName: string) {
+    this.visitorName = visitorName;
+  }
+
+  async visitAroundRegion(aroundRegion: ProtoRegion) {
+    if (aroundRegion.inDomain) {
+      for (const nearRegion of this._getAllNearRegions(aroundRegion)) {
+        this._visitAroundDomainRegion(nearRegion);
+        if (this._visitationRestriction(nearRegion)) {
+          await this._visitAdjacentPendingRegion(nearRegion, aroundRegion);
+        }
+        await this._showState('after in-domain adjacent');
       }
-    } else if (adjacentRegion.inDomain) {
-      if (adjacentRegion.status == RegionStatus.Pending) {
-        region.adjacentUncachedCount += adjacentRegion.localityTotal;
+    } else {
+      for (const nearRegion of getAdjacentRegions(aroundRegion)) {
+        if (nearRegion.inDomain && this._visitationRestriction(nearRegion)) {
+          await this._visitAroundNonDomainRegion(nearRegion, aroundRegion);
+        }
+        await this._showState('after non-domain adjacent');
+      }
+      if (overDomain.includes(aroundRegion)) {
+        for (const childRegion of getChildRegions(aroundRegion)) {
+          if (childRegion.inDomain && this._visitationRestriction(childRegion)) {
+            await this._visitAroundNonDomainRegion(childRegion, aroundRegion);
+          }
+          await this._showState('after non-domain child');
+        }
+      }
+    }
+  }
+
+  abstract _visitationRestriction(nearRegion: ProtoRegion): boolean;
+
+  _visitAroundDomainRegion(_nearRegion: ProtoRegion): void {
+    // do nothing by default
+  }
+
+  abstract _visitAdjacentPendingRegion(
+    nearRegion: ProtoRegion,
+    aroundRegion: ProtoRegion
+  ): Promise<void>;
+
+  async _visitAroundNonDomainRegion(
+    nearRegion: ProtoRegion,
+    aroundRegion: ProtoRegion
+  ): Promise<void> {
+    await this._visitAdjacentPendingRegion(nearRegion, aroundRegion);
+  }
+
+  _getAllNearRegions(aroundRegion: ProtoRegion): ProtoRegion[] {
+    let regions = getAdjacentRegions(aroundRegion);
+    regions = regions.concat(getParentRegions(aroundRegion));
+    return regions.concat(getChildRegions(aroundRegion));
+  }
+
+  async _showState(context: string) {
+    await showState(`${this.visitorName}: ${context}`);
+  }
+}
+
+class CacheSingleRegionVisitor extends RegionVisitor {
+  _visitationRestriction(nearRegion: ProtoRegion) {
+    return nearRegion.status == RegionStatus.Pending;
+  }
+
+  _visitAroundDomainRegion(nearRegion: ProtoRegion) {
+    if (!regionRoster.includes(nearRegion)) {
+      regionRoster.push(nearRegion);
+    }
+  }
+
+  async _visitAdjacentPendingRegion(
+    nearRegion: ProtoRegion,
+    aroundRegion: ProtoRegion
+  ) {
+    aroundRegion.adjacentUncachedCount += nearRegion.localityTotal;
+  }
+}
+const cacheSingleRegionVisitor = new CacheSingleRegionVisitor('cache single');
+
+class PendingNearDomainRegionVisitor extends RegionVisitor {
+  _visitationRestriction(nearRegion: ProtoRegion) {
+    return nearRegion.status == RegionStatus.Cached;
+  }
+
+  async _visitAdjacentPendingRegion(
+    nearRegion: ProtoRegion,
+    aroundRegion: ProtoRegion
+  ) {
+    nearRegion.adjacentUncachedCount -= aroundRegion.localityTotal;
+  }
+}
+const pendingNearDomainRegionVisitor = new PendingNearDomainRegionVisitor(
+  'pending near domain'
+);
+
+class CacheAroundRegionVisitor extends RegionVisitor {
+  _visitationRestriction(nearRegion: ProtoRegion) {
+    return nearRegion.status == RegionStatus.Pending;
+  }
+
+  async _visitAdjacentPendingRegion(
+    nearRegion: ProtoRegion,
+    _aroundRegion: ProtoRegion
+  ) {
+    await cacheRegion(nearRegion);
+    await pendingNearDomainRegionVisitor.visitAroundRegion(nearRegion);
+  }
+
+  async _visitAroundNonDomainRegion(
+    nearRegion: ProtoRegion,
+    _aroundRegion: ProtoRegion
+  ): Promise<void> {
+    await cacheRegion(nearRegion);
+    for (const aroundNearRegion of this._getAllNearRegions(nearRegion)) {
+      if (aroundNearRegion.status == RegionStatus.Cached) {
+        aroundNearRegion.adjacentUncachedCount -= nearRegion.localityTotal;
       }
     }
   }
 }
+const cacheAroundRegionVisitor = new CacheAroundRegionVisitor('cache around');
+
+async function cacheRegion(regionToCache: ProtoRegion) {
+  if (cachedLocalities.includes(regionToCache)) {
+    throw Error(`Already cached region ${regionToCache.code}`);
+  }
+  cachedLocalities.push(regionToCache);
+  regionToCache.status = RegionStatus.Cached;
+  await cacheSingleRegionVisitor.visitAroundRegion(regionToCache);
+}
+
+//   // abstract the remainder of the function
+//   if (regionToCache.inDomain) {
+//     let regions = getAdjacentRegions(regionToCache);
+//     regions = regions.concat(getParentRegions(regionToCache));
+//     regions = regions.concat(getChildRegions(regionToCache));
+//     for (const region of regions) {
+//       // provide the following block as param X
+//       if (!regionRoster.includes(region)) {
+//         regionRoster.push(region);
+//       }
+//       if (region.status == RegionStatus.Pending) {
+//         // provide the contents of this block as param Y
+//         regionToCache.adjacentUncachedCount += region.localityTotal;
+//       }
+//     }
+//   } else {
+//     for (const region of getAdjacentRegions(regionToCache)) {
+//       // provide the 2nd of these conditions as param A
+//       if (region.inDomain && region.status == RegionStatus.Pending) {
+//         // provide the contents of this block as param Z
+//         regionToCache.adjacentUncachedCount += region.localityTotal;
+//       }
+//     }
+//     if (overDomain.includes(regionToCache)) {
+//       for (const region of getChildRegions(regionToCache)) {
+//         // provide the 2nd of these conditions as param A
+//         if (region.inDomain && region.status == RegionStatus.Pending) {
+//           // provide the contents of this block as param Z
+//           regionToCache.adjacentUncachedCount += region.localityTotal;
+//         }
+//       }
+//     }
+//   }
+// }
 
 function processRegion(region: ProtoRegion) {
   region.processed = true;
@@ -295,7 +452,7 @@ async function run() {
   await showState('After initialization');
 
   let region: ProtoRegion | null = regions[1][1];
-  cacheRegion(region);
+  await cacheRegion(region);
   let sequence = 0;
 
   // Loop
@@ -305,30 +462,10 @@ async function run() {
 
     // Consolidate
     if (region.adjacentUncachedCount != 0) {
-      for (const adjacentU of getAdjacentRegions(region)) {
-        if (region.inDomain || adjacentU.inDomain) {
-          if (adjacentU.status == RegionStatus.Pending) {
-            cacheRegion(adjacentU);
-            // console.log(
-            //   `Adjacent to ${adjacentU.code}:`,
-            //   getAdjacentRegions(adjacentU)
-            //     .map((r) => r.code)
-            //     .join(', ')
-            // );
-            for (const adjacentA of getAdjacentRegions(adjacentU)) {
-              if (adjacentA.status == RegionStatus.Cached) {
-                if (adjacentA.inDomain || adjacentU.inDomain) {
-                  adjacentA.adjacentUncachedCount -= adjacentU.localityTotal;
-                  //console.log(`**** ${adjacentA.code} -= ${adjacentU.code}`);
-                }
-              }
-            }
-            await showState(`Cached adjacent region ${adjacentU.code}`);
-          }
-        }
-      }
+      await cacheAroundRegionVisitor.visitAroundRegion(region);
     }
     processRegion(region);
+    // the following would actually be done per locality
     cachedLocalities = removeRegion(cachedLocalities, region);
     region.status = RegionStatus.Complete;
 
@@ -369,6 +506,7 @@ async function inputKey() {
   return new Promise((resolve: any) =>
     process.stdin.once('data', (data) => {
       process.stdin.setRawMode(false);
+      //console.log('RECEIVED KEY', data[0]);
       resolve();
       if (data[0] != 32) {
         process.exit(0);
