@@ -128,7 +128,6 @@ function removeDupRegions(regionsWithDups: ProtoRegion[]): ProtoRegion[] {
       regions.push(region);
     }
   }
-  console.log('Removed dups:', regions.map((r) => r.code).join(', '), '\n');
   return regions;
 }
 
@@ -176,26 +175,57 @@ function getTouchingRegions(
 function getAdjacentRegions(region: ProtoRegion): ProtoRegion[] {
   const adjacentRegionsWithDups: ProtoRegion[] = [];
 
-  if (['LA', 'NM'].includes(region.code)) {
-    adjacentRegionsWithDups.push(texas);
-  } else if (['TX', 'US'].includes(region.code)) {
-    adjacentRegionsWithDups.push(mexico);
-  } else if (region.code[0] == 'M') {
-    // "MX" or any municipality
-    adjacentRegionsWithDups.push(texas);
-    adjacentRegionsWithDups.push(usa);
-  }
-
-  const indexPairs = getRegionIndexPairs(region);
-  for (const indexPair of indexPairs) {
-    const touchingRegions = getTouchingRegions(indexPair[0], indexPair[1], false);
-    for (const touchingRegion of touchingRegions) {
-      if (touchingRegion != region) {
-        adjacentRegionsWithDups.push(touchingRegion);
-        if (touchingRegion.code[0] == 'M' && region.code[0] != 'M') {
-          adjacentRegionsWithDups.push(mexico);
+  if (region.code == 'TX') {
+    for (const regionRow of regions) {
+      for (const testRegion of regionRow) {
+        if (testRegion.code[0] != 'C') {
+          adjacentRegionsWithDups.push(testRegion);
         }
       }
+    }
+    adjacentRegionsWithDups.push(mexico);
+  } else if (region.code == 'US') {
+    for (const regionRow of regions) {
+      for (const testRegion of regionRow) {
+        if (testRegion.code[0] == 'M') {
+          adjacentRegionsWithDups.push(testRegion);
+        }
+      }
+    }
+    adjacentRegionsWithDups.push(mexico);
+  } else if (region.code == 'MX') {
+    for (const regionRow of regions) {
+      for (const testRegion of regionRow) {
+        if (testRegion.code[0] != 'M') {
+          for (const adjacentToTest of getAdjacentRegions(testRegion)) {
+            if (adjacentToTest.code[0] == 'M') {
+              adjacentRegionsWithDups.push(testRegion);
+            }
+          }
+        }
+      }
+    }
+    adjacentRegionsWithDups.push(texas);
+    adjacentRegionsWithDups.push(usa);
+  } else {
+    const indexPairs = getRegionIndexPairs(region);
+    for (const indexPair of indexPairs) {
+      const touchingRegions = getTouchingRegions(indexPair[0], indexPair[1], false);
+      for (const touchingRegion of touchingRegions) {
+        if (touchingRegion != region) {
+          adjacentRegionsWithDups.push(touchingRegion);
+          if (touchingRegion.code[0] == 'M' && region.code[0] != 'M') {
+            adjacentRegionsWithDups.push(mexico);
+          }
+        }
+      }
+    }
+    if (['LA', 'NM'].includes(region.code)) {
+      adjacentRegionsWithDups.push(texas);
+    } else if (region.code[0] == 'M') {
+      // municipality of mexico
+      adjacentRegionsWithDups.push(texas);
+      adjacentRegionsWithDups.push(usa);
     }
   }
 
@@ -253,25 +283,28 @@ abstract class RegionVisitor {
 
   async visitAroundRegion(aroundRegion: ProtoRegion) {
     if (aroundRegion.inDomain) {
+      this._note('visiting all around in-domain region', aroundRegion);
       for (const nearRegion of this._getAllNearRegions(aroundRegion)) {
-        this._visitAroundDomainRegion(nearRegion);
+        await this._visitAroundDomainRegion(nearRegion);
         if (this._visitationRestriction(nearRegion)) {
           await this._visitAdjacentPendingRegion(nearRegion, aroundRegion);
-          await this._showState('after in-domain all', nearRegion, aroundRegion);
+          //await this._showState('after in-domain all', nearRegion, aroundRegion);
         }
       }
     } else {
+      this._note('visiting adjacent around non-domain region', aroundRegion);
       for (const nearRegion of getAdjacentRegions(aroundRegion)) {
         if (nearRegion.inDomain && this._visitationRestriction(nearRegion)) {
           await this._visitAroundNonDomainRegion(nearRegion, aroundRegion);
-          await this._showState('after non-domain adjacent', nearRegion, aroundRegion);
+          //await this._showState('after non-domain adjacent', nearRegion, aroundRegion);
         }
       }
       if (overDomain.includes(aroundRegion)) {
+        this._note('visiting children of non-domain region', aroundRegion);
         for (const childRegion of getChildRegions(aroundRegion)) {
           if (childRegion.inDomain && this._visitationRestriction(childRegion)) {
             await this._visitAroundNonDomainRegion(childRegion, aroundRegion);
-            await this._showState('after non-domain child', childRegion, aroundRegion);
+            //await this._showState('after non-domain child', childRegion, aroundRegion);
           }
         }
       }
@@ -280,8 +313,9 @@ abstract class RegionVisitor {
 
   abstract _visitationRestriction(nearRegion: ProtoRegion): boolean;
 
-  _visitAroundDomainRegion(_nearRegion: ProtoRegion): void {
+  _visitAroundDomainRegion(_nearRegion: ProtoRegion): Promise<void> {
     // do nothing by default
+    return Promise.resolve();
   }
 
   abstract _visitAdjacentPendingRegion(
@@ -297,14 +331,25 @@ abstract class RegionVisitor {
   }
 
   _getAllNearRegions(aroundRegion: ProtoRegion): ProtoRegion[] {
+    // TODO: Experiment with whether it's more efficient to process
+    // parent or child regions first.
     let regions = getAdjacentRegions(aroundRegion);
     regions = regions.concat(getParentRegions(aroundRegion));
     return regions.concat(getChildRegions(aroundRegion));
   }
 
-  async _showState(context: string, forRegion: ProtoRegion, aroundRegion: ProtoRegion) {
+  _note(message: string, region: ProtoRegion) {
+    console.log(`${this.visitorName} - ${message} (${region.code})...\n`);
+  }
+
+  async _showState(
+    context: string,
+    forRegion: ProtoRegion,
+    aroundRegion?: ProtoRegion
+  ) {
+    const aroundText = aroundRegion ? `around ${aroundRegion.code}: ` : '';
     await showState(
-      `${this.visitorName} - ${context} (around ${aroundRegion.code}: ${forRegion.code})`
+      `${this.visitorName} - ${context} (${aroundText}${forRegion.code})`
     );
   }
 }
@@ -314,7 +359,7 @@ class CacheSingleRegionVisitor extends RegionVisitor {
     return nearRegion.status == RegionStatus.Pending;
   }
 
-  _visitAroundDomainRegion(nearRegion: ProtoRegion) {
+  async _visitAroundDomainRegion(nearRegion: ProtoRegion) {
     if (!regionRoster.includes(nearRegion)) {
       regionRoster.push(nearRegion);
     }
@@ -325,6 +370,7 @@ class CacheSingleRegionVisitor extends RegionVisitor {
     aroundRegion: ProtoRegion
   ) {
     aroundRegion.adjacentUncachedCount += nearRegion.localityTotal;
+    await this._showState('read adjacent pending region', nearRegion, aroundRegion);
   }
 }
 const cacheSingleRegionVisitor = new CacheSingleRegionVisitor('cache single');
@@ -339,6 +385,7 @@ class PendingNearDomainRegionVisitor extends RegionVisitor {
     aroundRegion: ProtoRegion
   ) {
     nearRegion.adjacentUncachedCount -= aroundRegion.localityTotal;
+    await this._showState('read around region', nearRegion, aroundRegion);
   }
 }
 const pendingNearDomainRegionVisitor = new PendingNearDomainRegionVisitor(
@@ -366,6 +413,7 @@ class CacheAroundRegionVisitor extends RegionVisitor {
     for (const aroundNearRegion of this._getAllNearRegions(nearRegion)) {
       if (aroundNearRegion.status == RegionStatus.Cached) {
         aroundNearRegion.adjacentUncachedCount -= nearRegion.localityTotal;
+        await this._showState('read around near region', aroundNearRegion, nearRegion);
       }
     }
   }
@@ -435,7 +483,6 @@ async function run() {
 
   console.log('\n*** RESTARTING ***\n');
   regions = makeRegionMatrix(regionData);
-  regionRoster.push(texas);
   for (const regionRow of regions) {
     for (const region of regionRow) {
       if (region.inDomain) {
@@ -443,6 +490,7 @@ async function run() {
       }
     }
   }
+  regionRoster.push(texas);
   await showState('After initialization');
 
   let region: ProtoRegion | null = regions[1][1];
@@ -476,7 +524,7 @@ async function run() {
       }
     }
   }
-  await showState('Completion');
+  await showState('Completed');
 }
 
 async function showState(point: string) {
@@ -492,7 +540,9 @@ async function showState(point: string) {
   }
   console.log('\n  ' + [texas, usa, mexico].map((r) => r.toState()).join(' | '));
   console.log();
-  await inputKey();
+  if (point != 'Completed') {
+    await inputKey();
+  }
 }
 
 async function inputKey() {
