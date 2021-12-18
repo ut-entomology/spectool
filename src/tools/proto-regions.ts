@@ -1,3 +1,12 @@
+/**
+ * This algorithm addresses the problem in which comparing localities normally
+ * requires comparing each locality to all other localities at N^2 complexity.
+ * The algorithm strives to minimize the number of regions for which localities
+ * are cached at any given time, keeping only those that really need to be
+ * compared to others already cached. It does this by restricting comparisons
+ * to just adjacent localities and relevant containing or contained localities.
+ */
+
 export {};
 
 let regions: ProtoRegion[][] = [];
