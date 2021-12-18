@@ -16,7 +16,7 @@ class ProtoRegion {
   inDomain: boolean;
   localityTotal: number;
   status = RegionStatus.Pending;
-  adjacentUncachedCount = 0;
+  adjoiningPendingCount = 0;
   sequence = 0;
   processed = false;
 
@@ -29,7 +29,7 @@ class ProtoRegion {
 
   toState(): string {
     let s = this.status == RegionStatus.Cached ? '*' : '';
-    s += `${this.code}:${this.adjacentUncachedCount}`;
+    s += `${this.code}:${this.adjoiningPendingCount}`;
     if (this.sequence > 0) {
       s = `(${this.sequence})${s}`;
     }
@@ -274,6 +274,13 @@ function getParentRegions(region: ProtoRegion): ProtoRegion[] {
   return [usa];
 }
 
+/**
+ * Visit regions around a target region for the purpose of incrementing or
+ * decrementing the target region's adjoiningPendingCount. Handles visits to
+ * domain and non-domain regions differently, so that non-domain regions
+ * don't unecessarily visit other non-domain regions.
+ */
+
 abstract class RegionVisitor {
   visitorName: string;
 
@@ -283,27 +290,30 @@ abstract class RegionVisitor {
 
   async visitAroundRegion(aroundRegion: ProtoRegion) {
     if (aroundRegion.inDomain) {
-      this._note('visiting all around in-domain region', aroundRegion);
+      // Visit all regions adjoining a domain region
+      this._note('visiting all regions adjoining a domain region', aroundRegion);
       for (const nearRegion of this._getAllNearRegions(aroundRegion)) {
         await this._visitAroundDomainRegion(nearRegion);
         if (this._visitationRestriction(nearRegion)) {
-          await this._visitAdjacentPendingRegion(nearRegion, aroundRegion);
+          await this._visitSubsetAroundDomainRegion(nearRegion, aroundRegion);
           //await this._showState('after in-domain all', nearRegion, aroundRegion);
         }
       }
     } else {
-      this._note('visiting adjacent around non-domain region', aroundRegion);
+      // Visit regions adjacenct to a non-domain region
+      this._note('visiting regions adjacenct to a non-domain region', aroundRegion);
       for (const nearRegion of getAdjacentRegions(aroundRegion)) {
         if (nearRegion.inDomain && this._visitationRestriction(nearRegion)) {
-          await this._visitAroundNonDomainRegion(nearRegion, aroundRegion);
+          await this._visitSubsetAroundNonDomainRegion(nearRegion, aroundRegion);
           //await this._showState('after non-domain adjacent', nearRegion, aroundRegion);
         }
       }
       if (overDomain.includes(aroundRegion)) {
-        this._note('visiting children of non-domain region', aroundRegion);
+        // Visit child regions of a non-domain region
+        this._note('visiting child regions of a non-domain region', aroundRegion);
         for (const childRegion of getChildRegions(aroundRegion)) {
           if (childRegion.inDomain && this._visitationRestriction(childRegion)) {
-            await this._visitAroundNonDomainRegion(childRegion, aroundRegion);
+            await this._visitSubsetAroundNonDomainRegion(childRegion, aroundRegion);
             //await this._showState('after non-domain child', childRegion, aroundRegion);
           }
         }
@@ -318,16 +328,16 @@ abstract class RegionVisitor {
     return Promise.resolve();
   }
 
-  abstract _visitAdjacentPendingRegion(
+  abstract _visitSubsetAroundDomainRegion(
     nearRegion: ProtoRegion,
     aroundRegion: ProtoRegion
   ): Promise<void>;
 
-  async _visitAroundNonDomainRegion(
+  async _visitSubsetAroundNonDomainRegion(
     nearRegion: ProtoRegion,
     aroundRegion: ProtoRegion
   ): Promise<void> {
-    await this._visitAdjacentPendingRegion(nearRegion, aroundRegion);
+    await this._visitSubsetAroundDomainRegion(nearRegion, aroundRegion);
   }
 
   _getAllNearRegions(aroundRegion: ProtoRegion): ProtoRegion[] {
@@ -354,7 +364,15 @@ abstract class RegionVisitor {
   }
 }
 
-class CacheSingleRegionVisitor extends RegionVisitor {
+/**
+ * Visitor of neighbors around a newly cached region.
+ */
+
+class NewlyCachedRegionNeighborVisitor extends RegionVisitor {
+  constructor() {
+    super('cache single');
+  }
+
   _visitationRestriction(nearRegion: ProtoRegion) {
     return nearRegion.status == RegionStatus.Pending;
   }
@@ -365,104 +383,99 @@ class CacheSingleRegionVisitor extends RegionVisitor {
     }
   }
 
-  async _visitAdjacentPendingRegion(
+  async _visitSubsetAroundDomainRegion(
     nearRegion: ProtoRegion,
     aroundRegion: ProtoRegion
   ) {
-    aroundRegion.adjacentUncachedCount += nearRegion.localityTotal;
-    await this._showState('read adjacent pending region', nearRegion, aroundRegion);
+    // Increment pending count due to adjoining pending region
+    aroundRegion.adjoiningPendingCount += nearRegion.localityTotal;
+    await this._showState(
+      'increment pending count due to adjoining pending region',
+      nearRegion,
+      aroundRegion
+    );
   }
 }
-const cacheSingleRegionVisitor = new CacheSingleRegionVisitor('cache single');
+const newlyCachedRegionNeighborVisitor = new NewlyCachedRegionNeighborVisitor();
 
 class PendingNearDomainRegionVisitor extends RegionVisitor {
+  constructor() {
+    super('prep to remove');
+  }
+
   _visitationRestriction(nearRegion: ProtoRegion) {
     return nearRegion.status == RegionStatus.Cached;
   }
 
-  async _visitAdjacentPendingRegion(
+  async _visitSubsetAroundDomainRegion(
     nearRegion: ProtoRegion,
     aroundRegion: ProtoRegion
   ) {
-    nearRegion.adjacentUncachedCount -= aroundRegion.localityTotal;
-    await this._showState('read around region', nearRegion, aroundRegion);
+    // Decrement pending count for newly cached region adjoining domain region
+    nearRegion.adjoiningPendingCount -= aroundRegion.localityTotal;
+    await this._showState(
+      'decrement pending count for newly cached region adjoining domain region',
+      nearRegion,
+      aroundRegion
+    );
   }
 }
-const pendingNearDomainRegionVisitor = new PendingNearDomainRegionVisitor(
-  'prep to remove'
-);
+const pendingNearDomainRegionVisitor = new PendingNearDomainRegionVisitor();
 
-class CacheAroundRegionVisitor extends RegionVisitor {
+/**
+ * Visits around a region to finish caching its neighbors so that the
+ * region's localities can be processed.
+ */
+
+class FinishCachingAroundRegionVisitor extends RegionVisitor {
+  constructor() {
+    super('cache around');
+  }
+
   _visitationRestriction(nearRegion: ProtoRegion) {
     return nearRegion.status == RegionStatus.Pending;
   }
 
-  async _visitAdjacentPendingRegion(
+  async _visitSubsetAroundDomainRegion(
     nearRegion: ProtoRegion,
     _aroundRegion: ProtoRegion
   ) {
-    await cacheRegion(nearRegion);
+    await cachePendingRegion(nearRegion);
     await pendingNearDomainRegionVisitor.visitAroundRegion(nearRegion);
   }
 
-  async _visitAroundNonDomainRegion(
+  async _visitSubsetAroundNonDomainRegion(
     nearRegion: ProtoRegion,
     _aroundRegion: ProtoRegion
   ): Promise<void> {
-    await cacheRegion(nearRegion);
+    await cachePendingRegion(nearRegion);
     for (const aroundNearRegion of this._getAllNearRegions(nearRegion)) {
       if (aroundNearRegion.status == RegionStatus.Cached) {
-        aroundNearRegion.adjacentUncachedCount -= nearRegion.localityTotal;
-        await this._showState('read around near region', aroundNearRegion, nearRegion);
+        // Decrement pending count for newly cached region adjoining non-domain region
+        aroundNearRegion.adjoiningPendingCount -= nearRegion.localityTotal;
+        await this._showState(
+          'decrement pending count for newly cached region adjoining non-domain region',
+          aroundNearRegion,
+          nearRegion
+        );
       }
     }
   }
 }
-const cacheAroundRegionVisitor = new CacheAroundRegionVisitor('cache around');
+const finishCachingAroundRegionVisitor = new FinishCachingAroundRegionVisitor();
 
-async function cacheRegion(regionToCache: ProtoRegion) {
+/**
+ * Fully caches the neighbors around a pending region.
+ */
+
+async function cachePendingRegion(regionToCache: ProtoRegion) {
   if (cachedLocalities.includes(regionToCache)) {
     throw Error(`Already cached region ${regionToCache.code}`);
   }
   cachedLocalities.push(regionToCache);
   regionToCache.status = RegionStatus.Cached;
-  await cacheSingleRegionVisitor.visitAroundRegion(regionToCache);
+  await newlyCachedRegionNeighborVisitor.visitAroundRegion(regionToCache);
 }
-
-//   // abstract the remainder of the function
-//   if (regionToCache.inDomain) {
-//     let regions = getAdjacentRegions(regionToCache);
-//     regions = regions.concat(getParentRegions(regionToCache));
-//     regions = regions.concat(getChildRegions(regionToCache));
-//     for (const region of regions) {
-//       // provide the following block as param X
-//       if (!regionRoster.includes(region)) {
-//         regionRoster.push(region);
-//       }
-//       if (region.status == RegionStatus.Pending) {
-//         // provide the contents of this block as param Y
-//         regionToCache.adjacentUncachedCount += region.localityTotal;
-//       }
-//     }
-//   } else {
-//     for (const region of getAdjacentRegions(regionToCache)) {
-//       // provide the 2nd of these conditions as param A
-//       if (region.inDomain && region.status == RegionStatus.Pending) {
-//         // provide the contents of this block as param Z
-//         regionToCache.adjacentUncachedCount += region.localityTotal;
-//       }
-//     }
-//     if (overDomain.includes(regionToCache)) {
-//       for (const region of getChildRegions(regionToCache)) {
-//         // provide the 2nd of these conditions as param A
-//         if (region.inDomain && region.status == RegionStatus.Pending) {
-//           // provide the contents of this block as param Z
-//           regionToCache.adjacentUncachedCount += region.localityTotal;
-//         }
-//       }
-//     }
-//   }
-// }
 
 function processRegion(region: ProtoRegion) {
   region.processed = true;
@@ -494,7 +507,7 @@ async function run() {
   await showState('After initialization');
 
   let region: ProtoRegion | null = regions[1][1];
-  await cacheRegion(region);
+  await cachePendingRegion(region);
   let sequence = 0;
 
   // Loop
@@ -503,8 +516,8 @@ async function run() {
     await showState('Top of loop');
 
     // Consolidate
-    if (region.adjacentUncachedCount != 0) {
-      await cacheAroundRegionVisitor.visitAroundRegion(region);
+    if (region.adjoiningPendingCount != 0) {
+      await finishCachingAroundRegionVisitor.visitAroundRegion(region);
     }
     processRegion(region);
     // the following would actually be done per locality
@@ -517,9 +530,9 @@ async function run() {
     for (const prospect of regionRoster) {
       if (
         prospect.status == RegionStatus.Cached &&
-        prospect.adjacentUncachedCount < lowestUncachedCount
+        prospect.adjoiningPendingCount < lowestUncachedCount
       ) {
-        lowestUncachedCount = prospect.adjacentUncachedCount;
+        lowestUncachedCount = prospect.adjoiningPendingCount;
         region = prospect;
       }
     }
