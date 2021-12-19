@@ -1,7 +1,8 @@
 # Locality Consolidation Algorithm
 
-// TODO: Handle adjacencies not reporting to lowest geographic rank.
-// TODO: Support localities/regions pulled in via CSV or via single newly added record.
+// TODO: Handle adjacencies not reporting to lowest geographic rank. Normally when comparing the localities of regions, every locality designated with one region is potentially compared with every locality designated with the other region. But if the adjacency engine does not report the adjacency of lowest-ranked localities, localities designated with those regions will be left out of the comparison. Hence, when comparing with a region pulled in via adjacency, if that adjacency is marked as the lowest-rank provided adjacency and it is not a county, then the comparison needs to include all localities contained within the region, even those of lower ranks. (So it seems that I need to attach a boolean to regions indicating: region was pulled in via adjacency AND region is the lowest rank available via adjacency AND the region rank is not county. But do I need to track whether it was pulled in via adjacency?) This seems like a question of which localities to pull in upon comparing regions.
+
+// TODO: Support localities/regions pulled in via CSV or via single newly added record. When importing a CSV or entering a single new record, the domain is the set of region in the CSV or the region in the new record. And when processing an domain region, each locality of the CSV (or the new locality) is compared against the localities of the adjoining regions (including the region itself). When processing a non-domain region, each locality of the non-domain region is compared only to localities in the CSV or the locality of the new record.
 
 ## Important Notes
 
@@ -53,7 +54,8 @@ The key is the region's geography ID. The value is a structure containing the fo
 (+) inDomain: Whether the region is in the domain
 (+) localityTotal: The number of localities that point to the region as the most-specific region for the locality. The implementation could compute this on-demand and save computed values for reuse later.
 (+) status: "pending" indicates that its localities must be examined but haven't been cached yet; "cached" indicates that the localities have been cached but not examined yet; "complete" indicates that the localities have been examined and their caches removed. Initialized to "pending".
-(+) adjacentUncachedCount: The total number of localities remaining to be cached in all adjacent regions. This value is initialized to zero but only meaningful in cached regions.
+(+) adjoiningPendingCount: The total number of localities remaining to be cached in all adjacent regions. This value is initialized to zero but only meaningful in cached regions.
+(+) includesLowerRanks: Whether the region not only represents localities designated with this region, but also all localities designated with lower-ranked regions that the region contains. Needed to support adjacencies that aren't given at the lowest possible rank.
 
 RegionRoster is initialized to the regions of the domain, including all regions contained within regions of the domain. Regions adjacent to those in the domain are added to the region roster as needed.
 
@@ -66,15 +68,15 @@ Define function cacheRegion(region to cache (C)):
 			(+) If (A) is not in RegionRoster:
 				(+) Add (A) to RegionRoster with status "pending".
 			(+) If (A) has status "pending":
-				(+) Add (A)'s localityTotal to (C)'s adjacentUncachedCount.
+				(+) Add (A)'s localityTotal to (C)'s adjoiningPendingCount.
 	(+) Else:
 		(+) For each region (A) strictly adjacent to (C):
 			(+) If (A) is in the domain and has status "pending":
-				(+) Add (A)'s localityTotal to (C)'s adjacentUncachedCount.
+				(+) Add (A)'s localityTotal to (C)'s adjoiningPendingCount.
 		(+) If (C) is in the over domain:
 			(+) For each region (A) contained in (C):
 				(+) If (A) is in the domain and has status "pending":
-					(+) Add (A)'s localityTotal to (C)'s adjacentUncachedCount.
+					(+) Add (A)'s localityTotal to (C)'s adjoiningPendingCount.
 
 ### LocalityCache
 
@@ -134,7 +136,7 @@ The file is deleted after consolidation completes.
 	
 (+) If the user's LocalityWork already exists:
 
-	(+) Set (R) to an arbitrarily selected cached region of RegionRoster having the lowest candidate value of adjacentUncachedCount.
+	(+) Set (R) to an arbitrarily selected cached region of RegionRoster having the lowest candidate value of adjoiningPendingCount.
 
 ## Outer Processing Loop
 
@@ -143,41 +145,41 @@ Select each next region to process in a way that minimizes the number of localit
 Processes the current region (R), which must be a cached region of RegionRoster.
 
 (+) Consolidate and remove (R) as follows:
-	(+) If (R)'s adjacentUncachedCount is not zero:
+	(+) If (R)'s adjoiningPendingCount is not zero:
 		(+) If (R) is in the domain:
 			(+) For each region (U) in the set containing regions strictly adjacent to (R), regions containing (R), and regions contained in (R):
 				(+) If (U) has status "pending":
 					(+) Call RegionStatuses.cacheRegion(U).
 					(+) If (U) is in the domain:
 						(+) For each cached region (A) in the set containing regions strictly adjacent to (U), regions containing (U), and regions contained in (U):
-							(+) Subtract (U)'s localityTotal from (A)'s adjacentUncachedCount.
+							(+) Subtract (U)'s localityTotal from (A)'s adjoiningPendingCount.
 					(+) Else:
 						(+) For each cached region (A) strictly adjacent to (U):
 							(+) If (A) is in the domain:
-								(+) Subtract (U)'s localityTotal from (A)'s adjacentUncachedCount.
+								(+) Subtract (U)'s localityTotal from (A)'s adjoiningPendingCount.
 						(+) If (U) is in the over domain:
 							(+) For each cached region (A) contained in (U):
 								(+) If (A) is in the domain:
-									(+) Subtract (U)'s localityTotal from (A)'s adjacentUncachedCount.
+									(+) Subtract (U)'s localityTotal from (A)'s adjoiningPendingCount.
 		(+) Else:
 			(+) For each region (U) strictly adjacent to (R):
 				(+) If (U) is in the domain and has status "pending":
 					(+) Call RegionStatuses.cacheRegion(U).
 					(+) For each cached region (A) in the set containing regions strictly adjacent to (U), regions containing (U), and regions contained in (U):
-						(+) Subtract (U)'s localityTotal from (A)'s adjacentUncachedCount.
+						(+) Subtract (U)'s localityTotal from (A)'s adjoiningPendingCount.
 			(+) If (R) is in the over domain:
 				(+) For each region (U) contained in (R):
 					(+) If (U) is in the domain and has status "pending":
 						(+) Call RegionStatuses.cacheRegion(U).
 						(+) For each cached region (A) in the set containing regions strictly adjacent to (U), regions containing (U), and regions contained in (U):
-							(+) Subtract (U)'s localityTotal from (A)'s adjacentUncachedCount.
+							(+) Subtract (U)'s localityTotal from (A)'s adjoiningPendingCount.
 	[Note: At this point, there are no pending regions adjacent to (R).]
 	(+) Process (R) according to the region consolidation algorithm.
 	(+) Mark (R) as complete in RegionRoster.
 
 (+) Select the next region to consolidate as follows:
 	(+) If RegionRoster contains at least one cached region:
-		(+) Set (R) to an arbitrarily selected cached region of RegionRoster having the lowest candidate value of adjacentUncachedCount.
+		(+) Set (R) to an arbitrarily selected cached region of RegionRoster having the lowest candidate value of adjoiningPendingCount.
 	(+) Else:
 		(+) Set (R) to end the loop.
 
