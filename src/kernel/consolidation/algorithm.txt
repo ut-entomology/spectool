@@ -52,7 +52,7 @@ The key is the region's geography ID. The value is a structure containing the fo
 
 (+) rank: The region's geographic rank (in Specify)
 (+) inDomain: Whether the region is in the domain
-(+) localityTotal: The number of localities that point to the region as the most-specific region for the locality. The implementation could compute this on-demand and save computed values for reuse later.
+(+) localityTotal: The number of localities that point to the region as the most-specific region for the locality. The implementation could compute this on-demand and save computed values for reuse later. If includesLowerRanks is true, add to this number the number of localities in all regions contained within the present region.
 (+) status: "pending" indicates that its localities must be examined but haven't been cached yet; "cached" indicates that the localities have been cached but not examined yet; "complete" indicates that the localities have been examined and their caches removed. Initialized to "pending".
 (+) adjoiningPendingCount: The total number of localities remaining to be cached in all adjacent regions. This value is initialized to zero but only meaningful in cached regions.
 (+) includesLowerRanks: Whether the region not only represents localities designated with this region, but also all localities designated with lower-ranked regions that the region contains. Needed to support adjacencies that aren't given at the lowest possible rank.
@@ -60,8 +60,9 @@ The key is the region's geography ID. The value is a structure containing the fo
 RegionRoster is initialized to the regions of the domain, including all regions contained within regions of the domain. Regions adjacent to those in the domain are added to the region roster as needed.
 
 Define function cacheRegion(region to cache (C)):
-	(+) Cache the localities for (C) in LocalityCache.
-	(+) Update PhoneticLocalityIndex for (C)'s phonetic codes.
+	(+) For each locality (L1) in localitiesOfRegion(C, C.includesLowerRanks):
+		(+) Cache (L1) in LocalityCache.
+		(+) Update PhoneticLocalityIndex for (L1)'s phonetic codes.
 	(+) Mark (C) as cached in RegionRoster.
 	(+) If (C) is in the domain:
 		(+) For each region (A) in the set containing regions strictly adjacent to (C), regions containing (C), and regions contained in (C):
@@ -193,7 +194,7 @@ Processes the current region (R), which must be a cached region of RegionRoster.
 
 Process the region (R), which must be a cached region.
 
-(+) For each locality (L1) in (R):
+(+) For each locality (L1) in localitiesOfRegion(R, R.includesLowerRanks):
 	(+) For each phonetic code (P) in (L1):
 		(+) For each locality (L2) associated with (P) in PhoneticLocalityIndex:
 			(+) If (L2)'s region is adjacent to (R)*:
@@ -210,6 +211,13 @@ Process the region (R), which must be a cached region.
 	(+) Remove (L1) from LocalityCache.
 
 * This could probably be made efficient by keeping a list of string representations of the geographic IDs adjacent to (R) and first looking up the geographic ID in PhoneticLocalityIndex's lookup key for (L2) in this list.
+
+Define function localitiesOfRegion(cached region R, includesLowerRanks):
+	(+) Let L be the set of localities assigned to region R.
+	(+) If includesLowerRanks:
+		(+) For each region S immediately contained in R:
+			(+) Add localitiesOfRegion(S, true) to L.
+	(+) Return L.
 
 NOTE: I'll need to experiment with phonetic algorithms. I'll do this by running the program on different algorithms. But this may require faking locality mergers so that I'm not correcting the database and preventing myself from running the same experiment with another algorithm. I'm punting on how to handle algorithms until then.
 
