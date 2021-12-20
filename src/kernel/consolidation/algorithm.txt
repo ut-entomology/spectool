@@ -194,7 +194,7 @@ Processes the current region (R), which must be a cached region of RegionRoster.
 
 Process the region (R), which must be a cached region.
 
-(+) For each locality (L1) in localitiesOfRegion(R, R.includesLowerRanks):
+(+) For each locality (L1) in localitiesOfRegion(R, R.includesLowerRanks) [Note: I could just iterate over all localities cached for (R), but this would have to include contained regions when those were cached for (R) too]:
 	(+) For each phonetic code (P) in (L1):
 		(+) For each locality (L2) associated with (P) in PhoneticLocalityIndex:
 			(+) If (L2)'s region is adjacent to (R)*:
