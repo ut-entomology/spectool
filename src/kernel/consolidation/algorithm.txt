@@ -231,8 +231,8 @@ Process the region (R), which must be a cached region.
 (+) For each region (R1) in includedRegions(R, R.includesLowerRanks):
 	(+) For each locality (L1) cached in LocalityCache for (R1):
 		(+) Let (D) be the set of the IDs of the localities that have been compared with (L1), initially empty.
-		(+) For each phonetic code (P) in (L1):
-			(+) For each locality (L2) associated with (P) in PhoneticLocalityIndex:
+		(+) For each phonetic code (P1) in (L1):
+			(+) For each locality (L2) associated with (P1) in PhoneticLocalityIndex:
 				(+) If (L2) is not in (D):
 					(+) Let (R2) be the region assigned to (L2).
 					(+) If (R1) is in the domain and ((R2) is adjacent to (R), contains (R), or contained in (R)), or if (R2) is in the domain and is adjacent to (R) [notes: because (R1) is not in the domain, (R2) won't contain or be contained in (R); the comparison is with (R) not (R1) because adjacencies may be defined for (R1)]:
@@ -247,6 +247,23 @@ Process the region (R), which must be a cached region.
 								(+) If the user answers "no":
 									(+) Add all pairs of word series from (L1) and (L2) having identical phonetic series to ExcludedMatchesStore, where not already in ExcludedMatchesStore.
 							(+) Add (L2) to (D).
+			(+) Let (H) be the set of phonetic series associated with (P1) in PhoneticLocalityIndex and found in (L1).
+			(+) For each phonetic code (P2) found in (H):
+				(+) For each locality (L2) associated with (P2) in PhoneticLocalityIndex:
+					(+) If (L2) is not in (D):
+						(+) If (L2) contains a phonetic series (Z2) synonymous with one (Z1) in (H), according to PotentialSynonymsStore:
+							(+) If the word series (W1) for (Z1) is not paired with the word series (W2) for (Z2) in ExcludedMatchesStore:
+								(+) Ask the user whether (L1) represents the same locality as (L2).
+									(+) If the user answers "yes":
+										(+) Have the user to select one of the localities.
+										(+) Give the user a chance to edit the selected locality.
+										(+) Point the records associated with (L1) and (L2) to the corrected locality.
+										(+) Update the cached locality for the correction.
+										(+) Update PhoneticLocalityIndex for the correction.
+									(+) If the user answers "no":
+										(+) Add the pair (W1) and (W2) to ExcludedMatchesStore.
+								(+) Add (L2) to (D).
+
 	(+) Remove (L1)'s contribution to PhoneticLocalityIndex.
 	(+) Remove (L1) from LocalityCache.
 
