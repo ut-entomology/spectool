@@ -1,8 +1,14 @@
 # Locality Consolidation Algorithm
 
-// TODO: Handle adjacencies not reporting to lowest geographic rank. Normally when comparing the localities of regions, every locality designated with one region is potentially compared with every locality designated with the other region. But if the adjacency engine does not report the adjacency of lowest-ranked localities, localities designated with those regions will be left out of the comparison. Hence, when comparing with a region pulled in via adjacency, if that adjacency is marked as the lowest-rank provided adjacency and it is not a county, then the comparison needs to include all localities contained within the region, even those of lower ranks. (So it seems that I need to attach a boolean to regions indicating: region was pulled in via adjacency AND region is the lowest rank available via adjacency AND the region rank is not county. But do I need to track whether it was pulled in via adjacency?) This seems like a question of which localities to pull in upon comparing regions.
+// TODO: When a locality is merged into another locality, the former must never show up again for potential consolidation, such as when the algorithm is processing an adjacent region. And when two localities are merged, the result of that merger must appear in subsequent locality comparisons for that region. A merger can result in changing a geographic region, so it seems that the prior localities would be removed from the algorithm and a new locality added.
 
-// TODO: Support localities/regions pulled in via CSV or via single newly added record. When importing a CSV or entering a single new record, the domain is the set of region in the CSV or the region in the new record. And when processing an domain region, each locality of the CSV (or the new locality) is compared against the localities of the adjoining regions (including the region itself). When processing a non-domain region, each locality of the non-domain region is compared only to localities in the CSV or the locality of the new record.
+// TODO: Locality names can be identical in different regions, and the user needs to be able to exclude specific region/locality combinations.
+
+// TODO: Support user-defined synonyms.
+
+// TODO: In the UI, look for locality remarks indicating James localities and require the user to confirm not consolidating to a James locality.
+
+// TODO: [ON HOLD] Support localities/regions pulled in via CSV or via single newly added record. When importing a CSV or entering a single new record, the domain is the set of region in the CSV or the region in the new record. And when processing an domain region, each locality of the CSV (or the new locality) is compared against the localities of the adjoining regions (including the region itself). When processing a non-domain region, each locality of the non-domain region is compared only to localities in the CSV or the locality of the new record.
 
 ## Important Notes
 
@@ -89,9 +95,14 @@ The key is a locality key, allowing localities to be looked up or deleted as a g
 
 Associates phonetic codes with cached localities whose phonetically-encoded text contains at least one instance of the phonetic code. Used to process groups of localities all sharing phonetic codes for possible presentation to the user to consider for consolidation.
 
-They key is a phonetic code. The value is a list of locality keys.
+They key is a phonetic code. The value is the following structure:
 
-When a cached locality is removed from the LocalityCache, its locality keys are removed from all of its phonetic codes in PhoneticLocalityIndex. When a phonetic key loses all of its associated locality keys, the record is removed from PhoneticLocalityIndex, thus keeping the size of PhoneticLocalityIndex to the minimum needed.
+(+) localityKeys: a list of the keys for localities containing a word with the phonetic code given by the key.
+(+) synonyms: a list of the phonetic series found in PotentialSynonymsStore that contain the phonetic code given by the key
+
+When a cached locality is removed from the LocalityCache, its locality keys are removed from all of its phonetic codes in PhoneticLocalityIndex. When a phonetic key loses all of its associated locality keys, the record is removed from PhoneticLocalityIndex if there are no synonyms, thus keeping the size of PhoneticLocalityIndex to the minimum needed.
+
+For now, the number of synonyms is expected to be small, so it's okay to keep entries around for the phonetic codes with synonyms, even if none of the cached localities use them.
 
 ### ExcludedMatchesStore (X)
 
@@ -102,6 +113,27 @@ The key is a word series. The value is a list of word series, possibly empty. If
 Each value of each key K also appears as a key in ExcludedMatchesStore indicating that it is not a match for the word series given by key K.
 
 A word series is said to be paired with another word series in ExcludedMatchesStore if using one word series as a key yields a value containing the other word series.
+
+### PotentialSynonymsStore
+
+Stores words and phrases that the user has indicated are synonymous, but in a way that treats entities phonetically identical to synonymous entities as potentially synonymous.
+
+// TODO: It doesn't really make sense to use a phonetic series as a key, because I'll never look it up, unless I create a separate index of phonetic series by phonetic code.
+
+The key is a phonetic series for a word or phrase. The value consists of the following:
+
+(+) wordSeries: the word series for the synonymous
+(+) equivalents: a list of equivalents, each entry consisting of the following:
+	(+) wordSeries: an equivalent word series
+	(+) phoneticSeries: the phonetic series for the equivalent word series
+
+Every equivalent phoneticSeries is also a key in PotentialSynonymsStore.
+
+If a locality being examined for potential duplication contains a phonetic series found in PotentialSynonymsStore, it is offered for comparison with all localities containing any of the associated equivalent phonetic series, unless their associated word series are paired in ExcludedMatchesStore.
+
+Whenever the UI presents a locality to the user, all synonyms associated with that locality are also displayed, and the user is given the opportunity add, remove, or modify these synonyms. The UI only allows the user to establish synonyms for phonetic series found in the locality currently under consideration.
+
+Potential synonyms can change over the course of consolidation, and after each change, subsequent consolidation should use the new synonyms.
 
 ## Storage Files
 
@@ -193,6 +225,8 @@ Processes the current region (R), which must be a cached region of RegionRoster.
 // TODO: Explore more efficient alternatives than iterating over phonetic codes in (L1). Can I better take advantage of adjacency?
 
 Process the region (R), which must be a cached region.
+
+// TODO: Also pull in all adjoining localities containing any phonetic code found in a synonym associated with a phonetic code of the locality (L1). But then I need to iterate through the set of localities matching each (L1) according to whether there is a phonetic code in common or a synonymous phonetic series before checking exclusions and offering a possible match.
 
 (+) For each locality (L1) in localitiesOfRegion(R, R.includesLowerRanks) [Note: I could just iterate over all localities cached for (R), but this would have to include contained regions when those were cached for (R) too]:
 	(+) For each phonetic code (P) in (L1):
