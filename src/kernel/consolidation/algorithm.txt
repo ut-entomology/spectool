@@ -226,12 +226,13 @@ Processes the current region (R), which must be a cached region of RegionRoster.
 
 Process the region (R), which must be a cached region.
 
-// TODO: Also pull in all adjoining localities containing any phonetic code found in a synonym associated with a phonetic code of the locality (L1). But then I need to iterate through the set of localities matching each (L1) according to whether there is a phonetic code in common or a synonymous phonetic series before checking exclusions and offering a possible match.
+// TODO: Support dynamic changes to synonymous phonetic series. This mainly seems to be a problem for previously-completed regions, which won't be examined for the change. The simplest thing to do would be to record the fact that some regions were not examined with newly added synonyms and offer to re-consoliate everything again to account for the new synonyms. I could later optimize this by recording the times at which regions were added and the times at which synonyms were added, restricting comparisons to just the regions that need to be re-examined. Localities previously examined within a region also would not be re-examined, so the region in progress at the timem of adding a new synonym would also need to be re-examined.
 
 (+) For each region (R1) in includedRegions(R, R.includesLowerRanks):
 	(+) For each locality (L1) cached in LocalityCache for (R1):
 		(+) Let (D) be the set of the IDs of the localities that have been compared with (L1), initially empty.
 		(+) For each phonetic code (P1) in (L1):
+
 			(+) For each locality (L2) associated with (P1) in PhoneticLocalityIndex:
 				(+) If (L2) is not in (D):
 					(+) Let (R2) be the region assigned to (L2).
@@ -241,12 +242,14 @@ Process the region (R), which must be a cached region.
 								(+) If the user answers "yes":
 									(+) Have the user to select one of the localities.
 									(+) Give the user a chance to edit the selected locality.
+									(+) Give the user a chance to update synonymous phonetic series.
 									(+) Point the records associated with (L1) and (L2) to the corrected locality.
 									(+) Update the cached locality for the correction.
 									(+) Update PhoneticLocalityIndex for the correction.
 								(+) If the user answers "no":
 									(+) Add all pairs of word series from (L1) and (L2) having identical phonetic series to ExcludedMatchesStore, where not already in ExcludedMatchesStore.
 							(+) Add (L2) to (D).
+							
 			(+) Let (H) be the set of phonetic series associated with (P1) in PhoneticLocalityIndex and found in (L1).
 			(+) For each phonetic code (P2) found in (H):
 				(+) For each locality (L2) associated with (P2) in PhoneticLocalityIndex:
@@ -257,6 +260,7 @@ Process the region (R), which must be a cached region.
 									(+) If the user answers "yes":
 										(+) Have the user to select one of the localities.
 										(+) Give the user a chance to edit the selected locality.
+										(+) Give the user a chance to update synonymous phonetic series; dynamically update (H) so that the containing loops apply the change.
 										(+) Point the records associated with (L1) and (L2) to the corrected locality.
 										(+) Update the cached locality for the correction.
 										(+) Update PhoneticLocalityIndex for the correction.
