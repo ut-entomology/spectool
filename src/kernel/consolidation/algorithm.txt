@@ -228,23 +228,36 @@ Process the region (R), which must be a cached region.
 
 // TODO: Also pull in all adjoining localities containing any phonetic code found in a synonym associated with a phonetic code of the locality (L1). But then I need to iterate through the set of localities matching each (L1) according to whether there is a phonetic code in common or a synonymous phonetic series before checking exclusions and offering a possible match.
 
-(+) For each locality (L1) in localitiesOfRegion(R, R.includesLowerRanks) [Note: I could just iterate over all localities cached for (R), but this would have to include contained regions when those were cached for (R) too]:
-	(+) For each phonetic code (P) in (L1):
-		(+) For each locality (L2) associated with (P) in PhoneticLocalityIndex:
-			(+) If (L2)'s region is adjacent to (R)*:
-				(+) If at least one word series (W1) in (L1) has a phonetic series identical to a word series (W2) in (L2) such that (W1) is not paired with (W2) in ExcludedMatchesStore:
-					(+) Ask the user whether (L1) represents the same locality as (L2).
-						(+) If the user answers "yes":
-							(+) Have the user to select one of the localities.
-							(+) Give the user a chance to edit the selected locality.
-							(+) If (L1) and (L2) are both in the DB, merge them as the newly selected/edited locality.
-							(+) If (L1) or (L2) is in the CSV, either update the DB or the CSV, as required.
-						(+) If the user answers "no":
-							(+) Add all pairs of word series from (L1) and (L2) having identical phonetic series to ExcludedMatchesStore, where not already in ExcludedMatchesStore.
+(+) For each region (R1) in includedRegions(R, R.includesLowerRanks):
+	(+) For each locality (L1) cached in LocalityCache for (R1):
+		(+) Let (D) be the set of the IDs of the localities that have been compared with (L1), initially empty.
+		(+) For each phonetic code (P) in (L1):
+			(+) For each locality (L2) associated with (P) in PhoneticLocalityIndex:
+				(+) If (L2) is not in (D):
+					(+) Let (R2) be the region assigned to (L2).
+					(+) If (R1) is in the domain and ((R2) is adjacent to (R), contains (R), or contained in (R)), or if (R2) is in the domain and is adjacent to (R) [notes: because (R1) is not in the domain, (R2) won't contain or be contained in (R); the comparison is with (R) not (R1) because adjacencies may be defined for (R1)]:
+						(+) If at least one word series (W1) in (L1) has a phonetic series identical to a word series (W2) in (L2) such that (W1) is not paired with (W2) in ExcludedMatchesStore:
+							(+) Ask the user whether (L1) represents the same locality as (L2).
+								(+) If the user answers "yes":
+									(+) Have the user to select one of the localities.
+									(+) Give the user a chance to edit the selected locality.
+									(+) Point the records associated with (L1) and (L2) to the corrected locality.
+									(+) Update the cached locality for the correction.
+									(+) Update PhoneticLocalityIndex for the correction.
+								(+) If the user answers "no":
+									(+) Add all pairs of word series from (L1) and (L2) having identical phonetic series to ExcludedMatchesStore, where not already in ExcludedMatchesStore.
+							(+) Add (L2) to (D).
 	(+) Remove (L1)'s contribution to PhoneticLocalityIndex.
 	(+) Remove (L1) from LocalityCache.
 
 * This could probably be made efficient by keeping a list of string representations of the geographic IDs adjacent to (R) and first looking up the geographic ID in PhoneticLocalityIndex's lookup key for (L2) in this list.
+
+Define function includedRegions(region R, includesLowerRanks):
+	(+) Let S be the set containing (R).
+	(+) If includesLowerRanks:
+		(+) For each region immediately contained in (R):
+			(+) Add includedRegions(R, true) to S.
+	(+) Return S.
 
 Define function localitiesOfRegion(cached region R, includesLowerRanks):
 	(+) Let L be the set of localities assigned to region R.
