@@ -2,9 +2,7 @@
 
 // TODO: When a locality is merged into another locality, the former must never show up again for potential consolidation, such as when the algorithm is processing an adjacent region. And when two localities are merged, the result of that merger must appear in subsequent locality comparisons for that region. A merger can result in changing a geographic region, so it seems that the prior localities would be removed from the algorithm and a new locality added.
 
-// TODO: Locality names can be identical in different regions, and the user needs to be able to exclude specific region/locality combinations.
-
-// TODO: Support user-defined synonyms.
+// TODO: Locality names can be identical in different regions, and the user needs to be able to exclude specific region/locality combinations. I can probably no longer assume that asserting the non-equivalence of two localities means that the common phonetic series are not indicative of equivalence. I need to know why they are inequivalent, so I can look for that in exclusions. Reasons why could include different regions or even different coordinates in the same region. This also means that when multiple phonetic series are equivalent, only some of them might be inherently inequivalent. It seems that I need to ask the user to explicitly state the inequivalences. I could list all possibilities and have the user check all that apply.
 
 // TODO: In the UI, look for locality remarks indicating James localities and require the user to confirm not consolidating to a James locality.
 
@@ -108,17 +106,32 @@ For now, the number of synonyms is expected to be small, so it's okay to keep en
 
 Stores permanent knowledge about which pairs of word series having identical phonetic series are not to be considered suggestive of having duplicate localities.
 
-The key is a word series. The value is a list of word series, possibly empty. If the key is found in two different localities, their common phonetic series will not be considered a match for purposes of presenting a potential duplicate to the user. Similarly, if the key is found in one locality and one of its value word series is found in another locality, their common phonetic series will not be considered a match for purposes of presenting a potential duplicate to the user.
+The key is a word series. The value consists of the following:
 
-Each value of each key K also appears as a key in ExcludedMatchesStore indicating that it is not a match for the word series given by key K.
+(+) regions: an optional list of regions, given by their geographic IDs; when present, there will be at least two regions in the list, indicating different regions having the same locality description
+(+) coordinates: an optional list of lat/long coordinate pairs; when present, there will be at least two coordinate pairs, indicating locality descriptions that are to be considered distinct by virtue of their different coordinates
+(+) seriesList: a list of word series, possibly empty
 
-A word series is said to be paired with another word series in ExcludedMatchesStore if using one word series as a key yields a value containing the other word series.
+Regardless of whatever match was made between two localities, the two localities are not presented to the user as possible duplicates if any of the following criteria are met:
+
+(a) Both localities contain the word series given by a key of ExcludedMatchesStore, and the regions assigned to the localities are each associated with that key.
+(b) Both localities contain the word series given by a key of ExcludedMatchesStore, and the lat/long coordinate pairs assigned to the localities each match different coordinate pairs (C1) and (C2) associated with the key, within the precisions given by (C1) and (C2). This condition fails if either locality lacks a coordinate pair.
+(c) One locality contains a phonetic series for a word series that is a key of ExcludedMatchesStore and the other locality contains a phonetic series for a word series that is associated with that key.
+
+A word series is said to be paired with another word series in ExcludedMatchesStore if the word series satisfies any of the above conditions.
+
+Each word series of each key (Ki) also appears as a key in ExcludedMatchesStore containing (Ki).
+
+Possible reasons that two matching localities might be inequivalent:
+
+(+) Multiple localities can have the same name in the two specific regions.
+(+) Multiple localities can have the same name in the same region at different coordinates.
+(+) Any individual word series that phonetically match are always inequivalent.
+(+) Any individual phonetic word series for synonymous word series are always inequivalent.
 
 ### PotentialSynonymsStore
 
 Stores words and phrases that the user has indicated are synonymous, but in a way that treats entities phonetically identical to synonymous entities as potentially synonymous.
-
-// TODO: It doesn't really make sense to use a phonetic series as a key, because I'll never look it up, unless I create a separate index of phonetic series by phonetic code.
 
 The key is a phonetic series for a word or phrase. The value consists of the following:
 
@@ -238,24 +251,30 @@ Process the region (R), which must be a cached region.
 					(+) Let (R2) be the region assigned to (L2).
 					(+) If (R1) is in the domain and ((R2) is adjacent to (R), contains (R), or contained in (R)), or if (R2) is in the domain and is adjacent to (R) [notes: because (R1) is not in the domain, (R2) won't contain or be contained in (R); the comparison is with (R) not (R1) because adjacencies may be defined for (R1)]:
 						(+) If at least one word series (W1) in (L1) has a phonetic series identical to a word series (W2) in (L2) such that (W1) is not paired with (W2) in ExcludedMatchesStore:
-							(+) Ask the user whether (L1) represents the same locality as (L2).
-								(+) If the user answers "yes":
-									(+) Have the user to select one of the localities.
-									(+) Give the user a chance to edit the selected locality.
-									(+) Give the user a chance to update synonymous phonetic series.
-									(+) Point the records associated with (L1) and (L2) to the corrected locality.
-									(+) Update the cached locality for the correction.
-									(+) Update PhoneticLocalityIndex for the correction.
-								(+) If the user answers "no":
-									(+) Add all pairs of word series from (L1) and (L2) having identical phonetic series to ExcludedMatchesStore, where not already in ExcludedMatchesStore.
+							(+) Present the two matching localities to the user, clearly labeling (L1) as 'A' and (L2) as 'B'. ('A' remains constant until all similar localities are exhausted.)
+							(+) Present buttons labeled, "Replace A with B", "Replace B with A", and "Keep Both".
+							(+) Give the user a chance to edit either locality, and for each, update LocalityCache and PhoneticLocalityIndex as needed. If the user edits 'A', disable the button "Replace A with B", and if the user edits 'B', disable the button "Replace B with A". Both buttons can be simultaneously disabled. Each locality also has an "Undo Edits" button that re-enables the associated "replace" button.
+							(+) Give the user a chance to update synonymous phonetic series associated with either locality. These edits do not affect the "replace" buttons, because the user may be clarifying for other circumstances.
+							(+) If the user selects "Replace A with B":
+								(+) In Specify, point the records associated with (L1) to (L2).
+								(+) Delete (L1) from Specify.
+							(+) If the user selects "Replace B with A":
+								(+) In Specify, point the records associated with (L2) to (L1).
+								(+) Delete (L2) from Specify.
+							(+) If the user selects "Keep Both":
+								// TODO: Revise this
+								(+) Ask the user why, providing these possible answers:
+
+								(+) Add all pairs of word series from (L1) and (L2) having identical phonetic series to ExcludedMatchesStore, where not already in ExcludedMatchesStore.
 							(+) Add (L2) to (D).
-							
+
 			(+) Let (H) be the set of phonetic series associated with (P1) in PhoneticLocalityIndex and found in (L1).
 			(+) For each phonetic code (P2) found in (H):
 				(+) For each locality (L2) associated with (P2) in PhoneticLocalityIndex:
 					(+) If (L2) is not in (D):
 						(+) If (L2) contains a phonetic series (Z2) synonymous with one (Z1) in (H), according to PotentialSynonymsStore:
 							(+) If the word series (W1) for (Z1) is not paired with the word series (W2) for (Z2) in ExcludedMatchesStore:
+								// TODO: Revise this
 								(+) Ask the user whether (L1) represents the same locality as (L2).
 									(+) If the user answers "yes":
 										(+) Have the user to select one of the localities.
@@ -272,6 +291,8 @@ Process the region (R), which must be a cached region.
 	(+) Remove (L1) from LocalityCache.
 
 * This could probably be made efficient by keeping a list of string representations of the geographic IDs adjacent to (R) and first looking up the geographic ID in PhoneticLocalityIndex's lookup key for (L2) in this list.
+
+// TODO: I think users need to be given the ability to edit any locality on the spot, regardless of whether they are merging the localities, in case they see an error needing correcting. It's even possible that two phonetically similar localities with different word series are modified to have identical word series and yet the localities are to remain distinct. This includes changing coordinates and geographic region. An entry may need to be added to ExcludedMatchesStore based on the resulting edits.
 
 Define function includedRegions(region R, includesLowerRanks):
 	(+) Let S be the set containing (R).
