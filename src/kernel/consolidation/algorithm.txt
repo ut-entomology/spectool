@@ -4,8 +4,6 @@ This algorithm walks the user through consolidating the localities in a given ge
 
 ## Remaining To-Do Items
 
-(+) Support only consolidating localities uploaded on or after a given date.
-
 (+) Decide how to support applying dynammically-added synonymous phonetic series to previously-processed regions and to already-processed localities within the currently-processed region. It would be simplest to record the fact that some regions were not examined with newly added synonyms, and at completion of a round of consolidation, offer to re-consoliate everything again to account for the new synonyms. I could some day optimize this by recording the times at which regions were added and the times at which synonyms were added, restricting comparisons to just the regions that need to be re-examined.
 
 (+) (ON HOLD) Support localities/regions pulled in via CSV or via single newly added record. When importing a CSV or entering a single new record, the domain is the set of region in the CSV or the region in the new record. And when processing an domain region, each locality of the CSV (or the new locality) is compared against the localities of the adjoining regions (including the region itself). When processing a non-domain region, each locality of the non-domain region is compared only to localities in the CSV or the locality of the new record.
