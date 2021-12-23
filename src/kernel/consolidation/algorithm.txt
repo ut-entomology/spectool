@@ -1,12 +1,22 @@
 # Locality Consolidation Algorithm
 
-This algorithm walks the user through consolidating the localities in a given geographic region or set of geographic regions, optionally restricting consolidation to just the localities dated on or after a given baseline date. The process starts with many assumptions about what to look for in potential duplicate localities, and as consolidation proceeds, the user answers questions that gradually whittle down the assumptions so that fewer and fewer false matches are presented. During the process, the user may also enter prospective synonymous terms as they come to mind for the program to use in flagging possible duplicates. The program periodically presents the user with possibly-duplicate locality entries, and for each, the user decides whether or not the program should merge the localities or keep them distinct, optionally editing either locality, sometimes answering questions about the reason for a decision. The program gradually accumulates knowledge about what information is and is not useful for detecting duplicates, storing that information in a local file, which can be copied to other computers as needed. At this time, I have no idea how long this process takes or how long the user might have to wait between interactions with the computer, but I have implemented an algorithm that nearly eliminates the N-squared problem of comparing every locality with every other locality and only compares localities that are known to have something in common.
+This algorithm walks the user through consolidating the localities in a given geographic region or set of geographic regions, optionally restricting consolidation to just the localities dated on or after a given baseline date. The process starts with many assumptions about what to look for in potential duplicate localities, and as consolidation proceeds, the user answers questions that gradually whittle down the assumptions so that fewer and fewer false matches are presented. During the process, the user may also enter prospective synonymous terms as they come to mind for the program to use in flagging possible duplicates. The program periodically presents the user with possibly-duplicate locality entries, and for each, the user decides whether or not the program should merge the localities or keep them distinct, optionally editing either locality, sometimes answering questions about the reason for a decision. The program gradually accumulates knowledge about what information is and is not useful for detecting duplicates, storing that information in a local file, which can be copied to other computers as needed.
+
+The algorithm compares localities containing words having similar pronunciations, which is the only approach I could find for detecting misspellings short of comparing every word to every other word. The user can also declare synonymous words and phrases for use in comparisons, which the algorithm compares by pronunciation to try to catch misspellings. As consolidation proceeds, the user helps the program understand which sorts of matches are unhelpful, tracking the following sorts of mismatches:
+
+(+) Multiple localities having the same name in the two different regions.
+(+) Multiple localities having the same name in the same region at different coordinates.
+(+) Different series of words having identical pronunciations that are inequivalent.
+(+) Different series of words whose pronunciations are equivalent to word series that were declared synonymous but that are inequivalent.
+(+) Word series that are uninformative and should be ignored for matching purposes.
+
+At this time, I have no idea how long this process takes or how long the user might have to wait between interactions with the computer, but I have implemented an algorithm that nearly eliminates the N-squared problem of comparing every locality with every other locality and only compares localities that are known to have something in common. I also don't know how much disk space will be required to perform the consolidation, as the process requires simultaneously caching many localities. However, I have implemented some optimization that strives to minimize the number of localities cached at any given time, but I did not go with the greatest possible memory optimization, which would have forced the user to jump around from locality to locality instead of evaluating each locality for duplicates before moving on to the next.
 
 ## Remaining To-Do Items
 
-(+) Decide how to support applying dynammically-added synonymous phonetic series to previously-processed regions and to already-processed localities within the currently-processed region. It would be simplest to record the fact that some regions were not examined with newly added synonyms, and at completion of a round of consolidation, offer to re-consoliate everything again to account for the new synonyms. I could some day optimize this by recording the times at which regions were added and the times at which synonyms were added, restricting comparisons to just the regions that need to be re-examined.
+(+) Decide how to support applying dynamically-added synonymous phonetic series to previously-processed regions and to already-processed localities within the currently-processed region. It would be simplest to record the fact that some regions were not examined with newly added synonyms, and at completion of a round of consolidation, offer to re-consoliate everything again to account for the new synonyms. I could some day optimize this by recording the times at which regions were added and the times at which synonyms were added, restricting comparisons to just the regions that need to be re-examined.
 
-(+) (ON HOLD) Support localities/regions pulled in via CSV or via single newly added record. When importing a CSV or entering a single new record, the domain is the set of region in the CSV or the region in the new record. And when processing an domain region, each locality of the CSV (or the new locality) is compared against the localities of the adjoining regions (including the region itself). When processing a non-domain region, each locality of the non-domain region is compared only to localities in the CSV or the locality of the new record.
+(+) [ON HOLD] Support localities/regions pulled in via CSV or via single newly added record. When importing a CSV or entering a single new record, the domain is the set of region in the CSV or the region in the new record. And when processing an domain region, each locality of the CSV (or the new locality) is compared against the localities of the adjoining regions (including the region itself). When processing a non-domain region, each locality of the non-domain region is compared only to localities in the CSV or the locality of the new record.
 
 ## Important Notes
 
@@ -52,10 +62,6 @@ Indicates which geographic regions touch one another, associating regions by the
 (+) Adjacencies among U.S. states, Mexican states, and Canadian provinces.
 (+) Adjacencies among North American countries.
 
-The relationships that Specify provides also make it possible to navigate from county to state and from state or province to country. Each containing region is treated as adjacent to each of the regions it contains (and vice versa). And each region is considered adjacent to each region that contains an adjacent region (and vice versa).
-
-For the remainder of this document, regions are considered "adjacent" when they are adjacent according to AdjacentRegionsGraph.
-
 ### RegionRoster
 
 A list of the regions undergoing consolidation, serving as a to-do list for the consolidation algorithm. Regions are added to the region roster during consolidation but not removed until consolidation completes, so that the algorithm has access to the consolidation status of all regions found relevant.
@@ -95,7 +101,16 @@ Define function cacheRegion(region to cache (C)):
 
 Cached preprocessed localities. Prior to use, localities must be preprocessed to produce their word series and phonetic series. This is a time-consuming process, so the results are cached to prevent having to repeat the process. The algorithm manages this structure to try to minimize the number of localities that are cached at any time, thereby reducing the amount of memory required.
 
-The key is a locality key, allowing localities to be looked up or deleted as a group by specific geographic ID, and allowing individual localities to be retrieved. The value is the preprocessed locality (details TBD).
+The key is a locality key, allowing localities to be looked up or deleted as a group by specific geographic ID, and allowing individual localities to be retrieved. The value consists of the following:
+
+(+) location ID (from Specify)
+(+) geographic ID (i.e. region; from Specify)
+(+) last modification date/time
+(+) latitude1
+(+) longitude1
+(+) locality name
+(+) phonetic encoding of locality name
+(+) remarks
 
 ### PhoneticLocalityIndex (Y)
 
