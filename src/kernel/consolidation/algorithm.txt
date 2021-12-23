@@ -60,7 +60,7 @@ Indicates which geographic regions touch one another, associating regions by the
 (+) Adjacencies among U.S. counties and Mexican states.
 (+) Adjacencies among U.S. counties and Canadian provinces.
 (+) Adjacencies among U.S. states, Mexican states, and Canadian provinces.
-(+) Adjacencies among North American countries.
+(+) Adjacencies among North and Central American countries, excluding the Caribbean.
 
 ### RegionRoster
 
