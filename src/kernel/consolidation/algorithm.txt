@@ -187,10 +187,9 @@ All users share this file.
 
 This is a data storage file having a separate version stored in each user's directory and containing the following structures:
 
-(+) LocalityCache
 (+) RegionRoster
-(+) RegionStatuses
 (+) PhoneticLocalityIndex
+(+) LocalityCache
 
 The file also indicates the domain selected for consolidation.
 
@@ -203,7 +202,7 @@ The file is deleted after consolidation completes.
 	(+) Create the LocalityWork file and its data structures.
 	(+) Add each geographic region of the selected domain to RegionRoster, including all regions contained within regions of the domain.
 	(+) Set the current region (R) to an arbitrary region of RegionRoster, selected from among the most specific regions available.
-	(+) Call RegionStatuses.cacheRegion(R).
+	(+) Call RegionRoster.cacheRegion(R).
 	
 (+) If the user's LocalityWork already exists:
 
@@ -220,7 +219,7 @@ Processes the current region (R), which must be a cached region of RegionRoster.
 		(+) If (R) is in the domain:
 			(+) For each region (U) in the set containing regions strictly adjacent to (R), regions containing (R), and regions contained in (R):
 				(+) If (U) has status "pending":
-					(+) Call RegionStatuses.cacheRegion(U).
+					(+) Call RegionRoster.cacheRegion(U).
 					(+) If (U) is in the domain:
 						(+) For each cached region (A) in the set containing regions strictly adjacent to (U), regions containing (U), and regions contained in (U):
 							(+) Subtract (U)'s localityTotal from (A)'s adjoiningPendingCount.
@@ -235,13 +234,13 @@ Processes the current region (R), which must be a cached region of RegionRoster.
 		(+) Else:
 			(+) For each region (U) strictly adjacent to (R):
 				(+) If (U) is in the domain and has status "pending":
-					(+) Call RegionStatuses.cacheRegion(U).
+					(+) Call RegionRoster.cacheRegion(U).
 					(+) For each cached region (A) in the set containing regions strictly adjacent to (U), regions containing (U), and regions contained in (U):
 						(+) Subtract (U)'s localityTotal from (A)'s adjoiningPendingCount.
 			(+) If (R) is in the over domain:
 				(+) For each region (U) contained in (R):
 					(+) If (U) is in the domain and has status "pending":
-						(+) Call RegionStatuses.cacheRegion(U).
+						(+) Call RegionRoster.cacheRegion(U).
 						(+) For each cached region (A) in the set containing regions strictly adjacent to (U), regions containing (U), and regions contained in (U):
 							(+) Subtract (U)'s localityTotal from (A)'s adjoiningPendingCount.
 	[Note: At this point, there are no pending regions adjacent to (R).]
