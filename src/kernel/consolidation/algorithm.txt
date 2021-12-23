@@ -1,6 +1,6 @@
 # Locality Consolidation Algorithm
 
-This algorithm walks the user through consolidating TBD
+This algorithm walks the user through consolidating the localities in a given geographic region or set of geographic regions, optionally restricting consolidation to just the localities dated on or after a given baseline date. The process starts with many assumptions about what to look for in potential duplicate localities, and as consolidation proceeds, the user answers questions that gradually whittle down the assumptions so that fewer and fewer false matches are presented. As consolidation progresses, the user may enter prospective synonymous terms that come to mind that the program should use for flagging possible duplicates. The program periodically presents the user with possibly-duplicate locality entries, and for each, the user decides whether or not the program should merge the localities are keep them distinct, sometimes having to answer questions about why the user made a decision. The program gradually accumulates knowledge about what information is and is not useful for detecting duplicates, storing that information in a local file, which can be copied to other computers as needed. As this time, I have no idea how long this process takes or how long the user might have to wait between interactions with the computer, but I have implemented an algorithm that nearly eliminates the N-squared problem of comparing every locality with every other locality for potential duplicates.
 
 ## Remaining To-Do Items
 
@@ -23,6 +23,8 @@ This algorithm walks the user through consolidating TBD
 (+) Domain: The set of all geographic regions whose localities are all to be examined for consolidation with other localities, whether these other localities belong to regions within the domain or not. For any region that contains a region in the domain, the containing region is also in the domain.
 
 (+) Over Domain: The set of all geographic regions each containing at least one region of the domain but not itself in the domain.
+
+(+) Baseline date: The earliest creation or modification date of the localities within the domain that are to be examined for consolidation. By specifying a baseline date to restrict the localities being consolidated, the user can reduce the amount of time required for consolidation. This date should normally be the date of the most recent consolidation for the given domain.
 
 (+) Word delimiter: any of the characters (".:;/!&()+-=[]{}?<>|\), plus em dash and en dash, plus the comma if not immediately adjacent to two digits, plus the single quote if not immediately adjacent to two alphabetic (non-numeric, non-punctuation) characters, plus CR or LF, plus the start or end of a string. Dashes are intentionally word delimiters so that occurrences with and without dashes can be found equivalent.
 
@@ -258,21 +260,23 @@ Define a "found match" as a structure containing the following information:
 
 			(+) For each locality (L2) associated with (P1) in PhoneticLocalityIndex:
 				(+) If (L2) is not in (D):
-					(+) Let (R2) be the region assigned to (L2).
-					(+) If (R1) is in the domain and ((R2) is adjacent to (R), contains (R), or contained in (R)), or if (R2) is in the domain and is adjacent to (R) [notes: because (R1) is not in the domain, (R2) won't contain or be contained in (R); the comparison is with (R) not (R1) because adjacencies may be defined for (R1)]:
-						(+) Collect the found matches (M) of all word series (W1) in (L1) having a phonetic series identical to a word series (W2) in (L2), such that (W1) is the entire text of (L1), (W2) is the entire text of (L2), or (W1) is not paired with (W2) in ExcludedMatchesStore.
-						(+) If (M) is not empty:
-							(+) Call processMatchingLocalities(L1, L2, M)
-							(+) Add (L2) to (D).
+					(+) If there is no baseline date, or if (R) is in the domain and (L1) is marked on or after the baseline date, or if (R) is not in the domain and (L2) is marked on or after the baseline date:
+						(+) Let (R2) be the region assigned to (L2).
+						(+) If (R1) is in the domain and ((R2) is adjacent to (R), contains (R), or contained in (R)), or if (R2) is in the domain and is adjacent to (R) [notes: because (R1) is not in the domain, (R2) won't contain or be contained in (R); the comparison is with (R) not (R1) because adjacencies may be defined for (R1)]:
+							(+) Collect the found matches (M) of all word series (W1) in (L1) having a phonetic series identical to a word series (W2) in (L2), such that (W1) is the entire text of (L1), (W2) is the entire text of (L2), or (W1) is not paired with (W2) in ExcludedMatchesStore.
+							(+) If (M) is not empty:
+								(+) Call processMatchingLocalities(L1, L2, M)
+								(+) Add (L2) to (D).
 
 			(+) Let (H) be the set of phonetic series associated with (P1) in PhoneticLocalityIndex and found in (L1).
 			(+) For each phonetic code (P2) found in (H):
 				(+) For each locality (L2) associated with (P2) in PhoneticLocalityIndex:
 					(+) If (L2) is not in (D):
-						(+) Collect the found matches (M) of all the phonetic series (Z2) in (L2) that are synonymous with a phonetic series (Z1) in (H) according to PotentialSynonymsStore, such that the word series (W1) for (Z1) is not paired with the word series (W2) for (Z2) in ExcludedMatchesStore.
-						(+) If (M) is not empty:
-							(+) Call processMatchingLocalities(L1, L2, M)
-							(+) Add (L2) to (D).
+						(+) If there is no baseline date, or if (R) is in the domain and (L1) is marked on or after the baseline date, or if (R) is not in the domain and (L2) is marked on or after the baseline date:
+							(+) Collect the found matches (M) of all the phonetic series (Z2) in (L2) that are synonymous with a phonetic series (Z1) in (H) according to PotentialSynonymsStore, such that the word series (W1) for (Z1) is not paired with the word series (W2) for (Z2) in ExcludedMatchesStore.
+							(+) If (M) is not empty:
+								(+) Call processMatchingLocalities(L1, L2, M)
+								(+) Add (L2) to (D).
 
 	(+) Remove (L1)'s contribution to PhoneticLocalityIndex.
 	(+) Remove (L1) from LocalityCache.
