@@ -112,7 +112,7 @@ The key is a locality key, allowing localities to be looked up or deleted as a g
 (+) phonetic encoding of locality name
 (+) remarks
 
-### PhoneticLocalityIndex (Y)
+### PhoneticLocalityIndex
 
 Associates phonetic codes with cached localities whose phonetically-encoded text contains at least one instance of the phonetic code. Used to process groups of localities all sharing phonetic codes for possible presentation to the user to consider for consolidation.
 
@@ -125,7 +125,7 @@ When a cached locality is removed from the LocalityCache, its locality keys are 
 
 For now, the number of synonyms is expected to be small, so it's okay to keep entries around for the phonetic codes with synonyms, even if none of the cached localities use them.
 
-### ExcludedMatchesStore (X)
+### ExcludedMatchesStore
 
 Stores permanent knowledge about which pairs of word series having identical phonetic series are not to be considered suggestive of having duplicate localities.
 
@@ -178,7 +178,8 @@ Potential synonyms can change over the course of consolidation, and after each c
 
 This is a data storage file stored in a preference-indicated directory and containing the following structures:
 
-(+) CompletedAdjacenciesStore (X)
+(+) ExcludedMatchesStore
+(+) PotentialSynonymsStore
 
 All users share this file.
 
@@ -189,7 +190,7 @@ This is a data storage file having a separate version stored in each user's dire
 (+) LocalityCache
 (+) RegionRoster
 (+) RegionStatuses
-(+) PhoneticLocalityIndex (Y)
+(+) PhoneticLocalityIndex
 
 The file also indicates the domain selected for consolidation.
 
