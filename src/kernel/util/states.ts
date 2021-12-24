@@ -1,4 +1,4 @@
-export const US_STATE_ABBREVS = {
+export const US_STATE_ABBREVS: Record<string, string> = {
   // States
   AL: 'Alabama',
   AK: 'Alaska',

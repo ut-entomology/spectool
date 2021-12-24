@@ -13,9 +13,9 @@ import readline from 'readline';
 const BUFFER_CHUNK_SIZE = 2 ** 15;
 
 export interface CountyAdjacency {
-  countyID: number;
+  countyID: number; // this ID is unique to the file; it's not a GeographyID
   countyName: string;
-  state: string;
+  stateAbbr: string;
   adjacentIDs: number[];
 }
 
@@ -36,9 +36,9 @@ export class BinaryCountyAdjacencyFile {
     while (countyCount-- > 0) {
       const countyID = this._getUInt16();
       const countyName = this._getText();
-      const state = this._getText();
+      const stateAbbr = this._getText();
       const adjacentIDs = this._getAdjacentIDs();
-      adjacencies.push({ countyID, countyName, state, adjacentIDs });
+      adjacencies.push({ countyID, countyName, stateAbbr, adjacentIDs });
     }
     this._freeMemory();
     return adjacencies;
@@ -50,7 +50,7 @@ export class BinaryCountyAdjacencyFile {
     for (const adjacency of adjacencies) {
       this._putUInt16(adjacency.countyID);
       this._putText(adjacency.countyName);
-      this._putText(adjacency.state);
+      this._putText(adjacency.stateAbbr);
       for (const adjacentID of adjacency.adjacentIDs) {
         this._putUInt16(adjacentID);
       }
@@ -139,7 +139,7 @@ export class TextCountyAdjacencyFile {
   private _nextID = 1; // 0 means end of adjacency list
   private _currentCountyID?: number;
   private _currentCountyName?: string;
-  private _currentState?: string;
+  private _currentStateAbbr?: string;
   private _currentAdjacentIDs: number[] = [];
 
   constructor(filePath: string) {
@@ -192,8 +192,8 @@ export class TextCountyAdjacencyFile {
         outputAdjacentIDs.sort((id1, id2) => {
           const adjacency1 = idToCountyAdjacency[id1];
           const adjacency2 = idToCountyAdjacency[id2];
-          if (adjacency1.state < adjacency2.state) return -1;
-          if (adjacency1.state > adjacency2.state) return 1;
+          if (adjacency1.stateAbbr < adjacency2.stateAbbr) return -1;
+          if (adjacency1.stateAbbr > adjacency2.stateAbbr) return 1;
           return adjacency1.countyName < adjacency2.countyName ? -1 : 1;
         });
 
@@ -222,7 +222,7 @@ export class TextCountyAdjacencyFile {
       }
       const commaOffset = firstColumn.indexOf(',');
       this._currentCountyName = firstColumn.substring(1, commaOffset);
-      this._currentState = firstColumn.substr(commaOffset + 2, 2);
+      this._currentStateAbbr = firstColumn.substr(commaOffset + 2, 2);
       this._currentCountyCode = parseInt(columns[1]);
       this._currentCountyID = this._nextID;
       this._codesToIDs[this._currentCountyCode] = this._nextID;
@@ -240,7 +240,7 @@ export class TextCountyAdjacencyFile {
     this._adjacencies.push({
       countyID: this._currentCountyID!,
       countyName: this._currentCountyName!,
-      state: this._currentState!,
+      stateAbbr: this._currentStateAbbr!,
       adjacentIDs: this._currentAdjacentIDs
     });
   }
@@ -263,7 +263,7 @@ export class TextCountyAdjacencyFile {
 
   private _writeCountyColumns(stream: fs.WriteStream, adjacency: CountyAdjacency) {
     stream.write(
-      `"${adjacency.countyName}, ${adjacency.state}"\t${adjacency.countyID}`
+      `"${adjacency.countyName}, ${adjacency.stateAbbr}"\t${adjacency.countyID}`
     );
   }
 }

@@ -1,6 +1,6 @@
 import { ClientIpc } from '../util/client_ipc';
 import type { GeoDictionary } from '../shared/specify_data';
-import type { GeoEntity } from '../shared/geo_entity';
+import type { Region } from '../shared/region';
 
 export class GeographyClient {
   static loadGeography(): Promise<void> {
@@ -11,7 +11,7 @@ export class GeographyClient {
     return ClientIpc.sendAsync(window, 'get_countries');
   }
 
-  static getCountriesOf(collectionID: number): Promise<GeoEntity[]> {
+  static getCountriesOf(collectionID: number): Promise<Region[]> {
     return ClientIpc.sendAsync(window, 'get_countries_of', collectionID);
   }
 
@@ -19,7 +19,7 @@ export class GeographyClient {
     return ClientIpc.sendAsync(window, 'get_states', countryID);
   }
 
-  static getStatesOf(collectionID: number, countryID: number): Promise<GeoEntity[]> {
+  static getStatesOf(collectionID: number, countryID: number): Promise<Region[]> {
     return ClientIpc.sendAsync(window, 'get_states_of', { collectionID, countryID });
   }
 }

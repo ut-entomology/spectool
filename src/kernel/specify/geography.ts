@@ -2,36 +2,36 @@ import type { Knex } from 'knex';
 
 import { SpecGeography, SpecGeographyTreeDefItem } from '../../shared/schema';
 import { GeoDictionary } from '../../shared/specify_data';
-import { GeoRank, GeoEntity } from '../../shared/geo_entity';
+import { RegionRank, Region } from '../../shared/region';
 
 export class Geography {
-  private ranks: Record<number, GeoRank> = {};
-  private entities: Record<number, GeoEntity> = {};
+  private _ranks: Record<number, RegionRank> = {};
+  private _regions: Record<number, Region> = {};
 
   async load(db: Knex): Promise<void> {
     // Clear first so garbage collection can work during query.
-    this.ranks = {};
-    this.entities = {};
+    this._ranks = {};
+    this._regions = {};
 
     // Load assignments of rank IDs to geographic categories.
     const rankRows = await db
       .select<SpecGeographyTreeDefItem[]>('rankID', 'name')
       .from('geographytreedefitem');
     for (const row of rankRows) {
-      const geoRank = GeoRank[row.name as keyof typeof GeoRank];
-      if (geoRank !== undefined) {
-        this.ranks[row.rankID] = geoRank;
+      const regionRank = RegionRank[row.name as keyof typeof RegionRank];
+      if (regionRank !== undefined) {
+        this._ranks[row.rankID] = regionRank;
       }
     }
 
-    // Load all geographic entities.
+    // Load all geographic regions.
     const geoRows = await db
       .select<SpecGeography[]>('geographyID', 'rankID', 'name', 'parentID')
       .from('geography');
     for (const row of geoRows) {
-      this.entities[row.geographyID] = new GeoEntity(
+      this._regions[row.geographyID] = new Region(
         row.geographyID,
-        this.ranks[row.rankID],
+        this._ranks[row.rankID],
         row.name,
         row.parentID
       );
@@ -41,25 +41,24 @@ export class Geography {
   getCountries(): GeoDictionary {
     this._assertLoaded();
     const countries: GeoDictionary = {};
-    for (const entry of Object.entries(this.entities)) {
-      const entity = entry[1];
-      if (entity.rank == GeoRank.Country) {
+    for (const [id, region] of Object.entries(this._regions)) {
+      if (region.rank == RegionRank.Country) {
         // @ts-ignore because equivalent string and number indexes are equivalent
-        countries[entry[0]] = {
-          id: entry[0],
-          name: entity.name
+        countries[id] = {
+          id,
+          name: region.name
         };
       }
     }
     return countries;
   }
 
-  getCountriesOf(geoIDs: number[]): GeoEntity[] {
+  getCountriesOf(geoIDs: number[]): Region[] {
     this._assertLoaded();
-    const countries: GeoEntity[] = [];
+    const countries: Region[] = [];
     const countriesFound: Record<number, boolean> = {};
     for (const geoID of geoIDs) {
-      const country = this.getEntityByRank(GeoRank.Country, geoID);
+      const country = this.getRegionByRank(RegionRank.Country, geoID);
       if (country && countriesFound[country.id] === undefined) {
         countries.push(country);
         countriesFound[country.id] = true;
@@ -68,29 +67,29 @@ export class Geography {
     return countries.sort((a, b) => (a.name < b.name ? -1 : 1));
   }
 
-  getEntityByRank(rank: GeoRank, forID: number): GeoEntity | null {
-    let entity = this.entities[forID];
-    while (entity.rank !== rank) {
-      if (entity.parentID === null) {
+  getRegionByRank(rank: RegionRank, forID: number): Region | null {
+    let region = this._regions[forID];
+    while (region.rank !== rank) {
+      if (region.parentID === null) {
         return null;
       }
-      entity = this.entities[entity.parentID];
+      region = this._regions[region.parentID];
     }
-    return entity;
+    return region;
   }
 
   getContainedGeographyIDs(underGeoID: number): number[] {
     const geoIDs: number[] = [];
-    for (let entity of Object.values(this.entities)) {
+    for (let region of Object.values(this._regions)) {
       const descendantGeoIDs: number[] = [];
-      while (entity.id !== null) {
-        if (entity.id === underGeoID) {
+      while (region.id !== null) {
+        if (region.id === underGeoID) {
           geoIDs.push(...descendantGeoIDs);
           break;
         } else {
-          descendantGeoIDs.push(entity.id);
+          descendantGeoIDs.push(region.id);
         }
-        entity = this.entities[entity.parentID];
+        region = this._regions[region.parentID];
       }
     }
     return geoIDs;
@@ -99,27 +98,26 @@ export class Geography {
   getStates(countryID: number): GeoDictionary {
     this._assertLoaded();
     const states: GeoDictionary = {};
-    for (const entry of Object.entries(this.entities)) {
-      const entity = entry[1];
-      if (entity.parentID == countryID) {
+    for (const [id, region] of Object.entries(this._regions)) {
+      if (region.parentID == countryID) {
         // @ts-ignore because equivalent string and number indexes are equivalent
-        states[entry[0]] = {
-          id: entry[0],
-          name: entity.name
+        states[id] = {
+          id,
+          name: region.name
         };
       }
     }
     return states;
   }
 
-  getStatesOf(countryID: number, geoIDs: number[]): GeoEntity[] {
+  getStatesOf(countryID: number, geoIDs: number[]): Region[] {
     this._assertLoaded();
-    const states: GeoEntity[] = [];
+    const states: Region[] = [];
     const statesFound: Record<number, boolean> = {};
     for (const geoID of geoIDs) {
-      const state = this.getEntityByRank(GeoRank.State, geoID);
+      const state = this.getRegionByRank(RegionRank.State, geoID);
       if (state && statesFound[state.id] === undefined) {
-        const country = this.getEntityByRank(GeoRank.Country, state.id);
+        const country = this.getRegionByRank(RegionRank.Country, state.id);
         if (country && country.id == countryID) {
           states.push(state);
           statesFound[state.id] = true;
@@ -129,9 +127,23 @@ export class Geography {
     return states.sort((a, b) => (a.name < b.name ? -1 : 1));
   }
 
+  toNameMap(countryID: number): Record<string, Region[]> {
+    const nameMap: Record<string, Region[]> = {};
+    for (const regionID of this.getContainedGeographyIDs(countryID)) {
+      const region = this._regions[regionID];
+      let mappedRegions = nameMap[region.name];
+      if (mappedRegions === undefined) {
+        nameMap[region.name] = [region];
+      } else {
+        mappedRegions.push(region);
+      }
+    }
+    return nameMap;
+  }
+
   private _assertLoaded() {
-    if (!this.entities) {
-      throw Error('No geographic entities loaded');
+    if (!this._regions) {
+      throw Error('No geographic regions loaded');
     }
   }
 }

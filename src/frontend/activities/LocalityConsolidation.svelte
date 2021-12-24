@@ -1,6 +1,6 @@
 <script lang="ts">
   import { GeographyClient } from '../clients/geography_client';
-  import type { GeoEntity } from '../shared/geo_entity';
+  import type { Region } from '../shared/region';
   import { currentCollectionID } from '../stores/currentCollectionID';
   import { closeActivity } from '../components/ActivityBar.svelte';
   import ActivityInstructions from '../components/ActivityInstructions.svelte';
@@ -8,9 +8,9 @@
   import BigSpinner from '../components/BigSpinner.svelte';
   import Dialog from '../layout/Dialog.svelte';
 
-  let countries: GeoEntity[] = [];
+  let countries: Region[] = [];
   let countryID = 0;
-  let states: GeoEntity[] = [];
+  let states: Region[] = [];
   let stateID = 0;
 
   async function onChangeCountry() {
