@@ -2,7 +2,7 @@ import { createTestKernel } from '../../test_util';
 import { AppKernel } from '../app_kernel';
 import { Geography } from './geography';
 import { RegionRank, Region } from '../../shared/region';
-import { GeoDictionary } from '../../shared/specify_data';
+import { SPECIFY_USA } from '../../shared/specify_data';
 
 describe('Specify geography', () => {
   let kernel: AppKernel;
@@ -17,8 +17,8 @@ describe('Specify geography', () => {
 
   function setCountryIDs() {
     if (!usaID) {
-      [usaID, canadaID, mexicoID] = findGeoIDs(geography.getCountries(), [
-        'United States',
+      [usaID, canadaID, mexicoID] = Geography.findIDs(geography.getCountries(), [
+        SPECIFY_USA,
         'Canada',
         'Mexico'
       ]);
@@ -27,12 +27,12 @@ describe('Specify geography', () => {
 
   function setStateIDs() {
     if (!texasID) {
-      [texasID, marylandID] = findGeoIDs(geography.getStates(usaID), [
+      [texasID, marylandID] = Geography.findIDs(geography.getStates(usaID), [
         'Texas',
         'Maryland'
       ]);
-      [ontarioID] = findGeoIDs(geography.getStates(canadaID), ['Ontario']);
-      [sonoraID] = findGeoIDs(geography.getStates(mexicoID), ['Sonora']);
+      [ontarioID] = Geography.findIDs(geography.getStates(canadaID), ['Ontario']);
+      [sonoraID] = Geography.findIDs(geography.getStates(mexicoID), ['Sonora']);
     }
   }
 
@@ -51,7 +51,7 @@ describe('Specify geography', () => {
 
   test('provides states', () => {
     function verifyStates(countryID: number, stateNames: string[]) {
-      const stateIDs = findGeoIDs(geography.getStates(countryID), stateNames);
+      const stateIDs = Geography.findIDs(geography.getStates(countryID), stateNames);
       expect(stateIDs.length).toEqual(stateNames.length);
       for (const stateID of stateIDs) {
         expect(stateID).toBeDefined();
@@ -185,7 +185,7 @@ describe('Specify geography', () => {
     regions = regions.concat(nameToRegionMap["Prince George's County"]);
     verifyStates(usaID, regions, [texasID, marylandID]);
 
-    const [kentuckyID, northCarolinaID, missouriID] = findGeoIDs(
+    const [kentuckyID, northCarolinaID, missouriID] = Geography.findIDs(
       geography.getStates(usaID),
       ['Kentucky', 'North Carolina', 'Missouri']
     );
@@ -204,15 +204,3 @@ describe('Specify geography', () => {
     kernel.destroy();
   });
 });
-
-function findGeoIDs(dictionary: GeoDictionary, names: string[]): number[] {
-  const foundIDs: number[] = Array(names.length);
-  for (const [id, entry] of Object.entries(dictionary)) {
-    const nameIndex = names.indexOf(entry.name);
-    if (nameIndex >= 0) {
-      expect(entry.id).toEqual(parseInt(id));
-      foundIDs[nameIndex] = entry.id;
-    }
-  }
-  return foundIDs;
-}

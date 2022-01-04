@@ -63,7 +63,7 @@ export const US_STATE_ABBREVS: Record<string, string> = {
   PW: 'Palau'
 };
 
-export const CANADIA_PROVINCE_ABBREVS = {
+export const CANADA_PROVINCE_ABBREVS: Record<string, string> = {
   AB: 'Alberta',
   BC: 'British Columbia',
   MB: 'Manitoba',
@@ -79,7 +79,7 @@ export const CANADIA_PROVINCE_ABBREVS = {
   YT: 'Yukon'
 };
 
-export const MEXICAN_STATE_ABBREVS = {
+export const MEXICAN_STATE_ABBREVS: Record<string, string> = {
   AG: 'Aguascalientes',
   BC: 'Baja California',
   BS: 'Baja California Sur',
@@ -113,3 +113,16 @@ export const MEXICAN_STATE_ABBREVS = {
   YU: 'Yucatán',
   ZA: 'Zacatecas'
 };
+
+export function toStateNameFromAbbrev(stateAbbrev: string): string | null {
+  let name: string;
+  if (stateAbbrev[0] == 'm') {
+    name = MEXICAN_STATE_ABBREVS[stateAbbrev.substring(1)];
+  } else {
+    name = US_STATE_ABBREVS[stateAbbrev];
+    if (name == undefined) {
+      name = CANADA_PROVINCE_ABBREVS[stateAbbrev];
+    }
+  }
+  return name ? name : null;
+}

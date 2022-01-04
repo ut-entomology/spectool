@@ -4,12 +4,29 @@ import { SpecGeography, SpecGeographyTreeDefItem } from '../../shared/schema';
 import { GeoDictionary } from '../../shared/specify_data';
 import { RegionRank, Region } from '../../shared/region';
 
-// Note: Specify appears to store latinizations of locality names
+// Note: Specify stores the latinizations of locality names
 // with accents and diacritics removed.
 
 export class Geography {
   private _ranks: Record<number, RegionRank> = {};
   private _regions: Record<number, Region> = {};
+
+  /**
+   * Returns geography IDs from the given dictionary for the given names,
+   * ordered in correspondence to the names.
+   */
+
+  static findIDs(dictionary: GeoDictionary, names: string[]): number[] {
+    const foundIDs: number[] = Array(names.length);
+    for (const [id, entry] of Object.entries(dictionary)) {
+      const nameIndex = names.indexOf(entry.name);
+      if (nameIndex >= 0) {
+        expect(entry.id).toEqual(parseInt(id));
+        foundIDs[nameIndex] = entry.id;
+      }
+    }
+    return foundIDs;
+  }
 
   static latinize(name: string): string {
     // All geography names in Specify have been latinized (accents and diacritics removed)

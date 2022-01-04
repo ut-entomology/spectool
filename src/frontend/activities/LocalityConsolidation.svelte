@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { SPECIFY_USA } from '../shared/specify_data';
   import { GeographyClient } from '../clients/geography_client';
   import type { Region } from '../shared/region';
   import { currentCollectionID } from '../stores/currentCollectionID';
@@ -27,7 +28,7 @@
     countries = await GeographyClient.getCountriesOf($currentCollectionID);
     for (let i = 0; i < countries.length; ++i) {
       const country = countries[i];
-      if (country.name == 'United States') {
+      if (country.name == SPECIFY_USA) {
         countries.splice(i, 1);
         countries.unshift(country);
         break;
