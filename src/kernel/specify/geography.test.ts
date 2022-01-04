@@ -1,44 +1,217 @@
-import { APP_NAME } from '../../app/app_name';
-import { Platform } from '../../app-util/platform';
-import { TestPrefs, TestPrefsFile, TestCredentials } from '../../test_config';
+import { createTestKernel } from '../../test_util';
 import { AppKernel } from '../app_kernel';
 import { Geography } from './geography';
+import { RegionRank, Region } from '../../shared/region';
+import { GeoDictionary } from '../../shared/specify_data';
 
-describe('the Geography class', () => {
-  let testPrefs: TestPrefs;
+describe('Specify geography', () => {
   let kernel: AppKernel;
   let geography: Geography;
+  let usaID: number;
+  let canadaID: number;
+  let mexicoID: number;
+  let texasID: number;
+  let marylandID: number;
+  let ontarioID: number;
+  let sonoraID: number;
 
-  // Use the test database for the application proper, rather
-  // than the non-existent test DB for the current temporary app.
-  const testCreds = new TestCredentials(APP_NAME);
-  let username: string;
-  let password: string;
+  function setCountryIDs() {
+    if (!usaID) {
+      [usaID, canadaID, mexicoID] = findGeoIDs(geography.getCountries(), [
+        'United States',
+        'Canada',
+        'Mexico'
+      ]);
+    }
+  }
+
+  function setStateIDs() {
+    if (!texasID) {
+      [texasID, marylandID] = findGeoIDs(geography.getStates(usaID), [
+        'Texas',
+        'Maryland'
+      ]);
+      [ontarioID] = findGeoIDs(geography.getStates(canadaID), ['Ontario']);
+      [sonoraID] = findGeoIDs(geography.getStates(mexicoID), ['Sonora']);
+    }
+  }
 
   beforeAll(async () => {
-    // TODO: Package this to make it easier to run database tests.
-    const realPlatform = new Platform(APP_NAME, APP_NAME);
-    testPrefs = await new TestPrefsFile(realPlatform).load();
-    kernel = new AppKernel(realPlatform, testPrefs);
-    await kernel.init();
-    await testCreds.init();
-    const creds = testCreds.get();
-    if (creds === null) {
-      throw Error('Test not configured');
-    }
-    await kernel.databaseCreds.set(creds.username, creds.password);
-    await kernel.databaseCreds.validate();
+    kernel = await createTestKernel();
     geography = kernel.specify.geography;
     await geography.load(kernel.database);
   });
 
-  test('should read database with valid credentials', async () => {
-    await kernel1.databaseCreds.clear();
-    await kernel1.databaseCreds.set(username, password);
-    await kernel1.databaseCreds.validate();
+  test('provides countries', () => {
+    setCountryIDs();
+    expect(usaID).toBeDefined();
+    expect(canadaID).toBeDefined();
+    expect(mexicoID).toBeDefined();
+  });
+
+  test('provides states', () => {
+    function verifyStates(countryID: number, stateNames: string[]) {
+      const stateIDs = findGeoIDs(geography.getStates(countryID), stateNames);
+      expect(stateIDs.length).toEqual(stateNames.length);
+      for (const stateID of stateIDs) {
+        expect(stateID).toBeDefined();
+        const region = geography.getRegionByRank(RegionRank.Country, stateID);
+        expect(region?.id).toEqual(countryID);
+      }
+    }
+
+    setCountryIDs();
+    verifyStates(usaID, ['Texas', 'Virginia', 'Maryland']);
+    verifyStates(canadaID, ['Yukon', 'British Columbia', 'Ontario']);
+    verifyStates(mexicoID, [
+      'Nuevo Leon', // latiniziation of 'Nuevo León'
+      'Oaxaca',
+      'Queretaro', // latinization of 'Querétaro'
+      'Sonora',
+      'Yucatan' // latinization of 'Yucatán'
+    ]);
+  });
+
+  test('provides contained geography IDs', () => {
+    function verifyContainedIDs(containingID: number) {
+      const containingRank = geography.getRegionByID(containingID)!.rank;
+      const containedIDs = geography.getContainedGeographyIDs(containingID);
+      const foundIDs: Record<number, boolean> = {};
+      for (const containedID of containedIDs) {
+        expect(foundIDs[containedID]).toBeFalsy(); // each ID only once
+        expect(containedID).not.toEqual(containingID);
+        const containerOfRank = geography.getRegionByRank(containingRank, containedID);
+        expect(containerOfRank?.id).toEqual(containingID);
+        foundIDs[containedID] = true;
+      }
+    }
+
+    setCountryIDs();
+    setStateIDs();
+    verifyContainedIDs(usaID);
+    verifyContainedIDs(canadaID);
+    verifyContainedIDs(mexicoID);
+    verifyContainedIDs(texasID);
+    verifyContainedIDs(marylandID);
+    verifyContainedIDs(ontarioID);
+    verifyContainedIDs(sonoraID);
+  });
+
+  test('provides geography name map with trimmed names', () => {
+    function verifyRegionsOfName(
+      underID: number,
+      lookupName: string,
+      expectedCount: number
+    ) {
+      const containedIDs = geography.getContainedGeographyIDs(underID);
+      const foundRegionsOfName: Region[] = [];
+      for (const containedID of containedIDs) {
+        const region = geography.getRegionByID(containedID);
+        if (region!.name == lookupName) {
+          foundRegionsOfName.push(region!);
+        }
+      }
+      const expectedIDs = foundRegionsOfName.map((region) => region.id);
+      expect(expectedIDs.length).toEqual(expectedCount);
+
+      const nameToRegionMap = geography.getNameToRegionMap(underID);
+      const regionIDs = nameToRegionMap[lookupName].map((region) => region.id);
+      expect(regionIDs.sort()).toEqual(expectedIDs.sort());
+    }
+
+    setCountryIDs();
+    setStateIDs();
+    verifyRegionsOfName(usaID, 'Texas', 1);
+    // Test Bastrop County because Specify has a space appended to it.
+    verifyRegionsOfName(usaID, 'Bastrop County', 1);
+    verifyRegionsOfName(usaID, 'Caldwell County', 4);
+    verifyRegionsOfName(usaID, 'Montgomery County', 18);
+  });
+
+  test('provides access to exact untrimmed Specify names', () => {
+    setCountryIDs();
+    const nameToRegionMap = geography.getNameToRegionMap(usaID);
+    const regions = nameToRegionMap['Bastrop County'];
+    expect(regions[0].exactName).toEqual('Bastrop County '); // with trailing space
+  });
+
+  test('provides the countries of specific geographic IDs', () => {
+    function verifyCountries(regions: Region[], expectedCountryIDs: number[]) {
+      let countries = geography.getCountriesOf(regions.map((region) => region.id));
+      let countryIDs = countries.map((country) => country.id);
+      expect(countryIDs.sort()).toEqual(expectedCountryIDs.sort());
+    }
+
+    setCountryIDs();
+    setStateIDs();
+
+    // TODO: Fix bug
+    let nameToRegionMap = geography.getNameToRegionMap(usaID);
+    let regions = nameToRegionMap['United States'];
+    verifyCountries(regions, [usaID]);
+
+    regions = regions.concat(nameToRegionMap['Maryland']);
+    verifyCountries(regions, [usaID]);
+
+    regions = nameToRegionMap['Texas'].concat(nameToRegionMap['Virginia']);
+    verifyCountries(regions, [usaID]);
+
+    nameToRegionMap = geography.getNameToRegionMap(canadaID);
+    regions = regions.concat(nameToRegionMap['Ontario']);
+    verifyCountries(regions, [usaID, canadaID]);
+
+    nameToRegionMap = geography.getNameToRegionMap(mexicoID);
+    regions = regions.concat(nameToRegionMap['Sonora']);
+    verifyCountries(regions, [usaID, canadaID, mexicoID]);
+  });
+
+  test('provides the states of specific geographic IDs', () => {
+    function verifyStates(
+      countryID: number,
+      regions: Region[],
+      expectedStateIDs: number[]
+    ) {
+      let states = geography.getStatesOf(
+        countryID,
+        regions.map((region) => region.id)
+      );
+      let stateIDs = states.map((state) => state.id);
+      expect(stateIDs.sort()).toEqual(expectedStateIDs.sort());
+    }
+
+    setCountryIDs();
+    setStateIDs();
+
+    // TODO: debug all that follows
+    let nameToRegionMap = geography.getNameToRegionMap(usaID);
+    let regions = nameToRegionMap['Texas'];
+    verifyStates(usaID, regions, [texasID]);
+
+    regions = regions.concat(nameToRegionMap['Bastrop County']);
+    verifyStates(usaID, regions, [texasID]);
+
+    regions = nameToRegionMap['Bastrop County'].concat(
+      nameToRegionMap['Caldwell County']
+    );
+    verifyStates(usaID, regions, [texasID]);
+
+    regions = regions.concat(nameToRegionMap['Prince Georges County']);
+    verifyStates(usaID, regions, [texasID, marylandID]);
   });
 
   afterAll(async () => {
-    // TODO: What about closing the database connection?
+    kernel.destroy();
   });
 });
+
+function findGeoIDs(dictionary: GeoDictionary, names: string[]): number[] {
+  const foundIDs: number[] = Array(names.length);
+  for (const [id, entry] of Object.entries(dictionary)) {
+    const nameIndex = names.indexOf(entry.name);
+    if (nameIndex >= 0) {
+      expect(entry.id).toEqual(parseInt(id));
+      foundIDs[nameIndex] = entry.id;
+    }
+  }
+  return foundIDs;
+}

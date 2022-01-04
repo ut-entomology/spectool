@@ -46,11 +46,11 @@ export class Adjacencies {
     // Create a map of file county IDs to Specify geography entries (regions).
 
     const fileIDToRegionMap: Record<number, Region> = {};
-    const regionNameMap = this._geography.toNameMap(this._usaRegionID);
+    const nameToRegionMap = this._geography.getNameToRegionMap(this._usaRegionID);
 
     for (const countyAdjacency of countyAdjacencies) {
       const adjacencyState = US_STATE_ABBREVS[countyAdjacency.stateAbbr];
-      const regionsOfThisName = regionNameMap[countyAdjacency.countyName];
+      const regionsOfThisName = nameToRegionMap[countyAdjacency.countyName];
       if (regionsOfThisName === undefined) {
         throw Error(`No region found for county '${countyAdjacency.countyName}'`);
       }

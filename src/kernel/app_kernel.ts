@@ -195,4 +195,11 @@ export class AppKernel {
       throw Error('Failed to log user out of Specify');
     });
   }
+
+  /**
+   * Releases resources associated with the kernel.
+   */
+  destroy() {
+    this.database.destroy();
+  }
 }

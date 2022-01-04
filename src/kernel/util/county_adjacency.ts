@@ -221,15 +221,16 @@ export class TextCountyAdjacencyFile {
         this._addCounty();
       }
       const commaOffset = firstColumn.indexOf(',');
-      this._currentCountyName = firstColumn.substring(1, commaOffset);
-      this._currentStateAbbr = firstColumn.substr(commaOffset + 2, 2);
-      this._currentCountyCode = parseInt(columns[1]);
+      // TODO: Latinize the name or otherwise fix the characters
+      this._currentCountyName = firstColumn.substring(1, commaOffset).trim();
+      this._currentStateAbbr = firstColumn.substr(commaOffset + 2, 2).trim();
+      this._currentCountyCode = parseInt(columns[1].trim());
       this._currentCountyID = this._nextID;
       this._codesToIDs[this._currentCountyCode] = this._nextID;
       this._currentAdjacentIDs = [];
       this._nextID += 1;
     }
-    const adjacentCountyCode = parseInt(columns[3]);
+    const adjacentCountyCode = parseInt(columns[3].trim());
     if (adjacentCountyCode != this._currentCountyCode) {
       // Push census codes for now, will translate to IDs later.
       this._currentAdjacentIDs.push(adjacentCountyCode);

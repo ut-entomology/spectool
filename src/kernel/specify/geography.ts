@@ -4,6 +4,9 @@ import { SpecGeography, SpecGeographyTreeDefItem } from '../../shared/schema';
 import { GeoDictionary } from '../../shared/specify_data';
 import { RegionRank, Region } from '../../shared/region';
 
+// Note: Specify appears to store latinizations of locality names
+// with accents and diacritics removed.
+
 export class Geography {
   private _ranks: Record<number, RegionRank> = {};
   private _regions: Record<number, Region> = {};
@@ -41,11 +44,11 @@ export class Geography {
   getCountries(): GeoDictionary {
     this._assertLoaded();
     const countries: GeoDictionary = {};
-    for (const [id, region] of Object.entries(this._regions)) {
-      if (region.rank == RegionRank.Country) {
+    for (const region of Object.values(this._regions)) {
+      if (region.rank === RegionRank.Country) {
         // @ts-ignore because equivalent string and number indexes are equivalent
-        countries[id] = {
-          id,
+        countries[region.id] = {
+          id: region.id,
           name: region.name
         };
       }
@@ -67,6 +70,11 @@ export class Geography {
     return countries.sort((a, b) => (a.name < b.name ? -1 : 1));
   }
 
+  getRegionByID(regionID: number): Region | null {
+    const region = this._regions[regionID];
+    return region != undefined ? region : null;
+  }
+
   getRegionByRank(rank: RegionRank, forID: number): Region | null {
     let region = this._regions[forID];
     while (region.rank !== rank) {
@@ -79,12 +87,18 @@ export class Geography {
   }
 
   getContainedGeographyIDs(underGeoID: number): number[] {
+    // potentially many IDs, so use a hash to track them
+    const foundIDs: Record<number, boolean> = {};
+    // but don't waste time calling parseInt on the hash keys
     const geoIDs: number[] = [];
     for (let region of Object.values(this._regions)) {
       const descendantGeoIDs: number[] = [];
-      while (region.id !== null) {
-        if (region.id === underGeoID) {
-          geoIDs.push(...descendantGeoIDs);
+      while (region) {
+        if (region.id === underGeoID || foundIDs[region.id]) {
+          for (const geoID of descendantGeoIDs) {
+            geoIDs.push(geoID);
+            foundIDs[geoID] = true;
+          }
           break;
         } else {
           descendantGeoIDs.push(region.id);
@@ -95,14 +109,28 @@ export class Geography {
     return geoIDs;
   }
 
+  getNameToRegionMap(underID: number): Record<string, Region[]> {
+    const nameToRegionMap: Record<string, Region[]> = {};
+    for (const regionID of this.getContainedGeographyIDs(underID)) {
+      const region = this._regions[regionID];
+      let mappedRegions = nameToRegionMap[region.name];
+      if (mappedRegions === undefined) {
+        nameToRegionMap[region.name] = [region];
+      } else {
+        mappedRegions.push(region);
+      }
+    }
+    return nameToRegionMap;
+  }
+
   getStates(countryID: number): GeoDictionary {
     this._assertLoaded();
     const states: GeoDictionary = {};
-    for (const [id, region] of Object.entries(this._regions)) {
-      if (region.parentID == countryID) {
+    for (const region of Object.values(this._regions)) {
+      if (region.parentID === countryID) {
         // @ts-ignore because equivalent string and number indexes are equivalent
-        states[id] = {
-          id,
+        states[region.id] = {
+          id: region.id,
           name: region.name
         };
       }
@@ -118,27 +146,13 @@ export class Geography {
       const state = this.getRegionByRank(RegionRank.State, geoID);
       if (state && statesFound[state.id] === undefined) {
         const country = this.getRegionByRank(RegionRank.Country, state.id);
-        if (country && country.id == countryID) {
+        if (country && country.id === countryID) {
           states.push(state);
           statesFound[state.id] = true;
         }
       }
     }
     return states.sort((a, b) => (a.name < b.name ? -1 : 1));
-  }
-
-  toNameMap(countryID: number): Record<string, Region[]> {
-    const nameMap: Record<string, Region[]> = {};
-    for (const regionID of this.getContainedGeographyIDs(countryID)) {
-      const region = this._regions[regionID];
-      let mappedRegions = nameMap[region.name];
-      if (mappedRegions === undefined) {
-        nameMap[region.name] = [region];
-      } else {
-        mappedRegions.push(region);
-      }
-    }
-    return nameMap;
   }
 
   private _assertLoaded() {
