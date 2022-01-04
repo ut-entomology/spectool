@@ -145,15 +145,11 @@ describe('Specify geography', () => {
     setCountryIDs();
     setStateIDs();
 
-    // TODO: Fix bug
     let nameToRegionMap = geography.getNameToRegionMap(usaID);
-    let regions = nameToRegionMap['United States'];
+    let regions = nameToRegionMap['Texas'];
     verifyCountries(regions, [usaID]);
 
-    regions = regions.concat(nameToRegionMap['Maryland']);
-    verifyCountries(regions, [usaID]);
-
-    regions = nameToRegionMap['Texas'].concat(nameToRegionMap['Virginia']);
+    regions = regions.concat(nameToRegionMap['Virginia']);
     verifyCountries(regions, [usaID]);
 
     nameToRegionMap = geography.getNameToRegionMap(canadaID);
@@ -182,21 +178,26 @@ describe('Specify geography', () => {
     setCountryIDs();
     setStateIDs();
 
-    // TODO: debug all that follows
     let nameToRegionMap = geography.getNameToRegionMap(usaID);
-    let regions = nameToRegionMap['Texas'];
+    let regions = nameToRegionMap['Bastrop County'];
     verifyStates(usaID, regions, [texasID]);
 
-    regions = regions.concat(nameToRegionMap['Bastrop County']);
-    verifyStates(usaID, regions, [texasID]);
-
-    regions = nameToRegionMap['Bastrop County'].concat(
-      nameToRegionMap['Caldwell County']
-    );
-    verifyStates(usaID, regions, [texasID]);
-
-    regions = regions.concat(nameToRegionMap['Prince Georges County']);
+    regions = regions.concat(nameToRegionMap["Prince George's County"]);
     verifyStates(usaID, regions, [texasID, marylandID]);
+
+    const [kentuckyID, northCarolinaID, missouriID] = findGeoIDs(
+      geography.getStates(usaID),
+      ['Kentucky', 'North Carolina', 'Missouri']
+    );
+
+    regions = regions.concat(nameToRegionMap['Caldwell County']);
+    verifyStates(usaID, regions, [
+      texasID,
+      marylandID,
+      kentuckyID,
+      northCarolinaID,
+      missouriID
+    ]);
   });
 
   afterAll(async () => {
