@@ -11,6 +11,12 @@ export class Geography {
   private _ranks: Record<number, RegionRank> = {};
   private _regions: Record<number, Region> = {};
 
+  static latinize(name: string): string {
+    // All geography names in Specify have been latinized (accents and diacritics removed)
+    // from https://stackoverflow.com/a/51874461/650894
+    return name.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  }
+
   async load(db: Knex): Promise<void> {
     // Clear first so garbage collection can work during query.
     this._ranks = {};

@@ -12456,7 +12456,7 @@
 		"Lincoln County, NM"	35027
 		"Quay County, NM"	35037
 		"Roosevelt County, NM"	35041
-"Do±a Ana County, NM"	35013	"Do±a Ana County, NM"	35013
+"Do√±a Ana County, NM"	35013	"Do√±a Ana County, NM"	35013
 		"Luna County, NM"	35029
 		"Otero County, NM"	35035
 		"Sierra County, NM"	35051
@@ -12513,7 +12513,7 @@
 		"Rio Arriba County, NM"	35039
 		"Sandoval County, NM"	35043
 		"Santa Fe County, NM"	35049
-"Luna County, NM"	35029	"Do±a Ana County, NM"	35013
+"Luna County, NM"	35029	"Do√±a Ana County, NM"	35013
 		"Grant County, NM"	35017
 		"Hidalgo County, NM"	35023
 		"Luna County, NM"	35029
@@ -12531,7 +12531,7 @@
 		"Santa Fe County, NM"	35049
 		"Taos County, NM"	35055
 "Otero County, NM"	35035	"Chaves County, NM"	35005
-		"Do±a Ana County, NM"	35013
+		"Do√±a Ana County, NM"	35013
 		"Eddy County, NM"	35015
 		"Lincoln County, NM"	35027
 		"Otero County, NM"	35035
@@ -12600,7 +12600,7 @@
 		"Santa Fe County, NM"	35049
 		"Torrance County, NM"	35057
 "Sierra County, NM"	35051	"Catron County, NM"	35003
-		"Do±a Ana County, NM"	35013
+		"Do√±a Ana County, NM"	35013
 		"Grant County, NM"	35017
 		"Lincoln County, NM"	35027
 		"Luna County, NM"	35029
@@ -17965,7 +17965,7 @@
 		"Kaufman County, TX"	48257
 		"Navarro County, TX"	48349
 		"Tarrant County, TX"	48439
-"El Paso County, TX"	48141	"Do±a Ana County, NM"	35013
+"El Paso County, TX"	48141	"Do√±a Ana County, NM"	35013
 		"Otero County, NM"	35035
 		"El Paso County, TX"	48141
 		"Hudspeth County, TX"	48229
@@ -21722,24 +21722,24 @@
 "Adjuntas Municipio, PR"	72001	"Adjuntas Municipio, PR"	72001
 		"Guayanilla Municipio, PR"	72059
 		"Lares Municipio, PR"	72081
-		"PeÒuelas Municipio, PR"	72111
+		"Pe√±uelas Municipio, PR"	72111
 		"Ponce Municipio, PR"	72113
 		"Utuado Municipio, PR"	72141
 		"Yauco Municipio, PR"	72153
 "Aguada Municipio, PR"	72003	"Aguada Municipio, PR"	72003
 		"Aguadilla Municipio, PR"	72005
-		"AÒasco Municipio, PR"	72011
+		"A√±asco Municipio, PR"	72011
 		"Moca Municipio, PR"	72099
-		"RincÛn Municipio, PR"	72117
+		"Rinc√≥n Municipio, PR"	72117
 "Aguadilla Municipio, PR"	72005	"Aguada Municipio, PR"	72003
 		"Aguadilla Municipio, PR"	72005
 		"Isabela Municipio, PR"	72071
 		"Moca Municipio, PR"	72099
 "Aguas Buenas Municipio, PR"	72007	"Aguas Buenas Municipio, PR"	72007
-		"BayamÛn Municipio, PR"	72021
+		"Bayam√≥n Municipio, PR"	72021
 		"Caguas Municipio, PR"	72025
 		"Cidra Municipio, PR"	72041
-		"ComerÌo Municipio, PR"	72045
+		"Comer√≠o Municipio, PR"	72045
 		"Guaynabo Municipio, PR"	72061
 		"San Juan Municipio, PR"	72127
 "Aibonito Municipio, PR"	72009	"Aibonito Municipio, PR"	72009
@@ -21748,13 +21748,13 @@
 		"Cidra Municipio, PR"	72041
 		"Coamo Municipio, PR"	72043
 		"Salinas Municipio, PR"	72123
-"AÒasco Municipio, PR"	72011	"Aguada Municipio, PR"	72003
-		"AÒasco Municipio, PR"	72011
-		"Las MarÌas Municipio, PR"	72083
-		"Mayag¸ez Municipio, PR"	72097
+"A√±asco Municipio, PR"	72011	"Aguada Municipio, PR"	72003
+		"A√±asco Municipio, PR"	72011
+		"Las Mar√≠as Municipio, PR"	72083
+		"Mayag√ºez Municipio, PR"	72097
 		"Moca Municipio, PR"	72099
-		"RincÛn Municipio, PR"	72117
-		"San Sebasti·n Municipio, PR"	72131
+		"Rinc√≥n Municipio, PR"	72117
+		"San Sebasti√°n Municipio, PR"	72131
 "Arecibo Municipio, PR"	72013	"Arecibo Municipio, PR"	72013
 		"Barceloneta Municipio, PR"	72017
 		"Ciales Municipio, PR"	72039
@@ -21767,19 +21767,19 @@
 "Barceloneta Municipio, PR"	72017	"Arecibo Municipio, PR"	72013
 		"Barceloneta Municipio, PR"	72017
 		"Florida Municipio, PR"	72054
-		"ManatÌ Municipio, PR"	72091
+		"Manat√≠ Municipio, PR"	72091
 "Barranquitas Municipio, PR"	72019	"Aibonito Municipio, PR"	72009
 		"Barranquitas Municipio, PR"	72019
 		"Cidra Municipio, PR"	72041
 		"Coamo Municipio, PR"	72043
-		"ComerÌo Municipio, PR"	72045
+		"Comer√≠o Municipio, PR"	72045
 		"Corozal Municipio, PR"	72047
 		"Naranjito Municipio, PR"	72105
 		"Orocovis Municipio, PR"	72107
-"BayamÛn Municipio, PR"	72021	"Aguas Buenas Municipio, PR"	72007
-		"BayamÛn Municipio, PR"	72021
-		"CataÒo Municipio, PR"	72033
-		"ComerÌo Municipio, PR"	72045
+"Bayam√≥n Municipio, PR"	72021	"Aguas Buenas Municipio, PR"	72007
+		"Bayam√≥n Municipio, PR"	72021
+		"Cata√±o Municipio, PR"	72033
+		"Comer√≠o Municipio, PR"	72045
 		"Guaynabo Municipio, PR"	72061
 		"Naranjito Municipio, PR"	72105
 		"Toa Alta Municipio, PR"	72135
@@ -21787,8 +21787,8 @@
 "Cabo Rojo Municipio, PR"	72023	"Cabo Rojo Municipio, PR"	72023
 		"Hormigueros Municipio, PR"	72067
 		"Lajas Municipio, PR"	72079
-		"Mayag¸ez Municipio, PR"	72097
-		"San Germ·n Municipio, PR"	72125
+		"Mayag√ºez Municipio, PR"	72097
+		"San Germ√°n Municipio, PR"	72125
 "Caguas Municipio, PR"	72025	"Aguas Buenas Municipio, PR"	72007
 		"Caguas Municipio, PR"	72025
 		"Cayey Municipio, PR"	72035
@@ -21801,23 +21801,23 @@
 		"Hatillo Municipio, PR"	72065
 		"Lares Municipio, PR"	72081
 		"Quebradillas Municipio, PR"	72115
-		"San Sebastiﬂn Municipio, PR"	72131
-"CanÛvanas Municipio, PR"	72029	"CanÛvanas Municipio, PR"	72029
+		"San SebastiÔ¨Çn Municipio, PR"	72131
+"Can√≥vanas Municipio, PR"	72029	"Can√≥vanas Municipio, PR"	72029
 		"Carolina Municipio, PR"	72031
 		"Gurabo Municipio, PR"	72063
 		"Juncos Municipio, PR"	72077
 		"Las Piedras Municipio, PR"	72085
-		"LoÌza Municipio, PR"	72087
-		"RÌo Grande Municipio, PR"	72119
-"Carolina Municipio, PR"	72031	"CanÛvanas Municipio, PR"	72029
+		"Lo√≠za Municipio, PR"	72087
+		"R√≠o Grande Municipio, PR"	72119
+"Carolina Municipio, PR"	72031	"Can√≥vanas Municipio, PR"	72029
 		"Carolina Municipio, PR"	72031
 		"Gurabo Municipio, PR"	72063
 		"Juncos Municipio, PR"	72077
-		"LoÌza Municipio, PR"	72087
+		"Lo√≠za Municipio, PR"	72087
 		"San Juan Municipio, PR"	72127
 		"Trujillo Alto Municipio, PR"	72139
-"CataÒo Municipio, PR"	72033	"Bayam?n Municipio, PR"	72021
-		"CataÒo Municipio, PR"	72033
+"Cata√±o Municipio, PR"	72033	"Bayam√≥n Municipio, PR"	72021
+		"Cata√±o Municipio, PR"	72033
 		"Guaynabo Municipio, PR"	72061
 		"San Juan Municipio, PR"	72127
 		"Toa Baja Municipio, PR"	72137
@@ -21834,13 +21834,13 @@
 		"Fajardo Municipio, PR"	72053
 		"Luquillo Municipio, PR"	72089
 		"Naguabo Municipio, PR"	72103
-		"RÌo Grande Municipio, PR"	72119
+		"R√≠o Grande Municipio, PR"	72119
 		"Vieques Municipio, PR"	72147
 "Ciales Municipio, PR"	72039	"Arecibo Municipio, PR"	72013
 		"Ciales Municipio, PR"	72039
 		"Florida Municipio, PR"	72054
 		"Jayuya Municipio, PR"	72073
-		"ManatÌ Municipio, PR"	72091
+		"Manat√≠ Municipio, PR"	72091
 		"Morovis Municipio, PR"	72101
 		"Orocovis Municipio, PR"	72107
 		"Utuado Municipio, PR"	72141
@@ -21850,20 +21850,20 @@
 		"Caguas Municipio, PR"	72025
 		"Cayey Municipio, PR"	72035
 		"Cidra Municipio, PR"	72041
-		"ComerÌo Municipio, PR"	72045
+		"Comer√≠o Municipio, PR"	72045
 "Coamo Municipio, PR"	72043	"Aibonito Municipio, PR"	72009
 		"Barranquitas Municipio, PR"	72019
 		"Coamo Municipio, PR"	72043
-		"Juana DÌaz Municipio, PR"	72075
+		"Juana D√≠az Municipio, PR"	72075
 		"Orocovis Municipio, PR"	72107
 		"Salinas Municipio, PR"	72123
 		"Santa Isabel Municipio, PR"	72133
 		"Villalba Municipio, PR"	72149
-"ComerÌo Municipio, PR"	72045	"Aguas Buenas Municipio, PR"	72007
+"Comer√≠o Municipio, PR"	72045	"Aguas Buenas Municipio, PR"	72007
 		"Barranquitas Municipio, PR"	72019
-		"BayamÛn Municipio, PR"	72021
+		"Bayam√≥n Municipio, PR"	72021
 		"Cidra Municipio, PR"	72041
-		"ComerÌo Municipio, PR"	72045
+		"Comer√≠o Municipio, PR"	72045
 		"Naranjito Municipio, PR"	72105
 "Corozal Municipio, PR"	72047	"Barranquitas Municipio, PR"	72019
 		"Corozal Municipio, PR"	72047
@@ -21885,8 +21885,8 @@
 		"Barceloneta Municipio, PR"	72017
 		"Ciales Municipio, PR"	72039
 		"Florida Municipio, PR"	72054
-		"ManatÌ Municipio, PR"	72091
-"Gu·nica Municipio, PR"	72055	"Gu·nica Municipio, PR"	72055
+		"Manat√≠ Municipio, PR"	72091
+"Gu√°nica Municipio, PR"	72055	"Gu√°nica Municipio, PR"	72055
 		"Guayanilla Municipio, PR"	72059
 		"Lajas Municipio, PR"	72079
 		"Sabana Grande Municipio, PR"	72121
@@ -21897,17 +21897,17 @@
 		"Patillas Municipio, PR"	72109
 		"Salinas Municipio, PR"	72123
 "Guayanilla Municipio, PR"	72059	"Adjuntas Municipio, PR"	72001
-		"Gu·nica Municipio, PR"	72055
+		"Gu√°nica Municipio, PR"	72055
 		"Guayanilla Municipio, PR"	72059
-		"PeÒuelas Municipio, PR"	72111
+		"Pe√±uelas Municipio, PR"	72111
 		"Yauco Municipio, PR"	72153
 "Guaynabo Municipio, PR"	72061	"Aguas Buenas Municipio, PR"	72007
-		"BayamÛn Municipio, PR"	72021
-		"CataÒo Municipio, PR"	72033
+		"Bayam√≥n Municipio, PR"	72021
+		"Cata√±o Municipio, PR"	72033
 		"Guaynabo Municipio, PR"	72061
 		"San Juan Municipio, PR"	72127
 "Gurabo Municipio, PR"	72063	"Caguas Municipio, PR"	72025
-		"CanÛvanas Municipio, PR"	72029
+		"Can√≥vanas Municipio, PR"	72029
 		"Carolina Municipio, PR"	72031
 		"Gurabo Municipio, PR"	72063
 		"Juncos Municipio, PR"	72077
@@ -21920,8 +21920,8 @@
 		"Utuado Municipio, PR"	72141
 "Hormigueros Municipio, PR"	72067	"Cabo Rojo Municipio, PR"	72023
 		"Hormigueros Municipio, PR"	72067
-		"Mayag¸ez Municipio, PR"	72097
-		"San Germ·n Municipio, PR"	72125
+		"Mayag√ºez Municipio, PR"	72097
+		"San Germ√°n Municipio, PR"	72125
 "Humacao Municipio, PR"	72069	"Humacao Municipio, PR"	72069
 		"Las Piedras Municipio, PR"	72085
 		"Naguabo Municipio, PR"	72103
@@ -21930,96 +21930,96 @@
 		"Isabela Municipio, PR"	72071
 		"Moca Municipio, PR"	72099
 		"Quebradillas Municipio, PR"	72115
-		"San Sebasti·n Municipio, PR"	72131
+		"San Sebasti√°n Municipio, PR"	72131
 "Jayuya Municipio, PR"	72073	"Ciales Municipio, PR"	72039
 		"Jayuya Municipio, PR"	72073
-		"Juana DÌaz Municipio, PR"	72075
+		"Juana D√≠az Municipio, PR"	72075
 		"Orocovis Municipio, PR"	72107
 		"Ponce Municipio, PR"	72113
 		"Utuado Municipio, PR"	72141
-"Juana DÌaz Municipio, PR"	72075	"Coamo Municipio, PR"	72043
+"Juana D√≠az Municipio, PR"	72075	"Coamo Municipio, PR"	72043
 		"Jayuya Municipio, PR"	72073
-		"Juana DÌaz Municipio, PR"	72075
+		"Juana D√≠az Municipio, PR"	72075
 		"Orocovis Municipio, PR"	72107
 		"Ponce Municipio, PR"	72113
 		"Santa Isabel Municipio, PR"	72133
 		"Villalba Municipio, PR"	72149
-"Juncos Municipio, PR"	72077	"CanÛvanas Municipio, PR"	72029
+"Juncos Municipio, PR"	72077	"Can√≥vanas Municipio, PR"	72029
 		"Carolina Municipio, PR"	72031
 		"Gurabo Municipio, PR"	72063
 		"Juncos Municipio, PR"	72077
 		"Las Piedras Municipio, PR"	72085
 		"San Lorenzo Municipio, PR"	72129
 "Lajas Municipio, PR"	72079	"Cabo Rojo Municipio, PR"	72023
-		"Gu·nica Municipio, PR"	72055
+		"Gu√°nica Municipio, PR"	72055
 		"Lajas Municipio, PR"	72079
 		"Sabana Grande Municipio, PR"	72121
-		"San Germ·n Municipio, PR"	72125
+		"San Germ√°n Municipio, PR"	72125
 "Lares Municipio, PR"	72081	"Adjuntas Municipio, PR"	72001
 		"Camuy Municipio, PR"	72027
 		"Hatillo Municipio, PR"	72065
 		"Lares Municipio, PR"	72081
-		"Las MarÌas Municipio, PR"	72083
+		"Las Mar√≠as Municipio, PR"	72083
 		"Maricao Municipio, PR"	72093
-		"San Sebasti·n Municipio, PR"	72131
+		"San Sebasti√°n Municipio, PR"	72131
 		"Utuado Municipio, PR"	72141
 		"Yauco Municipio, PR"	72153
-"Las MarÌas Municipio, PR"	72083	"AÒasco Municipio, PR"	72011
+"Las Mar√≠as Municipio, PR"	72083	"A√±asco Municipio, PR"	72011
 		"Lares Municipio, PR"	72081
-		"Las MarÌas Municipio, PR"	72083
+		"Las Mar√≠as Municipio, PR"	72083
 		"Maricao Municipio, PR"	72093
-		"Mayag¸ez Municipio, PR"	72097
-		"San Sebasti·n Municipio, PR"	72131
-"Las Piedras Municipio, PR"	72085	"CanÛvanas Municipio, PR"	72029
+		"Mayag√ºez Municipio, PR"	72097
+		"San Sebasti√°n Municipio, PR"	72131
+"Las Piedras Municipio, PR"	72085	"Can√≥vanas Municipio, PR"	72029
 		"Humacao Municipio, PR"	72069
 		"Juncos Municipio, PR"	72077
 		"Las Piedras Municipio, PR"	72085
 		"Naguabo Municipio, PR"	72103
-		"RÌo Grande Municipio, PR"	72119
+		"R√≠o Grande Municipio, PR"	72119
 		"San Lorenzo Municipio, PR"	72129
 		"Yabucoa Municipio, PR"	72151
-"LoÌza Municipio, PR"	72087	"CanÛvanas Municipio, PR"	72029
+"Lo√≠za Municipio, PR"	72087	"Can√≥vanas Municipio, PR"	72029
 		"Carolina Municipio, PR"	72031
-		"LoÌza Municipio, PR"	72087
-		"RÌo Grande Municipio, PR"	72119
+		"Lo√≠za Municipio, PR"	72087
+		"R√≠o Grande Municipio, PR"	72119
 "Luquillo Municipio, PR"	72089	"Ceiba Municipio, PR"	72037
 		"Fajardo Municipio, PR"	72053
 		"Luquillo Municipio, PR"	72089
-		"RÌo Grande Municipio, PR"	72119
-"ManatÌ Municipio, PR"	72091	"Barceloneta Municipio, PR"	72017
+		"R√≠o Grande Municipio, PR"	72119
+"Manat√≠ Municipio, PR"	72091	"Barceloneta Municipio, PR"	72017
 		"Ciales Municipio, PR"	72039
 		"Florida Municipio, PR"	72054
-		"ManatÌ Municipio, PR"	72091
+		"Manat√≠ Municipio, PR"	72091
 		"Morovis Municipio, PR"	72101
 		"Vega Alta Municipio, PR"	72143
 		"Vega Baja Municipio, PR"	72145
 "Maricao Municipio, PR"	72093	"Lares Municipio, PR"	72081
-		"Las MarÌas Municipio, PR"	72083
+		"Las Mar√≠as Municipio, PR"	72083
 		"Maricao Municipio, PR"	72093
-		"Mayag¸ez Municipio, PR"	72097
+		"Mayag√ºez Municipio, PR"	72097
 		"Sabana Grande Municipio, PR"	72121
-		"San Germ·n Municipio, PR"	72125
+		"San Germ√°n Municipio, PR"	72125
 		"Yauco Municipio, PR"	72153
 "Maunabo Municipio, PR"	72095	"Maunabo Municipio, PR"	72095
 		"Patillas Municipio, PR"	72109
 		"Yabucoa Municipio, PR"	72151
-"Mayag¸ez Municipio, PR"	72097	"AÒasco Municipio, PR"	72011
+"Mayag√ºez Municipio, PR"	72097	"A√±asco Municipio, PR"	72011
 		"Cabo Rojo Municipio, PR"	72023
 		"Hormigueros Municipio, PR"	72067
-		"Las MarÌas Municipio, PR"	72083
+		"Las Mar√≠as Municipio, PR"	72083
 		"Maricao Municipio, PR"	72093
-		"Mayag¸ez Municipio, PR"	72097
-		"Rinc?n Municipio, PR"	72117
-		"San Germ·n Municipio, PR"	72125
+		"Mayag√ºez Municipio, PR"	72097
+		"Rinc√≥n Municipio, PR"	72117
+		"San Germ√°n Municipio, PR"	72125
 "Moca Municipio, PR"	72099	"Aguada Municipio, PR"	72003
 		"Aguadilla Municipio, PR"	72005
-		"AÒasco Municipio, PR"	72011
+		"A√±asco Municipio, PR"	72011
 		"Isabela Municipio, PR"	72071
 		"Moca Municipio, PR"	72099
-		"San Sebasti·n Municipio, PR"	72131
+		"San Sebasti√°n Municipio, PR"	72131
 "Morovis Municipio, PR"	72101	"Ciales Municipio, PR"	72039
 		"Corozal Municipio, PR"	72047
-		"ManatÌ Municipio, PR"	72091
+		"Manat√≠ Municipio, PR"	72091
 		"Morovis Municipio, PR"	72101
 		"Orocovis Municipio, PR"	72107
 		"Vega Alta Municipio, PR"	72143
@@ -22028,10 +22028,10 @@
 		"Humacao Municipio, PR"	72069
 		"Las Piedras Municipio, PR"	72085
 		"Naguabo Municipio, PR"	72103
-		"RÌo Grande Municipio, PR"	72119
+		"R√≠o Grande Municipio, PR"	72119
 "Naranjito Municipio, PR"	72105	"Barranquitas Municipio, PR"	72019
-		"BayamÛn Municipio, PR"	72021
-		"ComerÌo Municipio, PR"	72045
+		"Bayam√≥n Municipio, PR"	72021
+		"Comer√≠o Municipio, PR"	72045
 		"Corozal Municipio, PR"	72047
 		"Naranjito Municipio, PR"	72105
 		"Toa Alta Municipio, PR"	72135
@@ -22040,7 +22040,7 @@
 		"Coamo Municipio, PR"	72043
 		"Corozal Municipio, PR"	72047
 		"Jayuya Municipio, PR"	72073
-		"Juana DÌaz Municipio, PR"	72075
+		"Juana D√≠az Municipio, PR"	72075
 		"Morovis Municipio, PR"	72101
 		"Orocovis Municipio, PR"	72107
 		"Villalba Municipio, PR"	72149
@@ -22051,36 +22051,36 @@
 		"Patillas Municipio, PR"	72109
 		"San Lorenzo Municipio, PR"	72129
 		"Yabucoa Municipio, PR"	72151
-"PeÒuelas Municipio, PR"	72111	"Adjuntas Municipio, PR"	72001
+"Pe√±uelas Municipio, PR"	72111	"Adjuntas Municipio, PR"	72001
 		"Guayanilla Municipio, PR"	72059
-		"PeÒuelas Municipio, PR"	72111
+		"Pe√±uelas Municipio, PR"	72111
 		"Ponce Municipio, PR"	72113
 "Ponce Municipio, PR"	72113	"Adjuntas Municipio, PR"	72001
 		"Jayuya Municipio, PR"	72073
-		"Juana D?az Municipio, PR"	72075
-		"PeÒuelas Municipio, PR"	72111
+		"Juana D√≠az Municipio, PR"	72075
+		"Pe√±uelas Municipio, PR"	72111
 		"Ponce Municipio, PR"	72113
 		"Utuado Municipio, PR"	72141
 "Quebradillas Municipio, PR"	72115	"Camuy Municipio, PR"	72027
 		"Isabela Municipio, PR"	72071
 		"Quebradillas Municipio, PR"	72115
-		"San Sebastiﬂn Municipio, PR"	72131
-"RincÛn Municipio, PR"	72117	"Aguada Municipio, PR"	72003
-		"AÒasco Municipio, PR"	72011
-		"Mayag¸ez Municipio, PR"	72097
-		"RincÛn Municipio, PR"	72117
-"RÌo Grande Municipio, PR"	72119	"Can?vanas Municipio, PR"	72029
+		"San SebastiÔ¨Çn Municipio, PR"	72131
+"Rinc√≥n Municipio, PR"	72117	"Aguada Municipio, PR"	72003
+		"A√±asco Municipio, PR"	72011
+		"Mayag√ºez Municipio, PR"	72097
+		"Rinc√≥n Municipio, PR"	72117
+"R√≠o Grande Municipio, PR"	72119	"Can√≥vanas Municipio, PR"	72029
 		"Ceiba Municipio, PR"	72037
 		"Las Piedras Municipio, PR"	72085
-		"LoÌza Municipio, PR"	72087
+		"Lo√≠za Municipio, PR"	72087
 		"Luquillo Municipio, PR"	72089
 		"Naguabo Municipio, PR"	72103
-		"RÌo Grande Municipio, PR"	72119
-"Sabana Grande Municipio, PR"	72121	"Gu·nica Municipio, PR"	72055
+		"R√≠o Grande Municipio, PR"	72119
+"Sabana Grande Municipio, PR"	72121	"Gu√°nica Municipio, PR"	72055
 		"Lajas Municipio, PR"	72079
 		"Maricao Municipio, PR"	72093
 		"Sabana Grande Municipio, PR"	72121
-		"San Germﬂn Municipio, PR"	72125
+		"San GermÔ¨Çn Municipio, PR"	72125
 		"Yauco Municipio, PR"	72153
 "Salinas Municipio, PR"	72123	"Aibonito Municipio, PR"	72009
 		"Cayey Municipio, PR"	72035
@@ -22088,17 +22088,17 @@
 		"Guayama Municipio, PR"	72057
 		"Salinas Municipio, PR"	72123
 		"Santa Isabel Municipio, PR"	72133
-"San Germ·n Municipio, PR"	72125	"Cabo Rojo Municipio, PR"	72023
+"San Germ√°n Municipio, PR"	72125	"Cabo Rojo Municipio, PR"	72023
 		"Hormigueros Municipio, PR"	72067
 		"Lajas Municipio, PR"	72079
 		"Maricao Municipio, PR"	72093
-		"Mayag¸ez Municipio, PR"	72097
+		"Mayag√ºez Municipio, PR"	72097
 		"Sabana Grande Municipio, PR"	72121
-		"San Germ·n Municipio, PR"	72125
+		"San Germ√°n Municipio, PR"	72125
 "San Juan Municipio, PR"	72127	"Aguas Buenas Municipio, PR"	72007
 		"Caguas Municipio, PR"	72025
 		"Carolina Municipio, PR"	72031
-		"CataÒo Municipio, PR"	72033
+		"Cata√±o Municipio, PR"	72033
 		"Guaynabo Municipio, PR"	72061
 		"San Juan Municipio, PR"	72127
 		"Toa Baja Municipio, PR"	72137
@@ -22111,27 +22111,27 @@
 		"Patillas Municipio, PR"	72109
 		"San Lorenzo Municipio, PR"	72129
 		"Yabucoa Municipio, PR"	72151
-"San Sebasti·n Municipio, PR"	72131	"AÒasco Municipio, PR"	72011
+"San Sebasti√°n Municipio, PR"	72131	"A√±asco Municipio, PR"	72011
 		"Camuy Municipio, PR"	72027
 		"Isabela Municipio, PR"	72071
 		"Lares Municipio, PR"	72081
-		"Las MarÌas Municipio, PR"	72083
+		"Las Mar√≠as Municipio, PR"	72083
 		"Moca Municipio, PR"	72099
 		"Quebradillas Municipio, PR"	72115
-		"San Sebasti·n Municipio, PR"	72131
+		"San Sebasti√°n Municipio, PR"	72131
 "Santa Isabel Municipio, PR"	72133	"Coamo Municipio, PR"	72043
-		"Juana DÌaz Municipio, PR"	72075
+		"Juana D√≠az Municipio, PR"	72075
 		"Salinas Municipio, PR"	72123
 		"Santa Isabel Municipio, PR"	72133
-"Toa Alta Municipio, PR"	72135	"BayamÛn Municipio, PR"	72021
+"Toa Alta Municipio, PR"	72135	"Bayam√≥n Municipio, PR"	72021
 		"Corozal Municipio, PR"	72047
 		"Dorado Municipio, PR"	72051
 		"Naranjito Municipio, PR"	72105
 		"Toa Alta Municipio, PR"	72135
 		"Toa Baja Municipio, PR"	72137
 		"Vega Alta Municipio, PR"	72143
-"Toa Baja Municipio, PR"	72137	"BayamÛn Municipio, PR"	72021
-		"CataÒo Municipio, PR"	72033
+"Toa Baja Municipio, PR"	72137	"Bayam√≥n Municipio, PR"	72021
+		"Cata√±o Municipio, PR"	72033
 		"Dorado Municipio, PR"	72051
 		"San Juan Municipio, PR"	72127
 		"Toa Alta Municipio, PR"	72135
@@ -22151,19 +22151,19 @@
 		"Utuado Municipio, PR"	72141
 "Vega Alta Municipio, PR"	72143	"Corozal Municipio, PR"	72047
 		"Dorado Municipio, PR"	72051
-		"ManatÌ Municipio, PR"	72091
+		"Manat√≠ Municipio, PR"	72091
 		"Morovis Municipio, PR"	72101
 		"Toa Alta Municipio, PR"	72135
 		"Vega Alta Municipio, PR"	72143
 		"Vega Baja Municipio, PR"	72145
-"Vega Baja Municipio, PR"	72145	"ManatÌ Municipio, PR"	72091
+"Vega Baja Municipio, PR"	72145	"Manat√≠ Municipio, PR"	72091
 		"Morovis Municipio, PR"	72101
 		"Vega Alta Municipio, PR"	72143
 		"Vega Baja Municipio, PR"	72145
 "Vieques Municipio, PR"	72147	"Ceiba Municipio, PR"	72037
 		"Vieques Municipio, PR"	72147
 "Villalba Municipio, PR"	72149	"Coamo Municipio, PR"	72043
-		"Juana DÌaz Municipio, PR"	72075
+		"Juana D√≠az Municipio, PR"	72075
 		"Orocovis Municipio, PR"	72107
 		"Villalba Municipio, PR"	72149
 "Yabucoa Municipio, PR"	72151	"Humacao Municipio, PR"	72069
@@ -22173,7 +22173,7 @@
 		"San Lorenzo Municipio, PR"	72129
 		"Yabucoa Municipio, PR"	72151
 "Yauco Municipio, PR"	72153	"Adjuntas Municipio, PR"	72001
-		"Gu·nica Municipio, PR"	72055
+		"Gu√°nica Municipio, PR"	72055
 		"Guayanilla Municipio, PR"	72059
 		"Lares Municipio, PR"	72081
 		"Maricao Municipio, PR"	72093

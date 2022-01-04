@@ -221,8 +221,9 @@ export class TextCountyAdjacencyFile {
         this._addCounty();
       }
       const commaOffset = firstColumn.indexOf(',');
-      // TODO: Latinize the name or otherwise fix the characters
-      this._currentCountyName = firstColumn.substring(1, commaOffset).trim();
+      this._currentCountyName = this._correctName(
+        firstColumn.substring(1, commaOffset).trim()
+      );
       this._currentStateAbbr = firstColumn.substr(commaOffset + 2, 2).trim();
       this._currentCountyCode = parseInt(columns[1].trim());
       this._currentCountyID = this._nextID;
@@ -260,6 +261,20 @@ export class TextCountyAdjacencyFile {
         }
       }
     }
+  }
+
+  private _correctName(name: string): string {
+    // The Census Bureau file contains these character errors, which may
+    // actually be a result of how I downloaded the file.
+    return name
+      .replace('D?az', 'Díaz')
+      .replace('?', 'ó')
+      .replace('Û', 'ó')
+      .replace('±', 'ñ')
+      .replace('Ò', 'ñ')
+      .replace('Ì', 'í')
+      .replace('¸', 'ü')
+      .replace('·', 'á');
   }
 
   private _writeCountyColumns(stream: fs.WriteStream, adjacency: CountyAdjacency) {

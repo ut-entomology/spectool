@@ -18,13 +18,10 @@ async function convert(
 ) {
   let textAdjacencyFile = new TextCountyAdjacencyFile(sourceTextPath);
   const textAdjacencies = await textAdjacencyFile.read();
-  console.log('**** textAdjacencies', textAdjacencies.length);
   let binaryAdjacentyFile = new BinaryCountyAdjacencyFile(destBinaryPath);
   await binaryAdjacentyFile.write(textAdjacencies);
-  console.log('**** wrote binary');
   binaryAdjacentyFile = new BinaryCountyAdjacencyFile(destBinaryPath);
   const binaryAdjacencies = await binaryAdjacentyFile.read();
-  console.log('**** binaryAdjacencies', binaryAdjacencies.length);
   textAdjacencyFile = new TextCountyAdjacencyFile(destTextPath);
   await textAdjacencyFile.write(binaryAdjacencies);
 }
