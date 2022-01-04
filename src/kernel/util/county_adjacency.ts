@@ -284,6 +284,49 @@ export class TextCountyAdjacencyFile {
   }
 }
 
+export class CountyAdjacenciesVerifier {
+  private _adjacencyMap: Record<number, CountyAdjacency> = {};
+
+  constructor(adjacencies: CountyAdjacency[]) {
+    for (const adjacency of adjacencies) {
+      this._adjacencyMap[adjacency.countyID] = adjacency;
+    }
+  }
+
+  /**
+   * Returns missing adjacencies implied by existing adjacencies, with the first
+   * county in each pair being the one missing the adjacency to the second county
+   * in the pair.
+   */
+
+  getMissingPairs() {
+    const missingPairs: CountyAdjacency[][] = [];
+    for (const adjacency of Object.values(this._adjacencyMap)) {
+      for (const adjacentID of adjacency.adjacentIDs) {
+        const otherAdjacency = this._adjacencyMap[adjacentID];
+        if (!otherAdjacency.adjacentIDs.includes(adjacency.countyID)) {
+          missingPairs.push([otherAdjacency, adjacency]);
+        }
+      }
+    }
+    return missingPairs;
+  }
+
+  /**
+   * Removes the adjacencies that implied the provided missing pairs. Use when
+   * the missing pairs are incorrect inferences.
+   */
+  removeMissingPairs(missingPairs: CountyAdjacency[][]): CountyAdjacency[] {
+    for (const missingPair of missingPairs) {
+      const badFrom = missingPair[1];
+      const badTo = missingPair[0];
+      const badCountyOffset = badFrom.adjacentIDs.indexOf(badTo.countyID);
+      badFrom.adjacentIDs.splice(badCountyOffset, 1);
+    }
+    return Object.values(this._adjacencyMap);
+  }
+}
+
 class _BufferChunk {
   buf: Buffer;
   endOffset: number;
