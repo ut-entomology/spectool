@@ -1,3 +1,5 @@
+import * as path from 'path';
+
 import { BinaryCountyAdjacencyFile } from './county_adjacency';
 import { Geography } from '../specify/geography';
 import { SPECIFY_USA } from '../../shared/specify_data';
@@ -5,27 +7,25 @@ import { Region, RegionRank } from '../../shared/region';
 import { US_STATE_ABBREVS, toStateNameFromAbbrev } from './states';
 import { stateAdjacencies } from './adjacency_data';
 
+const BINARY_COUNTY_ADJACENCIES_FILE = path.join(
+  __dirname,
+  '../../../public/county-adjacencies.bin'
+);
+
 type AdjacenctRegionsByID = Record<number, Region[]>;
 
 export class Adjacencies {
   private _adjacenciesByID: AdjacenctRegionsByID = {};
   private _geography: Geography;
-  private _binaryCountyAdjacencyFile: string;
-  private _usaRegionID: number;
-  private _canadaRegionID: number;
-  private _mexicoRegionID: number;
+  private _nameToID: Record<string, number> = {};
 
-  constructor(geography: Geography, binaryCountyAdjacencyFile: string) {
+  constructor(geography: Geography) {
     this._geography = geography;
-    this._binaryCountyAdjacencyFile = binaryCountyAdjacencyFile;
-    const countryIDs = Geography.findIDs(geography.getCountries(), [
+    Geography.addIDs(this._nameToID, geography.getCountries(), [
       SPECIFY_USA,
       'Canada',
       'Mexico'
     ]);
-    this._usaRegionID = countryIDs[0];
-    this._canadaRegionID = countryIDs[1];
-    this._mexicoRegionID = countryIDs[2];
   }
 
   forID(geographicID: number): Region[] {
@@ -45,29 +45,26 @@ export class Adjacencies {
   }
 
   private _getAdjacentNorthAmericanStates(): AdjacenctRegionsByID {
-    const usaStates = this._geography.getStates(this._usaRegionID);
-    const canadaStates = this._geography.getStates(this._canadaRegionID);
-    const mexicoStates = this._geography.getStates(this._mexicoRegionID);
+    const usaStates = this._geography.getStates(this._nameToID[SPECIFY_USA]);
+    const canadaStates = this._geography.getStates(this._nameToID['Canada']);
+    const mexicoStates = this._geography.getStates(this._nameToID['Mexico']);
 
     function toStateID(stateAbbrev: string): number {
       const stateName = toStateNameFromAbbrev(stateAbbrev);
       if (stateName === null) {
         throw Error(`State not found for adjacency abbreviation '${stateAbbrev}'`);
       }
-      let foundIDs = Geography.findIDs(usaStates, [stateName]);
-      if (foundIDs.length === 0) {
-        foundIDs = Geography.findIDs(canadaStates, [stateName]);
-        if (foundIDs.length === 0) {
-          foundIDs = Geography.findIDs(mexicoStates, [stateName]);
+      let foundIDs = Geography.addIDs({}, usaStates, [stateName]);
+      if (!foundIDs[stateName]) {
+        foundIDs = Geography.addIDs({}, canadaStates, [stateName]);
+        if (!foundIDs[stateName]) {
+          foundIDs = Geography.addIDs({}, mexicoStates, [stateName]);
         }
       }
-      if (foundIDs.length === 0) {
+      if (!foundIDs[stateName]) {
         throw Error(`ID not found for state '${stateName}'`);
       }
-      if (foundIDs.length > 0) {
-        throw Error(`Found more than one state named '${stateName}'`);
-      }
-      return foundIDs[0];
+      return foundIDs[stateName];
     }
 
     const adjacentRegionsByID: AdjacenctRegionsByID = {};
@@ -93,28 +90,33 @@ export class Adjacencies {
     // Load the binary county adjacency file.
 
     const fileCountyAdjacencyFile = new BinaryCountyAdjacencyFile(
-      this._binaryCountyAdjacencyFile
+      BINARY_COUNTY_ADJACENCIES_FILE
     );
     const fileCountyAdjacencies = await fileCountyAdjacencyFile.read();
 
     // Create a map of file county IDs to Specify geography entries (regions).
 
     const fileIDToRegionMap: Record<number, Region> = {};
-    const nameToRegionMap = this._geography.getNameToRegionMap(this._usaRegionID);
+    const nameToRegionMap = this._geography.getNameToRegionMap(
+      this._nameToID[SPECIFY_USA]
+    );
 
     for (const fileCountyAdjacency of fileCountyAdjacencies) {
       const adjacencyStateName = US_STATE_ABBREVS[fileCountyAdjacency.stateAbbr];
-      const regionsForCountyName = nameToRegionMap[fileCountyAdjacency.countyName];
-      if (regionsForCountyName === undefined) {
-        throw Error(`No region found for county '${fileCountyAdjacency.countyName}'`);
-      }
-      for (const regionForCountyName of regionsForCountyName) {
-        const foundRegionState = this._geography.getRegionByRank(
-          RegionRank.State,
-          regionForCountyName.id
-        );
-        if (foundRegionState!.name == adjacencyStateName) {
-          fileIDToRegionMap[fileCountyAdjacency.countyID] = regionForCountyName;
+      let regionsForCountyName = getRegionsForCountyName(
+        nameToRegionMap,
+        fileCountyAdjacency.countyName
+      );
+      // Some counties can't be mapped, particularly in Alaska.
+      if (regionsForCountyName) {
+        for (const regionForCountyName of regionsForCountyName) {
+          const foundRegionState = this._geography.getRegionByRank(
+            RegionRank.State,
+            regionForCountyName.id
+          );
+          if (foundRegionState!.name == adjacencyStateName) {
+            fileIDToRegionMap[fileCountyAdjacency.countyID] = regionForCountyName;
+          }
         }
       }
     }
@@ -136,3 +138,41 @@ export class Adjacencies {
     return adjacentRegionsByID;
   }
 }
+
+const COUNTY_SUBSTITUTIONS: Record<string, string> = {
+  'Adjuntas Municipio': 'Adjuntas',
+  'Bronx County': 'Bronx'
+};
+
+function getRegionsForCountyName(
+  nameToRegionMap: Record<string, Region[]>,
+  censusCountyName: string
+): Region[] | null {
+  let countyName = Geography.latinize(censusCountyName);
+  let regions = nameToRegionMap[countyName];
+  if (!regions) {
+    const replacement = COUNTY_SUBSTITUTIONS[countyName];
+    if (replacement) {
+      countyName = replacement;
+    } else if (countyName.toLowerCase().endsWith(' city')) {
+      countyName = 'City of ' + countyName.substring(0, countyName.length - 5);
+    } else if (countyName.endsWith('Census Area') || countyName.endsWith('Borough')) {
+      return null;
+    }
+    countyName = countyName.replace('St.', 'Saint').replace('Ste.', 'Sainte');
+    regions = nameToRegionMap[countyName];
+    if (regions === undefined) {
+      throw Error(
+        `No region found for county '${censusCountyName}' (tried ${countyName})`
+      );
+    }
+  }
+  return regions;
+}
+
+// function toTitleCase(str: string) {
+//   // from https://stackoverflow.com/a/196991/650894
+//   return str.replace(/\w\S*/g, function (txt) {
+//     return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+//   });
+// }

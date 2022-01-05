@@ -7,33 +7,21 @@ import { SPECIFY_USA } from '../../shared/specify_data';
 describe('Specify geography', () => {
   let kernel: AppKernel;
   let geography: Geography;
-  let usaID: number;
-  let canadaID: number;
-  let mexicoID: number;
-  let texasID: number;
-  let marylandID: number;
-  let ontarioID: number;
-  let sonoraID: number;
 
-  function setCountryIDs() {
-    if (!usaID) {
-      [usaID, canadaID, mexicoID] = Geography.findIDs(geography.getCountries(), [
-        SPECIFY_USA,
-        'Canada',
-        'Mexico'
-      ]);
-    }
-  }
-
-  function setStateIDs() {
-    if (!texasID) {
-      [texasID, marylandID] = Geography.findIDs(geography.getStates(usaID), [
-        'Texas',
-        'Maryland'
-      ]);
-      [ontarioID] = Geography.findIDs(geography.getStates(canadaID), ['Ontario']);
-      [sonoraID] = Geography.findIDs(geography.getStates(mexicoID), ['Sonora']);
-    }
+  function getNameToID() {
+    const nameToID: Record<string, number> = {};
+    Geography.addIDs(nameToID, geography.getCountries(), [
+      SPECIFY_USA,
+      'Canada',
+      'Mexico'
+    ]);
+    Geography.addIDs(nameToID, geography.getStates(nameToID[SPECIFY_USA]), [
+      'Texas',
+      'Maryland'
+    ]);
+    Geography.addIDs(nameToID, geography.getStates(nameToID['Canada']), ['Ontario']);
+    Geography.addIDs(nameToID, geography.getStates(nameToID['Mexico']), ['Sonora']);
+    return nameToID;
   }
 
   beforeAll(async () => {
@@ -43,15 +31,17 @@ describe('Specify geography', () => {
   });
 
   test('provides countries', () => {
-    setCountryIDs();
-    expect(usaID).toBeDefined();
-    expect(canadaID).toBeDefined();
-    expect(mexicoID).toBeDefined();
+    const nameToID = getNameToID();
+    expect(nameToID[SPECIFY_USA]).toBeDefined();
+    expect(nameToID['Canada']).toBeDefined();
+    expect(nameToID['Mexico']).toBeDefined();
   });
 
   test('provides states', () => {
     function verifyStates(countryID: number, stateNames: string[]) {
-      const stateIDs = Geography.findIDs(geography.getStates(countryID), stateNames);
+      const stateIDs = Object.values(
+        Geography.addIDs({}, geography.getStates(countryID), stateNames)
+      );
       expect(stateIDs.length).toEqual(stateNames.length);
       for (const stateID of stateIDs) {
         expect(stateID).toBeDefined();
@@ -60,10 +50,10 @@ describe('Specify geography', () => {
       }
     }
 
-    setCountryIDs();
-    verifyStates(usaID, ['Texas', 'Virginia', 'Maryland']);
-    verifyStates(canadaID, ['Yukon', 'British Columbia', 'Ontario']);
-    verifyStates(mexicoID, [
+    const nameToID = getNameToID();
+    verifyStates(nameToID[SPECIFY_USA], ['Texas', 'Virginia', 'Maryland']);
+    verifyStates(nameToID['Canada'], ['Yukon', 'British Columbia', 'Ontario']);
+    verifyStates(nameToID['Mexico'], [
       'Nuevo Leon', // latiniziation of 'Nuevo León'
       'Oaxaca',
       'Queretaro', // latinization of 'Querétaro'
@@ -86,15 +76,14 @@ describe('Specify geography', () => {
       }
     }
 
-    setCountryIDs();
-    setStateIDs();
-    verifyContainedIDs(usaID);
-    verifyContainedIDs(canadaID);
-    verifyContainedIDs(mexicoID);
-    verifyContainedIDs(texasID);
-    verifyContainedIDs(marylandID);
-    verifyContainedIDs(ontarioID);
-    verifyContainedIDs(sonoraID);
+    const nameToID = getNameToID();
+    verifyContainedIDs(nameToID[SPECIFY_USA]);
+    verifyContainedIDs(nameToID['Canada']);
+    verifyContainedIDs(nameToID['Mexico']);
+    verifyContainedIDs(nameToID['Texas']);
+    verifyContainedIDs(nameToID['Maryland']);
+    verifyContainedIDs(nameToID['Ontario']);
+    verifyContainedIDs(nameToID['Sonora']);
   });
 
   test('provides geography name map with trimmed names', () => {
@@ -119,18 +108,17 @@ describe('Specify geography', () => {
       expect(regionIDs.sort()).toEqual(expectedIDs.sort());
     }
 
-    setCountryIDs();
-    setStateIDs();
-    verifyRegionsOfName(usaID, 'Texas', 1);
+    const nameToID = getNameToID();
+    verifyRegionsOfName(nameToID[SPECIFY_USA], 'Texas', 1);
     // Test Bastrop County because Specify has a space appended to it.
-    verifyRegionsOfName(usaID, 'Bastrop County', 1);
-    verifyRegionsOfName(usaID, 'Caldwell County', 4);
-    verifyRegionsOfName(usaID, 'Montgomery County', 18);
+    verifyRegionsOfName(nameToID[SPECIFY_USA], 'Bastrop County', 1);
+    verifyRegionsOfName(nameToID[SPECIFY_USA], 'Caldwell County', 4);
+    verifyRegionsOfName(nameToID[SPECIFY_USA], 'Montgomery County', 18);
   });
 
   test('provides access to exact untrimmed Specify names', () => {
-    setCountryIDs();
-    const nameToRegionMap = geography.getNameToRegionMap(usaID);
+    const nameToID = getNameToID();
+    const nameToRegionMap = geography.getNameToRegionMap(nameToID[SPECIFY_USA]);
     const regions = nameToRegionMap['Bastrop County'];
     expect(regions[0].exactName).toEqual('Bastrop County '); // with trailing space
   });
@@ -142,23 +130,26 @@ describe('Specify geography', () => {
       expect(countryIDs.sort()).toEqual(expectedCountryIDs.sort());
     }
 
-    setCountryIDs();
-    setStateIDs();
+    const nameToID = getNameToID();
 
-    let nameToRegionMap = geography.getNameToRegionMap(usaID);
+    let nameToRegionMap = geography.getNameToRegionMap(nameToID[SPECIFY_USA]);
     let regions = nameToRegionMap['Texas'];
-    verifyCountries(regions, [usaID]);
+    verifyCountries(regions, [nameToID[SPECIFY_USA]]);
 
     regions = regions.concat(nameToRegionMap['Virginia']);
-    verifyCountries(regions, [usaID]);
+    verifyCountries(regions, [nameToID[SPECIFY_USA]]);
 
-    nameToRegionMap = geography.getNameToRegionMap(canadaID);
+    nameToRegionMap = geography.getNameToRegionMap(nameToID['Canada']);
     regions = regions.concat(nameToRegionMap['Ontario']);
-    verifyCountries(regions, [usaID, canadaID]);
+    verifyCountries(regions, [nameToID[SPECIFY_USA], nameToID['Canada']]);
 
-    nameToRegionMap = geography.getNameToRegionMap(mexicoID);
+    nameToRegionMap = geography.getNameToRegionMap(nameToID['Mexico']);
     regions = regions.concat(nameToRegionMap['Sonora']);
-    verifyCountries(regions, [usaID, canadaID, mexicoID]);
+    verifyCountries(regions, [
+      nameToID[SPECIFY_USA],
+      nameToID['Canada'],
+      nameToID['Mexico']
+    ]);
   });
 
   test('provides the states of specific geographic IDs', () => {
@@ -175,28 +166,31 @@ describe('Specify geography', () => {
       expect(stateIDs.sort()).toEqual(expectedStateIDs.sort());
     }
 
-    setCountryIDs();
-    setStateIDs();
+    const nameToID = getNameToID();
 
-    let nameToRegionMap = geography.getNameToRegionMap(usaID);
+    let nameToRegionMap = geography.getNameToRegionMap(nameToID[SPECIFY_USA]);
     let regions = nameToRegionMap['Bastrop County'];
-    verifyStates(usaID, regions, [texasID]);
+    verifyStates(nameToID[SPECIFY_USA], regions, [nameToID['Texas']]);
 
     regions = regions.concat(nameToRegionMap["Prince George's County"]);
-    verifyStates(usaID, regions, [texasID, marylandID]);
+    verifyStates(nameToID[SPECIFY_USA], regions, [
+      nameToID['Texas'],
+      nameToID['Maryland']
+    ]);
 
-    const [kentuckyID, northCarolinaID, missouriID] = Geography.findIDs(
-      geography.getStates(usaID),
-      ['Kentucky', 'North Carolina', 'Missouri']
-    );
+    Geography.addIDs(nameToID, geography.getStates(nameToID[SPECIFY_USA]), [
+      'Kentucky',
+      'North Carolina',
+      'Missouri'
+    ]);
 
     regions = regions.concat(nameToRegionMap['Caldwell County']);
-    verifyStates(usaID, regions, [
-      texasID,
-      marylandID,
-      kentuckyID,
-      northCarolinaID,
-      missouriID
+    verifyStates(nameToID[SPECIFY_USA], regions, [
+      nameToID['Texas'],
+      nameToID['Maryland'],
+      nameToID['Kentucky'],
+      nameToID['North Carolina'],
+      nameToID['Missouri']
     ]);
   });
 

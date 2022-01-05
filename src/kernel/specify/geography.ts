@@ -12,20 +12,22 @@ export class Geography {
   private _regions: Record<number, Region> = {};
 
   /**
-   * Returns geography IDs from the given dictionary for the given names,
-   * ordered in correspondence to the names.
+   * Adds to the provided name map the geography IDs from the given dictionary
+   * for the given names, and returns the modified name map.
    */
 
-  static findIDs(dictionary: GeoDictionary, names: string[]): number[] {
-    const foundIDs: number[] = Array(names.length);
-    for (const [id, entry] of Object.entries(dictionary)) {
+  static addIDs(
+    toNameMap: Record<string, number>,
+    dictionary: GeoDictionary,
+    names: string[]
+  ) {
+    for (const entry of Object.values(dictionary)) {
       const nameIndex = names.indexOf(entry.name);
       if (nameIndex >= 0) {
-        expect(entry.id).toEqual(parseInt(id));
-        foundIDs[nameIndex] = entry.id;
+        toNameMap[names[nameIndex]] = entry.id;
       }
     }
-    return foundIDs;
+    return toNameMap;
   }
 
   static latinize(name: string): string {
