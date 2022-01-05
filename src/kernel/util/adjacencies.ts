@@ -56,11 +56,11 @@ export class Adjacencies {
       }
       // All names in Specify have been latinized.
       stateName = Geography.latinize(stateName);
-      let foundIDs = Geography.addIDs({}, usaStates, [stateName]);
+      let foundIDs = Geography.addIDs({}, usaStates, [stateName], false);
       if (!foundIDs[stateName]) {
-        foundIDs = Geography.addIDs({}, canadaStates, [stateName]);
+        foundIDs = Geography.addIDs({}, canadaStates, [stateName], false);
         if (!foundIDs[stateName]) {
-          foundIDs = Geography.addIDs({}, mexicoStates, [stateName]);
+          foundIDs = Geography.addIDs({}, mexicoStates, [stateName], false);
         }
       }
       if (!foundIDs[stateName]) {
