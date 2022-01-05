@@ -50,10 +50,12 @@ export class Adjacencies {
     const mexicoStates = this._geography.getStates(this._nameToID['Mexico']);
 
     function toStateID(stateAbbrev: string): number {
-      const stateName = toStateNameFromAbbrev(stateAbbrev);
+      let stateName = toStateNameFromAbbrev(stateAbbrev);
       if (stateName === null) {
         throw Error(`State not found for adjacency abbreviation '${stateAbbrev}'`);
       }
+      // All names in Specify have been latinized.
+      stateName = Geography.latinize(stateName);
       let foundIDs = Geography.addIDs({}, usaStates, [stateName]);
       if (!foundIDs[stateName]) {
         foundIDs = Geography.addIDs({}, canadaStates, [stateName]);
@@ -125,24 +127,22 @@ export class Adjacencies {
 
     const adjacentRegionsByID: AdjacenctRegionsByID = {};
     for (const fileCountyAdjacency of fileCountyAdjacencies) {
-      const countyRegionID = fileIDToRegionMap[fileCountyAdjacency.countyID].id;
-      let adjacentRegions = adjacentRegionsByID[countyRegionID];
-      if (adjacentRegions === undefined) {
-        adjacentRegions = [];
-        adjacentRegionsByID[countyRegionID] = adjacentRegions;
-      }
-      for (const fileAdjacentCountyID of fileCountyAdjacency.adjacentIDs) {
-        adjacentRegions.push(fileIDToRegionMap[fileAdjacentCountyID]);
+      const countyRegion = fileIDToRegionMap[fileCountyAdjacency.countyID];
+      if (countyRegion) {
+        // not all counties were able to be mapped
+        let adjacentRegions = adjacentRegionsByID[countyRegion.id];
+        if (adjacentRegions === undefined) {
+          adjacentRegions = [];
+          adjacentRegionsByID[countyRegion.id] = adjacentRegions;
+        }
+        for (const fileAdjacentCountyID of fileCountyAdjacency.adjacentIDs) {
+          adjacentRegions.push(fileIDToRegionMap[fileAdjacentCountyID]);
+        }
       }
     }
     return adjacentRegionsByID;
   }
 }
-
-const COUNTY_SUBSTITUTIONS: Record<string, string> = {
-  'Adjuntas Municipio': 'Adjuntas',
-  'Bronx County': 'Bronx'
-};
 
 function getRegionsForCountyName(
   nameToRegionMap: Record<string, Region[]>,
@@ -151,12 +151,12 @@ function getRegionsForCountyName(
   let countyName = Geography.latinize(censusCountyName);
   let regions = nameToRegionMap[countyName];
   if (!regions) {
-    const replacement = COUNTY_SUBSTITUTIONS[countyName];
-    if (replacement) {
-      countyName = replacement;
+    if (countyName == 'Bronx County') {
+      countyName = 'Bronx';
     } else if (countyName.toLowerCase().endsWith(' city')) {
       countyName = 'City of ' + countyName.substring(0, countyName.length - 5);
     } else if (countyName.endsWith('Census Area') || countyName.endsWith('Borough')) {
+      // There are several irreconcilable problems with these.
       return null;
     }
     countyName = countyName.replace('St.', 'Saint').replace('Ste.', 'Sainte');

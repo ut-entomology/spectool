@@ -50,17 +50,17 @@ export const US_STATE_ABBREVS: Record<string, string> = {
   WA: 'Washington',
   WV: 'West Virginia',
   WI: 'Wisconsin',
-  WY: 'Wyoming',
-  // Territories
-  AS: 'American Samoa',
-  GU: 'Guam',
-  MP: 'Nothern Mariana Islands',
-  PR: 'Puerto Rico',
-  VI: 'Virgin Islands',
-  UM: 'Minor Outlying Islands',
-  FM: 'Federated States of Micronesia',
-  MH: 'Marshall Islands',
-  PW: 'Palau'
+  WY: 'Wyoming'
+  // Territories (Specify treats these as countries, not states)
+  // AS: 'American Samoa',
+  // GU: 'Guam',
+  // MP: 'Nothern Mariana Islands',
+  // PR: 'Puerto Rico',
+  // VI: 'Virgin Islands',
+  // UM: 'Minor Outlying Islands',
+  // FM: 'Federated States of Micronesia',
+  // MH: 'Marshall Islands',
+  // PW: 'Palau'
 };
 
 export const CANADA_PROVINCE_ABBREVS: Record<string, string> = {

@@ -24,17 +24,21 @@ async function convert(
   // Remove the extraneous adjacencies.
   const verifier = new CountyAdjacenciesVerifier(textAdjacencies);
   let missingPairs = verifier.getMissingPairs();
-  // for (const missingPair of missingPairs) {
-  //   const from = missingPair[0];
-  //   const to = missingPair[1];
-  //   console.log(
-  //     `Missing ${from.countyName}, ${from.stateAbbr} to ${to.countyName}, ${to.stateAbbr}`
-  //   );
-  // }
-  verifier.removeMissingPairs(missingPairs);
-  missingPairs = verifier.getMissingPairs();
-  if (missingPairs.length !== 0) {
-    console.log(`Did not eliminate ${missingPairs.length} missing pairs`);
+  if (missingPairs.length > 0) {
+    console.log('Found these missing pairs:');
+    for (const missingPair of missingPairs) {
+      const from = missingPair[0];
+      const to = missingPair[1];
+      console.log(
+        `Missing ${from.countyName}, ${from.stateAbbr} to ${to.countyName}, ${to.stateAbbr}`
+      );
+    }
+    console.log('Removing them...');
+    verifier.removeMissingPairs(missingPairs);
+    missingPairs = verifier.getMissingPairs();
+    if (missingPairs.length !== 0) {
+      console.log(`Did not eliminate ${missingPairs.length} missing pairs`);
+    }
   }
 
   // Convert the records into a binary file.

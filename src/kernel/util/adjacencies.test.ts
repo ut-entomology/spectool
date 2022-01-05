@@ -51,8 +51,8 @@ describe('Specify geography', () => {
   test('provides USA-internal county adjacencies', () => {
     const nameToID = getNameToID();
 
-    const travisCountyAdjacencies = adjacencies.forID(nameToID['Travis County']);
-    verifyRegionIDs(travisCountyAdjacencies, [
+    const foundAdjacencies = adjacencies.forID(nameToID['Travis County']);
+    verifyRegionIDs(foundAdjacencies, [
       nameToID['Burnet County'],
       nameToID['Williamson County'],
       nameToID['Bastrop County'],

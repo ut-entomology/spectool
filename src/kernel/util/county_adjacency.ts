@@ -12,6 +12,8 @@ import readline from 'readline';
 
 const BUFFER_CHUNK_SIZE = 2 ** 15;
 
+const US_TERRITORIES = ['AS', 'GU', 'MP', 'PR', 'VI'];
+
 export interface CountyAdjacency {
   countyID: number; // this ID is unique to the file; it's not a GeographyID
   countyName: string;
@@ -239,12 +241,16 @@ export class TextCountyAdjacencyFile {
   }
 
   private _addCounty() {
-    this._adjacencies.push({
-      countyID: this._currentCountyID!,
-      countyName: this._currentCountyName!,
-      stateAbbr: this._currentStateAbbr!,
-      adjacentIDs: this._currentAdjacentIDs
-    });
+    // Drop U.S. territories because Specify does not include them in the U.S.,
+    // and because this app presently only supports U.S. counties.
+    if (!US_TERRITORIES.includes(this._currentStateAbbr!)) {
+      this._adjacencies.push({
+        countyID: this._currentCountyID!,
+        countyName: this._currentCountyName!,
+        stateAbbr: this._currentStateAbbr!,
+        adjacentIDs: this._currentAdjacentIDs
+      });
+    }
   }
 
   private _convertCodesToIDs() {
