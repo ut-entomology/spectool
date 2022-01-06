@@ -19,8 +19,7 @@ export class Geography {
   static addIDs(
     toNameMap: Record<string, number>,
     dictionary: GeoDictionary,
-    names: string[],
-    errorIfNotFound = true
+    names: string[]
   ) {
     let remainingNames = names.slice();
     for (const entry of Object.values(dictionary)) {
@@ -33,7 +32,7 @@ export class Geography {
         }
       }
     }
-    if (errorIfNotFound && remainingNames.length > 0) {
+    if (remainingNames.length > 0) {
       throw Error(`Could not find IDs for ${remainingNames}`);
     }
     return toNameMap;

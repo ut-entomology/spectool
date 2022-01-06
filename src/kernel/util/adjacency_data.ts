@@ -139,6 +139,7 @@ export const stateAdjacencies: Record<string, string[]> = {
 
 export const usaAdjacencies = {
   AK: {
+    // Commented-out counties are not found in Specify...
     'North Slope Borough': ['Yukon'],
     'Yukon-Koyukuk Census Area': ['Yukon'],
     'Southeast Fairbanks Census Area': ['Yukon'],
@@ -149,9 +150,9 @@ export const usaAdjacencies = {
     'Juneau City and Borough': ['British Columbia'],
     'Hoonah-Angoon Census Area': ['British Columbia'],
     'Petersburg Census Area': ['British Columbia'],
-    'Wrangell City and Borough': ['British Columbia'],
-    'Ketchikan Gateway Borough': ['British Columbia'],
-    'Prince of Wales-Hyder Census Area': ['British Columbia']
+    //'Wrangell City and Borough': ['British Columbia'],
+    'Ketchikan Gateway Borough': ['British Columbia']
+    //'Prince of Wales-Hyder Census Area': ['British Columbia']
   },
   AZ: {
     'Yuma County': ['Sonora'],
@@ -176,7 +177,7 @@ export const usaAdjacencies = {
   MI: {
     'Keweenaw County': ['Ontario'],
     'Chippewa County': ['Ontario'],
-    'St. Clair County': ['Ontario'],
+    'Saint Clair County': ['Ontario'],
     'Macomb County': ['Ontario'],
     'Wayne County': ['Ontario'],
     'Monroe County': ['Ontario']
@@ -186,7 +187,7 @@ export const usaAdjacencies = {
     'Roseau County': ['Manitoba'],
     'Lake of the Woods County': ['Manitoba', 'Ontario'],
     'Koochiching County': ['Ontario'],
-    'St. Louis County': ['Ontario'],
+    'Saint Louis County': ['Ontario'],
     'Lake County': ['Ontario'],
     'Cook County': ['Ontario']
   },

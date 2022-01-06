@@ -89,6 +89,13 @@ describe('Specify geography', () => {
       'Jim Hogg County',
       'Brooks County',
       'Hidalgo County',
+      // Additional counties around Webb County
+      'Webb County',
+      'Maverick County',
+      'Dimmit County',
+      'La Salle County',
+      'McMullen County',
+      'Duval County',
       // Counties surrounding Hockley County
       'Hockley County',
       'Cochran County',
@@ -160,12 +167,27 @@ describe('Specify geography', () => {
 
   test('provides USA county adjacencies at USA-Mexico border', () => {
     setNameToID();
-    const foundAdjacencies = adjacencies.forID(nameToID['Starr County']);
+    let foundAdjacencies = adjacencies.forID(nameToID['Webb County']);
+    verifyRegionIDs(foundAdjacencies, [
+      nameToID['Maverick County'],
+      nameToID['Dimmit County'],
+      nameToID['La Salle County'],
+      nameToID['McMullen County'],
+      nameToID['Duval County'],
+      nameToID['Zapata County'],
+      nameToID['Jim Hogg County'],
+      nameToID['Coahuila'],
+      nameToID['Nuevo Leon'],
+      nameToID['Tamaulipas']
+    ]);
+
+    foundAdjacencies = adjacencies.forID(nameToID['Starr County']);
     verifyRegionIDs(foundAdjacencies, [
       nameToID['Zapata County'],
       nameToID['Jim Hogg County'],
       nameToID['Brooks County'],
-      nameToID['Hidalgo County']
+      nameToID['Hidalgo County'],
+      nameToID['Tamaulipas']
     ]);
   });
 

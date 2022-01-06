@@ -2,10 +2,10 @@ import * as path from 'path';
 
 import { BinaryCountyAdjacencyFile } from './county_adjacency';
 import { Geography } from '../specify/geography';
-import { SPECIFY_USA } from '../../shared/specify_data';
+import { GeoDictionary, SPECIFY_USA } from '../../shared/specify_data';
 import { Region, RegionRank } from '../../shared/region';
 import { US_STATE_ABBREVS, toStateNameFromAbbrev } from './states';
-import { countryAdjacencies, stateAdjacencies } from './adjacency_data';
+import { countryAdjacencies, stateAdjacencies, usaAdjacencies } from './adjacency_data';
 
 const BINARY_COUNTY_ADJACENCIES_FILE = path.join(
   __dirname,
@@ -34,8 +34,13 @@ export class Adjacencies {
   }
 
   async load(): Promise<void> {
+    const usaStates = this._geography.getChildren(this._nameToID[SPECIFY_USA]);
+    const canadaStates = this._geography.getChildren(this._nameToID['Canada']);
+    const mexicoStates = this._geography.getChildren(this._nameToID['Mexico']);
+    const naStates = Object.assign({}, usaStates, canadaStates, mexicoStates);
+
     const adjacentUSACountiesByID = await this._getAdjacentUSACounties();
-    const adjacentNAStates = this._getAdjacentNorthAmericanStates();
+    const adjacentNAStates = this._getAdjacentNorthAmericanStates(naStates);
     const adjacentNACountries = this._getAdjacentNorthAmericanCountries();
 
     Object.assign(
@@ -44,16 +49,15 @@ export class Adjacencies {
       adjacentNAStates,
       adjacentNACountries
     );
+
+    this._addStatesAdjacentToUSACounties(naStates);
   }
 
   private _getAdjacentNorthAmericanCountries(): AdjacenctRegionsByID {
     const countries = this._geography.getCountries();
 
     function toCountryID(countryName: string): number {
-      let foundIDs = Geography.addIDs({}, countries, [countryName], false);
-      if (!foundIDs[countryName]) {
-        throw Error(`ID not found for country '${countryName}'`);
-      }
+      const foundIDs = Geography.addIDs({}, countries, [countryName]);
       return foundIDs[countryName];
     }
 
@@ -76,11 +80,9 @@ export class Adjacencies {
     return adjacentRegionsByID;
   }
 
-  private _getAdjacentNorthAmericanStates(): AdjacenctRegionsByID {
-    const usaStates = this._geography.getChildren(this._nameToID[SPECIFY_USA]);
-    const canadaStates = this._geography.getChildren(this._nameToID['Canada']);
-    const mexicoStates = this._geography.getChildren(this._nameToID['Mexico']);
-
+  private _getAdjacentNorthAmericanStates(
+    naStates: GeoDictionary
+  ): AdjacenctRegionsByID {
     function toStateID(stateAbbrev: string): number {
       let stateName = toStateNameFromAbbrev(stateAbbrev);
       if (stateName === null) {
@@ -88,16 +90,7 @@ export class Adjacencies {
       }
       // All names in Specify have been latinized.
       stateName = Geography.latinize(stateName);
-      let foundIDs = Geography.addIDs({}, usaStates, [stateName], false);
-      if (!foundIDs[stateName]) {
-        foundIDs = Geography.addIDs({}, canadaStates, [stateName], false);
-        if (!foundIDs[stateName]) {
-          foundIDs = Geography.addIDs({}, mexicoStates, [stateName], false);
-        }
-      }
-      if (!foundIDs[stateName]) {
-        throw Error(`ID not found for state '${stateName}'`);
-      }
+      const foundIDs = Geography.addIDs({}, naStates, [stateName]);
       return foundIDs[stateName];
     }
 
@@ -173,6 +166,53 @@ export class Adjacencies {
       }
     }
     return adjacentRegionsByID;
+  }
+
+  private _addStatesAdjacentToUSACounties(naStates: GeoDictionary) {
+    function toStateID(stateName: string): number {
+      stateName = Geography.latinize(stateName);
+      const foundIDs = Geography.addIDs({}, naStates, [stateName]);
+      return foundIDs[stateName];
+    }
+
+    for (const [stateAbbrev, stateAdjacencies] of Object.entries(usaAdjacencies)) {
+      const latinStateAdjacencies: Record<string, string[]> = {};
+      for (const [countyName, adjacentStateNames] of Object.entries(stateAdjacencies)) {
+        const latinStateNames: string[] = [];
+        for (const stateName of adjacentStateNames) {
+          latinStateNames.push(Geography.latinize(stateName));
+        }
+        latinStateAdjacencies[Geography.latinize(countyName)] = latinStateNames;
+      }
+
+      const stateName = toStateNameFromAbbrev(stateAbbrev);
+      if (!stateName) {
+        throw Error(`State not found for abbreviation '${stateAbbrev}'`);
+      }
+      const stateID = toStateID(Geography.latinize(stateName));
+      const stateCounties = this._geography.getChildren(stateID);
+      const borderCountyIDs = Geography.addIDs(
+        {},
+        stateCounties,
+        Object.keys(latinStateAdjacencies)
+      );
+      for (const [countyName, adjacentStateNames] of Object.entries(
+        latinStateAdjacencies
+      )) {
+        const borderCountyID = borderCountyIDs[countyName];
+        const countyAdjacencies = this._adjacenciesByID[borderCountyID];
+        const adjacentStateIDMap = Geography.addIDs({}, naStates, adjacentStateNames);
+        for (const [adjacentStateName, adjacentStateID] of Object.entries(
+          adjacentStateIDMap
+        )) {
+          const adjacentStateRegion = this._geography.getRegionByID(adjacentStateID);
+          if (!adjacentStateRegion) {
+            throw Error(`Region not found for adjacent state '${adjacentStateName}'`);
+          }
+          countyAdjacencies.push(adjacentStateRegion);
+        }
+      }
+    }
   }
 }
 
