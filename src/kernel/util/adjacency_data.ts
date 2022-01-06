@@ -3,14 +3,14 @@
  */
 
 export const countryAdjacencies = {
-  Canada: ['USA'],
-  USA: ['Canada', 'Mexico'],
-  Mexico: ['USA', 'Guatemala', 'Belize'],
+  Canada: ['United States'],
+  'United States': ['Canada', 'Mexico'],
+  Mexico: ['United States', 'Guatemala', 'Belize'],
   Guatemala: ['Mexico', 'Belize', 'El Salvador', 'Honduras'],
   Belize: ['Mexico', 'Guatemala'],
   'El Salvador': ['Guatemala', 'Honduras'],
   Honduras: ['Guatemala', 'El Salvador', 'Nicaragua'],
-  Nicaruagua: ['Honduras', 'Costa Rica'],
+  Nicaragua: ['Honduras', 'Costa Rica'],
   'Costa Rica': ['Nicaragua', 'Panama'],
   Panama: ['Costa Rica']
 };

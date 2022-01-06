@@ -5,7 +5,7 @@ import { Geography } from '../specify/geography';
 import { SPECIFY_USA } from '../../shared/specify_data';
 import { Region, RegionRank } from '../../shared/region';
 import { US_STATE_ABBREVS, toStateNameFromAbbrev } from './states';
-import { stateAdjacencies } from './adjacency_data';
+import { countryAdjacencies, stateAdjacencies } from './adjacency_data';
 
 const BINARY_COUNTY_ADJACENCIES_FILE = path.join(
   __dirname,
@@ -35,13 +35,45 @@ export class Adjacencies {
 
   async load(): Promise<void> {
     const adjacentUSACountiesByID = await this._getAdjacentUSACounties();
-    const adjacentNorthAmericanStates = this._getAdjacentNorthAmericanStates();
+    const adjacentNAStates = this._getAdjacentNorthAmericanStates();
+    const adjacentNACountries = this._getAdjacentNorthAmericanCountries();
 
     Object.assign(
       this._adjacenciesByID,
       adjacentUSACountiesByID,
-      adjacentNorthAmericanStates
+      adjacentNAStates,
+      adjacentNACountries
     );
+  }
+
+  private _getAdjacentNorthAmericanCountries(): AdjacenctRegionsByID {
+    const countries = this._geography.getCountries();
+
+    function toCountryID(countryName: string): number {
+      let foundIDs = Geography.addIDs({}, countries, [countryName], false);
+      if (!foundIDs[countryName]) {
+        throw Error(`ID not found for country '${countryName}'`);
+      }
+      return foundIDs[countryName];
+    }
+
+    const adjacentRegionsByID: AdjacenctRegionsByID = {};
+    for (const [countryName, adjacentCountryNames] of Object.entries(
+      countryAdjacencies
+    )) {
+      const countryID = toCountryID(countryName);
+      const adjacentRegions: Region[] = [];
+      for (const adjacentCountryName of adjacentCountryNames) {
+        const adjacentCountryID = toCountryID(adjacentCountryName);
+        const adjacentRegion = this._geography.getRegionByID(adjacentCountryID);
+        if (adjacentRegion === null) {
+          throw Error(`Could not find region for country ID ${adjacentCountryID}`);
+        }
+        adjacentRegions.push(adjacentRegion);
+      }
+      adjacentRegionsByID[countryID] = adjacentRegions;
+    }
+    return adjacentRegionsByID;
   }
 
   private _getAdjacentNorthAmericanStates(): AdjacenctRegionsByID {

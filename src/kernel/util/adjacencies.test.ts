@@ -17,7 +17,11 @@ describe('Specify geography', () => {
     }
     Geography.addIDs(nameToID, geography.getCountries(), [
       SPECIFY_USA,
+      'Belize',
       'Canada',
+      'El Salvador',
+      'Guatemala',
+      'Honduras',
       'Mexico'
     ]);
     Geography.addIDs(nameToID, geography.getChildren(nameToID[SPECIFY_USA]), [
@@ -210,6 +214,27 @@ describe('Specify geography', () => {
       nameToID['Tamaulipas'],
       nameToID['Zacatecas'],
       nameToID['San Luis Potosi']
+    ]);
+  });
+
+  test('provides adjacent North American countries', () => {
+    setNameToID();
+    let foundAdjacencies = adjacencies.forID(nameToID['United States']);
+    verifyRegionIDs(foundAdjacencies, [nameToID['Mexico'], nameToID['Canada']]);
+
+    foundAdjacencies = adjacencies.forID(nameToID['Mexico']);
+    verifyRegionIDs(foundAdjacencies, [
+      nameToID['United States'],
+      nameToID['Guatemala'],
+      nameToID['Belize']
+    ]);
+
+    foundAdjacencies = adjacencies.forID(nameToID['Guatemala']);
+    verifyRegionIDs(foundAdjacencies, [
+      nameToID['Mexico'],
+      nameToID['Belize'],
+      nameToID['El Salvador'],
+      nameToID['Honduras']
     ]);
   });
 
