@@ -15,12 +15,12 @@ describe('Specify geography', () => {
       'Canada',
       'Mexico'
     ]);
-    Geography.addIDs(nameToID, geography.getStates(nameToID[SPECIFY_USA]), [
+    Geography.addIDs(nameToID, geography.getChildren(nameToID[SPECIFY_USA]), [
       'Texas',
       'Maryland'
     ]);
-    Geography.addIDs(nameToID, geography.getStates(nameToID['Canada']), ['Ontario']);
-    Geography.addIDs(nameToID, geography.getStates(nameToID['Mexico']), ['Sonora']);
+    Geography.addIDs(nameToID, geography.getChildren(nameToID['Canada']), ['Ontario']);
+    Geography.addIDs(nameToID, geography.getChildren(nameToID['Mexico']), ['Sonora']);
     return nameToID;
   }
 
@@ -40,7 +40,7 @@ describe('Specify geography', () => {
   test('provides states', () => {
     function verifyStates(countryID: number, stateNames: string[]) {
       const stateIDs = Object.values(
-        Geography.addIDs({}, geography.getStates(countryID), stateNames)
+        Geography.addIDs({}, geography.getChildren(countryID), stateNames)
       );
       expect(stateIDs.length).toEqual(stateNames.length);
       for (const stateID of stateIDs) {
@@ -178,7 +178,7 @@ describe('Specify geography', () => {
       nameToID['Maryland']
     ]);
 
-    Geography.addIDs(nameToID, geography.getStates(nameToID[SPECIFY_USA]), [
+    Geography.addIDs(nameToID, geography.getChildren(nameToID[SPECIFY_USA]), [
       'Kentucky',
       'North Carolina',
       'Missouri'

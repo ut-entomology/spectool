@@ -20,22 +20,57 @@ describe('Specify geography', () => {
       'Canada',
       'Mexico'
     ]);
-    Geography.addIDs(nameToID, geography.getStates(nameToID[SPECIFY_USA]), [
+    Geography.addIDs(nameToID, geography.getChildren(nameToID[SPECIFY_USA]), [
       'Arkansas',
+      'Delaware',
+      'Louisiana',
+      'Maryland',
+      'New Mexico',
+      'New Jersey',
       'Oklahoma',
+      'Pennsylvania',
       'Texas',
       'Virginia'
     ]);
-    Geography.addIDs(nameToID, geography.getStates(nameToID['Arkansas']), [
+    Geography.addIDs(nameToID, geography.getChildren(nameToID['Mexico']), [
+      'Chihuahua',
+      'Coahuila',
+      'Nuevo Leon',
+      'Tamaulipas',
+      'Zacatecas',
+      'San Luis Potosi'
+    ]);
+    Geography.addIDs(nameToID, geography.getChildren(nameToID['Arkansas']), [
       // Counties adjacent to Bowie County, Texas
       'Little River County',
       'Miller County'
     ]);
-    Geography.addIDs(nameToID, geography.getStates(nameToID['Oklahoma']), [
+    Geography.addIDs(nameToID, geography.getChildren(nameToID['Maryland']), [
+      // Counties adjacent to Delaware
+      'Worcester County',
+      'Wicomico County',
+      'Dorchester County',
+      'Caroline County',
+      "Queen Anne's County",
+      'Kent County',
+      'Cecil County'
+    ]);
+    Geography.addIDs(nameToID, geography.getChildren(nameToID['New Jersey']), [
+      // Counties adjacent to Delware
+      'Gloucester County',
+      'Salem County'
+    ]);
+    Geography.addIDs(nameToID, geography.getChildren(nameToID['Oklahoma']), [
       // Counties adjacent to Bowie County, Texas
       'McCurtain County'
     ]);
-    Geography.addIDs(nameToID, geography.getStates(nameToID['Texas']), [
+    console.log('**** PA ID', nameToID['Pennsylvania']);
+    Geography.addIDs(nameToID, geography.getChildren(nameToID['Pennsylvania']), [
+      // Counties adjacent to Delware
+      'Chester County',
+      'Delaware County'
+    ]);
+    Geography.addIDs(nameToID, geography.getChildren(nameToID['Texas']), [
       // Counties surrounding Travis County
       'Travis County',
       'Burnet County',
@@ -66,8 +101,8 @@ describe('Specify geography', () => {
       'Morris County',
       'Red River County'
     ]);
-    Geography.addIDs(nameToID, geography.getStates(nameToID['Canada']), ['Ontario']);
-    Geography.addIDs(nameToID, geography.getStates(nameToID['Mexico']), ['Sonora']);
+    Geography.addIDs(nameToID, geography.getChildren(nameToID['Canada']), ['Ontario']);
+    Geography.addIDs(nameToID, geography.getChildren(nameToID['Mexico']), ['Sonora']);
   }
 
   beforeAll(async () => {
@@ -127,6 +162,54 @@ describe('Specify geography', () => {
       nameToID['Jim Hogg County'],
       nameToID['Brooks County'],
       nameToID['Hidalgo County']
+    ]);
+  });
+
+  test('provides USA-internal state adjacencies', () => {
+    setNameToID();
+    const foundAdjacencies = adjacencies.forID(nameToID['Delaware']);
+    verifyRegionIDs(foundAdjacencies, [
+      nameToID['Maryland'],
+      nameToID['Pennsylvania'],
+      nameToID['New Jersey']
+      // nameToID['Worcester County'],
+      // nameToID['Wicomica County'],
+      // nameToID['Dorchester County'],
+      // nameToID['Caroline County'],
+      // nameToID["Queen Anne's County"],
+      // nameToID['Kent County'],
+      // nameToID['Cecil County'],
+      // nameToID['Gloucester County'],
+      // nameToID['Salem County'],
+      // nameToID['Chester County'],
+      // nameToID['Delaware County']
+    ]);
+  });
+
+  test('provides USA border state adjacencies', () => {
+    setNameToID();
+    const foundAdjacencies = adjacencies.forID(nameToID['Texas']);
+    verifyRegionIDs(foundAdjacencies, [
+      nameToID['Arkansas'],
+      nameToID['Louisiana'],
+      nameToID['New Mexico'],
+      nameToID['Oklahoma'],
+      nameToID['Chihuahua'],
+      nameToID['Coahuila'],
+      nameToID['Nuevo Leon'],
+      nameToID['Tamaulipas']
+    ]);
+  });
+
+  test('provides Mexico border state adjacencies', () => {
+    setNameToID();
+    const foundAdjacencies = adjacencies.forID(nameToID['Nuevo Leon']);
+    verifyRegionIDs(foundAdjacencies, [
+      nameToID['Texas'],
+      nameToID['Coahuila'],
+      nameToID['Tamaulipas'],
+      nameToID['Zacatecas'],
+      nameToID['San Luis Potosi']
     ]);
   });
 

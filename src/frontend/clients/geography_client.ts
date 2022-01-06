@@ -15,7 +15,7 @@ export class GeographyClient {
     return ClientIpc.sendAsync(window, 'get_countries_of', collectionID);
   }
 
-  static getStates(countryID: number): Promise<GeoDictionary> {
+  static getChildren(countryID: number): Promise<GeoDictionary> {
     return ClientIpc.sendAsync(window, 'get_states', countryID);
   }
 

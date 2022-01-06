@@ -60,7 +60,7 @@ class GetStatesIpc extends AsyncIpcHandler {
   }
 
   async handler(countryID: number) {
-    return this.kernel.specify.geography.getStates(countryID);
+    return this.kernel.specify.geography.getChildren(countryID);
   }
 }
 

@@ -26,8 +26,11 @@ export class Geography {
     for (const entry of Object.values(dictionary)) {
       const nameIndex = names.indexOf(entry.name);
       if (nameIndex >= 0) {
-        toNameMap[names[nameIndex]] = entry.id;
-        remainingNames.splice(remainingNames.indexOf(entry.name), 1);
+        // The state of Pennsylvania occurs twice in Specify; use the first one.
+        if (!toNameMap[names[nameIndex]]) {
+          toNameMap[names[nameIndex]] = entry.id;
+          remainingNames.splice(remainingNames.indexOf(entry.name), 1);
+        }
       }
     }
     if (errorIfNotFound && remainingNames.length > 0) {
@@ -70,6 +73,24 @@ export class Geography {
         row.parentID
       );
     }
+  }
+
+  getChildren(parentID: number): GeoDictionary {
+    if (!parentID) {
+      throw Error(`Invalid parentID: ${parentID}`);
+    }
+    this._assertLoaded();
+    const children: GeoDictionary = {};
+    for (const region of Object.values(this._regions)) {
+      if (region.parentID === parentID) {
+        // @ts-ignore because equivalent string and number indexes are equivalent
+        children[region.id] = {
+          id: region.id,
+          name: region.name
+        };
+      }
+    }
+    return children;
   }
 
   getCountries(): GeoDictionary {
@@ -152,21 +173,6 @@ export class Geography {
       }
     }
     return nameToRegionMap;
-  }
-
-  getStates(countryID: number): GeoDictionary {
-    this._assertLoaded();
-    const states: GeoDictionary = {};
-    for (const region of Object.values(this._regions)) {
-      if (region.parentID === countryID) {
-        // @ts-ignore because equivalent string and number indexes are equivalent
-        states[region.id] = {
-          id: region.id,
-          name: region.name
-        };
-      }
-    }
-    return states;
   }
 
   getStatesOf(countryID: number, geoIDs: number[]): Region[] {

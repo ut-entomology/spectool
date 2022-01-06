@@ -45,9 +45,9 @@ export class Adjacencies {
   }
 
   private _getAdjacentNorthAmericanStates(): AdjacenctRegionsByID {
-    const usaStates = this._geography.getStates(this._nameToID[SPECIFY_USA]);
-    const canadaStates = this._geography.getStates(this._nameToID['Canada']);
-    const mexicoStates = this._geography.getStates(this._nameToID['Mexico']);
+    const usaStates = this._geography.getChildren(this._nameToID[SPECIFY_USA]);
+    const canadaStates = this._geography.getChildren(this._nameToID['Canada']);
+    const mexicoStates = this._geography.getChildren(this._nameToID['Mexico']);
 
     function toStateID(stateAbbrev: string): number {
       let stateName = toStateNameFromAbbrev(stateAbbrev);
