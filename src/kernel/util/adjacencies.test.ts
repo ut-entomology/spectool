@@ -161,7 +161,9 @@ describe('Specify geography', () => {
       nameToID['Red River County'],
       nameToID['Little River County'],
       nameToID['Miller County'],
-      nameToID['McCurtain County']
+      nameToID['McCurtain County'],
+      nameToID['Oklahoma'],
+      nameToID['Arkansas']
     ]);
   });
 
@@ -178,7 +180,8 @@ describe('Specify geography', () => {
       nameToID['Jim Hogg County'],
       nameToID['Coahuila'],
       nameToID['Nuevo Leon'],
-      nameToID['Tamaulipas']
+      nameToID['Tamaulipas'],
+      nameToID['Mexico']
     ]);
 
     foundAdjacencies = adjacencies.forID(nameToID['Starr County']);
@@ -187,7 +190,8 @@ describe('Specify geography', () => {
       nameToID['Jim Hogg County'],
       nameToID['Brooks County'],
       nameToID['Hidalgo County'],
-      nameToID['Tamaulipas']
+      nameToID['Tamaulipas'],
+      nameToID['Mexico']
     ]);
   });
 
@@ -223,7 +227,8 @@ describe('Specify geography', () => {
       nameToID['Chihuahua'],
       nameToID['Coahuila'],
       nameToID['Nuevo Leon'],
-      nameToID['Tamaulipas']
+      nameToID['Tamaulipas'],
+      nameToID['Mexico']
     ]);
   });
 
@@ -235,7 +240,8 @@ describe('Specify geography', () => {
       nameToID['Coahuila'],
       nameToID['Tamaulipas'],
       nameToID['Zacatecas'],
-      nameToID['San Luis Potosi']
+      nameToID['San Luis Potosi'],
+      nameToID[SPECIFY_USA]
     ]);
   });
 

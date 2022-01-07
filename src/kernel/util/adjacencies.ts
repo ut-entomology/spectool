@@ -51,6 +51,7 @@ export class Adjacencies {
     );
 
     this._addStatesAdjacentToUSACounties(naStates);
+    this._addAdjacenciesToParentStateAndCountry();
   }
 
   private _getAdjacentNorthAmericanCountries(): AdjacenctRegionsByID {
@@ -161,7 +162,11 @@ export class Adjacencies {
           adjacentRegionsByID[countyRegion.id] = adjacentRegions;
         }
         for (const fileAdjacentCountyID of fileCountyAdjacency.adjacentIDs) {
-          adjacentRegions.push(fileIDToRegionMap[fileAdjacentCountyID]);
+          // Some counties could not be mapped and so don't exist.
+          const fileAdjacentCountyRegion = fileIDToRegionMap[fileAdjacentCountyID];
+          if (fileAdjacentCountyRegion) {
+            adjacentRegions.push(fileAdjacentCountyRegion);
+          }
         }
       }
     }
@@ -211,6 +216,39 @@ export class Adjacencies {
           }
           countyAdjacencies.push(adjacentStateRegion);
         }
+      }
+    }
+  }
+
+  private _addAdjacenciesToParentStateAndCountry() {
+    const self = this;
+
+    function getParentIDs(ofRegion: Region): number[] {
+      const parentIDs: number[] = [];
+      if (ofRegion.rank == RegionRank.County) {
+        parentIDs.push(ofRegion.parentID);
+        ofRegion = self._geography.getRegionByID(ofRegion.parentID)!;
+      }
+      if (ofRegion.rank == RegionRank.State) {
+        parentIDs.push(ofRegion.parentID);
+      }
+      return parentIDs;
+    }
+
+    for (const [regionID, adjacentRegions] of Object.entries(this._adjacenciesByID)) {
+      const region = this._geography.getRegionByID(parseInt(regionID))!;
+      const nonAdjacentParentIDs = getParentIDs(region);
+      const regionsToAdd: Record<number, Region> = {};
+      for (const adjacentRegion of adjacentRegions) {
+        for (const adjacentRegionParentID of getParentIDs(adjacentRegion)) {
+          if (!nonAdjacentParentIDs.includes(adjacentRegionParentID)) {
+            const parentRegion = self._geography.getRegionByID(adjacentRegionParentID)!;
+            regionsToAdd[parentRegion.id] = parentRegion; // prevent duplicates
+          }
+        }
+      }
+      for (const regionToAdd of Object.values(regionsToAdd)) {
+        adjacentRegions.push(regionToAdd);
       }
     }
   }
