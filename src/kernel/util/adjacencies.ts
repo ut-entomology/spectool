@@ -52,6 +52,7 @@ export class Adjacencies {
 
     this._addStatesAdjacentToUSACounties(naStates);
     this._addAdjacenciesToParentStateAndCountry();
+    this._addReciprocateAdjacencies();
   }
 
   private _getAdjacentNorthAmericanCountries(): AdjacenctRegionsByID {
@@ -249,6 +250,18 @@ export class Adjacencies {
       }
       for (const regionToAdd of Object.values(regionsToAdd)) {
         adjacentRegions.push(regionToAdd);
+      }
+    }
+  }
+
+  private _addReciprocateAdjacencies() {
+    for (const [regionID, adjacentRegions] of Object.entries(this._adjacenciesByID)) {
+      const region = this._geography.getRegionByID(parseInt(regionID))!;
+      for (const adjacentRegion of adjacentRegions) {
+        const adjacentRegionAdjacentRegions = this._adjacenciesByID[adjacentRegion.id];
+        if (!adjacentRegionAdjacentRegions.includes(region)) {
+          adjacentRegionAdjacentRegions.push(region);
+        }
       }
     }
   }

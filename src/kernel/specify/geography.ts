@@ -19,14 +19,15 @@ export class Geography {
   static addIDs(
     toNameMap: Record<string, number>,
     dictionary: GeoDictionary,
-    names: string[]
+    names: string[],
+    overrideDuplicates = false
   ) {
     let remainingNames = names.slice();
     for (const entry of Object.values(dictionary)) {
       const nameIndex = names.indexOf(entry.name);
       if (nameIndex >= 0) {
         // The state of Pennsylvania occurs twice in Specify; use the first one.
-        if (!toNameMap[names[nameIndex]]) {
+        if (overrideDuplicates || !toNameMap[names[nameIndex]]) {
           toNameMap[names[nameIndex]] = entry.id;
           remainingNames.splice(remainingNames.indexOf(entry.name), 1);
         }
