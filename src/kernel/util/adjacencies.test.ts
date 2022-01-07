@@ -5,7 +5,7 @@ import { Geography } from '../specify/geography';
 import { Region } from '../../shared/region';
 import { SPECIFY_USA } from '../../shared/specify_data';
 
-describe('Specify geography', () => {
+describe('hardcoded region adjacencies', () => {
   let kernel: AppKernel;
   let geography: Geography;
   let adjacencies: Adjacencies;
