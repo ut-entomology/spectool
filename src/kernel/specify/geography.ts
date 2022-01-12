@@ -8,8 +8,8 @@ import { RegionRank, Region } from '../../shared/region';
 // with accents and diacritics removed.
 
 export class Geography {
-  private _ranks: Record<number, RegionRank> = {};
-  private _regions: Record<number, Region> = {};
+  private _ranksByID: Record<number, RegionRank> = {};
+  private _regionsByID: Record<number, Region> = {};
 
   /**
    * Adds to the provided name map the geography IDs from the given dictionary
@@ -47,8 +47,8 @@ export class Geography {
 
   async load(db: Knex): Promise<void> {
     // Clear first so garbage collection can work during query.
-    this._ranks = {};
-    this._regions = {};
+    this._ranksByID = {};
+    this._regionsByID = {};
 
     // Load assignments of rank IDs to geographic categories.
     const rankRows = await db
@@ -57,7 +57,7 @@ export class Geography {
     for (const row of rankRows) {
       const regionRank = RegionRank[row.name as keyof typeof RegionRank];
       if (regionRank !== undefined) {
-        this._ranks[row.rankID] = regionRank;
+        this._ranksByID[row.rankID] = regionRank;
       }
     }
 
@@ -66,9 +66,9 @@ export class Geography {
       .select<SpecGeography[]>('geographyID', 'rankID', 'name', 'parentID')
       .from('geography');
     for (const row of geoRows) {
-      this._regions[row.geographyID] = new Region(
+      this._regionsByID[row.geographyID] = new Region(
         row.geographyID,
-        this._ranks[row.rankID],
+        this._ranksByID[row.rankID],
         row.name,
         row.parentID
       );
@@ -81,7 +81,7 @@ export class Geography {
     }
     this._assertLoaded();
     const children: GeoDictionary = {};
-    for (const region of Object.values(this._regions)) {
+    for (const region of Object.values(this._regionsByID)) {
       if (region.parentID === parentID) {
         // @ts-ignore because equivalent string and number indexes are equivalent
         children[region.id] = {
@@ -96,7 +96,7 @@ export class Geography {
   getCountries(): GeoDictionary {
     this._assertLoaded();
     const countries: GeoDictionary = {};
-    for (const region of Object.values(this._regions)) {
+    for (const region of Object.values(this._regionsByID)) {
       if (region.rank === RegionRank.Country) {
         // @ts-ignore because equivalent string and number indexes are equivalent
         countries[region.id] = {
@@ -123,17 +123,17 @@ export class Geography {
   }
 
   getRegionByID(regionID: number): Region | null {
-    const region = this._regions[regionID];
+    const region = this._regionsByID[regionID];
     return region != undefined ? region : null;
   }
 
   getRegionByRank(rank: RegionRank, forID: number): Region | null {
-    let region = this._regions[forID];
+    let region = this._regionsByID[forID];
     while (region.rank !== rank) {
       if (region.parentID === null) {
         return null;
       }
-      region = this._regions[region.parentID];
+      region = this._regionsByID[region.parentID];
     }
     return region;
   }
@@ -143,7 +143,7 @@ export class Geography {
     const foundIDs: Record<number, boolean> = {};
     // but don't waste time calling parseInt on the hash keys
     const geoIDs: number[] = [];
-    for (let region of Object.values(this._regions)) {
+    for (let region of Object.values(this._regionsByID)) {
       const descendantGeoIDs: number[] = [];
       while (region) {
         if (region.id === underGeoID || foundIDs[region.id]) {
@@ -155,8 +155,18 @@ export class Geography {
         } else {
           descendantGeoIDs.push(region.id);
         }
-        region = this._regions[region.parentID];
+        region = this._regionsByID[region.parentID];
       }
+    }
+    return geoIDs;
+  }
+
+  getContainingGeographyIDs(aboveGeoID: number): number[] {
+    const geoIDs: number[] = [];
+    let region = this._regionsByID[aboveGeoID];
+    while (region.parentID !== null) {
+      geoIDs.push(region.parentID);
+      region = this._regionsByID[region.parentID];
     }
     return geoIDs;
   }
@@ -164,7 +174,7 @@ export class Geography {
   getNameToRegionMap(underID: number): Record<string, Region[]> {
     const nameToRegionMap: Record<string, Region[]> = {};
     for (const regionID of this.getContainedGeographyIDs(underID)) {
-      const region = this._regions[regionID];
+      const region = this._regionsByID[regionID];
       let mappedRegions = nameToRegionMap[region.name];
       if (mappedRegions === undefined) {
         nameToRegionMap[region.name] = [region];
@@ -193,7 +203,7 @@ export class Geography {
   }
 
   private _assertLoaded() {
-    if (!this._regions) {
+    if (!this._regionsByID) {
       throw Error('No geographic regions loaded');
     }
   }

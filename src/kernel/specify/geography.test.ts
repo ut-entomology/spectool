@@ -21,6 +21,16 @@ describe('Specify geography', () => {
     ]);
     Geography.addIDs(nameToID, geography.getChildren(nameToID['Canada']), ['Ontario']);
     Geography.addIDs(nameToID, geography.getChildren(nameToID['Mexico']), ['Sonora']);
+
+    Geography.addIDs(nameToID, geography.getChildren(nameToID['Texas']), [
+      'Travis County'
+    ]);
+
+    const na = geography.getRegionByRank(RegionRank.Continent, nameToID[SPECIFY_USA]);
+    nameToID[na!.name] = na!.id;
+    const earth = geography.getRegionByRank(RegionRank.Earth, nameToID[SPECIFY_USA]);
+    nameToID[earth!.name] = earth!.id;
+
     return nameToID;
   }
 
@@ -84,6 +94,32 @@ describe('Specify geography', () => {
     verifyContainedIDs(nameToID['Maryland']);
     verifyContainedIDs(nameToID['Ontario']);
     verifyContainedIDs(nameToID['Sonora']);
+  });
+
+  test('provides containing geography IDs', () => {
+    const nameToID = getNameToID();
+
+    function verifyContainingIDs(aboveID: number, containingNames: string[]) {
+      containingNames.push('North America');
+      containingNames.push('Earth');
+      const containingIDs = geography.getContainingGeographyIDs(aboveID);
+      for (const containingName of containingNames) {
+        expect(containingIDs).toContain(nameToID[containingName]);
+      }
+      for (const containingID of containingIDs) {
+        const region = geography.getRegionByID(containingID);
+        expect(containingNames).toContain(region?.name);
+      }
+    }
+
+    verifyContainingIDs(nameToID[SPECIFY_USA], []);
+    verifyContainingIDs(nameToID['Canada'], []);
+    verifyContainingIDs(nameToID['Mexico'], []);
+    verifyContainingIDs(nameToID['Texas'], ['United States']);
+    verifyContainingIDs(nameToID['Maryland'], ['United States']);
+    verifyContainingIDs(nameToID['Ontario'], ['Canada']);
+    verifyContainingIDs(nameToID['Sonora'], ['Mexico']);
+    verifyContainingIDs(nameToID['Travis County'], ['Texas', 'United States']);
   });
 
   test('provides geography name map with trimmed names', () => {
