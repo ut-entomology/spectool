@@ -3,7 +3,7 @@ import { TrackedRegion } from './tracked_region';
 export interface CachedLocality {
   localityID: number;
   regionID: number;
-  lastModified: Date;
+  lastModified: number; // UNIX time
   latitude: number;
   longitude: number;
   name: string;
@@ -12,15 +12,26 @@ export interface CachedLocality {
 }
 
 export class LocalityCache {
+  private _cache: Record<number, CachedLocality> = {};
+
   cacheRegionLocalities(region: TrackedRegion): void {
-    // TBD
+    this._cache[region.id] = {
+      localityID: region.id,
+      regionID: region.id,
+      lastModified: Date.now(),
+      latitude: 0,
+      longitude: 0,
+      name: 'Dummy Locality Name',
+      phonemes: '',
+      remarks: ''
+    };
   }
 
   getLocality(localityID: number): CachedLocality {
-    // TBD
+    return this._cache[localityID];
   }
 
   uncacheLocality(localityID: number): void {
-    // TBD
+    delete this._cache[localityID];
   }
 }

@@ -15,7 +15,7 @@ import { LocalityCache } from './locality_cache';
 
 export type ProcessRegionCallback = (region: TrackedRegion) => void;
 
-export class LocalityConsolidator {
+export class AdjoiningRegionDriver {
   private _overDomainIDLookup: Record<number, boolean> = {};
   private _processRegionCallback: ProcessRegionCallback;
   private _localityCache: LocalityCache;
@@ -121,11 +121,11 @@ export class LocalityConsolidator {
 
 abstract class RegionVisitor {
   visitorName: string;
-  protected _consolidator: LocalityConsolidator;
+  protected _regionDriver: AdjoiningRegionDriver;
 
-  constructor(visitorName: string, consolidator: LocalityConsolidator) {
+  constructor(visitorName: string, regionDriver: AdjoiningRegionDriver) {
     this.visitorName = visitorName;
-    this._consolidator = consolidator;
+    this._regionDriver = regionDriver;
   }
 
   async visitAroundRegion(aroundRegion: TrackedRegion) {
@@ -144,7 +144,7 @@ abstract class RegionVisitor {
           await this._visitSubsetAroundNonDomainRegion(nearRegion, aroundRegion);
         }
       }
-      if (this._consolidator._isInOverDomain(aroundRegion.id)) {
+      if (this._regionDriver._isInOverDomain(aroundRegion.id)) {
         // Visit child regions of a non-domain region
         for (const childRegion of this._getDescendantRegions(aroundRegion)) {
           if (!childRegion.inDomain) {
@@ -181,24 +181,24 @@ abstract class RegionVisitor {
   }
 
   protected _getAdjacentRegions(toRegion: TrackedRegion): TrackedRegion[] {
-    const regions = this._consolidator._adjoiningRegions.getAdjacentRegions(
+    const regions = this._regionDriver._adjoiningRegions.getAdjacentRegions(
       toRegion.id
     );
-    return regions.map((region) => this._consolidator._regionRoster.getByID(region.id));
+    return regions.map((region) => this._regionDriver._regionRoster.getByID(region.id));
   }
 
   protected _getContainingRegions(aboveRegion: TrackedRegion): TrackedRegion[] {
-    const ids = this._consolidator._adjoiningRegions.getContainingGeographyIDs(
+    const ids = this._regionDriver._adjoiningRegions.getContainingGeographyIDs(
       aboveRegion.id
     );
-    return ids.map((id) => this._consolidator._regionRoster.getByID(id));
+    return ids.map((id) => this._regionDriver._regionRoster.getByID(id));
   }
 
   protected _getDescendantRegions(underRegion: TrackedRegion): TrackedRegion[] {
-    const ids = this._consolidator._adjoiningRegions.getDescendantGeographyIDs(
+    const ids = this._regionDriver._adjoiningRegions.getDescendantGeographyIDs(
       underRegion.id
     );
-    return ids.map((id) => this._consolidator._regionRoster.getByID(id));
+    return ids.map((id) => this._regionDriver._regionRoster.getByID(id));
   }
 
   protected _getAdjoiningRegions(aroundRegion: TrackedRegion): TrackedRegion[] {
@@ -215,8 +215,8 @@ abstract class RegionVisitor {
  */
 
 class NewlyCachedRegionNeighborVisitor extends RegionVisitor {
-  constructor(consolidator: LocalityConsolidator) {
-    super('cache single', consolidator);
+  constructor(regionDriver: AdjoiningRegionDriver) {
+    super('cache single', regionDriver);
   }
 
   protected _visitationRestriction(nearRegion: TrackedRegion) {
@@ -224,8 +224,8 @@ class NewlyCachedRegionNeighborVisitor extends RegionVisitor {
   }
 
   protected async _visitAroundDomainRegion(nearRegion: TrackedRegion) {
-    if (!this._consolidator._regionRoster.includes(nearRegion)) {
-      this._consolidator._regionRoster.add(nearRegion);
+    if (!this._regionDriver._regionRoster.includes(nearRegion)) {
+      this._regionDriver._regionRoster.add(nearRegion);
     }
   }
 
@@ -239,8 +239,8 @@ class NewlyCachedRegionNeighborVisitor extends RegionVisitor {
 }
 
 class PendingNearDomainRegionVisitor extends RegionVisitor {
-  constructor(consolidator: LocalityConsolidator) {
-    super('prep to remove', consolidator);
+  constructor(regionDriver: AdjoiningRegionDriver) {
+    super('prep to remove', regionDriver);
   }
 
   protected _visitationRestriction(nearRegion: TrackedRegion) {
@@ -262,8 +262,8 @@ class PendingNearDomainRegionVisitor extends RegionVisitor {
  */
 
 class FinishCachingAroundRegionVisitor extends RegionVisitor {
-  constructor(consolidator: LocalityConsolidator) {
-    super('cache around', consolidator);
+  constructor(regionDriver: AdjoiningRegionDriver) {
+    super('cache around', regionDriver);
   }
 
   protected _visitationRestriction(nearRegion: TrackedRegion) {
@@ -274,8 +274,8 @@ class FinishCachingAroundRegionVisitor extends RegionVisitor {
     nearRegion: TrackedRegion,
     _aroundRegion: TrackedRegion
   ) {
-    await this._consolidator._cachePendingRegion(nearRegion);
-    await this._consolidator._pendingNearDomainRegionVisitor.visitAroundRegion(
+    await this._regionDriver._cachePendingRegion(nearRegion);
+    await this._regionDriver._pendingNearDomainRegionVisitor.visitAroundRegion(
       nearRegion
     );
   }
@@ -284,7 +284,7 @@ class FinishCachingAroundRegionVisitor extends RegionVisitor {
     nearRegion: TrackedRegion,
     _aroundRegion: TrackedRegion
   ): Promise<void> {
-    await this._consolidator._cachePendingRegion(nearRegion);
+    await this._regionDriver._cachePendingRegion(nearRegion);
     for (const aroundNearRegion of this._getAdjoiningRegions(nearRegion)) {
       if (aroundNearRegion.status == TrackedRegionStatus.Cached) {
         // Decrement pending count for newly cached region adjoining non-domain region
