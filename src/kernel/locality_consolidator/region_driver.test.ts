@@ -22,7 +22,7 @@ const TEST_LOG_DIR = path.join(__dirname, '../../../test_logs');
 // ^ indicates that the region above extends to this point
 
 describe('locality consolidator', () => {
-  test('processes regions in correct order (no corner adjacency)', async () => {
+  test('processes regions in correct order (without corner adjacency)', async () => {
     const scenario = new RegionScenario(
       `as-MA-1|<     |<     |as-MB-1
        c-CA-1 |c-CB-1|c-CC-1|c-CD-1 |as-NM-1
@@ -70,6 +70,60 @@ describe('locality consolidator', () => {
       'NM',
       'CD',
       'MB',
+      'CL',
+      'TX',
+      'LA'
+    ]);
+  });
+
+  test('processes regions in correct order (with corner adjacency)', async () => {
+    const scenario = new RegionScenario(
+      `as-MA-1|<     |<     |as-MB-1
+       c-CA-1 |c-CB-1|c-CC-1|c-CD-1 |as-NM-1
+       c-CE-1 |c-CF-1|c-CG-1|c-CH-1 |^
+       c-CI-1 |c-CJ-1|c-CK-1|c-CL-1 |as-LA-1`,
+      true
+    );
+
+    const processedRegionIDs: number[] = [];
+    const localityCache = new DummyLocalityCache(scenario);
+    const diagnostics = new TestDiagnostics(
+      scenario,
+      localityCache,
+      'region-driver-2.txt'
+    );
+
+    const regionDriver = new AdjoiningRegionDriver(
+      scenario,
+      scenario.getDomainRegions(),
+      localityCache,
+      (region) => {
+        processedRegionIDs.push(region.id);
+        localityCache.uncacheLocality(region.id);
+      },
+      diagnostics,
+      scenario.codeToRegion('CB').id
+    );
+    await regionDriver.run();
+    diagnostics.close();
+
+    expect(processedRegionIDs.map((id) => scenario.regionsByID[id].code)).toEqual([
+      'CB',
+      'CA',
+      'MA',
+      'MX',
+      'CC',
+      'MB',
+      'CD',
+      'NM',
+      'CE',
+      'CI',
+      'CF',
+      'CG',
+      'CJ',
+      'CK',
+      'US',
+      'CH',
       'CL',
       'TX',
       'LA'

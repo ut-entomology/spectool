@@ -219,7 +219,7 @@ function getAdjacentRegions(region: ProtoRegion): ProtoRegion[] {
   } else {
     const indexPairs = getRegionIndexPairs(region);
     for (const indexPair of indexPairs) {
-      const touchingRegions = getTouchingRegions(indexPair[0], indexPair[1], false);
+      const touchingRegions = getTouchingRegions(indexPair[0], indexPair[1], true);
       for (const touchingRegion of touchingRegions) {
         if (touchingRegion != region) {
           adjacentRegionsWithDups.push(touchingRegion);
