@@ -305,7 +305,7 @@ abstract class RegionVisitor {
         await this._visitAroundDomainRegion(nearRegion);
         if (this._visitationRestriction(nearRegion)) {
           await this._visitSubsetAroundDomainRegion(nearRegion, aroundRegion);
-          await this._showState('after in-domain all', nearRegion, aroundRegion);
+          //await this._showState('after in-domain all', nearRegion, aroundRegion);
         }
       }
     } else {
@@ -314,7 +314,7 @@ abstract class RegionVisitor {
       for (const nearRegion of getAdjacentRegions(aroundRegion)) {
         if (nearRegion.inDomain && this._visitationRestriction(nearRegion)) {
           await this._visitSubsetAroundNonDomainRegion(nearRegion, aroundRegion);
-          await this._showState('after non-domain adjacent', nearRegion, aroundRegion);
+          //await this._showState('after non-domain adjacent', nearRegion, aroundRegion);
         }
       }
       if (overDomain.includes(aroundRegion)) {
@@ -323,7 +323,7 @@ abstract class RegionVisitor {
         for (const childRegion of getChildRegions(aroundRegion)) {
           if (childRegion.inDomain && this._visitationRestriction(childRegion)) {
             await this._visitSubsetAroundNonDomainRegion(childRegion, aroundRegion);
-            await this._showState('after non-domain child', childRegion, aroundRegion);
+            //await this._showState('after non-domain child', childRegion, aroundRegion);
           }
         }
       }

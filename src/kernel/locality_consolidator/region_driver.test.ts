@@ -14,7 +14,6 @@ class DummyRegion {
   code: string;
   inDomain: boolean;
   sequence = 0;
-  processed = false;
   localityTotal: number;
   actualRegion: Region;
 
@@ -41,7 +40,7 @@ class DummyRegion {
     if (this.sequence > 0) {
       s = `(${this.sequence})${s}`;
     }
-    if (this.processed && status == TrackedRegionStatus.Complete) {
+    if (status == TrackedRegionStatus.Complete) {
       s = '✓' + s;
     }
     return s.padEnd(10, ' ');
@@ -84,7 +83,7 @@ const regionsByCode: Record<string, DummyRegion> = {};
 const regionsByID: Record<number, DummyRegion> = {};
 
 describe('locality consolidator', () => {
-  test('processes regions in correct order', async () => {
+  test('processes regions in correct order using strict adjacency (no corners)', async () => {
     makeRegionMatrix(); // call before collecting domain regions
 
     const processedRegionIDs: number[] = [];
@@ -112,12 +111,32 @@ describe('locality consolidator', () => {
     diagnostics.close();
 
     expect(processedRegionIDs.map((id) => regionsByID[id].code)).toEqual([
-      /* TBD: region codes in correct order */
+      'CB',
+      'MA',
+      'CA',
+      'CE',
+      'CI',
+      'CF',
+      'CC',
+      'MX',
+      'CJ',
+      'CG',
+      'CK',
+      'US',
+      'CH',
+      'NM',
+      'CD',
+      'MB',
+      'CL',
+      'TX',
+      'LA'
     ]);
   });
 });
 
 function makeRegionMatrix(): void {
+  // Define regions not in the matrix.
+
   indexDummyRegion(
     new DummyRegion('US', false, 1, new Region(100, RegionRank.Country, 'US', 0))
   );
@@ -127,6 +146,8 @@ function makeRegionMatrix(): void {
   indexDummyRegion(
     new DummyRegion('MX', false, 1, new Region(102, RegionRank.Country, 'MX', 0))
   );
+
+  // Create a region for each cell of the matrix.
 
   const rows = regionData.split('\n');
   let rowIndex = 0;
@@ -143,6 +164,8 @@ function makeRegionMatrix(): void {
       let rank: RegionRank;
       let inDomain = true;
       let localityTotal: number;
+
+      // Parse the cell.
 
       const units = column.trim().split('-');
       if (units[0] == '<') {
@@ -169,14 +192,24 @@ function makeRegionMatrix(): void {
         }
         code = units[1];
         localityTotal = parseInt(units[2]);
-        const region = new DummyRegion(
-          code,
-          inDomain,
-          localityTotal,
-          new Region(nextID++, rank, code, 0)
-        );
-        regionRow.push(region);
-        indexDummyRegion(region);
+
+        // Contruct a region for the cell.
+
+        const region = new Region(nextID++, rank, code, 0);
+        const dummyRegion = new DummyRegion(code, inDomain, localityTotal, region);
+        regionRow.push(dummyRegion);
+        indexDummyRegion(dummyRegion);
+
+        // Assign the region's parent ID.
+
+        if (code[0] == 'M') {
+          region.parentID = regionsByCode['MX'].actualRegion.id;
+        } else if (code[0] == 'C') {
+          region.parentID = regionsByCode['TX'].actualRegion.id;
+        } else {
+          region.parentID = regionsByCode['US'].actualRegion.id;
+        }
+        regionsByCode['TX'].actualRegion.parentID = regionsByCode['US'].actualRegion.id;
       }
       columnIndex += 1;
     }

@@ -209,13 +209,8 @@ abstract class RegionVisitor {
           aroundRegion
         );
         for (const childRegion of this._getDescendantRegions(aroundRegion)) {
-          if (!childRegion.inDomain) {
-            throw Error(
-              `Child region ID ${childRegion.id} of over domain region` +
-                ` ID ${aroundRegion.id} is not in the domain`
-            );
-          }
-          if (this._visitationRestriction(childRegion)) {
+          // Not every child of an over-domain region need be in the domain.
+          if (childRegion.inDomain && this._visitationRestriction(childRegion)) {
             await this._visitSubsetAroundNonDomainRegion(childRegion, aroundRegion);
             //this._showState('after non-domain child', childRegion, aroundRegion);
           }
