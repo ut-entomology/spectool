@@ -22,13 +22,14 @@ const TEST_LOG_DIR = path.join(__dirname, '../../../test_logs');
 // ^ indicates that the region above extends to this point
 
 describe('locality consolidator', () => {
-  test('processes regions in correct order using strict adjacency (no corners)', async () => {
-    const scenario = new RegionScenario(`
-      as-MA-1|<     |<     |as-MB-1
-      c-CA-1 |c-CB-1|c-CC-1|c-CD-1 |as-NM-1
-      c-CE-1 |c-CF-1|c-CG-1|c-CH-1 |^
-      c-CI-1 |c-CJ-1|c-CK-1|c-CL-1 |as-LA-1
-    `);
+  test('processes regions in correct order (no corner adjacency)', async () => {
+    const scenario = new RegionScenario(
+      `as-MA-1|<     |<     |as-MB-1
+       c-CA-1 |c-CB-1|c-CC-1|c-CD-1 |as-NM-1
+       c-CE-1 |c-CF-1|c-CG-1|c-CH-1 |^
+       c-CI-1 |c-CJ-1|c-CK-1|c-CL-1 |as-LA-1`,
+      false
+    );
 
     const processedRegionIDs: number[] = [];
     const localityCache = new DummyLocalityCache(scenario);
@@ -77,11 +78,15 @@ describe('locality consolidator', () => {
 });
 
 class RegionScenario implements AdjoiningRegions {
-  regionMatrix: DummyRegion[][] = [];
+  private _withCornerAdjacency: boolean;
+  private _regionMatrix: DummyRegion[][] = [];
+
   regionsByCode: Record<string, DummyRegion> = {};
   regionsByID: Record<number, DummyRegion> = {};
 
-  constructor(regionData: string) {
+  constructor(regionData: string, withCornerAdjacency: boolean) {
+    this._withCornerAdjacency = withCornerAdjacency;
+
     // Define regions not in the matrix.
 
     this._indexDummyRegion(
@@ -118,7 +123,7 @@ class RegionScenario implements AdjoiningRegions {
         if (units[0] == '<') {
           regionRow.push(regionRow[columnIndex - 1]);
         } else if (units[0] == '^') {
-          regionRow.push(this.regionMatrix[rowIndex - 1][columnIndex]);
+          regionRow.push(this._regionMatrix[rowIndex - 1][columnIndex]);
         } else {
           if (units[0][0] == 'a') {
             inDomain = false;
@@ -162,7 +167,7 @@ class RegionScenario implements AdjoiningRegions {
         columnIndex += 1;
       }
       rowIndex += 1;
-      this.regionMatrix.push(regionRow);
+      this._regionMatrix.push(regionRow);
     }
   }
 
@@ -191,7 +196,7 @@ class RegionScenario implements AdjoiningRegions {
     }
 
     const childRegionsWithDups: DummyRegion[] = [];
-    for (const regionRow of this.regionMatrix) {
+    for (const regionRow of this._regionMatrix) {
       for (const testRegion of regionRow) {
         if (region.code == 'MX') {
           if (region.code[0] == 'M') {
@@ -230,12 +235,27 @@ class RegionScenario implements AdjoiningRegions {
     return domainRegions;
   }
 
+  getRegionMatrixString(regionRoster: TrackedRegionRoster): string {
+    let s = '';
+    for (const regionRow of this._regionMatrix) {
+      s += '  ';
+      s += regionRow
+        .map((column) => {
+          const trackedRegion = regionRoster.getByID(column.actualRegion.id);
+          return column.toState(trackedRegion);
+        })
+        .join(' | ');
+      s += '\n';
+    }
+    return s;
+  }
+
   private _getAdjacentRegions(toGeographyID: number): DummyRegion[] {
     const region = this.regionsByID[toGeographyID];
     const adjacentRegionsWithDups: DummyRegion[] = [];
 
     if (region.code == 'TX') {
-      for (const regionRow of this.regionMatrix) {
+      for (const regionRow of this._regionMatrix) {
         for (const testRegion of regionRow) {
           if (testRegion.code[0] != 'C') {
             adjacentRegionsWithDups.push(testRegion);
@@ -244,7 +264,7 @@ class RegionScenario implements AdjoiningRegions {
       }
       adjacentRegionsWithDups.push(this.regionsByCode['MX']);
     } else if (region.code == 'US') {
-      for (const regionRow of this.regionMatrix) {
+      for (const regionRow of this._regionMatrix) {
         for (const testRegion of regionRow) {
           if (testRegion.code[0] == 'M') {
             adjacentRegionsWithDups.push(testRegion);
@@ -253,7 +273,7 @@ class RegionScenario implements AdjoiningRegions {
       }
       adjacentRegionsWithDups.push(this.regionsByCode['MX']);
     } else if (region.code == 'MX') {
-      for (const regionRow of this.regionMatrix) {
+      for (const regionRow of this._regionMatrix) {
         for (const testRegion of regionRow) {
           if (testRegion.code[0] != 'M') {
             for (const adjacentToTest of this._getAdjacentRegions(
@@ -274,7 +294,7 @@ class RegionScenario implements AdjoiningRegions {
         const touchingRegions = this._getTouchingRegions(
           indexPair[0],
           indexPair[1],
-          false
+          this._withCornerAdjacency
         );
         for (const touchingRegion of touchingRegions) {
           if (touchingRegion != region) {
@@ -310,10 +330,10 @@ class RegionScenario implements AdjoiningRegions {
 
   _getRegionIndexPairs(region: DummyRegion): number[][] {
     const indexPairs: number[][] = [];
-    for (let i = 0; i < this.regionMatrix.length; ++i) {
-      const regionRow = this.regionMatrix[i];
+    for (let i = 0; i < this._regionMatrix.length; ++i) {
+      const regionRow = this._regionMatrix[i];
       for (let j = 0; j < regionRow.length; ++j) {
-        if (this.regionMatrix[i][j] === region) {
+        if (this._regionMatrix[i][j] === region) {
           indexPairs.push([i, j]);
         }
       }
@@ -335,9 +355,9 @@ class RegionScenario implements AdjoiningRegions {
           continue;
         }
         if (deltaI != 0 || deltaJ != 0) {
-          if (i >= 0 && i < this.regionMatrix.length) {
-            if (j >= 0 && j < this.regionMatrix[i].length) {
-              touchingRegions.push(this.regionMatrix[i][j]);
+          if (i >= 0 && i < this._regionMatrix.length) {
+            if (j >= 0 && j < this._regionMatrix[i].length) {
+              touchingRegions.push(this._regionMatrix[i][j]);
             }
           }
         }
@@ -352,13 +372,13 @@ class RegionScenario implements AdjoiningRegions {
   }
 
   _removeDupRegions(regionsWithDups: DummyRegion[]): DummyRegion[] {
-    const regionMatrix: DummyRegion[] = [];
+    const _regionMatrix: DummyRegion[] = [];
     for (const region of regionsWithDups) {
-      if (!regionMatrix.includes(region)) {
-        regionMatrix.push(region);
+      if (!_regionMatrix.includes(region)) {
+        _regionMatrix.push(region);
       }
     }
-    return regionMatrix;
+    return _regionMatrix;
   }
 }
 
@@ -532,16 +552,7 @@ class TestDiagnostics implements Diagnostics {
     s += '\n  Cached localities(*): ';
     s += this._localityCache.getCachedCodes().join(', ');
     s += '\n\n';
-    for (const regionRow of this._scenario.regionMatrix) {
-      s += '  ';
-      s += regionRow
-        .map((column) => {
-          const trackedRegion = regionRoster.getByID(column.actualRegion.id);
-          return column.toState(trackedRegion);
-        })
-        .join(' | ');
-      s += '\n';
-    }
+    s += this._scenario.getRegionMatrixString(regionRoster);
     s += '\n  ';
     s += [
       this._scenario.codeToID('TX'),
