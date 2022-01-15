@@ -3,62 +3,12 @@ import * as fs from 'fs';
 
 import { AdjoiningRegions } from './adjoining_regions';
 import { AdjoiningRegionDriver, Diagnostics } from './region_driver';
-import type { LocalityCache } from './locality_cache';
+import type { CachedLocality, LocalityCache } from './locality_cache';
 import { Region, RegionRank } from '../../shared/region';
 import { TrackedRegionRoster } from './region_roster';
 import { TrackedRegion, TrackedRegionStatus } from './tracked_region';
 
 const TEST_LOG_DIR = path.join(__dirname, '../../../test_logs');
-
-class DummyRegion {
-  code: string;
-  inDomain: boolean;
-  sequence = 0;
-  localityTotal: number;
-  actualRegion: Region;
-
-  constructor(
-    code: string,
-    inDomain: boolean,
-    localityTotal: number,
-    actualRegion: Region
-  ) {
-    this.code = code;
-    this.inDomain = inDomain;
-    this.localityTotal = localityTotal;
-    this.actualRegion = actualRegion;
-  }
-
-  toState(trackedRegion: TrackedRegion | null): string {
-    const status = trackedRegion ? trackedRegion.status : TrackedRegionStatus.Pending;
-    const adjoiningPendingCount = trackedRegion
-      ? trackedRegion.adjoiningPendingCount
-      : 0;
-
-    let s = status == TrackedRegionStatus.Cached ? '*' : '';
-    s += `${this.code}:${adjoiningPendingCount}`;
-    if (this.sequence > 0) {
-      s = `(${this.sequence})${s}`;
-    }
-    if (status == TrackedRegionStatus.Complete) {
-      s = '✓' + s;
-    }
-    return s.padEnd(10, ' ');
-  }
-
-  toString(): string {
-    const rankToAbbrev: Record<RegionRank, string> = {
-      [RegionRank.County]: 'c',
-      [RegionRank.State]: 's',
-      [RegionRank.Country]: 'y',
-      [RegionRank.Continent]: '-',
-      [RegionRank.Earth]: '-'
-    };
-    return `${this.inDomain ? '' : 'a'}${rankToAbbrev[this.actualRegion.rank]}-${
-      this.code
-    }-${this.localityTotal}`;
-  }
-}
 
 // Explanation of region matrix string data:
 
@@ -125,16 +75,6 @@ describe('locality consolidator', () => {
     ]);
   });
 });
-
-function removeDupRegions(regionsWithDups: DummyRegion[]): DummyRegion[] {
-  const regionMatrix: DummyRegion[] = [];
-  for (const region of regionsWithDups) {
-    if (!regionMatrix.includes(region)) {
-      regionMatrix.push(region);
-    }
-  }
-  return regionMatrix;
-}
 
 class RegionScenario implements AdjoiningRegions {
   regionMatrix: DummyRegion[][] = [];
@@ -271,7 +211,9 @@ class RegionScenario implements AdjoiningRegions {
     if (region.code == 'US') {
       childRegionsWithDups.push(this.regionsByCode['TX']);
     }
-    return removeDupRegions(childRegionsWithDups).map((region) => region.actualRegion);
+    return this._removeDupRegions(childRegionsWithDups).map(
+      (region) => region.actualRegion
+    );
   }
 
   getLocalityCount(forSingleGeographicID: number): number {
@@ -352,7 +294,7 @@ class RegionScenario implements AdjoiningRegions {
       }
     }
 
-    return removeDupRegions(adjacentRegionsWithDups);
+    return this._removeDupRegions(adjacentRegionsWithDups);
   }
 
   codeToID(code: string): number {
@@ -408,17 +350,66 @@ class RegionScenario implements AdjoiningRegions {
     this.regionsByCode[region.code] = region;
     this.regionsByID[region.actualRegion.id] = region;
   }
+
+  _removeDupRegions(regionsWithDups: DummyRegion[]): DummyRegion[] {
+    const regionMatrix: DummyRegion[] = [];
+    for (const region of regionsWithDups) {
+      if (!regionMatrix.includes(region)) {
+        regionMatrix.push(region);
+      }
+    }
+    return regionMatrix;
+  }
 }
 
-export interface CachedLocality {
-  localityID: number;
-  regionID: number;
-  lastModified: number; // UNIX time
-  latitude: number;
-  longitude: number;
-  name: string;
-  phonemes: string;
-  remarks: string;
+class DummyRegion {
+  code: string;
+  inDomain: boolean;
+  sequence = 0;
+  localityTotal: number;
+  actualRegion: Region;
+
+  constructor(
+    code: string,
+    inDomain: boolean,
+    localityTotal: number,
+    actualRegion: Region
+  ) {
+    this.code = code;
+    this.inDomain = inDomain;
+    this.localityTotal = localityTotal;
+    this.actualRegion = actualRegion;
+  }
+
+  toState(trackedRegion: TrackedRegion | null): string {
+    const status = trackedRegion ? trackedRegion.status : TrackedRegionStatus.Pending;
+    const adjoiningPendingCount = trackedRegion
+      ? trackedRegion.adjoiningPendingCount
+      : 0;
+
+    let s = status == TrackedRegionStatus.Cached ? '*' : '';
+    s += `${this.code}:${adjoiningPendingCount}`;
+    if (this.sequence > 0) {
+      s = `(${this.sequence})${s}`;
+    }
+    if (status == TrackedRegionStatus.Complete) {
+      s = '✓' + s;
+    }
+    return s.padEnd(10, ' ');
+  }
+
+  toString(): string {
+    const rankToAbbrev: Record<RegionRank, string> = {
+      [RegionRank.County]: 'c',
+      [RegionRank.State]: 's',
+      [RegionRank.Country]: 'y',
+      [RegionRank.Continent]: '-',
+      [RegionRank.Earth]: '-'
+    };
+    return `${this.inDomain ? '' : 'a'}${rankToAbbrev[this.actualRegion.rank]}-${
+      this.code
+    }-${this.localityTotal}`;
+  }
 }
 
 class DummyLocalityCache implements LocalityCache {
