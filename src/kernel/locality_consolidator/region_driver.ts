@@ -10,18 +10,27 @@
 import { AdjoiningRegions } from './adjoining_regions';
 import { Region, RegionRank } from '../../shared/region';
 import { TrackedRegionStatus, TrackedRegion } from './tracked_region';
-import { RegionRoster } from './region_roster';
+import { TrackedRegionRoster } from './region_roster';
 import { LocalityCache } from './locality_cache';
 
 export type ProcessRegionCallback = (region: TrackedRegion) => void;
+
+export type RegionStateCallback = (
+  regionRoster: TrackedRegionRoster,
+  primaryContext: string,
+  secondaryContext?: string | null, // null => starting to process forRegion
+  forRegion?: TrackedRegion, // required with secondaryContext
+  aroundRegion?: TrackedRegion
+) => Promise<void>;
 
 export class AdjoiningRegionDriver {
   private _overDomainIDLookup: Record<number, boolean> = {};
   private _processRegionCallback: ProcessRegionCallback;
   private _localityCache: LocalityCache;
 
-  _regionRoster: RegionRoster;
+  _regionRoster: TrackedRegionRoster;
   _adjoiningRegions: AdjoiningRegions;
+  _regionStateCallback?: RegionStateCallback;
   _newlyCachedRegionNeighborVisitor: NewlyCachedRegionNeighborVisitor;
   _finishCachingAroundRegionVisitor: FinishCachingAroundRegionVisitor;
   _pendingNearDomainRegionVisitor: PendingNearDomainRegionVisitor;
@@ -30,12 +39,15 @@ export class AdjoiningRegionDriver {
     adjoiningRegions: AdjoiningRegions,
     domainRegions: Region[],
     localityCache: LocalityCache,
-    processRegionCallback: ProcessRegionCallback
+    processRegionCallback: ProcessRegionCallback,
+    regionStateCallback?: RegionStateCallback
   ) {
-    this._regionRoster = new RegionRoster();
+    this._regionRoster = new TrackedRegionRoster();
     this._adjoiningRegions = adjoiningRegions;
     this._localityCache = localityCache;
     this._processRegionCallback = processRegionCallback;
+    this._regionStateCallback = regionStateCallback;
+
     this._newlyCachedRegionNeighborVisitor = new NewlyCachedRegionNeighborVisitor(this);
     this._finishCachingAroundRegionVisitor = new FinishCachingAroundRegionVisitor(this);
     this._pendingNearDomainRegionVisitor = new PendingNearDomainRegionVisitor(this);
@@ -45,7 +57,7 @@ export class AdjoiningRegionDriver {
     const domainsByID: Record<number, Region> = {};
     for (const domainRegion of domainRegions) {
       domainsByID[domainRegion.id] = domainRegion;
-      this._regionRoster.add(new TrackedRegion(domainRegion, true, 0));
+      this._regionRoster.add(new TrackedRegion(domainRegion, true));
     }
 
     // Collect the over-domain geographic IDs for easy lookup. The over-domain consists
@@ -62,17 +74,31 @@ export class AdjoiningRegionDriver {
   }
 
   async run() {
+    if (this._regionStateCallback) {
+      await this._regionStateCallback(this._regionRoster, 'After initialization');
+    }
+
     let currentRegion: TrackedRegion | null = this._regionRoster.getArbitraryRegion();
     await this._cachePendingRegion(currentRegion);
 
     // Loop
     while (currentRegion != null) {
+      if (this._regionStateCallback) {
+        await this._regionStateCallback(
+          this._regionRoster,
+          'Top of loop',
+          null,
+          currentRegion
+        );
+      }
+
       // Consolidate
       if (currentRegion.adjoiningPendingCount != 0) {
         await this._finishCachingAroundRegionVisitor.visitAroundRegion(currentRegion);
       }
       // also responsible for uncaching localities as each is processed
       this._processRegionCallback(currentRegion);
+      // have region treated as no longer pending or cached
       currentRegion.status = TrackedRegionStatus.Complete;
 
       // Select next region
@@ -88,6 +114,24 @@ export class AdjoiningRegionDriver {
         }
       }
     }
+    if (this._regionStateCallback) {
+      await this._regionStateCallback(this._regionRoster, 'Completed');
+    }
+  }
+
+  async reportState(
+    primaryContext: string,
+    secondaryContext?: string,
+    forRegion?: TrackedRegion, // required with secondaryContext
+    aroundRegion?: TrackedRegion
+  ): Promise<void> {
+    await this._regionStateCallback!(
+      this._regionRoster,
+      primaryContext,
+      secondaryContext,
+      forRegion,
+      aroundRegion
+    );
   }
 
   /**
@@ -120,7 +164,7 @@ export class AdjoiningRegionDriver {
  */
 
 abstract class RegionVisitor {
-  visitorName: string;
+  protected visitorName: string;
   protected _regionDriver: AdjoiningRegionDriver;
 
   constructor(visitorName: string, regionDriver: AdjoiningRegionDriver) {
@@ -135,6 +179,7 @@ abstract class RegionVisitor {
         await this._visitAroundDomainRegion(nearRegion);
         if (this._visitationRestriction(nearRegion)) {
           await this._visitSubsetAroundDomainRegion(nearRegion, aroundRegion);
+          //await this._showState('after in-domain all', nearRegion, aroundRegion);
         }
       }
     } else {
@@ -142,6 +187,7 @@ abstract class RegionVisitor {
       for (const nearRegion of this._getAdjacentRegions(aroundRegion)) {
         if (nearRegion.inDomain && this._visitationRestriction(nearRegion)) {
           await this._visitSubsetAroundNonDomainRegion(nearRegion, aroundRegion);
+          //await this._showState('after non-domain adjacent', nearRegion, aroundRegion);
         }
       }
       if (this._regionDriver._isInOverDomain(aroundRegion.id)) {
@@ -155,18 +201,70 @@ abstract class RegionVisitor {
           }
           if (this._visitationRestriction(childRegion)) {
             await this._visitSubsetAroundNonDomainRegion(childRegion, aroundRegion);
+            //await this._showState('after non-domain child', childRegion, aroundRegion);
           }
         }
       }
     }
   }
 
-  protected abstract _visitationRestriction(nearRegion: TrackedRegion): boolean;
+  /**
+   * Returns the number of localities whose geographic IDs are exactly equal to
+   * the geographic ID of the provided region. Does not include subregions.
+   */
+
+  protected _computeLocalityCount(forExactRegion: TrackedRegion): number {
+    if (forExactRegion.localityTotal === null) {
+      forExactRegion.localityTotal =
+        this._regionDriver._adjoiningRegions.getLocalityCount(forExactRegion.id);
+    }
+    return forExactRegion.localityTotal;
+  }
+
+  protected _getAdjacentRegions(toRegion: TrackedRegion): TrackedRegion[] {
+    const regions = this._regionDriver._adjoiningRegions.getAdjacentRegions(
+      toRegion.id
+    );
+    return regions.map((region) => this._getTrackedRegion(region));
+  }
+
+  protected _getAdjoiningRegions(aroundRegion: TrackedRegion): TrackedRegion[] {
+    // TODO: Experiment with whether it's more efficient to process
+    // parent or child regions first.
+    let regions = this._getAdjacentRegions(aroundRegion);
+    regions = regions.concat(this._getDescendantRegions(aroundRegion));
+    return regions.concat(this._getContainingRegions(aroundRegion));
+  }
+
+  protected _getContainingRegions(aboveRegion: TrackedRegion): TrackedRegion[] {
+    const regions = this._regionDriver._adjoiningRegions.getContainingRegions(
+      aboveRegion.id
+    );
+    return regions.map((region) => this._getTrackedRegion(region));
+  }
+
+  protected _getDescendantRegions(underRegion: TrackedRegion): TrackedRegion[] {
+    const regions = this._regionDriver._adjoiningRegions.getDescendantRegions(
+      underRegion.id
+    );
+    return regions.map((region) => this._getTrackedRegion(region));
+  }
+
+  protected _getTrackedRegion(region: Region): TrackedRegion {
+    let trackedRegion = this._regionDriver._regionRoster.getByID(region.id);
+    if (!trackedRegion) {
+      trackedRegion = new TrackedRegion(region, false);
+      this._regionDriver._regionRoster.add(trackedRegion);
+    }
+    return trackedRegion;
+  }
 
   protected _visitAroundDomainRegion(_nearRegion: TrackedRegion): Promise<void> {
     // do nothing by default
     return Promise.resolve();
   }
+
+  protected abstract _visitationRestriction(nearRegion: TrackedRegion): boolean;
 
   protected abstract _visitSubsetAroundDomainRegion(
     nearRegion: TrackedRegion,
@@ -180,33 +278,19 @@ abstract class RegionVisitor {
     await this._visitSubsetAroundDomainRegion(nearRegion, aroundRegion);
   }
 
-  protected _getAdjacentRegions(toRegion: TrackedRegion): TrackedRegion[] {
-    const regions = this._regionDriver._adjoiningRegions.getAdjacentRegions(
-      toRegion.id
-    );
-    return regions.map((region) => this._regionDriver._regionRoster.getByID(region.id));
-  }
-
-  protected _getContainingRegions(aboveRegion: TrackedRegion): TrackedRegion[] {
-    const ids = this._regionDriver._adjoiningRegions.getContainingGeographyIDs(
-      aboveRegion.id
-    );
-    return ids.map((id) => this._regionDriver._regionRoster.getByID(id));
-  }
-
-  protected _getDescendantRegions(underRegion: TrackedRegion): TrackedRegion[] {
-    const ids = this._regionDriver._adjoiningRegions.getDescendantGeographyIDs(
-      underRegion.id
-    );
-    return ids.map((id) => this._regionDriver._regionRoster.getByID(id));
-  }
-
-  protected _getAdjoiningRegions(aroundRegion: TrackedRegion): TrackedRegion[] {
-    // TODO: Experiment with whether it's more efficient to process
-    // parent or child regions first.
-    let regions = this._getAdjacentRegions(aroundRegion);
-    regions = regions.concat(this._getDescendantRegions(aroundRegion));
-    return regions.concat(this._getContainingRegions(aroundRegion));
+  protected async _reportState(
+    secondaryContext: string,
+    forRegion: TrackedRegion,
+    aroundRegion: TrackedRegion
+  ): Promise<void> {
+    if (this._regionDriver._regionStateCallback) {
+      await this._regionDriver.reportState(
+        this.visitorName,
+        secondaryContext,
+        forRegion,
+        aroundRegion
+      );
+    }
   }
 }
 
@@ -234,7 +318,12 @@ class NewlyCachedRegionNeighborVisitor extends RegionVisitor {
     aroundRegion: TrackedRegion
   ) {
     // Increment pending count due to adjoining pending region
-    aroundRegion.adjoiningPendingCount += nearRegion.localityTotal;
+    aroundRegion.adjoiningPendingCount += this._computeLocalityCount(nearRegion);
+    await this._reportState(
+      'increment pending count due to adjoining pending region',
+      nearRegion,
+      aroundRegion
+    );
   }
 }
 
@@ -252,7 +341,12 @@ class PendingNearDomainRegionVisitor extends RegionVisitor {
     aroundRegion: TrackedRegion
   ) {
     // Decrement pending count for newly cached region adjoining domain region
-    nearRegion.adjoiningPendingCount -= aroundRegion.localityTotal;
+    nearRegion.adjoiningPendingCount -= this._computeLocalityCount(aroundRegion);
+    await this._reportState(
+      'decrement pending count for newly cached region adjoining domain region',
+      nearRegion,
+      aroundRegion
+    );
   }
 }
 
@@ -288,7 +382,13 @@ class FinishCachingAroundRegionVisitor extends RegionVisitor {
     for (const aroundNearRegion of this._getAdjoiningRegions(nearRegion)) {
       if (aroundNearRegion.status == TrackedRegionStatus.Cached) {
         // Decrement pending count for newly cached region adjoining non-domain region
-        aroundNearRegion.adjoiningPendingCount -= nearRegion.localityTotal;
+        aroundNearRegion.adjoiningPendingCount -=
+          this._computeLocalityCount(nearRegion);
+        await this._reportState(
+          'decrement pending count for newly cached region adjoining non-domain region',
+          aroundNearRegion,
+          nearRegion
+        );
       }
     }
   }

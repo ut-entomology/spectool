@@ -1,6 +1,6 @@
 import { TrackedRegion } from './tracked_region';
 
-export class RegionRoster {
+export class TrackedRegionRoster {
   private _regions: TrackedRegion[] = [];
   private _regionsByID: Record<number, TrackedRegion> = {};
 
@@ -13,8 +13,8 @@ export class RegionRoster {
     return this._regions[0];
   }
 
-  getByID(geographyID: number): TrackedRegion {
-    return this._regionsByID[geographyID];
+  getByID(geographyID: number): TrackedRegion | null {
+    return this._regionsByID[geographyID] || null;
   }
 
   includes(region: TrackedRegion): boolean {

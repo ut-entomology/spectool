@@ -3,9 +3,9 @@ import { Region } from '../../shared/region';
 export interface AdjoiningRegions {
   getAdjacentRegions(toGeographyID: number): Region[];
 
-  getContainingGeographyIDs(aboveGeographyID: number): number[];
+  getContainingRegions(aboveGeographyID: number): Region[];
 
-  getDescendantGeographyIDs(underGeographyID: number): number[];
+  getDescendantRegions(underGeographyID: number): Region[];
 
-  getLocalityCount(inAndUnderGeographicID: number): number;
+  getLocalityCount(forSingleGeographicID: number): number;
 }

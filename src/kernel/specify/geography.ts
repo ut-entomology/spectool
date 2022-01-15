@@ -138,43 +138,41 @@ export class Geography {
     return region;
   }
 
-  getContainedGeographyIDs(underGeoID: number): number[] {
-    // potentially many IDs, so use a hash to track them
+  getContainedRegions(underGeoID: number): Region[] {
+    // potentially many regions, so use a hash to track them
     const foundIDs: Record<number, boolean> = {};
-    // but don't waste time calling parseInt on the hash keys
-    const geoIDs: number[] = [];
+    const regions: Region[] = [];
     for (let region of Object.values(this._regionsByID)) {
-      const descendantGeoIDs: number[] = [];
+      const descendantRegions: Region[] = [];
       while (region) {
         if (region.id === underGeoID || foundIDs[region.id]) {
-          for (const geoID of descendantGeoIDs) {
-            geoIDs.push(geoID);
-            foundIDs[geoID] = true;
+          for (const descendantRegion of descendantRegions) {
+            regions.push(descendantRegion);
+            foundIDs[descendantRegion.id] = true;
           }
           break;
         } else {
-          descendantGeoIDs.push(region.id);
+          descendantRegions.push(region);
         }
         region = this._regionsByID[region.parentID];
       }
     }
-    return geoIDs;
+    return regions;
   }
 
-  getContainingGeographyIDs(aboveGeoID: number): number[] {
-    const geoIDs: number[] = [];
+  getContainingRegions(aboveGeoID: number): Region[] {
+    const regions: Region[] = [];
     let region = this._regionsByID[aboveGeoID];
     while (region.parentID !== null) {
-      geoIDs.push(region.parentID);
       region = this._regionsByID[region.parentID];
+      regions.push(region);
     }
-    return geoIDs;
+    return regions;
   }
 
   getNameToRegionMap(underID: number): Record<string, Region[]> {
     const nameToRegionMap: Record<string, Region[]> = {};
-    for (const regionID of this.getContainedGeographyIDs(underID)) {
-      const region = this._regionsByID[regionID];
+    for (const region of this.getContainedRegions(underID)) {
       let mappedRegions = nameToRegionMap[region.name];
       if (mappedRegions === undefined) {
         nameToRegionMap[region.name] = [region];

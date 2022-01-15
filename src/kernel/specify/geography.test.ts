@@ -72,54 +72,57 @@ describe('Specify geography', () => {
     ]);
   });
 
-  test('provides contained geography IDs', () => {
-    function verifyContainedIDs(containingID: number) {
+  test('provides contained regions', () => {
+    function verifyContainedRegions(containingID: number) {
       const containingRank = geography.getRegionByID(containingID)!.rank;
-      const containedIDs = geography.getContainedGeographyIDs(containingID);
+      const containedRegions = geography.getContainedRegions(containingID);
       const foundIDs: Record<number, boolean> = {};
-      for (const containedID of containedIDs) {
-        expect(foundIDs[containedID]).toBeFalsy(); // each ID only once
-        expect(containedID).not.toEqual(containingID);
-        const containerOfRank = geography.getRegionByRank(containingRank, containedID);
+      for (const containedRegion of containedRegions) {
+        expect(foundIDs[containedRegion.id]).toBeFalsy(); // each ID only once
+        expect(containedRegion.id).not.toEqual(containingID);
+        const containerOfRank = geography.getRegionByRank(
+          containingRank,
+          containedRegion.id
+        );
         expect(containerOfRank?.id).toEqual(containingID);
-        foundIDs[containedID] = true;
+        foundIDs[containedRegion.id] = true;
       }
     }
 
     const nameToID = getNameToID();
-    verifyContainedIDs(nameToID[SPECIFY_USA]);
-    verifyContainedIDs(nameToID['Canada']);
-    verifyContainedIDs(nameToID['Mexico']);
-    verifyContainedIDs(nameToID['Texas']);
-    verifyContainedIDs(nameToID['Maryland']);
-    verifyContainedIDs(nameToID['Ontario']);
-    verifyContainedIDs(nameToID['Sonora']);
+    verifyContainedRegions(nameToID[SPECIFY_USA]);
+    verifyContainedRegions(nameToID['Canada']);
+    verifyContainedRegions(nameToID['Mexico']);
+    verifyContainedRegions(nameToID['Texas']);
+    verifyContainedRegions(nameToID['Maryland']);
+    verifyContainedRegions(nameToID['Ontario']);
+    verifyContainedRegions(nameToID['Sonora']);
   });
 
-  test('provides containing geography IDs', () => {
+  test('provides containing regions', () => {
     const nameToID = getNameToID();
 
-    function verifyContainingIDs(aboveID: number, containingNames: string[]) {
+    function verifyContainingRegions(aboveID: number, containingNames: string[]) {
       containingNames.push('North America');
       containingNames.push('Earth');
-      const containingIDs = geography.getContainingGeographyIDs(aboveID);
+      const containingRegions = geography.getContainingRegions(aboveID);
+      const containingRegionNames = containingRegions.map((r) => r.name);
       for (const containingName of containingNames) {
-        expect(containingIDs).toContain(nameToID[containingName]);
+        expect(containingRegionNames).toContain(containingName);
       }
-      for (const containingID of containingIDs) {
-        const region = geography.getRegionByID(containingID);
-        expect(containingNames).toContain(region?.name);
+      for (const containingRegion of containingRegions) {
+        expect(containingNames).toContain(containingRegion.name);
       }
     }
 
-    verifyContainingIDs(nameToID[SPECIFY_USA], []);
-    verifyContainingIDs(nameToID['Canada'], []);
-    verifyContainingIDs(nameToID['Mexico'], []);
-    verifyContainingIDs(nameToID['Texas'], ['United States']);
-    verifyContainingIDs(nameToID['Maryland'], ['United States']);
-    verifyContainingIDs(nameToID['Ontario'], ['Canada']);
-    verifyContainingIDs(nameToID['Sonora'], ['Mexico']);
-    verifyContainingIDs(nameToID['Travis County'], ['Texas', 'United States']);
+    verifyContainingRegions(nameToID[SPECIFY_USA], []);
+    verifyContainingRegions(nameToID['Canada'], []);
+    verifyContainingRegions(nameToID['Mexico'], []);
+    verifyContainingRegions(nameToID['Texas'], ['United States']);
+    verifyContainingRegions(nameToID['Maryland'], ['United States']);
+    verifyContainingRegions(nameToID['Ontario'], ['Canada']);
+    verifyContainingRegions(nameToID['Sonora'], ['Mexico']);
+    verifyContainingRegions(nameToID['Travis County'], ['Texas', 'United States']);
   });
 
   test('provides geography name map with trimmed names', () => {
@@ -128,10 +131,9 @@ describe('Specify geography', () => {
       lookupName: string,
       expectedCount: number
     ) {
-      const containedIDs = geography.getContainedGeographyIDs(underID);
+      const containedRegions = geography.getContainedRegions(underID);
       const foundRegionsOfName: Region[] = [];
-      for (const containedID of containedIDs) {
-        const region = geography.getRegionByID(containedID);
+      for (const region of containedRegions) {
         if (region!.name == lookupName) {
           foundRegionsOfName.push(region!);
         }
