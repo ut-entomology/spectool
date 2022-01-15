@@ -15,22 +15,37 @@ import { LocalityCache } from './locality_cache';
 
 export type ProcessRegionCallback = (region: TrackedRegion) => void;
 
-export type RegionStateCallback = (
-  regionRoster: TrackedRegionRoster,
-  primaryContext: string,
-  secondaryContext?: string | null, // null => starting to process forRegion
-  forRegion?: TrackedRegion, // required with secondaryContext
-  aroundRegion?: TrackedRegion
-) => Promise<void>;
+export interface Diagnostics {
+  reportPrimaryState(
+    regionRoster: TrackedRegionRoster,
+    primaryContext: string,
+    newlyProcessedRegion?: TrackedRegion
+  ): void;
+
+  reportSecondaryProcess(
+    primaryContext: string,
+    secondaryContext: string,
+    forRegion: TrackedRegion
+  ): void;
+
+  reportSecondaryState(
+    regionRoster: TrackedRegionRoster,
+    primaryContext: string,
+    secondaryContext: string,
+    forRegion: TrackedRegion,
+    aroundRegion: TrackedRegion
+  ): void;
+}
 
 export class AdjoiningRegionDriver {
   private _overDomainIDLookup: Record<number, boolean> = {};
   private _processRegionCallback: ProcessRegionCallback;
   private _localityCache: LocalityCache;
+  private _initialGeographyID: number | null;
 
   _regionRoster: TrackedRegionRoster;
   _adjoiningRegions: AdjoiningRegions;
-  _regionStateCallback?: RegionStateCallback;
+  _diagnostics: Diagnostics | null;
   _newlyCachedRegionNeighborVisitor: NewlyCachedRegionNeighborVisitor;
   _finishCachingAroundRegionVisitor: FinishCachingAroundRegionVisitor;
   _pendingNearDomainRegionVisitor: PendingNearDomainRegionVisitor;
@@ -40,13 +55,15 @@ export class AdjoiningRegionDriver {
     domainRegions: Region[],
     localityCache: LocalityCache,
     processRegionCallback: ProcessRegionCallback,
-    regionStateCallback?: RegionStateCallback
+    diagnostics?: Diagnostics,
+    initialGeographyID?: number
   ) {
     this._regionRoster = new TrackedRegionRoster();
     this._adjoiningRegions = adjoiningRegions;
     this._localityCache = localityCache;
     this._processRegionCallback = processRegionCallback;
-    this._regionStateCallback = regionStateCallback;
+    this._diagnostics = diagnostics || null;
+    this._initialGeographyID = initialGeographyID || null;
 
     this._newlyCachedRegionNeighborVisitor = new NewlyCachedRegionNeighborVisitor(this);
     this._finishCachingAroundRegionVisitor = new FinishCachingAroundRegionVisitor(this);
@@ -74,20 +91,22 @@ export class AdjoiningRegionDriver {
   }
 
   async run() {
-    if (this._regionStateCallback) {
-      await this._regionStateCallback(this._regionRoster, 'After initialization');
+    if (this._diagnostics) {
+      this._diagnostics.reportPrimaryState(this._regionRoster, 'After initialization');
     }
 
     let currentRegion: TrackedRegion | null = this._regionRoster.getArbitraryRegion();
+    if (this._initialGeographyID !== null) {
+      currentRegion = this._regionRoster.getByID(this._initialGeographyID)!;
+    }
     await this._cachePendingRegion(currentRegion);
 
     // Loop
     while (currentRegion != null) {
-      if (this._regionStateCallback) {
-        await this._regionStateCallback(
+      if (this._diagnostics) {
+        this._diagnostics.reportPrimaryState(
           this._regionRoster,
           'Top of loop',
-          null,
           currentRegion
         );
       }
@@ -114,24 +133,9 @@ export class AdjoiningRegionDriver {
         }
       }
     }
-    if (this._regionStateCallback) {
-      await this._regionStateCallback(this._regionRoster, 'Completed');
+    if (this._diagnostics) {
+      this._diagnostics.reportPrimaryState(this._regionRoster, 'Completed');
     }
-  }
-
-  async reportState(
-    primaryContext: string,
-    secondaryContext?: string,
-    forRegion?: TrackedRegion, // required with secondaryContext
-    aroundRegion?: TrackedRegion
-  ): Promise<void> {
-    await this._regionStateCallback!(
-      this._regionRoster,
-      primaryContext,
-      secondaryContext,
-      forRegion,
-      aroundRegion
-    );
   }
 
   /**
@@ -175,23 +179,35 @@ abstract class RegionVisitor {
   async visitAroundRegion(aroundRegion: TrackedRegion) {
     if (aroundRegion.inDomain) {
       // Visit all regions adjoining a domain region
+      this._reportSecondaryProcess(
+        'visiting all regions adjoining a domain region',
+        aroundRegion
+      );
       for (const nearRegion of this._getAdjoiningRegions(aroundRegion)) {
         await this._visitAroundDomainRegion(nearRegion);
         if (this._visitationRestriction(nearRegion)) {
           await this._visitSubsetAroundDomainRegion(nearRegion, aroundRegion);
-          //await this._showState('after in-domain all', nearRegion, aroundRegion);
+          //this._showState('after in-domain all', nearRegion, aroundRegion);
         }
       }
     } else {
       // Visit regions adjacenct to a non-domain region
+      this._reportSecondaryProcess(
+        'visiting regions adjacenct to a non-domain region',
+        aroundRegion
+      );
       for (const nearRegion of this._getAdjacentRegions(aroundRegion)) {
         if (nearRegion.inDomain && this._visitationRestriction(nearRegion)) {
           await this._visitSubsetAroundNonDomainRegion(nearRegion, aroundRegion);
-          //await this._showState('after non-domain adjacent', nearRegion, aroundRegion);
+          //this._showState('after non-domain adjacent', nearRegion, aroundRegion);
         }
       }
       if (this._regionDriver._isInOverDomain(aroundRegion.id)) {
         // Visit child regions of a non-domain region
+        this._reportSecondaryProcess(
+          'visiting child regions of a non-domain region',
+          aroundRegion
+        );
         for (const childRegion of this._getDescendantRegions(aroundRegion)) {
           if (!childRegion.inDomain) {
             throw Error(
@@ -201,7 +217,7 @@ abstract class RegionVisitor {
           }
           if (this._visitationRestriction(childRegion)) {
             await this._visitSubsetAroundNonDomainRegion(childRegion, aroundRegion);
-            //await this._showState('after non-domain child', childRegion, aroundRegion);
+            //this._showState('after non-domain child', childRegion, aroundRegion);
           }
         }
       }
@@ -278,13 +294,27 @@ abstract class RegionVisitor {
     await this._visitSubsetAroundDomainRegion(nearRegion, aroundRegion);
   }
 
-  protected async _reportState(
+  protected _reportSecondaryProcess(
+    secondaryContext: string,
+    forRegion: TrackedRegion
+  ): void {
+    if (this._regionDriver._diagnostics) {
+      this._regionDriver._diagnostics.reportSecondaryProcess(
+        this.visitorName,
+        secondaryContext,
+        forRegion
+      );
+    }
+  }
+
+  protected _reportSecondaryState(
     secondaryContext: string,
     forRegion: TrackedRegion,
     aroundRegion: TrackedRegion
-  ): Promise<void> {
-    if (this._regionDriver._regionStateCallback) {
-      await this._regionDriver.reportState(
+  ): void {
+    if (this._regionDriver._diagnostics) {
+      this._regionDriver._diagnostics.reportSecondaryState(
+        this._regionDriver._regionRoster,
         this.visitorName,
         secondaryContext,
         forRegion,
@@ -319,7 +349,7 @@ class NewlyCachedRegionNeighborVisitor extends RegionVisitor {
   ) {
     // Increment pending count due to adjoining pending region
     aroundRegion.adjoiningPendingCount += this._computeLocalityCount(nearRegion);
-    await this._reportState(
+    this._reportSecondaryState(
       'increment pending count due to adjoining pending region',
       nearRegion,
       aroundRegion
@@ -342,7 +372,7 @@ class PendingNearDomainRegionVisitor extends RegionVisitor {
   ) {
     // Decrement pending count for newly cached region adjoining domain region
     nearRegion.adjoiningPendingCount -= this._computeLocalityCount(aroundRegion);
-    await this._reportState(
+    this._reportSecondaryState(
       'decrement pending count for newly cached region adjoining domain region',
       nearRegion,
       aroundRegion
@@ -384,7 +414,7 @@ class FinishCachingAroundRegionVisitor extends RegionVisitor {
         // Decrement pending count for newly cached region adjoining non-domain region
         aroundNearRegion.adjoiningPendingCount -=
           this._computeLocalityCount(nearRegion);
-        await this._reportState(
+        this._reportSecondaryState(
           'decrement pending count for newly cached region adjoining non-domain region',
           aroundNearRegion,
           nearRegion

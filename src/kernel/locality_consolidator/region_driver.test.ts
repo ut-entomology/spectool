@@ -1,8 +1,8 @@
 import * as path from 'path';
-import { promises as fsp } from 'fs';
+import * as fs from 'fs';
 
 import { AdjoiningRegions } from './adjoining_regions';
-import { AdjoiningRegionDriver } from './region_driver';
+import { AdjoiningRegionDriver, Diagnostics } from './region_driver';
 import type { LocalityCache } from './locality_cache';
 import { Region, RegionRank } from '../../shared/region';
 import { TrackedRegionRoster } from './region_roster';
@@ -95,18 +95,21 @@ describe('locality consolidator', () => {
       }
     }
     const localityCache = new DummyLocalityCache();
-    const logFile = await createLogFile('region-driver-1.txt');
-    const sequenceCounter = new SequenceCounter();
+    const diagnostics = new TestDiagnostics(localityCache, 'region-driver-1.txt');
 
     const regionDriver = new AdjoiningRegionDriver(
       new DummyAdjoiningRegions(),
       domainRegions,
       localityCache,
-      (region) => processedRegionIDs.push(region.id),
-      logState.bind(null, logFile, sequenceCounter, localityCache)
+      (region) => {
+        processedRegionIDs.push(region.id);
+        localityCache.uncacheLocality(region.id);
+      },
+      diagnostics,
+      _codeToRegion('CB').id
     );
     await regionDriver.run();
-    await logFile.close();
+    diagnostics.close();
 
     expect(processedRegionIDs.map((id) => regionsByID[id].code)).toEqual([
       /* TBD: region codes in correct order */
@@ -408,69 +411,101 @@ function _codeToRegion(code: string): Region {
   return regionsByCode[code].actualRegion;
 }
 
-async function createLogFile(fileName: string) {
-  const filePath = path.join(TEST_LOG_DIR, fileName);
-  try {
-    await fsp.access(filePath);
-  } catch (err) {
-    await fsp.mkdir(TEST_LOG_DIR).catch((e) => e);
-  }
-  return await fsp.open(filePath, 'w');
-}
+class TestDiagnostics implements Diagnostics {
+  private _fileID: number;
+  private _localityCache: DummyLocalityCache;
+  private _showSecondaryState: boolean;
+  private _lastSequenceNumber = 0;
 
-class SequenceCounter {
-  lastNumber = 0;
-}
-
-async function logState(
-  file: fsp.FileHandle,
-  sequenceCounter: SequenceCounter,
-  localityCache: DummyLocalityCache,
-  regionRoster: TrackedRegionRoster,
-  primaryContext: string,
-  secondaryContext?: string | null,
-  forRegion?: TrackedRegion,
-  aroundRegion?: TrackedRegion
-) {
-  let description = primaryContext;
-  if (secondaryContext) {
-    if (!forRegion) {
-      throw Error('forRegion must be defined with secondary context');
+  constructor(
+    localityCache: DummyLocalityCache,
+    fileName: string,
+    showSecondaryState: boolean = true
+  ) {
+    this._localityCache = localityCache;
+    const filePath = path.join(TEST_LOG_DIR, fileName);
+    try {
+      fs.accessSync(filePath);
+    } catch (err) {
+      try {
+        fs.mkdirSync(TEST_LOG_DIR);
+      } catch (err) {}
     }
-    const aroundText = aroundRegion
-      ? `around ${regionsByID[aroundRegion.id].code}: `
-      : '';
-    description = `${primaryContext} - ${secondaryContext} (${aroundText}${
-      regionsByID[forRegion.id].code
-    })`;
-  } else if (secondaryContext === null) {
-    regionsByID[forRegion!.id].sequence = ++sequenceCounter.lastNumber;
+    this._showSecondaryState = showSecondaryState;
+    this._fileID = fs.openSync(filePath, 'w');
   }
 
-  let s = description + ':\n';
-  s += '  Region roster: ';
-  s += [...regionRoster].map((r) => regionsByID[r.id].code).join(', ');
-  s += '\n  Cached localities(*): ';
-  s += localityCache.getCachedCodes().join(', ');
-  s += '\n\n';
-  for (const regionRow of regionMatrix) {
-    s += '  ';
-    s += regionRow
-      .map((column) => {
-        const trackedRegion = regionRoster.getByID(column.actualRegion.id);
-        return column.toState(trackedRegion);
+  reportPrimaryState(
+    regionRoster: TrackedRegionRoster,
+    primaryContext: string,
+    newlyProcessedRegion?: TrackedRegion
+  ): void {
+    if (newlyProcessedRegion) {
+      regionsByID[newlyProcessedRegion.id].sequence = ++this._lastSequenceNumber;
+    }
+    this._writeState(regionRoster, '### ' + primaryContext);
+  }
+
+  reportSecondaryProcess(
+    primaryContext: string,
+    secondaryContext: string,
+    forRegion: TrackedRegion
+  ): void {
+    fs.writeSync(
+      this._fileID,
+      `${primaryContext} - ${secondaryContext} (${
+        regionsByID[forRegion.id].code
+      })...\n\n`
+    );
+  }
+
+  reportSecondaryState(
+    regionRoster: TrackedRegionRoster,
+    primaryContext: string,
+    secondaryContext: string,
+    forRegion: TrackedRegion,
+    aroundRegion: TrackedRegion
+  ): void {
+    if (this._showSecondaryState) {
+      const aroundText = aroundRegion
+        ? `around ${regionsByID[aroundRegion.id].code}: `
+        : '';
+      const description = `${primaryContext} - ${secondaryContext} (${aroundText}${
+        regionsByID[forRegion.id].code
+      })`;
+      this._writeState(regionRoster, description);
+    }
+  }
+
+  close() {
+    fs.close(this._fileID);
+  }
+
+  private _writeState(regionRoster: TrackedRegionRoster, description: string) {
+    let s = description + ':\n';
+    s += '  Region roster: ';
+    s += [...regionRoster].map((r) => regionsByID[r.id].code).join(', ');
+    s += '\n  Cached localities(*): ';
+    s += this._localityCache.getCachedCodes().join(', ');
+    s += '\n\n';
+    for (const regionRow of regionMatrix) {
+      s += '  ';
+      s += regionRow
+        .map((column) => {
+          const trackedRegion = regionRoster.getByID(column.actualRegion.id);
+          return column.toState(trackedRegion);
+        })
+        .join(' | ');
+      s += '\n';
+    }
+    s += '\n  ';
+    s += [_codeToID('TX'), _codeToID('US'), _codeToID('MX')]
+      .map((id) => {
+        const trackedRegion = regionRoster.getByID(id);
+        return regionsByID[id].toState(trackedRegion);
       })
       .join(' | ');
-    s += '\n';
+    s += '\n\n';
+    fs.writeSync(this._fileID, s);
   }
-  s += '\n\n  ';
-  s += [_codeToID('TX'), _codeToID('US'), _codeToID('MX')]
-    .map((id) => {
-      const trackedRegion = regionRoster.getByID(id);
-      return regionsByID[id].toState(trackedRegion);
-    })
-    .join(' | ');
-  s += '\n\n';
-  await file.write(s);
-  await file.sync(); // flush data in case test crashes before it completes
 }

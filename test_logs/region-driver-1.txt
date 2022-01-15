@@ -1,4 +1,4 @@
-After initialization:
+### After initialization:
   Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX
   Cached localities(*): 
 
@@ -7,1374 +7,1370 @@ After initialization:
   CE:0       | CF:0       | CG:0       | CH:0       | NM:0      
   CI:0       | CJ:0       | CK:0       | CL:0       | LA:0      
 
-
   TX:0       | US:0       | MX:0      
 
-cache single - increment pending count due to adjoining pending region (around CA: MA):
+cache single - visiting all regions adjoining a domain region (CB)...
+
+cache single - increment pending count due to adjoining pending region (around CB: MA):
   Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US
-  Cached localities(*): CA
+  Cached localities(*): CB
 
   MA:0       | MA:0       | MA:0       | MB:0      
-  *CA:1      | CB:0       | CC:0       | CD:0       | NM:0      
+  CA:0       | *CB:1      | CC:0       | CD:0       | NM:0      
   CE:0       | CF:0       | CG:0       | CH:0       | NM:0      
   CI:0       | CJ:0       | CK:0       | CL:0       | LA:0      
 
-
   TX:0       | US:0       | MX:0      
 
-cache single - increment pending count due to adjoining pending region (around CA: MX):
+cache single - increment pending count due to adjoining pending region (around CB: MX):
   Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US
-  Cached localities(*): CA
+  Cached localities(*): CB
 
   MA:0       | MA:0       | MA:0       | MB:0      
-  *CA:2      | CB:0       | CC:0       | CD:0       | NM:0      
+  CA:0       | *CB:2      | CC:0       | CD:0       | NM:0      
   CE:0       | CF:0       | CG:0       | CH:0       | NM:0      
   CI:0       | CJ:0       | CK:0       | CL:0       | LA:0      
 
-
   TX:0       | US:0       | MX:0      
 
-cache single - increment pending count due to adjoining pending region (around CA: CB):
+cache single - increment pending count due to adjoining pending region (around CB: CA):
   Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US
-  Cached localities(*): CA
+  Cached localities(*): CB
 
   MA:0       | MA:0       | MA:0       | MB:0      
-  *CA:3      | CB:0       | CC:0       | CD:0       | NM:0      
+  CA:0       | *CB:3      | CC:0       | CD:0       | NM:0      
   CE:0       | CF:0       | CG:0       | CH:0       | NM:0      
   CI:0       | CJ:0       | CK:0       | CL:0       | LA:0      
 
-
   TX:0       | US:0       | MX:0      
 
-cache single - increment pending count due to adjoining pending region (around CA: CE):
+cache single - increment pending count due to adjoining pending region (around CB: CC):
   Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US
-  Cached localities(*): CA
+  Cached localities(*): CB
 
   MA:0       | MA:0       | MA:0       | MB:0      
-  *CA:4      | CB:0       | CC:0       | CD:0       | NM:0      
+  CA:0       | *CB:4      | CC:0       | CD:0       | NM:0      
   CE:0       | CF:0       | CG:0       | CH:0       | NM:0      
   CI:0       | CJ:0       | CK:0       | CL:0       | LA:0      
 
-
   TX:0       | US:0       | MX:0      
 
-cache single - increment pending count due to adjoining pending region (around CA: TX):
+cache single - increment pending count due to adjoining pending region (around CB: CF):
   Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US
-  Cached localities(*): CA
+  Cached localities(*): CB
 
   MA:0       | MA:0       | MA:0       | MB:0      
-  *CA:5      | CB:0       | CC:0       | CD:0       | NM:0      
+  CA:0       | *CB:5      | CC:0       | CD:0       | NM:0      
   CE:0       | CF:0       | CG:0       | CH:0       | NM:0      
   CI:0       | CJ:0       | CK:0       | CL:0       | LA:0      
 
-
   TX:0       | US:0       | MX:0      
 
-cache single - increment pending count due to adjoining pending region (around CA: US):
+cache single - increment pending count due to adjoining pending region (around CB: TX):
   Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US
-  Cached localities(*): CA
+  Cached localities(*): CB
 
   MA:0       | MA:0       | MA:0       | MB:0      
-  *CA:6      | CB:0       | CC:0       | CD:0       | NM:0      
+  CA:0       | *CB:6      | CC:0       | CD:0       | NM:0      
   CE:0       | CF:0       | CG:0       | CH:0       | NM:0      
   CI:0       | CJ:0       | CK:0       | CL:0       | LA:0      
 
-
   TX:0       | US:0       | MX:0      
 
-Top of loop:
+cache single - increment pending count due to adjoining pending region (around CB: US):
   Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US
-  Cached localities(*): CA
+  Cached localities(*): CB
 
   MA:0       | MA:0       | MA:0       | MB:0      
-  (1)*CA:6   | CB:0       | CC:0       | CD:0       | NM:0      
+  CA:0       | *CB:7      | CC:0       | CD:0       | NM:0      
   CE:0       | CF:0       | CG:0       | CH:0       | NM:0      
   CI:0       | CJ:0       | CK:0       | CL:0       | LA:0      
 
+  TX:0       | US:0       | MX:0      
+
+### Top of loop:
+  Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US
+  Cached localities(*): CB
+
+  MA:0       | MA:0       | MA:0       | MB:0      
+  CA:0       | (1)*CB:7   | CC:0       | CD:0       | NM:0      
+  CE:0       | CF:0       | CG:0       | CH:0       | NM:0      
+  CI:0       | CJ:0       | CK:0       | CL:0       | LA:0      
 
   TX:0       | US:0       | MX:0      
 
-cache single - increment pending count due to adjoining pending region (around MA: CB):
+cache around - visiting all regions adjoining a domain region (CB)...
+
+cache single - visiting regions adjacenct to a non-domain region (MA)...
+
+cache single - increment pending count due to adjoining pending region (around MA: CA):
   Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB
-  Cached localities(*): CA, MA
+  Cached localities(*): CB, MA
 
   *MA:1      | *MA:1      | *MA:1      | MB:0      
-  (1)*CA:6   | CB:0       | CC:0       | CD:0       | NM:0      
+  CA:0       | (1)*CB:7   | CC:0       | CD:0       | NM:0      
   CE:0       | CF:0       | CG:0       | CH:0       | NM:0      
   CI:0       | CJ:0       | CK:0       | CL:0       | LA:0      
-
 
   TX:0       | US:0       | MX:0      
 
 cache single - increment pending count due to adjoining pending region (around MA: CC):
   Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB
-  Cached localities(*): CA, MA
+  Cached localities(*): CB, MA
 
   *MA:2      | *MA:2      | *MA:2      | MB:0      
-  (1)*CA:6   | CB:0       | CC:0       | CD:0       | NM:0      
+  CA:0       | (1)*CB:7   | CC:0       | CD:0       | NM:0      
   CE:0       | CF:0       | CG:0       | CH:0       | NM:0      
   CI:0       | CJ:0       | CK:0       | CL:0       | LA:0      
-
 
   TX:0       | US:0       | MX:0      
 
 cache single - increment pending count due to adjoining pending region (around MA: TX):
   Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB
-  Cached localities(*): CA, MA
+  Cached localities(*): CB, MA
 
   *MA:3      | *MA:3      | *MA:3      | MB:0      
-  (1)*CA:6   | CB:0       | CC:0       | CD:0       | NM:0      
+  CA:0       | (1)*CB:7   | CC:0       | CD:0       | NM:0      
   CE:0       | CF:0       | CG:0       | CH:0       | NM:0      
   CI:0       | CJ:0       | CK:0       | CL:0       | LA:0      
-
 
   TX:0       | US:0       | MX:0      
 
-prep to remove - decrement pending count for newly cached region adjoining domain region (around MA: CA):
+prep to remove - visiting regions adjacenct to a non-domain region (MA)...
+
+prep to remove - decrement pending count for newly cached region adjoining domain region (around MA: CB):
   Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB
-  Cached localities(*): CA, MA
+  Cached localities(*): CB, MA
 
   *MA:3      | *MA:3      | *MA:3      | MB:0      
-  (1)*CA:5   | CB:0       | CC:0       | CD:0       | NM:0      
+  CA:0       | (1)*CB:6   | CC:0       | CD:0       | NM:0      
   CE:0       | CF:0       | CG:0       | CH:0       | NM:0      
   CI:0       | CJ:0       | CK:0       | CL:0       | LA:0      
-
 
   TX:0       | US:0       | MX:0      
 
-cache single - increment pending count due to adjoining pending region (around MX: CB):
+cache single - visiting regions adjacenct to a non-domain region (MX)...
+
+cache single - increment pending count due to adjoining pending region (around MX: CA):
   Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB
-  Cached localities(*): CA, MA, MX
+  Cached localities(*): CB, MA, MX
 
   *MA:3      | *MA:3      | *MA:3      | MB:0      
-  (1)*CA:5   | CB:0       | CC:0       | CD:0       | NM:0      
+  CA:0       | (1)*CB:6   | CC:0       | CD:0       | NM:0      
   CE:0       | CF:0       | CG:0       | CH:0       | NM:0      
   CI:0       | CJ:0       | CK:0       | CL:0       | LA:0      
-
 
   TX:0       | US:0       | *MX:1     
 
 cache single - increment pending count due to adjoining pending region (around MX: CC):
   Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB
-  Cached localities(*): CA, MA, MX
+  Cached localities(*): CB, MA, MX
 
   *MA:3      | *MA:3      | *MA:3      | MB:0      
-  (1)*CA:5   | CB:0       | CC:0       | CD:0       | NM:0      
+  CA:0       | (1)*CB:6   | CC:0       | CD:0       | NM:0      
   CE:0       | CF:0       | CG:0       | CH:0       | NM:0      
   CI:0       | CJ:0       | CK:0       | CL:0       | LA:0      
-
 
   TX:0       | US:0       | *MX:2     
 
 cache single - increment pending count due to adjoining pending region (around MX: CD):
   Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB
-  Cached localities(*): CA, MA, MX
+  Cached localities(*): CB, MA, MX
 
   *MA:3      | *MA:3      | *MA:3      | MB:0      
-  (1)*CA:5   | CB:0       | CC:0       | CD:0       | NM:0      
+  CA:0       | (1)*CB:6   | CC:0       | CD:0       | NM:0      
   CE:0       | CF:0       | CG:0       | CH:0       | NM:0      
   CI:0       | CJ:0       | CK:0       | CL:0       | LA:0      
-
 
   TX:0       | US:0       | *MX:3     
 
 cache single - increment pending count due to adjoining pending region (around MX: TX):
   Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB
-  Cached localities(*): CA, MA, MX
+  Cached localities(*): CB, MA, MX
 
   *MA:3      | *MA:3      | *MA:3      | MB:0      
-  (1)*CA:5   | CB:0       | CC:0       | CD:0       | NM:0      
+  CA:0       | (1)*CB:6   | CC:0       | CD:0       | NM:0      
   CE:0       | CF:0       | CG:0       | CH:0       | NM:0      
   CI:0       | CJ:0       | CK:0       | CL:0       | LA:0      
 
-
   TX:0       | US:0       | *MX:4     
 
-prep to remove - decrement pending count for newly cached region adjoining domain region (around MX: CA):
+prep to remove - visiting regions adjacenct to a non-domain region (MX)...
+
+prep to remove - decrement pending count for newly cached region adjoining domain region (around MX: CB):
   Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB
-  Cached localities(*): CA, MA, MX
+  Cached localities(*): CB, MA, MX
 
   *MA:3      | *MA:3      | *MA:3      | MB:0      
-  (1)*CA:4   | CB:0       | CC:0       | CD:0       | NM:0      
+  CA:0       | (1)*CB:5   | CC:0       | CD:0       | NM:0      
   CE:0       | CF:0       | CG:0       | CH:0       | NM:0      
   CI:0       | CJ:0       | CK:0       | CL:0       | LA:0      
 
-
   TX:0       | US:0       | *MX:4     
 
-cache single - increment pending count due to adjoining pending region (around CB: CC):
+cache single - visiting all regions adjoining a domain region (CA)...
+
+cache single - increment pending count due to adjoining pending region (around CA: CE):
   Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB
-  Cached localities(*): CA, MA, MX, CB
+  Cached localities(*): CB, MA, MX, CA
 
   *MA:3      | *MA:3      | *MA:3      | MB:0      
-  (1)*CA:4   | *CB:1      | CC:0       | CD:0       | NM:0      
+  *CA:1      | (1)*CB:5   | CC:0       | CD:0       | NM:0      
   CE:0       | CF:0       | CG:0       | CH:0       | NM:0      
   CI:0       | CJ:0       | CK:0       | CL:0       | LA:0      
 
-
   TX:0       | US:0       | *MX:4     
 
-cache single - increment pending count due to adjoining pending region (around CB: CF):
+cache single - increment pending count due to adjoining pending region (around CA: TX):
   Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB
-  Cached localities(*): CA, MA, MX, CB
+  Cached localities(*): CB, MA, MX, CA
 
   *MA:3      | *MA:3      | *MA:3      | MB:0      
-  (1)*CA:4   | *CB:2      | CC:0       | CD:0       | NM:0      
+  *CA:2      | (1)*CB:5   | CC:0       | CD:0       | NM:0      
   CE:0       | CF:0       | CG:0       | CH:0       | NM:0      
   CI:0       | CJ:0       | CK:0       | CL:0       | LA:0      
 
-
   TX:0       | US:0       | *MX:4     
 
-cache single - increment pending count due to adjoining pending region (around CB: TX):
+cache single - increment pending count due to adjoining pending region (around CA: US):
   Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB
-  Cached localities(*): CA, MA, MX, CB
+  Cached localities(*): CB, MA, MX, CA
 
   *MA:3      | *MA:3      | *MA:3      | MB:0      
-  (1)*CA:4   | *CB:3      | CC:0       | CD:0       | NM:0      
+  *CA:3      | (1)*CB:5   | CC:0       | CD:0       | NM:0      
   CE:0       | CF:0       | CG:0       | CH:0       | NM:0      
   CI:0       | CJ:0       | CK:0       | CL:0       | LA:0      
-
 
   TX:0       | US:0       | *MX:4     
 
-cache single - increment pending count due to adjoining pending region (around CB: US):
-  Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB
-  Cached localities(*): CA, MA, MX, CB
+prep to remove - visiting all regions adjoining a domain region (CA)...
 
-  *MA:3      | *MA:3      | *MA:3      | MB:0      
-  (1)*CA:4   | *CB:4      | CC:0       | CD:0       | NM:0      
+prep to remove - decrement pending count for newly cached region adjoining domain region (around CA: MA):
+  Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB
+  Cached localities(*): CB, MA, MX, CA
+
+  *MA:2      | *MA:2      | *MA:2      | MB:0      
+  *CA:3      | (1)*CB:5   | CC:0       | CD:0       | NM:0      
   CE:0       | CF:0       | CG:0       | CH:0       | NM:0      
   CI:0       | CJ:0       | CK:0       | CL:0       | LA:0      
-
 
   TX:0       | US:0       | *MX:4     
 
-prep to remove - decrement pending count for newly cached region adjoining domain region (around CB: MA):
+prep to remove - decrement pending count for newly cached region adjoining domain region (around CA: MX):
   Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB
-  Cached localities(*): CA, MA, MX, CB
+  Cached localities(*): CB, MA, MX, CA
 
   *MA:2      | *MA:2      | *MA:2      | MB:0      
-  (1)*CA:4   | *CB:4      | CC:0       | CD:0       | NM:0      
+  *CA:3      | (1)*CB:5   | CC:0       | CD:0       | NM:0      
   CE:0       | CF:0       | CG:0       | CH:0       | NM:0      
   CI:0       | CJ:0       | CK:0       | CL:0       | LA:0      
 
+  TX:0       | US:0       | *MX:3     
 
-  TX:0       | US:0       | *MX:4     
-
-prep to remove - decrement pending count for newly cached region adjoining domain region (around CB: MX):
+prep to remove - decrement pending count for newly cached region adjoining domain region (around CA: CB):
   Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB
-  Cached localities(*): CA, MA, MX, CB
+  Cached localities(*): CB, MA, MX, CA
 
   *MA:2      | *MA:2      | *MA:2      | MB:0      
-  (1)*CA:4   | *CB:4      | CC:0       | CD:0       | NM:0      
+  *CA:3      | (1)*CB:4   | CC:0       | CD:0       | NM:0      
   CE:0       | CF:0       | CG:0       | CH:0       | NM:0      
   CI:0       | CJ:0       | CK:0       | CL:0       | LA:0      
 
-
   TX:0       | US:0       | *MX:3     
 
-prep to remove - decrement pending count for newly cached region adjoining domain region (around CB: CA):
+cache single - visiting all regions adjoining a domain region (CC)...
+
+cache single - increment pending count due to adjoining pending region (around CC: CD):
   Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB
-  Cached localities(*): CA, MA, MX, CB
+  Cached localities(*): CB, MA, MX, CA, CC
 
   *MA:2      | *MA:2      | *MA:2      | MB:0      
-  (1)*CA:3   | *CB:4      | CC:0       | CD:0       | NM:0      
+  *CA:3      | (1)*CB:4   | *CC:1      | CD:0       | NM:0      
   CE:0       | CF:0       | CG:0       | CH:0       | NM:0      
   CI:0       | CJ:0       | CK:0       | CL:0       | LA:0      
 
-
   TX:0       | US:0       | *MX:3     
 
-cache single - increment pending count due to adjoining pending region (around CE: CF):
+cache single - increment pending count due to adjoining pending region (around CC: CG):
   Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB
-  Cached localities(*): CA, MA, MX, CB, CE
+  Cached localities(*): CB, MA, MX, CA, CC
 
   *MA:2      | *MA:2      | *MA:2      | MB:0      
-  (1)*CA:3   | *CB:4      | CC:0       | CD:0       | NM:0      
-  *CE:1      | CF:0       | CG:0       | CH:0       | NM:0      
+  *CA:3      | (1)*CB:4   | *CC:2      | CD:0       | NM:0      
+  CE:0       | CF:0       | CG:0       | CH:0       | NM:0      
   CI:0       | CJ:0       | CK:0       | CL:0       | LA:0      
-
 
   TX:0       | US:0       | *MX:3     
 
-cache single - increment pending count due to adjoining pending region (around CE: CI):
+cache single - increment pending count due to adjoining pending region (around CC: TX):
   Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB
-  Cached localities(*): CA, MA, MX, CB, CE
+  Cached localities(*): CB, MA, MX, CA, CC
 
   *MA:2      | *MA:2      | *MA:2      | MB:0      
-  (1)*CA:3   | *CB:4      | CC:0       | CD:0       | NM:0      
-  *CE:2      | CF:0       | CG:0       | CH:0       | NM:0      
+  *CA:3      | (1)*CB:4   | *CC:3      | CD:0       | NM:0      
+  CE:0       | CF:0       | CG:0       | CH:0       | NM:0      
   CI:0       | CJ:0       | CK:0       | CL:0       | LA:0      
-
 
   TX:0       | US:0       | *MX:3     
 
-cache single - increment pending count due to adjoining pending region (around CE: TX):
+cache single - increment pending count due to adjoining pending region (around CC: US):
   Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB
-  Cached localities(*): CA, MA, MX, CB, CE
+  Cached localities(*): CB, MA, MX, CA, CC
 
   *MA:2      | *MA:2      | *MA:2      | MB:0      
-  (1)*CA:3   | *CB:4      | CC:0       | CD:0       | NM:0      
-  *CE:3      | CF:0       | CG:0       | CH:0       | NM:0      
+  *CA:3      | (1)*CB:4   | *CC:4      | CD:0       | NM:0      
+  CE:0       | CF:0       | CG:0       | CH:0       | NM:0      
   CI:0       | CJ:0       | CK:0       | CL:0       | LA:0      
-
 
   TX:0       | US:0       | *MX:3     
 
-cache single - increment pending count due to adjoining pending region (around CE: US):
+prep to remove - visiting all regions adjoining a domain region (CC)...
+
+prep to remove - decrement pending count for newly cached region adjoining domain region (around CC: MA):
   Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB
-  Cached localities(*): CA, MA, MX, CB, CE
+  Cached localities(*): CB, MA, MX, CA, CC
 
-  *MA:2      | *MA:2      | *MA:2      | MB:0      
-  (1)*CA:3   | *CB:4      | CC:0       | CD:0       | NM:0      
-  *CE:4      | CF:0       | CG:0       | CH:0       | NM:0      
+  *MA:1      | *MA:1      | *MA:1      | MB:0      
+  *CA:3      | (1)*CB:4   | *CC:4      | CD:0       | NM:0      
+  CE:0       | CF:0       | CG:0       | CH:0       | NM:0      
   CI:0       | CJ:0       | CK:0       | CL:0       | LA:0      
-
 
   TX:0       | US:0       | *MX:3     
 
-prep to remove - decrement pending count for newly cached region adjoining domain region (around CE: CA):
+prep to remove - decrement pending count for newly cached region adjoining domain region (around CC: MX):
   Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB
-  Cached localities(*): CA, MA, MX, CB, CE
+  Cached localities(*): CB, MA, MX, CA, CC
 
-  *MA:2      | *MA:2      | *MA:2      | MB:0      
-  (1)*CA:2   | *CB:4      | CC:0       | CD:0       | NM:0      
-  *CE:4      | CF:0       | CG:0       | CH:0       | NM:0      
+  *MA:1      | *MA:1      | *MA:1      | MB:0      
+  *CA:3      | (1)*CB:4   | *CC:4      | CD:0       | NM:0      
+  CE:0       | CF:0       | CG:0       | CH:0       | NM:0      
   CI:0       | CJ:0       | CK:0       | CL:0       | LA:0      
 
+  TX:0       | US:0       | *MX:2     
 
-  TX:0       | US:0       | *MX:3     
+prep to remove - decrement pending count for newly cached region adjoining domain region (around CC: CB):
+  Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB
+  Cached localities(*): CB, MA, MX, CA, CC
+
+  *MA:1      | *MA:1      | *MA:1      | MB:0      
+  *CA:3      | (1)*CB:3   | *CC:4      | CD:0       | NM:0      
+  CE:0       | CF:0       | CG:0       | CH:0       | NM:0      
+  CI:0       | CJ:0       | CK:0       | CL:0       | LA:0      
+
+  TX:0       | US:0       | *MX:2     
+
+cache single - visiting all regions adjoining a domain region (CF)...
+
+cache single - increment pending count due to adjoining pending region (around CF: CE):
+  Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB
+  Cached localities(*): CB, MA, MX, CA, CC, CF
+
+  *MA:1      | *MA:1      | *MA:1      | MB:0      
+  *CA:3      | (1)*CB:3   | *CC:4      | CD:0       | NM:0      
+  CE:0       | *CF:1      | CG:0       | CH:0       | NM:0      
+  CI:0       | CJ:0       | CK:0       | CL:0       | LA:0      
+
+  TX:0       | US:0       | *MX:2     
+
+cache single - increment pending count due to adjoining pending region (around CF: CG):
+  Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB
+  Cached localities(*): CB, MA, MX, CA, CC, CF
+
+  *MA:1      | *MA:1      | *MA:1      | MB:0      
+  *CA:3      | (1)*CB:3   | *CC:4      | CD:0       | NM:0      
+  CE:0       | *CF:2      | CG:0       | CH:0       | NM:0      
+  CI:0       | CJ:0       | CK:0       | CL:0       | LA:0      
+
+  TX:0       | US:0       | *MX:2     
+
+cache single - increment pending count due to adjoining pending region (around CF: CJ):
+  Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB
+  Cached localities(*): CB, MA, MX, CA, CC, CF
+
+  *MA:1      | *MA:1      | *MA:1      | MB:0      
+  *CA:3      | (1)*CB:3   | *CC:4      | CD:0       | NM:0      
+  CE:0       | *CF:3      | CG:0       | CH:0       | NM:0      
+  CI:0       | CJ:0       | CK:0       | CL:0       | LA:0      
+
+  TX:0       | US:0       | *MX:2     
+
+cache single - increment pending count due to adjoining pending region (around CF: TX):
+  Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB
+  Cached localities(*): CB, MA, MX, CA, CC, CF
+
+  *MA:1      | *MA:1      | *MA:1      | MB:0      
+  *CA:3      | (1)*CB:3   | *CC:4      | CD:0       | NM:0      
+  CE:0       | *CF:4      | CG:0       | CH:0       | NM:0      
+  CI:0       | CJ:0       | CK:0       | CL:0       | LA:0      
+
+  TX:0       | US:0       | *MX:2     
+
+cache single - increment pending count due to adjoining pending region (around CF: US):
+  Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB
+  Cached localities(*): CB, MA, MX, CA, CC, CF
+
+  *MA:1      | *MA:1      | *MA:1      | MB:0      
+  *CA:3      | (1)*CB:3   | *CC:4      | CD:0       | NM:0      
+  CE:0       | *CF:5      | CG:0       | CH:0       | NM:0      
+  CI:0       | CJ:0       | CK:0       | CL:0       | LA:0      
+
+  TX:0       | US:0       | *MX:2     
+
+prep to remove - visiting all regions adjoining a domain region (CF)...
+
+prep to remove - decrement pending count for newly cached region adjoining domain region (around CF: CB):
+  Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB
+  Cached localities(*): CB, MA, MX, CA, CC, CF
+
+  *MA:1      | *MA:1      | *MA:1      | MB:0      
+  *CA:3      | (1)*CB:2   | *CC:4      | CD:0       | NM:0      
+  CE:0       | *CF:5      | CG:0       | CH:0       | NM:0      
+  CI:0       | CJ:0       | CK:0       | CL:0       | LA:0      
+
+  TX:0       | US:0       | *MX:2     
+
+cache single - visiting all regions adjoining a domain region (TX)...
 
 cache single - increment pending count due to adjoining pending region (around TX: MB):
   Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB, NM, LA
-  Cached localities(*): CA, MA, MX, CB, CE, TX
+  Cached localities(*): CB, MA, MX, CA, CC, CF, TX
 
-  *MA:2      | *MA:2      | *MA:2      | MB:0      
-  (1)*CA:2   | *CB:4      | CC:0       | CD:0       | NM:0      
-  *CE:4      | CF:0       | CG:0       | CH:0       | NM:0      
+  *MA:1      | *MA:1      | *MA:1      | MB:0      
+  *CA:3      | (1)*CB:2   | *CC:4      | CD:0       | NM:0      
+  CE:0       | *CF:5      | CG:0       | CH:0       | NM:0      
   CI:0       | CJ:0       | CK:0       | CL:0       | LA:0      
 
-
-  *TX:1      | US:0       | *MX:3     
+  *TX:1      | US:0       | *MX:2     
 
 cache single - increment pending count due to adjoining pending region (around TX: NM):
   Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB, NM, LA
-  Cached localities(*): CA, MA, MX, CB, CE, TX
+  Cached localities(*): CB, MA, MX, CA, CC, CF, TX
 
-  *MA:2      | *MA:2      | *MA:2      | MB:0      
-  (1)*CA:2   | *CB:4      | CC:0       | CD:0       | NM:0      
-  *CE:4      | CF:0       | CG:0       | CH:0       | NM:0      
+  *MA:1      | *MA:1      | *MA:1      | MB:0      
+  *CA:3      | (1)*CB:2   | *CC:4      | CD:0       | NM:0      
+  CE:0       | *CF:5      | CG:0       | CH:0       | NM:0      
   CI:0       | CJ:0       | CK:0       | CL:0       | LA:0      
 
-
-  *TX:2      | US:0       | *MX:3     
+  *TX:2      | US:0       | *MX:2     
 
 cache single - increment pending count due to adjoining pending region (around TX: LA):
   Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB, NM, LA
-  Cached localities(*): CA, MA, MX, CB, CE, TX
+  Cached localities(*): CB, MA, MX, CA, CC, CF, TX
 
-  *MA:2      | *MA:2      | *MA:2      | MB:0      
-  (1)*CA:2   | *CB:4      | CC:0       | CD:0       | NM:0      
-  *CE:4      | CF:0       | CG:0       | CH:0       | NM:0      
+  *MA:1      | *MA:1      | *MA:1      | MB:0      
+  *CA:3      | (1)*CB:2   | *CC:4      | CD:0       | NM:0      
+  CE:0       | *CF:5      | CG:0       | CH:0       | NM:0      
   CI:0       | CJ:0       | CK:0       | CL:0       | LA:0      
 
-
-  *TX:3      | US:0       | *MX:3     
-
-cache single - increment pending count due to adjoining pending region (around TX: CC):
-  Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB, NM, LA
-  Cached localities(*): CA, MA, MX, CB, CE, TX
-
-  *MA:2      | *MA:2      | *MA:2      | MB:0      
-  (1)*CA:2   | *CB:4      | CC:0       | CD:0       | NM:0      
-  *CE:4      | CF:0       | CG:0       | CH:0       | NM:0      
-  CI:0       | CJ:0       | CK:0       | CL:0       | LA:0      
-
-
-  *TX:4      | US:0       | *MX:3     
+  *TX:3      | US:0       | *MX:2     
 
 cache single - increment pending count due to adjoining pending region (around TX: CD):
   Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB, NM, LA
-  Cached localities(*): CA, MA, MX, CB, CE, TX
+  Cached localities(*): CB, MA, MX, CA, CC, CF, TX
 
-  *MA:2      | *MA:2      | *MA:2      | MB:0      
-  (1)*CA:2   | *CB:4      | CC:0       | CD:0       | NM:0      
-  *CE:4      | CF:0       | CG:0       | CH:0       | NM:0      
+  *MA:1      | *MA:1      | *MA:1      | MB:0      
+  *CA:3      | (1)*CB:2   | *CC:4      | CD:0       | NM:0      
+  CE:0       | *CF:5      | CG:0       | CH:0       | NM:0      
   CI:0       | CJ:0       | CK:0       | CL:0       | LA:0      
 
+  *TX:4      | US:0       | *MX:2     
 
-  *TX:5      | US:0       | *MX:3     
-
-cache single - increment pending count due to adjoining pending region (around TX: CF):
+cache single - increment pending count due to adjoining pending region (around TX: CE):
   Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB, NM, LA
-  Cached localities(*): CA, MA, MX, CB, CE, TX
+  Cached localities(*): CB, MA, MX, CA, CC, CF, TX
 
-  *MA:2      | *MA:2      | *MA:2      | MB:0      
-  (1)*CA:2   | *CB:4      | CC:0       | CD:0       | NM:0      
-  *CE:4      | CF:0       | CG:0       | CH:0       | NM:0      
+  *MA:1      | *MA:1      | *MA:1      | MB:0      
+  *CA:3      | (1)*CB:2   | *CC:4      | CD:0       | NM:0      
+  CE:0       | *CF:5      | CG:0       | CH:0       | NM:0      
   CI:0       | CJ:0       | CK:0       | CL:0       | LA:0      
 
-
-  *TX:6      | US:0       | *MX:3     
+  *TX:5      | US:0       | *MX:2     
 
 cache single - increment pending count due to adjoining pending region (around TX: CG):
   Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB, NM, LA
-  Cached localities(*): CA, MA, MX, CB, CE, TX
+  Cached localities(*): CB, MA, MX, CA, CC, CF, TX
 
-  *MA:2      | *MA:2      | *MA:2      | MB:0      
-  (1)*CA:2   | *CB:4      | CC:0       | CD:0       | NM:0      
-  *CE:4      | CF:0       | CG:0       | CH:0       | NM:0      
+  *MA:1      | *MA:1      | *MA:1      | MB:0      
+  *CA:3      | (1)*CB:2   | *CC:4      | CD:0       | NM:0      
+  CE:0       | *CF:5      | CG:0       | CH:0       | NM:0      
   CI:0       | CJ:0       | CK:0       | CL:0       | LA:0      
 
-
-  *TX:7      | US:0       | *MX:3     
+  *TX:6      | US:0       | *MX:2     
 
 cache single - increment pending count due to adjoining pending region (around TX: CH):
   Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB, NM, LA
-  Cached localities(*): CA, MA, MX, CB, CE, TX
+  Cached localities(*): CB, MA, MX, CA, CC, CF, TX
 
-  *MA:2      | *MA:2      | *MA:2      | MB:0      
-  (1)*CA:2   | *CB:4      | CC:0       | CD:0       | NM:0      
-  *CE:4      | CF:0       | CG:0       | CH:0       | NM:0      
+  *MA:1      | *MA:1      | *MA:1      | MB:0      
+  *CA:3      | (1)*CB:2   | *CC:4      | CD:0       | NM:0      
+  CE:0       | *CF:5      | CG:0       | CH:0       | NM:0      
   CI:0       | CJ:0       | CK:0       | CL:0       | LA:0      
 
-
-  *TX:8      | US:0       | *MX:3     
+  *TX:7      | US:0       | *MX:2     
 
 cache single - increment pending count due to adjoining pending region (around TX: CI):
   Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB, NM, LA
-  Cached localities(*): CA, MA, MX, CB, CE, TX
+  Cached localities(*): CB, MA, MX, CA, CC, CF, TX
 
-  *MA:2      | *MA:2      | *MA:2      | MB:0      
-  (1)*CA:2   | *CB:4      | CC:0       | CD:0       | NM:0      
-  *CE:4      | CF:0       | CG:0       | CH:0       | NM:0      
+  *MA:1      | *MA:1      | *MA:1      | MB:0      
+  *CA:3      | (1)*CB:2   | *CC:4      | CD:0       | NM:0      
+  CE:0       | *CF:5      | CG:0       | CH:0       | NM:0      
   CI:0       | CJ:0       | CK:0       | CL:0       | LA:0      
 
-
-  *TX:9      | US:0       | *MX:3     
+  *TX:8      | US:0       | *MX:2     
 
 cache single - increment pending count due to adjoining pending region (around TX: CJ):
   Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB, NM, LA
-  Cached localities(*): CA, MA, MX, CB, CE, TX
+  Cached localities(*): CB, MA, MX, CA, CC, CF, TX
 
-  *MA:2      | *MA:2      | *MA:2      | MB:0      
-  (1)*CA:2   | *CB:4      | CC:0       | CD:0       | NM:0      
-  *CE:4      | CF:0       | CG:0       | CH:0       | NM:0      
+  *MA:1      | *MA:1      | *MA:1      | MB:0      
+  *CA:3      | (1)*CB:2   | *CC:4      | CD:0       | NM:0      
+  CE:0       | *CF:5      | CG:0       | CH:0       | NM:0      
   CI:0       | CJ:0       | CK:0       | CL:0       | LA:0      
 
-
-  *TX:10     | US:0       | *MX:3     
+  *TX:9      | US:0       | *MX:2     
 
 cache single - increment pending count due to adjoining pending region (around TX: CK):
   Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB, NM, LA
-  Cached localities(*): CA, MA, MX, CB, CE, TX
+  Cached localities(*): CB, MA, MX, CA, CC, CF, TX
 
-  *MA:2      | *MA:2      | *MA:2      | MB:0      
-  (1)*CA:2   | *CB:4      | CC:0       | CD:0       | NM:0      
-  *CE:4      | CF:0       | CG:0       | CH:0       | NM:0      
+  *MA:1      | *MA:1      | *MA:1      | MB:0      
+  *CA:3      | (1)*CB:2   | *CC:4      | CD:0       | NM:0      
+  CE:0       | *CF:5      | CG:0       | CH:0       | NM:0      
   CI:0       | CJ:0       | CK:0       | CL:0       | LA:0      
 
-
-  *TX:11     | US:0       | *MX:3     
+  *TX:10     | US:0       | *MX:2     
 
 cache single - increment pending count due to adjoining pending region (around TX: CL):
   Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB, NM, LA
-  Cached localities(*): CA, MA, MX, CB, CE, TX
+  Cached localities(*): CB, MA, MX, CA, CC, CF, TX
 
-  *MA:2      | *MA:2      | *MA:2      | MB:0      
-  (1)*CA:2   | *CB:4      | CC:0       | CD:0       | NM:0      
-  *CE:4      | CF:0       | CG:0       | CH:0       | NM:0      
+  *MA:1      | *MA:1      | *MA:1      | MB:0      
+  *CA:3      | (1)*CB:2   | *CC:4      | CD:0       | NM:0      
+  CE:0       | *CF:5      | CG:0       | CH:0       | NM:0      
   CI:0       | CJ:0       | CK:0       | CL:0       | LA:0      
 
-
-  *TX:12     | US:0       | *MX:3     
+  *TX:11     | US:0       | *MX:2     
 
 cache single - increment pending count due to adjoining pending region (around TX: US):
   Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB, NM, LA
-  Cached localities(*): CA, MA, MX, CB, CE, TX
+  Cached localities(*): CB, MA, MX, CA, CC, CF, TX
 
-  *MA:2      | *MA:2      | *MA:2      | MB:0      
-  (1)*CA:2   | *CB:4      | CC:0       | CD:0       | NM:0      
-  *CE:4      | CF:0       | CG:0       | CH:0       | NM:0      
+  *MA:1      | *MA:1      | *MA:1      | MB:0      
+  *CA:3      | (1)*CB:2   | *CC:4      | CD:0       | NM:0      
+  CE:0       | *CF:5      | CG:0       | CH:0       | NM:0      
   CI:0       | CJ:0       | CK:0       | CL:0       | LA:0      
 
+  *TX:12     | US:0       | *MX:2     
 
-  *TX:13     | US:0       | *MX:3     
+prep to remove - visiting all regions adjoining a domain region (TX)...
 
 prep to remove - decrement pending count for newly cached region adjoining domain region (around TX: MA):
   Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB, NM, LA
-  Cached localities(*): CA, MA, MX, CB, CE, TX
+  Cached localities(*): CB, MA, MX, CA, CC, CF, TX
 
-  *MA:1      | *MA:1      | *MA:1      | MB:0      
-  (1)*CA:2   | *CB:4      | CC:0       | CD:0       | NM:0      
-  *CE:4      | CF:0       | CG:0       | CH:0       | NM:0      
+  *MA:0      | *MA:0      | *MA:0      | MB:0      
+  *CA:3      | (1)*CB:2   | *CC:4      | CD:0       | NM:0      
+  CE:0       | *CF:5      | CG:0       | CH:0       | NM:0      
   CI:0       | CJ:0       | CK:0       | CL:0       | LA:0      
 
-
-  *TX:13     | US:0       | *MX:3     
+  *TX:12     | US:0       | *MX:2     
 
 prep to remove - decrement pending count for newly cached region adjoining domain region (around TX: MX):
   Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB, NM, LA
-  Cached localities(*): CA, MA, MX, CB, CE, TX
+  Cached localities(*): CB, MA, MX, CA, CC, CF, TX
 
-  *MA:1      | *MA:1      | *MA:1      | MB:0      
-  (1)*CA:2   | *CB:4      | CC:0       | CD:0       | NM:0      
-  *CE:4      | CF:0       | CG:0       | CH:0       | NM:0      
+  *MA:0      | *MA:0      | *MA:0      | MB:0      
+  *CA:3      | (1)*CB:2   | *CC:4      | CD:0       | NM:0      
+  CE:0       | *CF:5      | CG:0       | CH:0       | NM:0      
   CI:0       | CJ:0       | CK:0       | CL:0       | LA:0      
 
-
-  *TX:13     | US:0       | *MX:2     
+  *TX:12     | US:0       | *MX:1     
 
 prep to remove - decrement pending count for newly cached region adjoining domain region (around TX: CA):
   Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB, NM, LA
-  Cached localities(*): CA, MA, MX, CB, CE, TX
+  Cached localities(*): CB, MA, MX, CA, CC, CF, TX
 
-  *MA:1      | *MA:1      | *MA:1      | MB:0      
-  (1)*CA:1   | *CB:4      | CC:0       | CD:0       | NM:0      
-  *CE:4      | CF:0       | CG:0       | CH:0       | NM:0      
+  *MA:0      | *MA:0      | *MA:0      | MB:0      
+  *CA:2      | (1)*CB:2   | *CC:4      | CD:0       | NM:0      
+  CE:0       | *CF:5      | CG:0       | CH:0       | NM:0      
   CI:0       | CJ:0       | CK:0       | CL:0       | LA:0      
 
-
-  *TX:13     | US:0       | *MX:2     
+  *TX:12     | US:0       | *MX:1     
 
 prep to remove - decrement pending count for newly cached region adjoining domain region (around TX: CB):
   Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB, NM, LA
-  Cached localities(*): CA, MA, MX, CB, CE, TX
+  Cached localities(*): CB, MA, MX, CA, CC, CF, TX
 
-  *MA:1      | *MA:1      | *MA:1      | MB:0      
-  (1)*CA:1   | *CB:3      | CC:0       | CD:0       | NM:0      
-  *CE:4      | CF:0       | CG:0       | CH:0       | NM:0      
+  *MA:0      | *MA:0      | *MA:0      | MB:0      
+  *CA:2      | (1)*CB:1   | *CC:4      | CD:0       | NM:0      
+  CE:0       | *CF:5      | CG:0       | CH:0       | NM:0      
   CI:0       | CJ:0       | CK:0       | CL:0       | LA:0      
 
+  *TX:12     | US:0       | *MX:1     
 
-  *TX:13     | US:0       | *MX:2     
-
-prep to remove - decrement pending count for newly cached region adjoining domain region (around TX: CE):
+prep to remove - decrement pending count for newly cached region adjoining domain region (around TX: CC):
   Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB, NM, LA
-  Cached localities(*): CA, MA, MX, CB, CE, TX
+  Cached localities(*): CB, MA, MX, CA, CC, CF, TX
 
-  *MA:1      | *MA:1      | *MA:1      | MB:0      
-  (1)*CA:1   | *CB:3      | CC:0       | CD:0       | NM:0      
-  *CE:3      | CF:0       | CG:0       | CH:0       | NM:0      
+  *MA:0      | *MA:0      | *MA:0      | MB:0      
+  *CA:2      | (1)*CB:1   | *CC:3      | CD:0       | NM:0      
+  CE:0       | *CF:5      | CG:0       | CH:0       | NM:0      
   CI:0       | CJ:0       | CK:0       | CL:0       | LA:0      
 
+  *TX:12     | US:0       | *MX:1     
 
-  *TX:13     | US:0       | *MX:2     
-
-Top of loop:
+prep to remove - decrement pending count for newly cached region adjoining domain region (around TX: CF):
   Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB, NM, LA
-  Cached localities(*): CA, MA, MX, CB, CE, TX, US
+  Cached localities(*): CB, MA, MX, CA, CC, CF, TX
 
-  *MA:1      | *MA:1      | *MA:1      | MB:0      
-  (1)CA:1    | *CB:3      | CC:0       | CD:0       | NM:0      
-  *CE:3      | CF:0       | CG:0       | CH:0       | NM:0      
+  *MA:0      | *MA:0      | *MA:0      | MB:0      
+  *CA:2      | (1)*CB:1   | *CC:3      | CD:0       | NM:0      
+  CE:0       | *CF:4      | CG:0       | CH:0       | NM:0      
   CI:0       | CJ:0       | CK:0       | CL:0       | LA:0      
 
+  *TX:12     | US:0       | *MX:1     
 
-  *TX:13     | (2)*US:0   | *MX:2     
+cache single - visiting regions adjacenct to a non-domain region (US)...
 
-Top of loop:
+prep to remove - visiting regions adjacenct to a non-domain region (US)...
+
+### Top of loop:
   Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB, NM, LA
-  Cached localities(*): CA, MA, MX, CB, CE, TX, US
+  Cached localities(*): MA, MX, CA, CC, CF, TX, US
 
-  (3)*MA:1   | (3)*MA:1   | (3)*MA:1   | MB:0      
-  (1)CA:1    | *CB:3      | CC:0       | CD:0       | NM:0      
-  *CE:3      | CF:0       | CG:0       | CH:0       | NM:0      
+  (2)*MA:0   | (2)*MA:0   | (2)*MA:0   | MB:0      
+  *CA:2      | (1)CB:1    | *CC:3      | CD:0       | NM:0      
+  CE:0       | *CF:4      | CG:0       | CH:0       | NM:0      
   CI:0       | CJ:0       | CK:0       | CL:0       | LA:0      
 
+  *TX:12     | *US:0      | *MX:1     
 
-  *TX:13     | (2)US:0    | *MX:2     
-
-cache single - increment pending count due to adjoining pending region (around CC: CD):
+### Top of loop:
   Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB, NM, LA
-  Cached localities(*): CA, MA, MX, CB, CE, TX, US, CC
+  Cached localities(*): MX, CA, CC, CF, TX, US
 
-  (3)*MA:1   | (3)*MA:1   | (3)*MA:1   | MB:0      
-  (1)CA:1    | *CB:3      | *CC:1      | CD:0       | NM:0      
-  *CE:3      | CF:0       | CG:0       | CH:0       | NM:0      
+  (2)MA:0    | (2)MA:0    | (2)MA:0    | MB:0      
+  *CA:2      | (1)CB:1    | *CC:3      | CD:0       | NM:0      
+  CE:0       | *CF:4      | CG:0       | CH:0       | NM:0      
   CI:0       | CJ:0       | CK:0       | CL:0       | LA:0      
 
+  *TX:12     | (3)*US:0   | *MX:1     
 
-  *TX:13     | (2)US:0    | *MX:2     
-
-cache single - increment pending count due to adjoining pending region (around CC: CG):
+### Top of loop:
   Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB, NM, LA
-  Cached localities(*): CA, MA, MX, CB, CE, TX, US, CC
+  Cached localities(*): MX, CA, CC, CF, TX
 
-  (3)*MA:1   | (3)*MA:1   | (3)*MA:1   | MB:0      
-  (1)CA:1    | *CB:3      | *CC:2      | CD:0       | NM:0      
-  *CE:3      | CF:0       | CG:0       | CH:0       | NM:0      
+  (2)MA:0    | (2)MA:0    | (2)MA:0    | MB:0      
+  *CA:2      | (1)CB:1    | *CC:3      | CD:0       | NM:0      
+  CE:0       | *CF:4      | CG:0       | CH:0       | NM:0      
   CI:0       | CJ:0       | CK:0       | CL:0       | LA:0      
 
+  *TX:12     | (3)US:0    | (4)*MX:1  
 
-  *TX:13     | (2)US:0    | *MX:2     
+cache around - visiting regions adjacenct to a non-domain region (MX)...
 
-cache around - decrement pending count for newly cached region adjoining non-domain region (around CC: MA):
-  Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB, NM, LA
-  Cached localities(*): CA, MA, MX, CB, CE, TX, US, CC
-
-  (3)*MA:0   | (3)*MA:0   | (3)*MA:0   | MB:0      
-  (1)CA:1    | *CB:3      | *CC:2      | CD:0       | NM:0      
-  *CE:3      | CF:0       | CG:0       | CH:0       | NM:0      
-  CI:0       | CJ:0       | CK:0       | CL:0       | LA:0      
-
-
-  *TX:13     | (2)US:0    | *MX:2     
-
-cache around - decrement pending count for newly cached region adjoining non-domain region (around CC: MX):
-  Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB, NM, LA
-  Cached localities(*): CA, MA, MX, CB, CE, TX, US, CC
-
-  (3)*MA:0   | (3)*MA:0   | (3)*MA:0   | MB:0      
-  (1)CA:1    | *CB:3      | *CC:2      | CD:0       | NM:0      
-  *CE:3      | CF:0       | CG:0       | CH:0       | NM:0      
-  CI:0       | CJ:0       | CK:0       | CL:0       | LA:0      
-
-
-  *TX:13     | (2)US:0    | *MX:1     
-
-cache around - decrement pending count for newly cached region adjoining non-domain region (around CC: CB):
-  Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB, NM, LA
-  Cached localities(*): CA, MA, MX, CB, CE, TX, US, CC
-
-  (3)*MA:0   | (3)*MA:0   | (3)*MA:0   | MB:0      
-  (1)CA:1    | *CB:2      | *CC:2      | CD:0       | NM:0      
-  *CE:3      | CF:0       | CG:0       | CH:0       | NM:0      
-  CI:0       | CJ:0       | CK:0       | CL:0       | LA:0      
-
-
-  *TX:13     | (2)US:0    | *MX:1     
-
-cache around - decrement pending count for newly cached region adjoining non-domain region (around CC: TX):
-  Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB, NM, LA
-  Cached localities(*): CA, MA, MX, CB, CE, TX, US, CC
-
-  (3)*MA:0   | (3)*MA:0   | (3)*MA:0   | MB:0      
-  (1)CA:1    | *CB:2      | *CC:2      | CD:0       | NM:0      
-  *CE:3      | CF:0       | CG:0       | CH:0       | NM:0      
-  CI:0       | CJ:0       | CK:0       | CL:0       | LA:0      
-
-
-  *TX:12     | (2)US:0    | *MX:1     
-
-Top of loop:
-  Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB, NM, LA
-  Cached localities(*): CA, MA, MX, CB, CE, TX, US, CC
-
-  (3)MA:0    | (3)MA:0    | (3)MA:0    | MB:0      
-  (1)CA:1    | *CB:2      | *CC:2      | CD:0       | NM:0      
-  *CE:3      | CF:0       | CG:0       | CH:0       | NM:0      
-  CI:0       | CJ:0       | CK:0       | CL:0       | LA:0      
-
-
-  *TX:12     | (2)US:0    | (4)*MX:1  
+cache single - visiting all regions adjoining a domain region (CD)...
 
 cache single - increment pending count due to adjoining pending region (around CD: MB):
   Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB, NM, LA
-  Cached localities(*): CA, MA, MX, CB, CE, TX, US, CC, CD
+  Cached localities(*): MX, CA, CC, CF, TX, CD
 
-  (3)MA:0    | (3)MA:0    | (3)MA:0    | MB:0      
-  (1)CA:1    | *CB:2      | *CC:2      | *CD:1      | NM:0      
-  *CE:3      | CF:0       | CG:0       | CH:0       | NM:0      
+  (2)MA:0    | (2)MA:0    | (2)MA:0    | MB:0      
+  *CA:2      | (1)CB:1    | *CC:3      | *CD:1      | NM:0      
+  CE:0       | *CF:4      | CG:0       | CH:0       | NM:0      
   CI:0       | CJ:0       | CK:0       | CL:0       | LA:0      
 
-
-  *TX:12     | (2)US:0    | (4)*MX:1  
+  *TX:12     | (3)US:0    | (4)*MX:1  
 
 cache single - increment pending count due to adjoining pending region (around CD: NM):
   Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB, NM, LA
-  Cached localities(*): CA, MA, MX, CB, CE, TX, US, CC, CD
+  Cached localities(*): MX, CA, CC, CF, TX, CD
 
-  (3)MA:0    | (3)MA:0    | (3)MA:0    | MB:0      
-  (1)CA:1    | *CB:2      | *CC:2      | *CD:2      | NM:0      
-  *CE:3      | CF:0       | CG:0       | CH:0       | NM:0      
+  (2)MA:0    | (2)MA:0    | (2)MA:0    | MB:0      
+  *CA:2      | (1)CB:1    | *CC:3      | *CD:2      | NM:0      
+  CE:0       | *CF:4      | CG:0       | CH:0       | NM:0      
   CI:0       | CJ:0       | CK:0       | CL:0       | LA:0      
 
-
-  *TX:12     | (2)US:0    | (4)*MX:1  
+  *TX:12     | (3)US:0    | (4)*MX:1  
 
 cache single - increment pending count due to adjoining pending region (around CD: CH):
   Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB, NM, LA
-  Cached localities(*): CA, MA, MX, CB, CE, TX, US, CC, CD
+  Cached localities(*): MX, CA, CC, CF, TX, CD
 
-  (3)MA:0    | (3)MA:0    | (3)MA:0    | MB:0      
-  (1)CA:1    | *CB:2      | *CC:2      | *CD:3      | NM:0      
-  *CE:3      | CF:0       | CG:0       | CH:0       | NM:0      
+  (2)MA:0    | (2)MA:0    | (2)MA:0    | MB:0      
+  *CA:2      | (1)CB:1    | *CC:3      | *CD:3      | NM:0      
+  CE:0       | *CF:4      | CG:0       | CH:0       | NM:0      
   CI:0       | CJ:0       | CK:0       | CL:0       | LA:0      
 
-
-  *TX:12     | (2)US:0    | (4)*MX:1  
+  *TX:12     | (3)US:0    | (4)*MX:1  
 
 cache around - decrement pending count for newly cached region adjoining non-domain region (around CD: MX):
   Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB, NM, LA
-  Cached localities(*): CA, MA, MX, CB, CE, TX, US, CC, CD
+  Cached localities(*): MX, CA, CC, CF, TX, CD
 
-  (3)MA:0    | (3)MA:0    | (3)MA:0    | MB:0      
-  (1)CA:1    | *CB:2      | *CC:2      | *CD:3      | NM:0      
-  *CE:3      | CF:0       | CG:0       | CH:0       | NM:0      
+  (2)MA:0    | (2)MA:0    | (2)MA:0    | MB:0      
+  *CA:2      | (1)CB:1    | *CC:3      | *CD:3      | NM:0      
+  CE:0       | *CF:4      | CG:0       | CH:0       | NM:0      
   CI:0       | CJ:0       | CK:0       | CL:0       | LA:0      
 
-
-  *TX:12     | (2)US:0    | (4)*MX:0  
+  *TX:12     | (3)US:0    | (4)*MX:0  
 
 cache around - decrement pending count for newly cached region adjoining non-domain region (around CD: CC):
   Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB, NM, LA
-  Cached localities(*): CA, MA, MX, CB, CE, TX, US, CC, CD
+  Cached localities(*): MX, CA, CC, CF, TX, CD
 
-  (3)MA:0    | (3)MA:0    | (3)MA:0    | MB:0      
-  (1)CA:1    | *CB:2      | *CC:1      | *CD:3      | NM:0      
-  *CE:3      | CF:0       | CG:0       | CH:0       | NM:0      
+  (2)MA:0    | (2)MA:0    | (2)MA:0    | MB:0      
+  *CA:2      | (1)CB:1    | *CC:2      | *CD:3      | NM:0      
+  CE:0       | *CF:4      | CG:0       | CH:0       | NM:0      
   CI:0       | CJ:0       | CK:0       | CL:0       | LA:0      
 
-
-  *TX:12     | (2)US:0    | (4)*MX:0  
+  *TX:12     | (3)US:0    | (4)*MX:0  
 
 cache around - decrement pending count for newly cached region adjoining non-domain region (around CD: TX):
   Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB, NM, LA
-  Cached localities(*): CA, MA, MX, CB, CE, TX, US, CC, CD
+  Cached localities(*): MX, CA, CC, CF, TX, CD
 
-  (3)MA:0    | (3)MA:0    | (3)MA:0    | MB:0      
-  (1)CA:1    | *CB:2      | *CC:1      | *CD:3      | NM:0      
-  *CE:3      | CF:0       | CG:0       | CH:0       | NM:0      
+  (2)MA:0    | (2)MA:0    | (2)MA:0    | MB:0      
+  *CA:2      | (1)CB:1    | *CC:2      | *CD:3      | NM:0      
+  CE:0       | *CF:4      | CG:0       | CH:0       | NM:0      
   CI:0       | CJ:0       | CK:0       | CL:0       | LA:0      
 
+  *TX:11     | (3)US:0    | (4)*MX:0  
 
-  *TX:11     | (2)US:0    | (4)*MX:0  
-
-Top of loop:
+### Top of loop:
   Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB, NM, LA
-  Cached localities(*): CA, MA, MX, CB, CE, TX, US, CC, CD
+  Cached localities(*): CA, CC, CF, TX, CD
 
-  (3)MA:0    | (3)MA:0    | (3)MA:0    | MB:0      
-  (1)CA:1    | *CB:2      | (5)*CC:1   | *CD:3      | NM:0      
-  *CE:3      | CF:0       | CG:0       | CH:0       | NM:0      
+  (2)MA:0    | (2)MA:0    | (2)MA:0    | MB:0      
+  (5)*CA:2   | (1)CB:1    | *CC:2      | *CD:3      | NM:0      
+  CE:0       | *CF:4      | CG:0       | CH:0       | NM:0      
   CI:0       | CJ:0       | CK:0       | CL:0       | LA:0      
 
+  *TX:11     | (3)US:0    | (4)MX:0   
 
-  *TX:11     | (2)US:0    | (4)MX:0   
+cache around - visiting all regions adjoining a domain region (CA)...
 
-cache single - increment pending count due to adjoining pending region (around CG: CF):
+cache single - visiting all regions adjoining a domain region (CE)...
+
+cache single - increment pending count due to adjoining pending region (around CE: CI):
   Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB, NM, LA
-  Cached localities(*): CA, MA, MX, CB, CE, TX, US, CC, CD, CG
+  Cached localities(*): CA, CC, CF, TX, CD, CE
 
-  (3)MA:0    | (3)MA:0    | (3)MA:0    | MB:0      
-  (1)CA:1    | *CB:2      | (5)*CC:1   | *CD:3      | NM:0      
-  *CE:3      | CF:0       | *CG:1      | CH:0       | NM:0      
+  (2)MA:0    | (2)MA:0    | (2)MA:0    | MB:0      
+  (5)*CA:2   | (1)CB:1    | *CC:2      | *CD:3      | NM:0      
+  *CE:1      | *CF:4      | CG:0       | CH:0       | NM:0      
   CI:0       | CJ:0       | CK:0       | CL:0       | LA:0      
 
+  *TX:11     | (3)US:0    | (4)MX:0   
 
-  *TX:11     | (2)US:0    | (4)MX:0   
+prep to remove - visiting all regions adjoining a domain region (CE)...
 
-cache single - increment pending count due to adjoining pending region (around CG: CH):
+prep to remove - decrement pending count for newly cached region adjoining domain region (around CE: CA):
   Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB, NM, LA
-  Cached localities(*): CA, MA, MX, CB, CE, TX, US, CC, CD, CG
+  Cached localities(*): CA, CC, CF, TX, CD, CE
 
-  (3)MA:0    | (3)MA:0    | (3)MA:0    | MB:0      
-  (1)CA:1    | *CB:2      | (5)*CC:1   | *CD:3      | NM:0      
-  *CE:3      | CF:0       | *CG:2      | CH:0       | NM:0      
+  (2)MA:0    | (2)MA:0    | (2)MA:0    | MB:0      
+  (5)*CA:1   | (1)CB:1    | *CC:2      | *CD:3      | NM:0      
+  *CE:1      | *CF:4      | CG:0       | CH:0       | NM:0      
   CI:0       | CJ:0       | CK:0       | CL:0       | LA:0      
 
+  *TX:11     | (3)US:0    | (4)MX:0   
 
-  *TX:11     | (2)US:0    | (4)MX:0   
-
-cache single - increment pending count due to adjoining pending region (around CG: CK):
+prep to remove - decrement pending count for newly cached region adjoining domain region (around CE: CF):
   Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB, NM, LA
-  Cached localities(*): CA, MA, MX, CB, CE, TX, US, CC, CD, CG
+  Cached localities(*): CA, CC, CF, TX, CD, CE
 
-  (3)MA:0    | (3)MA:0    | (3)MA:0    | MB:0      
-  (1)CA:1    | *CB:2      | (5)*CC:1   | *CD:3      | NM:0      
-  *CE:3      | CF:0       | *CG:3      | CH:0       | NM:0      
+  (2)MA:0    | (2)MA:0    | (2)MA:0    | MB:0      
+  (5)*CA:1   | (1)CB:1    | *CC:2      | *CD:3      | NM:0      
+  *CE:1      | *CF:3      | CG:0       | CH:0       | NM:0      
   CI:0       | CJ:0       | CK:0       | CL:0       | LA:0      
 
+  *TX:11     | (3)US:0    | (4)MX:0   
 
-  *TX:11     | (2)US:0    | (4)MX:0   
-
-prep to remove - decrement pending count for newly cached region adjoining domain region (around CG: CC):
+prep to remove - decrement pending count for newly cached region adjoining domain region (around CE: TX):
   Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB, NM, LA
-  Cached localities(*): CA, MA, MX, CB, CE, TX, US, CC, CD, CG
+  Cached localities(*): CA, CC, CF, TX, CD, CE
 
-  (3)MA:0    | (3)MA:0    | (3)MA:0    | MB:0      
-  (1)CA:1    | *CB:2      | (5)*CC:0   | *CD:3      | NM:0      
-  *CE:3      | CF:0       | *CG:3      | CH:0       | NM:0      
+  (2)MA:0    | (2)MA:0    | (2)MA:0    | MB:0      
+  (5)*CA:1   | (1)CB:1    | *CC:2      | *CD:3      | NM:0      
+  *CE:1      | *CF:3      | CG:0       | CH:0       | NM:0      
   CI:0       | CJ:0       | CK:0       | CL:0       | LA:0      
 
+  *TX:10     | (3)US:0    | (4)MX:0   
 
-  *TX:11     | (2)US:0    | (4)MX:0   
-
-prep to remove - decrement pending count for newly cached region adjoining domain region (around CG: TX):
+### Top of loop:
   Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB, NM, LA
-  Cached localities(*): CA, MA, MX, CB, CE, TX, US, CC, CD, CG
+  Cached localities(*): CC, CF, TX, CD, CE
 
-  (3)MA:0    | (3)MA:0    | (3)MA:0    | MB:0      
-  (1)CA:1    | *CB:2      | (5)*CC:0   | *CD:3      | NM:0      
-  *CE:3      | CF:0       | *CG:3      | CH:0       | NM:0      
+  (2)MA:0    | (2)MA:0    | (2)MA:0    | MB:0      
+  (5)CA:1    | (1)CB:1    | *CC:2      | *CD:3      | NM:0      
+  (6)*CE:1   | *CF:3      | CG:0       | CH:0       | NM:0      
   CI:0       | CJ:0       | CK:0       | CL:0       | LA:0      
 
+  *TX:10     | (3)US:0    | (4)MX:0   
 
-  *TX:10     | (2)US:0    | (4)MX:0   
+cache around - visiting all regions adjoining a domain region (CE)...
 
-Top of loop:
+cache single - visiting all regions adjoining a domain region (CI)...
+
+cache single - increment pending count due to adjoining pending region (around CI: CJ):
   Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB, NM, LA
-  Cached localities(*): CA, MA, MX, CB, CE, TX, US, CC, CD, CG
+  Cached localities(*): CC, CF, TX, CD, CE, CI
 
-  (3)MA:0    | (3)MA:0    | (3)MA:0    | MB:0      
-  (1)CA:1    | (6)*CB:2   | (5)CC:0    | *CD:3      | NM:0      
-  *CE:3      | CF:0       | *CG:3      | CH:0       | NM:0      
-  CI:0       | CJ:0       | CK:0       | CL:0       | LA:0      
+  (2)MA:0    | (2)MA:0    | (2)MA:0    | MB:0      
+  (5)CA:1    | (1)CB:1    | *CC:2      | *CD:3      | NM:0      
+  (6)*CE:1   | *CF:3      | CG:0       | CH:0       | NM:0      
+  *CI:1      | CJ:0       | CK:0       | CL:0       | LA:0      
 
+  *TX:10     | (3)US:0    | (4)MX:0   
 
-  *TX:10     | (2)US:0    | (4)MX:0   
-
-cache single - increment pending count due to adjoining pending region (around CF: CJ):
-  Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB, NM, LA
-  Cached localities(*): CA, MA, MX, CB, CE, TX, US, CC, CD, CG, CF
-
-  (3)MA:0    | (3)MA:0    | (3)MA:0    | MB:0      
-  (1)CA:1    | (6)*CB:2   | (5)CC:0    | *CD:3      | NM:0      
-  *CE:3      | *CF:1      | *CG:3      | CH:0       | NM:0      
-  CI:0       | CJ:0       | CK:0       | CL:0       | LA:0      
-
-
-  *TX:10     | (2)US:0    | (4)MX:0   
-
-prep to remove - decrement pending count for newly cached region adjoining domain region (around CF: CB):
-  Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB, NM, LA
-  Cached localities(*): CA, MA, MX, CB, CE, TX, US, CC, CD, CG, CF
-
-  (3)MA:0    | (3)MA:0    | (3)MA:0    | MB:0      
-  (1)CA:1    | (6)*CB:1   | (5)CC:0    | *CD:3      | NM:0      
-  *CE:3      | *CF:1      | *CG:3      | CH:0       | NM:0      
-  CI:0       | CJ:0       | CK:0       | CL:0       | LA:0      
-
-
-  *TX:10     | (2)US:0    | (4)MX:0   
-
-prep to remove - decrement pending count for newly cached region adjoining domain region (around CF: CE):
-  Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB, NM, LA
-  Cached localities(*): CA, MA, MX, CB, CE, TX, US, CC, CD, CG, CF
-
-  (3)MA:0    | (3)MA:0    | (3)MA:0    | MB:0      
-  (1)CA:1    | (6)*CB:1   | (5)CC:0    | *CD:3      | NM:0      
-  *CE:2      | *CF:1      | *CG:3      | CH:0       | NM:0      
-  CI:0       | CJ:0       | CK:0       | CL:0       | LA:0      
-
-
-  *TX:10     | (2)US:0    | (4)MX:0   
-
-prep to remove - decrement pending count for newly cached region adjoining domain region (around CF: CG):
-  Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB, NM, LA
-  Cached localities(*): CA, MA, MX, CB, CE, TX, US, CC, CD, CG, CF
-
-  (3)MA:0    | (3)MA:0    | (3)MA:0    | MB:0      
-  (1)CA:1    | (6)*CB:1   | (5)CC:0    | *CD:3      | NM:0      
-  *CE:2      | *CF:1      | *CG:2      | CH:0       | NM:0      
-  CI:0       | CJ:0       | CK:0       | CL:0       | LA:0      
-
-
-  *TX:10     | (2)US:0    | (4)MX:0   
-
-prep to remove - decrement pending count for newly cached region adjoining domain region (around CF: TX):
-  Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB, NM, LA
-  Cached localities(*): CA, MA, MX, CB, CE, TX, US, CC, CD, CG, CF
-
-  (3)MA:0    | (3)MA:0    | (3)MA:0    | MB:0      
-  (1)CA:1    | (6)*CB:1   | (5)CC:0    | *CD:3      | NM:0      
-  *CE:2      | *CF:1      | *CG:2      | CH:0       | NM:0      
-  CI:0       | CJ:0       | CK:0       | CL:0       | LA:0      
-
-
-  *TX:9      | (2)US:0    | (4)MX:0   
-
-Top of loop:
-  Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB, NM, LA
-  Cached localities(*): CA, MA, MX, CB, CE, TX, US, CC, CD, CG, CF
-
-  (3)MA:0    | (3)MA:0    | (3)MA:0    | MB:0      
-  (1)CA:1    | (6)CB:1    | (5)CC:0    | *CD:3      | NM:0      
-  *CE:2      | (7)*CF:1   | *CG:2      | CH:0       | NM:0      
-  CI:0       | CJ:0       | CK:0       | CL:0       | LA:0      
-
-
-  *TX:9      | (2)US:0    | (4)MX:0   
-
-cache single - increment pending count due to adjoining pending region (around CJ: CI):
-  Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB, NM, LA
-  Cached localities(*): CA, MA, MX, CB, CE, TX, US, CC, CD, CG, CF, CJ
-
-  (3)MA:0    | (3)MA:0    | (3)MA:0    | MB:0      
-  (1)CA:1    | (6)CB:1    | (5)CC:0    | *CD:3      | NM:0      
-  *CE:2      | (7)*CF:1   | *CG:2      | CH:0       | NM:0      
-  CI:0       | *CJ:1      | CK:0       | CL:0       | LA:0      
-
-
-  *TX:9      | (2)US:0    | (4)MX:0   
-
-cache single - increment pending count due to adjoining pending region (around CJ: CK):
-  Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB, NM, LA
-  Cached localities(*): CA, MA, MX, CB, CE, TX, US, CC, CD, CG, CF, CJ
-
-  (3)MA:0    | (3)MA:0    | (3)MA:0    | MB:0      
-  (1)CA:1    | (6)CB:1    | (5)CC:0    | *CD:3      | NM:0      
-  *CE:2      | (7)*CF:1   | *CG:2      | CH:0       | NM:0      
-  CI:0       | *CJ:2      | CK:0       | CL:0       | LA:0      
-
-
-  *TX:9      | (2)US:0    | (4)MX:0   
-
-prep to remove - decrement pending count for newly cached region adjoining domain region (around CJ: CF):
-  Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB, NM, LA
-  Cached localities(*): CA, MA, MX, CB, CE, TX, US, CC, CD, CG, CF, CJ
-
-  (3)MA:0    | (3)MA:0    | (3)MA:0    | MB:0      
-  (1)CA:1    | (6)CB:1    | (5)CC:0    | *CD:3      | NM:0      
-  *CE:2      | (7)*CF:0   | *CG:2      | CH:0       | NM:0      
-  CI:0       | *CJ:2      | CK:0       | CL:0       | LA:0      
-
-
-  *TX:9      | (2)US:0    | (4)MX:0   
-
-prep to remove - decrement pending count for newly cached region adjoining domain region (around CJ: TX):
-  Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB, NM, LA
-  Cached localities(*): CA, MA, MX, CB, CE, TX, US, CC, CD, CG, CF, CJ
-
-  (3)MA:0    | (3)MA:0    | (3)MA:0    | MB:0      
-  (1)CA:1    | (6)CB:1    | (5)CC:0    | *CD:3      | NM:0      
-  *CE:2      | (7)*CF:0   | *CG:2      | CH:0       | NM:0      
-  CI:0       | *CJ:2      | CK:0       | CL:0       | LA:0      
-
-
-  *TX:8      | (2)US:0    | (4)MX:0   
-
-Top of loop:
-  Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB, NM, LA
-  Cached localities(*): CA, MA, MX, CB, CE, TX, US, CC, CD, CG, CF, CJ
-
-  (3)MA:0    | (3)MA:0    | (3)MA:0    | MB:0      
-  (1)CA:1    | (6)CB:1    | (5)CC:0    | *CD:3      | NM:0      
-  (8)*CE:2   | (7)CF:0    | *CG:2      | CH:0       | NM:0      
-  CI:0       | *CJ:2      | CK:0       | CL:0       | LA:0      
-
-
-  *TX:8      | (2)US:0    | (4)MX:0   
+prep to remove - visiting all regions adjoining a domain region (CI)...
 
 prep to remove - decrement pending count for newly cached region adjoining domain region (around CI: CE):
   Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB, NM, LA
-  Cached localities(*): CA, MA, MX, CB, CE, TX, US, CC, CD, CG, CF, CJ, CI
+  Cached localities(*): CC, CF, TX, CD, CE, CI
 
-  (3)MA:0    | (3)MA:0    | (3)MA:0    | MB:0      
-  (1)CA:1    | (6)CB:1    | (5)CC:0    | *CD:3      | NM:0      
-  (8)*CE:1   | (7)CF:0    | *CG:2      | CH:0       | NM:0      
-  *CI:0      | *CJ:2      | CK:0       | CL:0       | LA:0      
+  (2)MA:0    | (2)MA:0    | (2)MA:0    | MB:0      
+  (5)CA:1    | (1)CB:1    | *CC:2      | *CD:3      | NM:0      
+  (6)*CE:0   | *CF:3      | CG:0       | CH:0       | NM:0      
+  *CI:1      | CJ:0       | CK:0       | CL:0       | LA:0      
 
-
-  *TX:8      | (2)US:0    | (4)MX:0   
-
-prep to remove - decrement pending count for newly cached region adjoining domain region (around CI: CJ):
-  Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB, NM, LA
-  Cached localities(*): CA, MA, MX, CB, CE, TX, US, CC, CD, CG, CF, CJ, CI
-
-  (3)MA:0    | (3)MA:0    | (3)MA:0    | MB:0      
-  (1)CA:1    | (6)CB:1    | (5)CC:0    | *CD:3      | NM:0      
-  (8)*CE:1   | (7)CF:0    | *CG:2      | CH:0       | NM:0      
-  *CI:0      | *CJ:1      | CK:0       | CL:0       | LA:0      
-
-
-  *TX:8      | (2)US:0    | (4)MX:0   
+  *TX:10     | (3)US:0    | (4)MX:0   
 
 prep to remove - decrement pending count for newly cached region adjoining domain region (around CI: TX):
   Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB, NM, LA
-  Cached localities(*): CA, MA, MX, CB, CE, TX, US, CC, CD, CG, CF, CJ, CI
+  Cached localities(*): CC, CF, TX, CD, CE, CI
 
-  (3)MA:0    | (3)MA:0    | (3)MA:0    | MB:0      
-  (1)CA:1    | (6)CB:1    | (5)CC:0    | *CD:3      | NM:0      
-  (8)*CE:1   | (7)CF:0    | *CG:2      | CH:0       | NM:0      
-  *CI:0      | *CJ:1      | CK:0       | CL:0       | LA:0      
+  (2)MA:0    | (2)MA:0    | (2)MA:0    | MB:0      
+  (5)CA:1    | (1)CB:1    | *CC:2      | *CD:3      | NM:0      
+  (6)*CE:0   | *CF:3      | CG:0       | CH:0       | NM:0      
+  *CI:1      | CJ:0       | CK:0       | CL:0       | LA:0      
 
+  *TX:9      | (3)US:0    | (4)MX:0   
 
-  *TX:7      | (2)US:0    | (4)MX:0   
-
-Top of loop:
+### Top of loop:
   Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB, NM, LA
-  Cached localities(*): CA, MA, MX, CB, CE, TX, US, CC, CD, CG, CF, CJ, CI
+  Cached localities(*): CC, CF, TX, CD, CI
 
-  (3)MA:0    | (3)MA:0    | (3)MA:0    | MB:0      
-  (1)CA:1    | (6)CB:1    | (5)CC:0    | *CD:3      | NM:0      
-  (8)CE:1    | (7)CF:0    | *CG:2      | CH:0       | NM:0      
-  (9)*CI:0   | *CJ:1      | CK:0       | CL:0       | LA:0      
+  (2)MA:0    | (2)MA:0    | (2)MA:0    | MB:0      
+  (5)CA:1    | (1)CB:1    | *CC:2      | *CD:3      | NM:0      
+  (6)CE:0    | *CF:3      | CG:0       | CH:0       | NM:0      
+  (7)*CI:1   | CJ:0       | CK:0       | CL:0       | LA:0      
 
+  *TX:9      | (3)US:0    | (4)MX:0   
 
-  *TX:7      | (2)US:0    | (4)MX:0   
+cache around - visiting all regions adjoining a domain region (CI)...
 
-Top of loop:
+cache single - visiting all regions adjoining a domain region (CJ)...
+
+cache single - increment pending count due to adjoining pending region (around CJ: CK):
   Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB, NM, LA
-  Cached localities(*): CA, MA, MX, CB, CE, TX, US, CC, CD, CG, CF, CJ, CI
+  Cached localities(*): CC, CF, TX, CD, CI, CJ
 
-  (3)MA:0    | (3)MA:0    | (3)MA:0    | MB:0      
-  (1)CA:1    | (6)CB:1    | (5)CC:0    | *CD:3      | NM:0      
-  (8)CE:1    | (7)CF:0    | *CG:2      | CH:0       | NM:0      
-  (9)CI:0    | (10)*CJ:1  | CK:0       | CL:0       | LA:0      
+  (2)MA:0    | (2)MA:0    | (2)MA:0    | MB:0      
+  (5)CA:1    | (1)CB:1    | *CC:2      | *CD:3      | NM:0      
+  (6)CE:0    | *CF:3      | CG:0       | CH:0       | NM:0      
+  (7)*CI:1   | *CJ:1      | CK:0       | CL:0       | LA:0      
 
+  *TX:9      | (3)US:0    | (4)MX:0   
 
-  *TX:7      | (2)US:0    | (4)MX:0   
+prep to remove - visiting all regions adjoining a domain region (CJ)...
+
+prep to remove - decrement pending count for newly cached region adjoining domain region (around CJ: CF):
+  Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB, NM, LA
+  Cached localities(*): CC, CF, TX, CD, CI, CJ
+
+  (2)MA:0    | (2)MA:0    | (2)MA:0    | MB:0      
+  (5)CA:1    | (1)CB:1    | *CC:2      | *CD:3      | NM:0      
+  (6)CE:0    | *CF:2      | CG:0       | CH:0       | NM:0      
+  (7)*CI:1   | *CJ:1      | CK:0       | CL:0       | LA:0      
+
+  *TX:9      | (3)US:0    | (4)MX:0   
+
+prep to remove - decrement pending count for newly cached region adjoining domain region (around CJ: CI):
+  Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB, NM, LA
+  Cached localities(*): CC, CF, TX, CD, CI, CJ
+
+  (2)MA:0    | (2)MA:0    | (2)MA:0    | MB:0      
+  (5)CA:1    | (1)CB:1    | *CC:2      | *CD:3      | NM:0      
+  (6)CE:0    | *CF:2      | CG:0       | CH:0       | NM:0      
+  (7)*CI:0   | *CJ:1      | CK:0       | CL:0       | LA:0      
+
+  *TX:9      | (3)US:0    | (4)MX:0   
+
+prep to remove - decrement pending count for newly cached region adjoining domain region (around CJ: TX):
+  Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB, NM, LA
+  Cached localities(*): CC, CF, TX, CD, CI, CJ
+
+  (2)MA:0    | (2)MA:0    | (2)MA:0    | MB:0      
+  (5)CA:1    | (1)CB:1    | *CC:2      | *CD:3      | NM:0      
+  (6)CE:0    | *CF:2      | CG:0       | CH:0       | NM:0      
+  (7)*CI:0   | *CJ:1      | CK:0       | CL:0       | LA:0      
+
+  *TX:8      | (3)US:0    | (4)MX:0   
+
+### Top of loop:
+  Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB, NM, LA
+  Cached localities(*): CC, CF, TX, CD, CJ
+
+  (2)MA:0    | (2)MA:0    | (2)MA:0    | MB:0      
+  (5)CA:1    | (1)CB:1    | *CC:2      | *CD:3      | NM:0      
+  (6)CE:0    | *CF:2      | CG:0       | CH:0       | NM:0      
+  (7)CI:0    | (8)*CJ:1   | CK:0       | CL:0       | LA:0      
+
+  *TX:8      | (3)US:0    | (4)MX:0   
+
+cache around - visiting all regions adjoining a domain region (CJ)...
+
+cache single - visiting all regions adjoining a domain region (CK)...
+
+cache single - increment pending count due to adjoining pending region (around CK: CG):
+  Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB, NM, LA
+  Cached localities(*): CC, CF, TX, CD, CJ, CK
+
+  (2)MA:0    | (2)MA:0    | (2)MA:0    | MB:0      
+  (5)CA:1    | (1)CB:1    | *CC:2      | *CD:3      | NM:0      
+  (6)CE:0    | *CF:2      | CG:0       | CH:0       | NM:0      
+  (7)CI:0    | (8)*CJ:1   | *CK:1      | CL:0       | LA:0      
+
+  *TX:8      | (3)US:0    | (4)MX:0   
 
 cache single - increment pending count due to adjoining pending region (around CK: CL):
   Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB, NM, LA
-  Cached localities(*): CA, MA, MX, CB, CE, TX, US, CC, CD, CG, CF, CJ, CI, CK
+  Cached localities(*): CC, CF, TX, CD, CJ, CK
 
-  (3)MA:0    | (3)MA:0    | (3)MA:0    | MB:0      
-  (1)CA:1    | (6)CB:1    | (5)CC:0    | *CD:3      | NM:0      
-  (8)CE:1    | (7)CF:0    | *CG:2      | CH:0       | NM:0      
-  (9)CI:0    | (10)*CJ:1  | *CK:1      | CL:0       | LA:0      
+  (2)MA:0    | (2)MA:0    | (2)MA:0    | MB:0      
+  (5)CA:1    | (1)CB:1    | *CC:2      | *CD:3      | NM:0      
+  (6)CE:0    | *CF:2      | CG:0       | CH:0       | NM:0      
+  (7)CI:0    | (8)*CJ:1   | *CK:2      | CL:0       | LA:0      
 
+  *TX:8      | (3)US:0    | (4)MX:0   
 
-  *TX:7      | (2)US:0    | (4)MX:0   
-
-prep to remove - decrement pending count for newly cached region adjoining domain region (around CK: CG):
-  Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB, NM, LA
-  Cached localities(*): CA, MA, MX, CB, CE, TX, US, CC, CD, CG, CF, CJ, CI, CK
-
-  (3)MA:0    | (3)MA:0    | (3)MA:0    | MB:0      
-  (1)CA:1    | (6)CB:1    | (5)CC:0    | *CD:3      | NM:0      
-  (8)CE:1    | (7)CF:0    | *CG:1      | CH:0       | NM:0      
-  (9)CI:0    | (10)*CJ:1  | *CK:1      | CL:0       | LA:0      
-
-
-  *TX:7      | (2)US:0    | (4)MX:0   
+prep to remove - visiting all regions adjoining a domain region (CK)...
 
 prep to remove - decrement pending count for newly cached region adjoining domain region (around CK: CJ):
   Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB, NM, LA
-  Cached localities(*): CA, MA, MX, CB, CE, TX, US, CC, CD, CG, CF, CJ, CI, CK
+  Cached localities(*): CC, CF, TX, CD, CJ, CK
 
-  (3)MA:0    | (3)MA:0    | (3)MA:0    | MB:0      
-  (1)CA:1    | (6)CB:1    | (5)CC:0    | *CD:3      | NM:0      
-  (8)CE:1    | (7)CF:0    | *CG:1      | CH:0       | NM:0      
-  (9)CI:0    | (10)*CJ:0  | *CK:1      | CL:0       | LA:0      
+  (2)MA:0    | (2)MA:0    | (2)MA:0    | MB:0      
+  (5)CA:1    | (1)CB:1    | *CC:2      | *CD:3      | NM:0      
+  (6)CE:0    | *CF:2      | CG:0       | CH:0       | NM:0      
+  (7)CI:0    | (8)*CJ:0   | *CK:2      | CL:0       | LA:0      
 
-
-  *TX:7      | (2)US:0    | (4)MX:0   
+  *TX:8      | (3)US:0    | (4)MX:0   
 
 prep to remove - decrement pending count for newly cached region adjoining domain region (around CK: TX):
   Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB, NM, LA
-  Cached localities(*): CA, MA, MX, CB, CE, TX, US, CC, CD, CG, CF, CJ, CI, CK
+  Cached localities(*): CC, CF, TX, CD, CJ, CK
 
-  (3)MA:0    | (3)MA:0    | (3)MA:0    | MB:0      
-  (1)CA:1    | (6)CB:1    | (5)CC:0    | *CD:3      | NM:0      
-  (8)CE:1    | (7)CF:0    | *CG:1      | CH:0       | NM:0      
-  (9)CI:0    | (10)*CJ:0  | *CK:1      | CL:0       | LA:0      
+  (2)MA:0    | (2)MA:0    | (2)MA:0    | MB:0      
+  (5)CA:1    | (1)CB:1    | *CC:2      | *CD:3      | NM:0      
+  (6)CE:0    | *CF:2      | CG:0       | CH:0       | NM:0      
+  (7)CI:0    | (8)*CJ:0   | *CK:2      | CL:0       | LA:0      
 
+  *TX:7      | (3)US:0    | (4)MX:0   
 
-  *TX:6      | (2)US:0    | (4)MX:0   
-
-Top of loop:
+### Top of loop:
   Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB, NM, LA
-  Cached localities(*): CA, MA, MX, CB, CE, TX, US, CC, CD, CG, CF, CJ, CI, CK
+  Cached localities(*): CC, CF, TX, CD, CK
 
-  (3)MA:0    | (3)MA:0    | (3)MA:0    | MB:0      
-  (1)CA:1    | (6)CB:1    | (5)CC:0    | *CD:3      | NM:0      
-  (8)CE:1    | (7)CF:0    | (11)*CG:1  | CH:0       | NM:0      
-  (9)CI:0    | (10)CJ:0   | *CK:1      | CL:0       | LA:0      
+  (2)MA:0    | (2)MA:0    | (2)MA:0    | MB:0      
+  (5)CA:1    | (1)CB:1    | (9)*CC:2   | *CD:3      | NM:0      
+  (6)CE:0    | *CF:2      | CG:0       | CH:0       | NM:0      
+  (7)CI:0    | (8)CJ:0    | *CK:2      | CL:0       | LA:0      
 
+  *TX:7      | (3)US:0    | (4)MX:0   
 
-  *TX:6      | (2)US:0    | (4)MX:0   
+cache around - visiting all regions adjoining a domain region (CC)...
+
+cache single - visiting all regions adjoining a domain region (CG)...
+
+cache single - increment pending count due to adjoining pending region (around CG: CH):
+  Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB, NM, LA
+  Cached localities(*): CC, CF, TX, CD, CK, CG
+
+  (2)MA:0    | (2)MA:0    | (2)MA:0    | MB:0      
+  (5)CA:1    | (1)CB:1    | (9)*CC:2   | *CD:3      | NM:0      
+  (6)CE:0    | *CF:2      | *CG:1      | CH:0       | NM:0      
+  (7)CI:0    | (8)CJ:0    | *CK:2      | CL:0       | LA:0      
+
+  *TX:7      | (3)US:0    | (4)MX:0   
+
+prep to remove - visiting all regions adjoining a domain region (CG)...
+
+prep to remove - decrement pending count for newly cached region adjoining domain region (around CG: CC):
+  Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB, NM, LA
+  Cached localities(*): CC, CF, TX, CD, CK, CG
+
+  (2)MA:0    | (2)MA:0    | (2)MA:0    | MB:0      
+  (5)CA:1    | (1)CB:1    | (9)*CC:1   | *CD:3      | NM:0      
+  (6)CE:0    | *CF:2      | *CG:1      | CH:0       | NM:0      
+  (7)CI:0    | (8)CJ:0    | *CK:2      | CL:0       | LA:0      
+
+  *TX:7      | (3)US:0    | (4)MX:0   
+
+prep to remove - decrement pending count for newly cached region adjoining domain region (around CG: CF):
+  Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB, NM, LA
+  Cached localities(*): CC, CF, TX, CD, CK, CG
+
+  (2)MA:0    | (2)MA:0    | (2)MA:0    | MB:0      
+  (5)CA:1    | (1)CB:1    | (9)*CC:1   | *CD:3      | NM:0      
+  (6)CE:0    | *CF:1      | *CG:1      | CH:0       | NM:0      
+  (7)CI:0    | (8)CJ:0    | *CK:2      | CL:0       | LA:0      
+
+  *TX:7      | (3)US:0    | (4)MX:0   
+
+prep to remove - decrement pending count for newly cached region adjoining domain region (around CG: CK):
+  Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB, NM, LA
+  Cached localities(*): CC, CF, TX, CD, CK, CG
+
+  (2)MA:0    | (2)MA:0    | (2)MA:0    | MB:0      
+  (5)CA:1    | (1)CB:1    | (9)*CC:1   | *CD:3      | NM:0      
+  (6)CE:0    | *CF:1      | *CG:1      | CH:0       | NM:0      
+  (7)CI:0    | (8)CJ:0    | *CK:1      | CL:0       | LA:0      
+
+  *TX:7      | (3)US:0    | (4)MX:0   
+
+prep to remove - decrement pending count for newly cached region adjoining domain region (around CG: TX):
+  Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB, NM, LA
+  Cached localities(*): CC, CF, TX, CD, CK, CG
+
+  (2)MA:0    | (2)MA:0    | (2)MA:0    | MB:0      
+  (5)CA:1    | (1)CB:1    | (9)*CC:1   | *CD:3      | NM:0      
+  (6)CE:0    | *CF:1      | *CG:1      | CH:0       | NM:0      
+  (7)CI:0    | (8)CJ:0    | *CK:1      | CL:0       | LA:0      
+
+  *TX:6      | (3)US:0    | (4)MX:0   
+
+### Top of loop:
+  Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB, NM, LA
+  Cached localities(*): CF, TX, CD, CK, CG
+
+  (2)MA:0    | (2)MA:0    | (2)MA:0    | MB:0      
+  (5)CA:1    | (1)CB:1    | (9)CC:1    | *CD:3      | NM:0      
+  (6)CE:0    | (10)*CF:1  | *CG:1      | CH:0       | NM:0      
+  (7)CI:0    | (8)CJ:0    | *CK:1      | CL:0       | LA:0      
+
+  *TX:6      | (3)US:0    | (4)MX:0   
+
+cache around - visiting all regions adjoining a domain region (CF)...
+
+### Top of loop:
+  Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB, NM, LA
+  Cached localities(*): TX, CD, CK, CG
+
+  (2)MA:0    | (2)MA:0    | (2)MA:0    | MB:0      
+  (5)CA:1    | (1)CB:1    | (9)CC:1    | *CD:3      | NM:0      
+  (6)CE:0    | (10)CF:1   | (11)*CG:1  | CH:0       | NM:0      
+  (7)CI:0    | (8)CJ:0    | *CK:1      | CL:0       | LA:0      
+
+  *TX:6      | (3)US:0    | (4)MX:0   
+
+cache around - visiting all regions adjoining a domain region (CG)...
+
+cache single - visiting all regions adjoining a domain region (CH)...
 
 cache single - increment pending count due to adjoining pending region (around CH: NM):
   Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB, NM, LA
-  Cached localities(*): CA, MA, MX, CB, CE, TX, US, CC, CD, CG, CF, CJ, CI, CK, CH
+  Cached localities(*): TX, CD, CK, CG, CH
 
-  (3)MA:0    | (3)MA:0    | (3)MA:0    | MB:0      
-  (1)CA:1    | (6)CB:1    | (5)CC:0    | *CD:3      | NM:0      
-  (8)CE:1    | (7)CF:0    | (11)*CG:1  | *CH:1      | NM:0      
-  (9)CI:0    | (10)CJ:0   | *CK:1      | CL:0       | LA:0      
+  (2)MA:0    | (2)MA:0    | (2)MA:0    | MB:0      
+  (5)CA:1    | (1)CB:1    | (9)CC:1    | *CD:3      | NM:0      
+  (6)CE:0    | (10)CF:1   | (11)*CG:1  | *CH:1      | NM:0      
+  (7)CI:0    | (8)CJ:0    | *CK:1      | CL:0       | LA:0      
 
-
-  *TX:6      | (2)US:0    | (4)MX:0   
+  *TX:6      | (3)US:0    | (4)MX:0   
 
 cache single - increment pending count due to adjoining pending region (around CH: CL):
   Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB, NM, LA
-  Cached localities(*): CA, MA, MX, CB, CE, TX, US, CC, CD, CG, CF, CJ, CI, CK, CH
+  Cached localities(*): TX, CD, CK, CG, CH
 
-  (3)MA:0    | (3)MA:0    | (3)MA:0    | MB:0      
-  (1)CA:1    | (6)CB:1    | (5)CC:0    | *CD:3      | NM:0      
-  (8)CE:1    | (7)CF:0    | (11)*CG:1  | *CH:2      | NM:0      
-  (9)CI:0    | (10)CJ:0   | *CK:1      | CL:0       | LA:0      
+  (2)MA:0    | (2)MA:0    | (2)MA:0    | MB:0      
+  (5)CA:1    | (1)CB:1    | (9)CC:1    | *CD:3      | NM:0      
+  (6)CE:0    | (10)CF:1   | (11)*CG:1  | *CH:2      | NM:0      
+  (7)CI:0    | (8)CJ:0    | *CK:1      | CL:0       | LA:0      
 
+  *TX:6      | (3)US:0    | (4)MX:0   
 
-  *TX:6      | (2)US:0    | (4)MX:0   
+prep to remove - visiting all regions adjoining a domain region (CH)...
 
 prep to remove - decrement pending count for newly cached region adjoining domain region (around CH: CD):
   Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB, NM, LA
-  Cached localities(*): CA, MA, MX, CB, CE, TX, US, CC, CD, CG, CF, CJ, CI, CK, CH
+  Cached localities(*): TX, CD, CK, CG, CH
 
-  (3)MA:0    | (3)MA:0    | (3)MA:0    | MB:0      
-  (1)CA:1    | (6)CB:1    | (5)CC:0    | *CD:2      | NM:0      
-  (8)CE:1    | (7)CF:0    | (11)*CG:1  | *CH:2      | NM:0      
-  (9)CI:0    | (10)CJ:0   | *CK:1      | CL:0       | LA:0      
+  (2)MA:0    | (2)MA:0    | (2)MA:0    | MB:0      
+  (5)CA:1    | (1)CB:1    | (9)CC:1    | *CD:2      | NM:0      
+  (6)CE:0    | (10)CF:1   | (11)*CG:1  | *CH:2      | NM:0      
+  (7)CI:0    | (8)CJ:0    | *CK:1      | CL:0       | LA:0      
 
-
-  *TX:6      | (2)US:0    | (4)MX:0   
+  *TX:6      | (3)US:0    | (4)MX:0   
 
 prep to remove - decrement pending count for newly cached region adjoining domain region (around CH: CG):
   Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB, NM, LA
-  Cached localities(*): CA, MA, MX, CB, CE, TX, US, CC, CD, CG, CF, CJ, CI, CK, CH
+  Cached localities(*): TX, CD, CK, CG, CH
 
-  (3)MA:0    | (3)MA:0    | (3)MA:0    | MB:0      
-  (1)CA:1    | (6)CB:1    | (5)CC:0    | *CD:2      | NM:0      
-  (8)CE:1    | (7)CF:0    | (11)*CG:0  | *CH:2      | NM:0      
-  (9)CI:0    | (10)CJ:0   | *CK:1      | CL:0       | LA:0      
+  (2)MA:0    | (2)MA:0    | (2)MA:0    | MB:0      
+  (5)CA:1    | (1)CB:1    | (9)CC:1    | *CD:2      | NM:0      
+  (6)CE:0    | (10)CF:1   | (11)*CG:0  | *CH:2      | NM:0      
+  (7)CI:0    | (8)CJ:0    | *CK:1      | CL:0       | LA:0      
 
-
-  *TX:6      | (2)US:0    | (4)MX:0   
+  *TX:6      | (3)US:0    | (4)MX:0   
 
 prep to remove - decrement pending count for newly cached region adjoining domain region (around CH: TX):
   Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB, NM, LA
-  Cached localities(*): CA, MA, MX, CB, CE, TX, US, CC, CD, CG, CF, CJ, CI, CK, CH
+  Cached localities(*): TX, CD, CK, CG, CH
 
-  (3)MA:0    | (3)MA:0    | (3)MA:0    | MB:0      
-  (1)CA:1    | (6)CB:1    | (5)CC:0    | *CD:2      | NM:0      
-  (8)CE:1    | (7)CF:0    | (11)*CG:0  | *CH:2      | NM:0      
-  (9)CI:0    | (10)CJ:0   | *CK:1      | CL:0       | LA:0      
+  (2)MA:0    | (2)MA:0    | (2)MA:0    | MB:0      
+  (5)CA:1    | (1)CB:1    | (9)CC:1    | *CD:2      | NM:0      
+  (6)CE:0    | (10)CF:1   | (11)*CG:0  | *CH:2      | NM:0      
+  (7)CI:0    | (8)CJ:0    | *CK:1      | CL:0       | LA:0      
 
+  *TX:5      | (3)US:0    | (4)MX:0   
 
-  *TX:5      | (2)US:0    | (4)MX:0   
-
-Top of loop:
+### Top of loop:
   Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB, NM, LA
-  Cached localities(*): CA, MA, MX, CB, CE, TX, US, CC, CD, CG, CF, CJ, CI, CK, CH
+  Cached localities(*): TX, CD, CK, CH
 
-  (3)MA:0    | (3)MA:0    | (3)MA:0    | MB:0      
-  (1)CA:1    | (6)CB:1    | (5)CC:0    | *CD:2      | NM:0      
-  (8)CE:1    | (7)CF:0    | (11)CG:0   | *CH:2      | NM:0      
-  (9)CI:0    | (10)CJ:0   | (12)*CK:1  | CL:0       | LA:0      
+  (2)MA:0    | (2)MA:0    | (2)MA:0    | MB:0      
+  (5)CA:1    | (1)CB:1    | (9)CC:1    | *CD:2      | NM:0      
+  (6)CE:0    | (10)CF:1   | (11)CG:0   | *CH:2      | NM:0      
+  (7)CI:0    | (8)CJ:0    | (12)*CK:1  | CL:0       | LA:0      
 
+  *TX:5      | (3)US:0    | (4)MX:0   
 
-  *TX:5      | (2)US:0    | (4)MX:0   
+cache around - visiting all regions adjoining a domain region (CK)...
+
+cache single - visiting all regions adjoining a domain region (CL)...
 
 cache single - increment pending count due to adjoining pending region (around CL: LA):
   Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB, NM, LA
-  Cached localities(*): CA, MA, MX, CB, CE, TX, US, CC, CD, CG, CF, CJ, CI, CK, CH, CL
+  Cached localities(*): TX, CD, CK, CH, CL
 
-  (3)MA:0    | (3)MA:0    | (3)MA:0    | MB:0      
-  (1)CA:1    | (6)CB:1    | (5)CC:0    | *CD:2      | NM:0      
-  (8)CE:1    | (7)CF:0    | (11)CG:0   | *CH:2      | NM:0      
-  (9)CI:0    | (10)CJ:0   | (12)*CK:1  | *CL:1      | LA:0      
+  (2)MA:0    | (2)MA:0    | (2)MA:0    | MB:0      
+  (5)CA:1    | (1)CB:1    | (9)CC:1    | *CD:2      | NM:0      
+  (6)CE:0    | (10)CF:1   | (11)CG:0   | *CH:2      | NM:0      
+  (7)CI:0    | (8)CJ:0    | (12)*CK:1  | *CL:1      | LA:0      
 
+  *TX:5      | (3)US:0    | (4)MX:0   
 
-  *TX:5      | (2)US:0    | (4)MX:0   
+prep to remove - visiting all regions adjoining a domain region (CL)...
 
 prep to remove - decrement pending count for newly cached region adjoining domain region (around CL: CH):
   Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB, NM, LA
-  Cached localities(*): CA, MA, MX, CB, CE, TX, US, CC, CD, CG, CF, CJ, CI, CK, CH, CL
+  Cached localities(*): TX, CD, CK, CH, CL
 
-  (3)MA:0    | (3)MA:0    | (3)MA:0    | MB:0      
-  (1)CA:1    | (6)CB:1    | (5)CC:0    | *CD:2      | NM:0      
-  (8)CE:1    | (7)CF:0    | (11)CG:0   | *CH:1      | NM:0      
-  (9)CI:0    | (10)CJ:0   | (12)*CK:1  | *CL:1      | LA:0      
+  (2)MA:0    | (2)MA:0    | (2)MA:0    | MB:0      
+  (5)CA:1    | (1)CB:1    | (9)CC:1    | *CD:2      | NM:0      
+  (6)CE:0    | (10)CF:1   | (11)CG:0   | *CH:1      | NM:0      
+  (7)CI:0    | (8)CJ:0    | (12)*CK:1  | *CL:1      | LA:0      
 
-
-  *TX:5      | (2)US:0    | (4)MX:0   
+  *TX:5      | (3)US:0    | (4)MX:0   
 
 prep to remove - decrement pending count for newly cached region adjoining domain region (around CL: CK):
   Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB, NM, LA
-  Cached localities(*): CA, MA, MX, CB, CE, TX, US, CC, CD, CG, CF, CJ, CI, CK, CH, CL
+  Cached localities(*): TX, CD, CK, CH, CL
 
-  (3)MA:0    | (3)MA:0    | (3)MA:0    | MB:0      
-  (1)CA:1    | (6)CB:1    | (5)CC:0    | *CD:2      | NM:0      
-  (8)CE:1    | (7)CF:0    | (11)CG:0   | *CH:1      | NM:0      
-  (9)CI:0    | (10)CJ:0   | (12)*CK:0  | *CL:1      | LA:0      
+  (2)MA:0    | (2)MA:0    | (2)MA:0    | MB:0      
+  (5)CA:1    | (1)CB:1    | (9)CC:1    | *CD:2      | NM:0      
+  (6)CE:0    | (10)CF:1   | (11)CG:0   | *CH:1      | NM:0      
+  (7)CI:0    | (8)CJ:0    | (12)*CK:0  | *CL:1      | LA:0      
 
-
-  *TX:5      | (2)US:0    | (4)MX:0   
+  *TX:5      | (3)US:0    | (4)MX:0   
 
 prep to remove - decrement pending count for newly cached region adjoining domain region (around CL: TX):
   Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB, NM, LA
-  Cached localities(*): CA, MA, MX, CB, CE, TX, US, CC, CD, CG, CF, CJ, CI, CK, CH, CL
+  Cached localities(*): TX, CD, CK, CH, CL
 
-  (3)MA:0    | (3)MA:0    | (3)MA:0    | MB:0      
-  (1)CA:1    | (6)CB:1    | (5)CC:0    | *CD:2      | NM:0      
-  (8)CE:1    | (7)CF:0    | (11)CG:0   | *CH:1      | NM:0      
-  (9)CI:0    | (10)CJ:0   | (12)*CK:0  | *CL:1      | LA:0      
+  (2)MA:0    | (2)MA:0    | (2)MA:0    | MB:0      
+  (5)CA:1    | (1)CB:1    | (9)CC:1    | *CD:2      | NM:0      
+  (6)CE:0    | (10)CF:1   | (11)CG:0   | *CH:1      | NM:0      
+  (7)CI:0    | (8)CJ:0    | (12)*CK:0  | *CL:1      | LA:0      
 
+  *TX:4      | (3)US:0    | (4)MX:0   
 
-  *TX:4      | (2)US:0    | (4)MX:0   
-
-Top of loop:
+### Top of loop:
   Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB, NM, LA
-  Cached localities(*): CA, MA, MX, CB, CE, TX, US, CC, CD, CG, CF, CJ, CI, CK, CH, CL
+  Cached localities(*): TX, CD, CH, CL
 
-  (3)MA:0    | (3)MA:0    | (3)MA:0    | MB:0      
-  (1)CA:1    | (6)CB:1    | (5)CC:0    | *CD:2      | NM:0      
-  (8)CE:1    | (7)CF:0    | (11)CG:0   | (13)*CH:1  | NM:0      
-  (9)CI:0    | (10)CJ:0   | (12)CK:0   | *CL:1      | LA:0      
+  (2)MA:0    | (2)MA:0    | (2)MA:0    | MB:0      
+  (5)CA:1    | (1)CB:1    | (9)CC:1    | *CD:2      | NM:0      
+  (6)CE:0    | (10)CF:1   | (11)CG:0   | (13)*CH:1  | NM:0      
+  (7)CI:0    | (8)CJ:0    | (12)CK:0   | *CL:1      | LA:0      
 
+  *TX:4      | (3)US:0    | (4)MX:0   
 
-  *TX:4      | (2)US:0    | (4)MX:0   
+cache around - visiting all regions adjoining a domain region (CH)...
+
+cache single - visiting regions adjacenct to a non-domain region (NM)...
+
+prep to remove - visiting regions adjacenct to a non-domain region (NM)...
 
 prep to remove - decrement pending count for newly cached region adjoining domain region (around NM: CD):
   Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB, NM, LA
-  Cached localities(*): CA, MA, MX, CB, CE, TX, US, CC, CD, CG, CF, CJ, CI, CK, CH, CL, NM
+  Cached localities(*): TX, CD, CH, CL, NM
 
-  (3)MA:0    | (3)MA:0    | (3)MA:0    | MB:0      
-  (1)CA:1    | (6)CB:1    | (5)CC:0    | *CD:1      | *NM:0     
-  (8)CE:1    | (7)CF:0    | (11)CG:0   | (13)*CH:1  | *NM:0     
-  (9)CI:0    | (10)CJ:0   | (12)CK:0   | *CL:1      | LA:0      
+  (2)MA:0    | (2)MA:0    | (2)MA:0    | MB:0      
+  (5)CA:1    | (1)CB:1    | (9)CC:1    | *CD:1      | *NM:0     
+  (6)CE:0    | (10)CF:1   | (11)CG:0   | (13)*CH:1  | *NM:0     
+  (7)CI:0    | (8)CJ:0    | (12)CK:0   | *CL:1      | LA:0      
 
-
-  *TX:4      | (2)US:0    | (4)MX:0   
+  *TX:4      | (3)US:0    | (4)MX:0   
 
 prep to remove - decrement pending count for newly cached region adjoining domain region (around NM: CH):
   Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB, NM, LA
-  Cached localities(*): CA, MA, MX, CB, CE, TX, US, CC, CD, CG, CF, CJ, CI, CK, CH, CL, NM
+  Cached localities(*): TX, CD, CH, CL, NM
 
-  (3)MA:0    | (3)MA:0    | (3)MA:0    | MB:0      
-  (1)CA:1    | (6)CB:1    | (5)CC:0    | *CD:1      | *NM:0     
-  (8)CE:1    | (7)CF:0    | (11)CG:0   | (13)*CH:0  | *NM:0     
-  (9)CI:0    | (10)CJ:0   | (12)CK:0   | *CL:1      | LA:0      
+  (2)MA:0    | (2)MA:0    | (2)MA:0    | MB:0      
+  (5)CA:1    | (1)CB:1    | (9)CC:1    | *CD:1      | *NM:0     
+  (6)CE:0    | (10)CF:1   | (11)CG:0   | (13)*CH:0  | *NM:0     
+  (7)CI:0    | (8)CJ:0    | (12)CK:0   | *CL:1      | LA:0      
 
-
-  *TX:4      | (2)US:0    | (4)MX:0   
+  *TX:4      | (3)US:0    | (4)MX:0   
 
 prep to remove - decrement pending count for newly cached region adjoining domain region (around NM: TX):
   Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB, NM, LA
-  Cached localities(*): CA, MA, MX, CB, CE, TX, US, CC, CD, CG, CF, CJ, CI, CK, CH, CL, NM
+  Cached localities(*): TX, CD, CH, CL, NM
 
-  (3)MA:0    | (3)MA:0    | (3)MA:0    | MB:0      
-  (1)CA:1    | (6)CB:1    | (5)CC:0    | *CD:1      | *NM:0     
-  (8)CE:1    | (7)CF:0    | (11)CG:0   | (13)*CH:0  | *NM:0     
-  (9)CI:0    | (10)CJ:0   | (12)CK:0   | *CL:1      | LA:0      
+  (2)MA:0    | (2)MA:0    | (2)MA:0    | MB:0      
+  (5)CA:1    | (1)CB:1    | (9)CC:1    | *CD:1      | *NM:0     
+  (6)CE:0    | (10)CF:1   | (11)CG:0   | (13)*CH:0  | *NM:0     
+  (7)CI:0    | (8)CJ:0    | (12)CK:0   | *CL:1      | LA:0      
 
+  *TX:3      | (3)US:0    | (4)MX:0   
 
-  *TX:3      | (2)US:0    | (4)MX:0   
-
-Top of loop:
+### Top of loop:
   Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB, NM, LA
-  Cached localities(*): CA, MA, MX, CB, CE, TX, US, CC, CD, CG, CF, CJ, CI, CK, CH, CL, NM
+  Cached localities(*): TX, CD, CL, NM
 
-  (3)MA:0    | (3)MA:0    | (3)MA:0    | MB:0      
-  (1)CA:1    | (6)CB:1    | (5)CC:0    | *CD:1      | (14)*NM:0 
-  (8)CE:1    | (7)CF:0    | (11)CG:0   | (13)CH:0   | (14)*NM:0 
-  (9)CI:0    | (10)CJ:0   | (12)CK:0   | *CL:1      | LA:0      
+  (2)MA:0    | (2)MA:0    | (2)MA:0    | MB:0      
+  (5)CA:1    | (1)CB:1    | (9)CC:1    | *CD:1      | (14)*NM:0 
+  (6)CE:0    | (10)CF:1   | (11)CG:0   | (13)CH:0   | (14)*NM:0 
+  (7)CI:0    | (8)CJ:0    | (12)CK:0   | *CL:1      | LA:0      
 
+  *TX:3      | (3)US:0    | (4)MX:0   
 
-  *TX:3      | (2)US:0    | (4)MX:0   
-
-Top of loop:
+### Top of loop:
   Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB, NM, LA
-  Cached localities(*): CA, MA, MX, CB, CE, TX, US, CC, CD, CG, CF, CJ, CI, CK, CH, CL, NM
+  Cached localities(*): TX, CD, CL
 
-  (3)MA:0    | (3)MA:0    | (3)MA:0    | MB:0      
-  (1)CA:1    | (6)CB:1    | (5)CC:0    | (15)*CD:1  | (14)NM:0  
-  (8)CE:1    | (7)CF:0    | (11)CG:0   | (13)CH:0   | (14)NM:0  
-  (9)CI:0    | (10)CJ:0   | (12)CK:0   | *CL:1      | LA:0      
+  (2)MA:0    | (2)MA:0    | (2)MA:0    | MB:0      
+  (5)CA:1    | (1)CB:1    | (9)CC:1    | (15)*CD:1  | (14)NM:0  
+  (6)CE:0    | (10)CF:1   | (11)CG:0   | (13)CH:0   | (14)NM:0  
+  (7)CI:0    | (8)CJ:0    | (12)CK:0   | *CL:1      | LA:0      
 
+  *TX:3      | (3)US:0    | (4)MX:0   
 
-  *TX:3      | (2)US:0    | (4)MX:0   
+cache around - visiting all regions adjoining a domain region (CD)...
+
+cache single - visiting regions adjacenct to a non-domain region (MB)...
+
+prep to remove - visiting regions adjacenct to a non-domain region (MB)...
 
 prep to remove - decrement pending count for newly cached region adjoining domain region (around MB: CD):
   Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB, NM, LA
-  Cached localities(*): CA, MA, MX, CB, CE, TX, US, CC, CD, CG, CF, CJ, CI, CK, CH, CL, NM, MB
+  Cached localities(*): TX, CD, CL, MB
 
-  (3)MA:0    | (3)MA:0    | (3)MA:0    | *MB:0     
-  (1)CA:1    | (6)CB:1    | (5)CC:0    | (15)*CD:0  | (14)NM:0  
-  (8)CE:1    | (7)CF:0    | (11)CG:0   | (13)CH:0   | (14)NM:0  
-  (9)CI:0    | (10)CJ:0   | (12)CK:0   | *CL:1      | LA:0      
+  (2)MA:0    | (2)MA:0    | (2)MA:0    | *MB:0     
+  (5)CA:1    | (1)CB:1    | (9)CC:1    | (15)*CD:0  | (14)NM:0  
+  (6)CE:0    | (10)CF:1   | (11)CG:0   | (13)CH:0   | (14)NM:0  
+  (7)CI:0    | (8)CJ:0    | (12)CK:0   | *CL:1      | LA:0      
 
-
-  *TX:3      | (2)US:0    | (4)MX:0   
+  *TX:3      | (3)US:0    | (4)MX:0   
 
 prep to remove - decrement pending count for newly cached region adjoining domain region (around MB: TX):
   Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB, NM, LA
-  Cached localities(*): CA, MA, MX, CB, CE, TX, US, CC, CD, CG, CF, CJ, CI, CK, CH, CL, NM, MB
+  Cached localities(*): TX, CD, CL, MB
 
-  (3)MA:0    | (3)MA:0    | (3)MA:0    | *MB:0     
-  (1)CA:1    | (6)CB:1    | (5)CC:0    | (15)*CD:0  | (14)NM:0  
-  (8)CE:1    | (7)CF:0    | (11)CG:0   | (13)CH:0   | (14)NM:0  
-  (9)CI:0    | (10)CJ:0   | (12)CK:0   | *CL:1      | LA:0      
+  (2)MA:0    | (2)MA:0    | (2)MA:0    | *MB:0     
+  (5)CA:1    | (1)CB:1    | (9)CC:1    | (15)*CD:0  | (14)NM:0  
+  (6)CE:0    | (10)CF:1   | (11)CG:0   | (13)CH:0   | (14)NM:0  
+  (7)CI:0    | (8)CJ:0    | (12)CK:0   | *CL:1      | LA:0      
 
+  *TX:2      | (3)US:0    | (4)MX:0   
 
-  *TX:2      | (2)US:0    | (4)MX:0   
-
-Top of loop:
+### Top of loop:
   Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB, NM, LA
-  Cached localities(*): CA, MA, MX, CB, CE, TX, US, CC, CD, CG, CF, CJ, CI, CK, CH, CL, NM, MB
+  Cached localities(*): TX, CL, MB
 
-  (3)MA:0    | (3)MA:0    | (3)MA:0    | (16)*MB:0 
-  (1)CA:1    | (6)CB:1    | (5)CC:0    | (15)CD:0   | (14)NM:0  
-  (8)CE:1    | (7)CF:0    | (11)CG:0   | (13)CH:0   | (14)NM:0  
-  (9)CI:0    | (10)CJ:0   | (12)CK:0   | *CL:1      | LA:0      
+  (2)MA:0    | (2)MA:0    | (2)MA:0    | (16)*MB:0 
+  (5)CA:1    | (1)CB:1    | (9)CC:1    | (15)CD:0   | (14)NM:0  
+  (6)CE:0    | (10)CF:1   | (11)CG:0   | (13)CH:0   | (14)NM:0  
+  (7)CI:0    | (8)CJ:0    | (12)CK:0   | *CL:1      | LA:0      
 
+  *TX:2      | (3)US:0    | (4)MX:0   
 
-  *TX:2      | (2)US:0    | (4)MX:0   
-
-Top of loop:
+### Top of loop:
   Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB, NM, LA
-  Cached localities(*): CA, MA, MX, CB, CE, TX, US, CC, CD, CG, CF, CJ, CI, CK, CH, CL, NM, MB
+  Cached localities(*): TX, CL
 
-  (3)MA:0    | (3)MA:0    | (3)MA:0    | (16)MB:0  
-  (1)CA:1    | (6)CB:1    | (5)CC:0    | (15)CD:0   | (14)NM:0  
-  (8)CE:1    | (7)CF:0    | (11)CG:0   | (13)CH:0   | (14)NM:0  
-  (9)CI:0    | (10)CJ:0   | (12)CK:0   | (17)*CL:1  | LA:0      
+  (2)MA:0    | (2)MA:0    | (2)MA:0    | (16)MB:0  
+  (5)CA:1    | (1)CB:1    | (9)CC:1    | (15)CD:0   | (14)NM:0  
+  (6)CE:0    | (10)CF:1   | (11)CG:0   | (13)CH:0   | (14)NM:0  
+  (7)CI:0    | (8)CJ:0    | (12)CK:0   | (17)*CL:1  | LA:0      
 
+  *TX:2      | (3)US:0    | (4)MX:0   
 
-  *TX:2      | (2)US:0    | (4)MX:0   
+cache around - visiting all regions adjoining a domain region (CL)...
+
+cache single - visiting regions adjacenct to a non-domain region (LA)...
+
+prep to remove - visiting regions adjacenct to a non-domain region (LA)...
 
 prep to remove - decrement pending count for newly cached region adjoining domain region (around LA: CL):
   Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB, NM, LA
-  Cached localities(*): CA, MA, MX, CB, CE, TX, US, CC, CD, CG, CF, CJ, CI, CK, CH, CL, NM, MB, LA
+  Cached localities(*): TX, CL, LA
 
-  (3)MA:0    | (3)MA:0    | (3)MA:0    | (16)MB:0  
-  (1)CA:1    | (6)CB:1    | (5)CC:0    | (15)CD:0   | (14)NM:0  
-  (8)CE:1    | (7)CF:0    | (11)CG:0   | (13)CH:0   | (14)NM:0  
-  (9)CI:0    | (10)CJ:0   | (12)CK:0   | (17)*CL:0  | *LA:0     
+  (2)MA:0    | (2)MA:0    | (2)MA:0    | (16)MB:0  
+  (5)CA:1    | (1)CB:1    | (9)CC:1    | (15)CD:0   | (14)NM:0  
+  (6)CE:0    | (10)CF:1   | (11)CG:0   | (13)CH:0   | (14)NM:0  
+  (7)CI:0    | (8)CJ:0    | (12)CK:0   | (17)*CL:0  | *LA:0     
 
-
-  *TX:2      | (2)US:0    | (4)MX:0   
+  *TX:2      | (3)US:0    | (4)MX:0   
 
 prep to remove - decrement pending count for newly cached region adjoining domain region (around LA: TX):
   Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB, NM, LA
-  Cached localities(*): CA, MA, MX, CB, CE, TX, US, CC, CD, CG, CF, CJ, CI, CK, CH, CL, NM, MB, LA
+  Cached localities(*): TX, CL, LA
 
-  (3)MA:0    | (3)MA:0    | (3)MA:0    | (16)MB:0  
-  (1)CA:1    | (6)CB:1    | (5)CC:0    | (15)CD:0   | (14)NM:0  
-  (8)CE:1    | (7)CF:0    | (11)CG:0   | (13)CH:0   | (14)NM:0  
-  (9)CI:0    | (10)CJ:0   | (12)CK:0   | (17)*CL:0  | *LA:0     
+  (2)MA:0    | (2)MA:0    | (2)MA:0    | (16)MB:0  
+  (5)CA:1    | (1)CB:1    | (9)CC:1    | (15)CD:0   | (14)NM:0  
+  (6)CE:0    | (10)CF:1   | (11)CG:0   | (13)CH:0   | (14)NM:0  
+  (7)CI:0    | (8)CJ:0    | (12)CK:0   | (17)*CL:0  | *LA:0     
 
+  *TX:1      | (3)US:0    | (4)MX:0   
 
-  *TX:1      | (2)US:0    | (4)MX:0   
-
-Top of loop:
+### Top of loop:
   Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB, NM, LA
-  Cached localities(*): CA, MA, MX, CB, CE, TX, US, CC, CD, CG, CF, CJ, CI, CK, CH, CL, NM, MB, LA
+  Cached localities(*): TX, LA
 
-  (3)MA:0    | (3)MA:0    | (3)MA:0    | (16)MB:0  
-  (1)CA:1    | (6)CB:1    | (5)CC:0    | (15)CD:0   | (14)NM:0  
-  (8)CE:1    | (7)CF:0    | (11)CG:0   | (13)CH:0   | (14)NM:0  
-  (9)CI:0    | (10)CJ:0   | (12)CK:0   | (17)CL:0   | (18)*LA:0 
+  (2)MA:0    | (2)MA:0    | (2)MA:0    | (16)MB:0  
+  (5)CA:1    | (1)CB:1    | (9)CC:1    | (15)CD:0   | (14)NM:0  
+  (6)CE:0    | (10)CF:1   | (11)CG:0   | (13)CH:0   | (14)NM:0  
+  (7)CI:0    | (8)CJ:0    | (12)CK:0   | (17)CL:0   | (18)*LA:0 
 
+  *TX:1      | (3)US:0    | (4)MX:0   
 
-  *TX:1      | (2)US:0    | (4)MX:0   
-
-Top of loop:
+### Top of loop:
   Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB, NM, LA
-  Cached localities(*): CA, MA, MX, CB, CE, TX, US, CC, CD, CG, CF, CJ, CI, CK, CH, CL, NM, MB, LA
+  Cached localities(*): TX
 
-  (3)MA:0    | (3)MA:0    | (3)MA:0    | (16)MB:0  
-  (1)CA:1    | (6)CB:1    | (5)CC:0    | (15)CD:0   | (14)NM:0  
-  (8)CE:1    | (7)CF:0    | (11)CG:0   | (13)CH:0   | (14)NM:0  
-  (9)CI:0    | (10)CJ:0   | (12)CK:0   | (17)CL:0   | (18)LA:0  
+  (2)MA:0    | (2)MA:0    | (2)MA:0    | (16)MB:0  
+  (5)CA:1    | (1)CB:1    | (9)CC:1    | (15)CD:0   | (14)NM:0  
+  (6)CE:0    | (10)CF:1   | (11)CG:0   | (13)CH:0   | (14)NM:0  
+  (7)CI:0    | (8)CJ:0    | (12)CK:0   | (17)CL:0   | (18)LA:0  
 
+  (19)*TX:1  | (3)US:0    | (4)MX:0   
 
-  (19)*TX:1  | (2)US:0    | (4)MX:0   
+cache around - visiting all regions adjoining a domain region (TX)...
 
-Completed:
+### Completed:
   Region roster: CA, CB, CC, CD, CE, CF, CG, CH, CI, CJ, CK, CL, TX, MA, MX, US, MB, NM, LA
-  Cached localities(*): CA, MA, MX, CB, CE, TX, US, CC, CD, CG, CF, CJ, CI, CK, CH, CL, NM, MB, LA
+  Cached localities(*): 
 
-  (3)MA:0    | (3)MA:0    | (3)MA:0    | (16)MB:0  
-  (1)CA:1    | (6)CB:1    | (5)CC:0    | (15)CD:0   | (14)NM:0  
-  (8)CE:1    | (7)CF:0    | (11)CG:0   | (13)CH:0   | (14)NM:0  
-  (9)CI:0    | (10)CJ:0   | (12)CK:0   | (17)CL:0   | (18)LA:0  
+  (2)MA:0    | (2)MA:0    | (2)MA:0    | (16)MB:0  
+  (5)CA:1    | (1)CB:1    | (9)CC:1    | (15)CD:0   | (14)NM:0  
+  (6)CE:0    | (10)CF:1   | (11)CG:0   | (13)CH:0   | (14)NM:0  
+  (7)CI:0    | (8)CJ:0    | (12)CK:0   | (17)CL:0   | (18)LA:0  
 
-
-  (19)TX:1   | (2)US:0    | (4)MX:0   
+  (19)TX:1   | (3)US:0    | (4)MX:0   
 

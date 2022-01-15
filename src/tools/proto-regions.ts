@@ -305,7 +305,7 @@ abstract class RegionVisitor {
         await this._visitAroundDomainRegion(nearRegion);
         if (this._visitationRestriction(nearRegion)) {
           await this._visitSubsetAroundDomainRegion(nearRegion, aroundRegion);
-          //await this._showState('after in-domain all', nearRegion, aroundRegion);
+          await this._showState('after in-domain all', nearRegion, aroundRegion);
         }
       }
     } else {
@@ -314,7 +314,7 @@ abstract class RegionVisitor {
       for (const nearRegion of getAdjacentRegions(aroundRegion)) {
         if (nearRegion.inDomain && this._visitationRestriction(nearRegion)) {
           await this._visitSubsetAroundNonDomainRegion(nearRegion, aroundRegion);
-          //await this._showState('after non-domain adjacent', nearRegion, aroundRegion);
+          await this._showState('after non-domain adjacent', nearRegion, aroundRegion);
         }
       }
       if (overDomain.includes(aroundRegion)) {
@@ -323,7 +323,7 @@ abstract class RegionVisitor {
         for (const childRegion of getChildRegions(aroundRegion)) {
           if (childRegion.inDomain && this._visitationRestriction(childRegion)) {
             await this._visitSubsetAroundNonDomainRegion(childRegion, aroundRegion);
-            //await this._showState('after non-domain child', childRegion, aroundRegion);
+            await this._showState('after non-domain child', childRegion, aroundRegion);
           }
         }
       }
@@ -513,7 +513,7 @@ async function run() {
     }
   }
   regionRoster.push(texas);
-  await showState('After initialization');
+  await showState('### After initialization');
 
   let region: ProtoRegion | null = regions[1][1];
   await cachePendingRegion(region);
@@ -522,7 +522,7 @@ async function run() {
   // Loop
   while (region != null) {
     region.sequence = ++sequence;
-    await showState('Top of loop');
+    await showState('### Top of loop');
 
     // Consolidate
     if (region.adjoiningPendingCount != 0) {
@@ -546,7 +546,7 @@ async function run() {
       }
     }
   }
-  await showState('Completed');
+  await showState('### Completed');
 }
 
 async function showState(point: string) {
@@ -568,17 +568,17 @@ async function showState(point: string) {
 }
 
 async function inputKey() {
-  process.stdin.setRawMode(true);
-  return new Promise((resolve: any) =>
-    process.stdin.once('data', (data) => {
-      process.stdin.setRawMode(false);
-      //console.log('RECEIVED KEY', data[0]);
-      resolve();
-      if (data[0] != 32) {
-        process.exit(0);
-      }
-    })
-  );
+  // process.stdin.setRawMode(true);
+  // return new Promise((resolve: any) =>
+  //   process.stdin.once('data', (data) => {
+  //     process.stdin.setRawMode(false);
+  //     //console.log('RECEIVED KEY', data[0]);
+  //     resolve();
+  //     if (data[0] != 32) {
+  //       process.exit(0);
+  //     }
+  //   })
+  // );
 }
 
 (async () => {
