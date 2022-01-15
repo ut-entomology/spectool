@@ -8,6 +8,9 @@ import { Region, RegionRank } from '../../shared/region';
 import { TrackedRegionRoster } from './region_roster';
 import { TrackedRegion, TrackedRegionStatus } from './tracked_region';
 
+// TODO: I'm computing adjoiningPendingCount for regions that have no localities. Does that make sense?
+// TODO: Look into remove regions from the region roster as soon as able.
+
 const TEST_LOG_DIR = path.join(__dirname, '../../../test_logs');
 
 // Explanation of region matrix string data:
@@ -22,12 +25,13 @@ const TEST_LOG_DIR = path.join(__dirname, '../../../test_logs');
 // ^ indicates that the region above extends to this point
 
 describe('locality consolidator', () => {
-  test('processes regions in correct order (without corner adjacency)', async () => {
+  test('processes regions in correct order (equal localities, without corner adjacency)', async () => {
     const scenario = new RegionScenario(
       `as-MA-1|<     |<     |as-MB-1
        c-CA-1 |c-CB-1|c-CC-1|c-CD-1 |as-NM-1
        c-CE-1 |c-CF-1|c-CG-1|c-CH-1 |^
        c-CI-1 |c-CJ-1|c-CK-1|c-CL-1 |as-LA-1`,
+      { US: 1, TX: 1, MX: 1 },
       false
     );
 
@@ -76,12 +80,13 @@ describe('locality consolidator', () => {
     ]);
   });
 
-  test('processes regions in correct order (with corner adjacency)', async () => {
+  test('processes regions in correct order (equal localities, with corner adjacency)', async () => {
     const scenario = new RegionScenario(
       `as-MA-1|<     |<     |as-MB-1
        c-CA-1 |c-CB-1|c-CC-1|c-CD-1 |as-NM-1
        c-CE-1 |c-CF-1|c-CG-1|c-CH-1 |^
        c-CI-1 |c-CJ-1|c-CK-1|c-CL-1 |as-LA-1`,
+      { US: 1, TX: 1, MX: 1 },
       true
     );
 
@@ -129,6 +134,43 @@ describe('locality consolidator', () => {
       'LA'
     ]);
   });
+
+  test('processes regions in correct order (unequal localities, without corner adjacency)', async () => {
+    const scenario = new RegionScenario(
+      `as-MA-1|<     |<     |as-MB-0
+       c-CA-4 |c-CB-1|c-CC-1|c-CD-1 |as-NM-2
+       c-CE-1 |c-CF-0|c-CG-2|c-CH-1 |^
+       c-CI-1 |c-CJ-0|c-CK-1|c-CL-3 |as-LA-0`,
+      { US: 0, TX: 2, MX: 1 },
+      false
+    );
+
+    const processedRegionIDs: number[] = [];
+    const localityCache = new DummyLocalityCache(scenario);
+    const diagnostics = new TestDiagnostics(
+      scenario,
+      localityCache,
+      'region-driver-3.txt'
+    );
+
+    const regionDriver = new AdjoiningRegionDriver(
+      scenario,
+      scenario.getDomainRegions(),
+      localityCache,
+      (region) => {
+        processedRegionIDs.push(region.id);
+        localityCache.uncacheLocality(region.id);
+      },
+      diagnostics,
+      scenario.codeToRegion('CB').id
+    );
+    await regionDriver.run();
+    diagnostics.close();
+
+    expect(processedRegionIDs.map((id) => scenario.regionsByID[id].code)).toEqual([
+      /* TBD */
+    ]);
+  });
 });
 
 class RegionScenario implements AdjoiningRegions {
@@ -138,19 +180,38 @@ class RegionScenario implements AdjoiningRegions {
   regionsByCode: Record<string, DummyRegion> = {};
   regionsByID: Record<number, DummyRegion> = {};
 
-  constructor(regionData: string, withCornerAdjacency: boolean) {
+  constructor(
+    regionData: string,
+    containingLocalityTotals: Record<string, number>,
+    withCornerAdjacency: boolean
+  ) {
     this._withCornerAdjacency = withCornerAdjacency;
 
     // Define regions not in the matrix.
 
     this._indexDummyRegion(
-      new DummyRegion('US', false, 1, new Region(100, RegionRank.Country, 'US', 0))
+      new DummyRegion(
+        'US',
+        false,
+        containingLocalityTotals['US'],
+        new Region(100, RegionRank.Country, 'US', 0)
+      )
     );
     this._indexDummyRegion(
-      new DummyRegion('TX', true, 1, new Region(101, RegionRank.State, 'TX', 0))
+      new DummyRegion(
+        'TX',
+        true,
+        containingLocalityTotals['TX'],
+        new Region(101, RegionRank.State, 'TX', 0)
+      )
     );
     this._indexDummyRegion(
-      new DummyRegion('MX', false, 1, new Region(102, RegionRank.Country, 'MX', 0))
+      new DummyRegion(
+        'MX',
+        false,
+        containingLocalityTotals['MX'],
+        new Region(102, RegionRank.Country, 'MX', 0)
+      )
     );
 
     // Create a region for each cell of the matrix.
@@ -230,6 +291,7 @@ class RegionScenario implements AdjoiningRegions {
   }
 
   getContainingRegions(aboveGeographyID: number): Region[] {
+    // can be simplified now that I'm using parentID, but this works
     const region = this.regionsByID[aboveGeographyID];
     if (['US', 'MX'].includes(region.code)) {
       return [];
@@ -244,6 +306,7 @@ class RegionScenario implements AdjoiningRegions {
   }
 
   getDescendantRegions(underGeographyID: number): Region[] {
+    // can be simplified now that I'm using parentID, but this works
     const region = this.regionsByID[underGeographyID];
     if (region.code[0] == 'C' || (region.code != 'MX' && region.code[0] == 'M')) {
       return [];

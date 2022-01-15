@@ -12,10 +12,10 @@ const BINARY_COUNTY_ADJACENCIES_FILE = path.join(
   '../../../public/county-adjacencies.bin'
 );
 
-type AdjacenctRegionsByID = Record<number, Region[]>;
+type adjacentRegionsByID = Record<number, Region[]>;
 
 export class Adjacencies {
-  private _adjacenciesByID: AdjacenctRegionsByID = {};
+  private _adjacenciesByID: adjacentRegionsByID = {};
   private _geography: Geography;
   private _nameToID: Record<string, number> = {};
 
@@ -55,7 +55,7 @@ export class Adjacencies {
     this._addReciprocateAdjacencies();
   }
 
-  private _getAdjacentNorthAmericanCountries(): AdjacenctRegionsByID {
+  private _getAdjacentNorthAmericanCountries(): adjacentRegionsByID {
     const countries = this._geography.getCountries();
 
     function toCountryID(countryName: string): number {
@@ -63,7 +63,7 @@ export class Adjacencies {
       return foundIDs[countryName];
     }
 
-    const adjacentRegionsByID: AdjacenctRegionsByID = {};
+    const adjacentRegionsByID: adjacentRegionsByID = {};
     for (const [countryName, adjacentCountryNames] of Object.entries(
       countryAdjacencies
     )) {
@@ -84,7 +84,7 @@ export class Adjacencies {
 
   private _getAdjacentNorthAmericanStates(
     naStates: GeoDictionary
-  ): AdjacenctRegionsByID {
+  ): adjacentRegionsByID {
     function toStateID(stateAbbrev: string): number {
       let stateName = toStateNameFromAbbrev(stateAbbrev);
       if (stateName === null) {
@@ -96,7 +96,7 @@ export class Adjacencies {
       return foundIDs[stateName];
     }
 
-    const adjacentRegionsByID: AdjacenctRegionsByID = {};
+    const adjacentRegionsByID: adjacentRegionsByID = {};
     for (const [stateAbbrev, adjacentStateAbbrevs] of Object.entries(
       stateAdjacencies
     )) {
@@ -115,7 +115,7 @@ export class Adjacencies {
     return adjacentRegionsByID;
   }
 
-  private async _getAdjacentUSACounties(): Promise<AdjacenctRegionsByID> {
+  private async _getAdjacentUSACounties(): Promise<adjacentRegionsByID> {
     // Load the binary county adjacency file.
 
     const fileCountyAdjacencyFile = new BinaryCountyAdjacencyFile(
@@ -152,7 +152,7 @@ export class Adjacencies {
 
     // Store away the county adjacencies as regions.
 
-    const adjacentRegionsByID: AdjacenctRegionsByID = {};
+    const adjacentRegionsByID: adjacentRegionsByID = {};
     for (const fileCountyAdjacency of fileCountyAdjacencies) {
       const countyRegion = fileIDToRegionMap[fileCountyAdjacency.countyID];
       if (countyRegion) {

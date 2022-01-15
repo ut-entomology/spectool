@@ -191,9 +191,9 @@ abstract class RegionVisitor {
         }
       }
     } else {
-      // Visit regions adjacenct to a non-domain region
+      // Visit regions adjacent to a non-domain region
       this._reportSecondaryProcess(
-        'visiting regions adjacenct to a non-domain region',
+        'visiting regions adjacent to a non-domain region',
         aroundRegion
       );
       for (const nearRegion of this._getAdjacentRegions(aroundRegion)) {

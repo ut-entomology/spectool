@@ -309,8 +309,8 @@ abstract class RegionVisitor {
         }
       }
     } else {
-      // Visit regions adjacenct to a non-domain region
-      this._note('visiting regions adjacenct to a non-domain region', aroundRegion);
+      // Visit regions adjacent to a non-domain region
+      this._note('visiting regions adjacent to a non-domain region', aroundRegion);
       for (const nearRegion of getAdjacentRegions(aroundRegion)) {
         if (nearRegion.inDomain && this._visitationRestriction(nearRegion)) {
           await this._visitSubsetAroundNonDomainRegion(nearRegion, aroundRegion);
