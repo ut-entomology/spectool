@@ -1,36 +1,18 @@
-import { IpcHandler, AsyncIpcHandler, SyncIpcHandler } from '../util/ipc_handler';
-import { AppPrefs } from '../../shared/app_prefs';
-import { AppKernel } from '../../kernel/app_kernel';
+import type { AppPrefs } from '../../shared/app_prefs';
+import type { AppKernel } from '../../kernel/app_kernel';
 
-class GetAppPrefsIpc extends SyncIpcHandler {
-  private kernel: AppKernel;
-
-  constructor(kernel: AppKernel) {
-    super('get_app_prefs');
-    this.kernel = kernel;
-  }
-
-  handler(_data: any) {
-    return this.kernel.appPrefs;
-  }
-}
-
-class SetAppPrefsIpc extends AsyncIpcHandler {
-  private kernel: AppKernel;
+export class AppPrefsApi {
+  _kernel: AppKernel;
 
   constructor(kernel: AppKernel) {
-    super('set_app_prefs');
-    this.kernel = kernel;
+    this._kernel = kernel;
   }
 
-  async handler(prefs: AppPrefs) {
-    return await this.kernel.saveAppPrefs(prefs);
+  async getPrefs() {
+    return this._kernel.appPrefs;
   }
-}
 
-export default function (kernel: AppKernel): IpcHandler[] {
-  return [
-    new GetAppPrefsIpc(kernel), // multiline
-    new SetAppPrefsIpc(kernel)
-  ];
+  async setPrefs(prefs: AppPrefs) {
+    return await this._kernel.saveAppPrefs(prefs);
+  }
 }

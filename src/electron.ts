@@ -6,7 +6,7 @@ import 'source-map-support/register';
 import { APP_NAME } from './app/app_name';
 import { Platform } from './app-util/platform';
 import { createAppMenu } from './app/app_menu';
-import appPrefsApi from './backend/api/app_prefs_api';
+import { installServerApis, exposeServerApis } from './backend/server_apis';
 import databaseApi from './backend/api/database_api';
 import databaseConfigApi from './backend/api/db_config_api';
 import userApi from './backend/api/user_api';
@@ -52,6 +52,7 @@ function createMainWindow() {
   mainWindow
     .loadURL(url)
     .then(() => {
+      exposeServerApis(mainWindow!);
       mainWindow!.webContents.send('set_app_mode', process.env.NODE_ENV);
       log.info('started application');
     })
@@ -69,8 +70,8 @@ app
   .then(async () => {
     const platform = new Platform(APP_NAME, APP_NAME);
     const kernel = new AppKernel(platform, new DatabaseConfig());
+    installServerApis(kernel);
     const ipcHandlerSets = [
-      appPrefsApi(kernel), // multiline
       databaseApi(kernel),
       databaseConfigApi(kernel),
       userApi(kernel),

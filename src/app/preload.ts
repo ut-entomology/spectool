@@ -1,5 +1,6 @@
 import { contextBridge } from 'electron';
 import { ipcRenderer } from 'electron';
+import { bindMainApis } from './main_client';
 
 contextBridge.exposeInMainWorld('ipc', {
   invoke: (channel: string, data: any) => {
@@ -16,3 +17,7 @@ contextBridge.exposeInMainWorld('ipc', {
     ipcRenderer.on(channel, (_event, args) => func(args));
   }
 });
+
+(async () => {
+  contextBridge.exposeInMainWorld('apis', await bindMainApis());
+})();

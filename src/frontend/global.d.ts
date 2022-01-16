@@ -1,6 +1,7 @@
 /// <reference types="svelte" />
 
 import 'svelte';
+import { MainApis } from '../app/main_client';
 
 declare global {
   interface Window {
@@ -10,5 +11,6 @@ declare global {
       send: (channel: string, data: any) => void;
       on: (channel: string, func: (data: any) => void) => void;
     };
+    apis: MainApis;
   }
 }

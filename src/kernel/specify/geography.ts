@@ -1,7 +1,7 @@
 import type { Knex } from 'knex';
 
-import { SpecGeography, SpecGeographyTreeDefItem } from '../../shared/schema';
-import { GeoDictionary } from '../../shared/specify_data';
+import type { SpecGeography, SpecGeographyTreeDefItem } from '../../shared/schema';
+import type { GeoDictionary } from '../../shared/specify_data';
 import { RegionRank, Region } from '../../shared/region';
 
 // Note: Specify stores the latinizations of locality names

@@ -9,7 +9,6 @@
     SetInputValue
   } from '../layout/forms';
   import { AppPrefs } from '../shared/app_prefs';
-  import { AppPrefsClient } from '../clients/app_prefs_client';
   import { DirDialogClient } from '../clients/dir_dialog_client';
   import { currentPrefs } from '../stores/currentPrefs';
   import { currentDialog } from '../stores/currentDialog';
@@ -31,7 +30,7 @@
       try {
         const prefs = new AppPrefs();
         prefs.dataFolder = values.dataFolder;
-        await AppPrefsClient.setPrefs(prefs);
+        await window.apis.appPrefsApi.setPrefs(prefs);
         $currentPrefs = prefs;
         cancelForm();
         onSuccess();

@@ -1,12 +1,12 @@
 <script lang="ts">
   import { setContext, onMount } from 'svelte';
+
   import type { ScreenSpec } from './lib/screen_spec';
   import { Context } from './lib/contexts';
   import { currentPrefs } from './stores/currentPrefs';
   import { currentConnection } from './stores/currentConnection';
   import { screenStack } from './stores/screenStack';
   import type { Connection } from './shared/connection';
-  import { AppPrefsClient } from './clients/app_prefs_client';
   import { DatabaseConfigClient } from './clients/db_config_client';
   import { DatabaseClient } from './clients/database_client';
   import { UserClient } from './clients/user_client';
@@ -34,9 +34,8 @@
     await new Promise((resolve: any) => {
       wait(resolve);
     });
+    $currentPrefs = await window.apis.appPrefsApi.getPrefs();
   })();
-
-  $currentPrefs = AppPrefsClient.getPrefs();
 
   let connection: Connection;
   const initialDatabaseConfig = DatabaseConfigClient.getConfig();

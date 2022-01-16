@@ -1,8 +1,8 @@
 import knex, { Knex } from 'knex';
 
-import { AppKernel } from './app_kernel';
+import type { AppKernel } from './app_kernel';
 import { SavableCredentials } from '../app-util/savable_creds';
-import { SpecCollection } from '../shared/schema';
+import type { SpecCollection } from '../shared/schema';
 
 const CONNECTION_TIMEOUT_MILLIS = 15000;
 

@@ -1,10 +1,10 @@
-import { Knex } from 'knex';
+import type { Knex } from 'knex';
 
-import { Platform } from '../app-util/platform';
+import type { Platform } from '../app-util/platform';
 import { AppPrefs } from '../shared/app_prefs';
 import { DatabaseConfig, DatabaseValues } from '../shared/db_config';
-import { SpecifyUser } from '../shared/specify_user';
-import { Credentials } from '../shared/Credentials';
+import type { SpecifyUser } from '../shared/specify_user';
+import type { Credentials } from '../shared/credentials';
 import { PreferencesFile } from '../app-util/prefs_file';
 import { DatabaseCredentials } from './db_creds';
 import { UserCredentials } from './user_creds';

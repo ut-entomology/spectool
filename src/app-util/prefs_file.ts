@@ -1,4 +1,4 @@
-import { Platform } from './platform';
+import type { Platform } from './platform';
 
 /**
  * Preferences is a class that manages a JSON application preferences file.
