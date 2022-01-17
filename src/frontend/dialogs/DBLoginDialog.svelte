@@ -3,7 +3,6 @@
   import { currentDialog } from '../stores/currentDialog';
   import { currentConnection } from '../stores/currentConnection';
   import { Connection } from '../shared/connection';
-  import { DatabaseClient } from '../clients/database_client';
   import LoginDialog from '../dialogs/LoginDialog.svelte';
 
   export let onSuccess: () => void = () => {};
@@ -14,9 +13,9 @@
 
   async function connect(username: string, password: string, save: boolean) {
     if (save) {
-      await DatabaseClient.loginAndSave({ username, password });
+      await window.apis.databaseApi.loginAndSave({ username, password });
     } else {
-      await DatabaseClient.login({ username, password });
+      await window.apis.databaseApi.login({ username, password });
     }
     $currentConnection = new Connection(true, username);
     closeDialog();

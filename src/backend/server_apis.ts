@@ -1,18 +1,24 @@
 import { BrowserWindow } from 'electron';
-import { exposeMainApi, setIpcBindingTimeout } from 'electron-ipc-methods';
+import { exposeMainApi, setIpcBindingTimeout } from 'electron-ipc-methods/main';
 
 import { AppKernel } from '../kernel/app_kernel';
 import { AppPrefsApi } from './api/app_prefs_api';
+import { DatabaseApi } from './api/database_api';
 
 export function installServerApis(kernel: AppKernel) {
-  const apis = { appPrefsApi: new AppPrefsApi(kernel) };
+  const apis = {
+    appPrefsApi: new AppPrefsApi(kernel),
+    databaseApi: new DatabaseApi(kernel)
+  };
   global.serverApis = apis;
   return apis;
 }
 
 export function exposeServerApis(toWindow: BrowserWindow) {
-  setIpcBindingTimeout(200000); // TODO: delete or shrink if can
-  for (const api of Object.values(global.serverApis)) {
+  console.log('*** long timeout waiting to be bound');
+  setIpcBindingTimeout(10000);
+  for (const apiName in global.serverApis) {
+    const api = (global.serverApis as any)[apiName];
     exposeMainApi(toWindow, api);
   }
 }

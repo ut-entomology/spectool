@@ -5,5 +5,5 @@ import { Connection } from '../shared/connection';
 export const currentConnection = createStore(
   'current_connection',
   new Connection(),
-  (value) => Connection.construct(value)
+  (value) => Connection.restoreClass(value)
 );

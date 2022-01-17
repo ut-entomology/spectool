@@ -28,7 +28,7 @@ export class Connection {
     return this.collections.length > 0;
   }
 
-  static construct(fromData: Connection) {
+  static restoreClass(fromData: Connection) {
     return new Connection(
       fromData.isConfigured,
       fromData.username,

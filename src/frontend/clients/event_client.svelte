@@ -3,7 +3,6 @@
   import { currentDialog } from '../stores/currentDialog';
   import { DialogSpec } from '../lib/dialog_spec';
   import { Connection } from '../shared/connection';
-  import { DatabaseClient } from './database_client';
   import { flashMessage } from '../layout/VariableFlash.svelte';
   import { showNotice } from '../layout/VariableNotice.svelte';
 
@@ -24,7 +23,7 @@
   window.ipc.on('disconnect_database', async (_data) => {
     if (!connection.username) throw Error('Database was not connected');
     try {
-      await DatabaseClient.logout();
+      await window.apis.databaseApi.logout();
       flashMessage('Disconnected from database');
       currentConnection.set(new Connection(true, null));
     } catch (err: any) {

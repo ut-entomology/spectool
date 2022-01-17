@@ -3,6 +3,7 @@ import knex, { Knex } from 'knex';
 import type { AppKernel } from './app_kernel';
 import { SavableCredentials } from '../app-util/savable_creds';
 import type { SpecCollection } from '../shared/schema';
+import { UserError } from '../shared/user_error';
 
 const CONNECTION_TIMEOUT_MILLIS = 15000;
 
@@ -63,7 +64,7 @@ export class DatabaseCredentials extends SavableCredentials {
 
   private _createDatabaseClient(): Knex {
     if (!this.username || !this.password)
-      throw Error('No database credentials assigned');
+      throw new UserError('No database credentials assigned');
     const config = this._kernel.databaseConfig;
     return knex({
       client: 'mysql2',

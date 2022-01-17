@@ -7,7 +7,6 @@ import { APP_NAME } from './app/app_name';
 import { Platform } from './app-util/platform';
 import { createAppMenu } from './app/app_menu';
 import { installServerApis, exposeServerApis } from './backend/server_apis';
-import databaseApi from './backend/api/database_api';
 import databaseConfigApi from './backend/api/db_config_api';
 import userApi from './backend/api/user_api';
 import dialogApi from './backend/api/dialog_api';
@@ -72,7 +71,6 @@ app
     const kernel = new AppKernel(platform, new DatabaseConfig());
     installServerApis(kernel);
     const ipcHandlerSets = [
-      databaseApi(kernel),
       databaseConfigApi(kernel),
       userApi(kernel),
       dialogApi(kernel),

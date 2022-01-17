@@ -1,5 +1,6 @@
 <script lang="ts">
   import { setContext, onMount } from 'svelte';
+  import { bindMainApis } from './lib/main_client';
 
   import type { ScreenSpec } from './lib/screen_spec';
   import { Context } from './lib/contexts';
@@ -8,7 +9,6 @@
   import { screenStack } from './stores/screenStack';
   import type { Connection } from './shared/connection';
   import { DatabaseConfigClient } from './clients/db_config_client';
-  import { DatabaseClient } from './clients/database_client';
   import { UserClient } from './clients/user_client';
   import { recordUserLogin } from './dialogs/UserLoginDialog.svelte';
   import { toSvelteTarget } from './util/svelte_targets.svelte';
@@ -34,7 +34,6 @@
     await new Promise((resolve: any) => {
       wait(resolve);
     });
-    $currentPrefs = await window.apis.appPrefsApi.getPrefs();
   })();
 
   let connection: Connection;
@@ -59,10 +58,10 @@
   }
 
   async function connectDatabase() {
-    const databaseCreds = DatabaseClient.getSavedCreds();
+    const databaseCreds = await window.apis.databaseApi.getSavedCreds();
     if (databaseCreds) {
       try {
-        $currentConnection = await DatabaseClient.loginAndSave(databaseCreds);
+        $currentConnection = await window.apis.databaseApi.loginAndSave(databaseCreds);
       } catch (err: any) {
         showNotice(
           `Login failed to connect to database: ${err.message}`,
@@ -89,7 +88,13 @@
   }
 
   onMount(async () => {
-    $currentConnection = DatabaseClient.getExistingConnection();
+    if (!window.apis) {
+      // TODO: Do I need this condition (e.g. window reload)? Is there a better way to do this?
+      window.apis = await bindMainApis();
+    }
+    // await new Promise<void>((resolve) => waitForApis(resolve));
+    $currentPrefs = await window.apis.appPrefsApi.getPrefs();
+    $currentConnection = await window.apis.databaseApi.getExistingConnection();
     if (connection.username) {
       if (!connection.isActive()) {
         await connectDatabase();

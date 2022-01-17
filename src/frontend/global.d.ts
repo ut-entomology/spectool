@@ -1,7 +1,7 @@
 /// <reference types="svelte" />
 
 import 'svelte';
-import { MainApis } from '../app/main_client';
+import type { MainApis } from './lib/main_client';
 
 declare global {
   interface Window {
