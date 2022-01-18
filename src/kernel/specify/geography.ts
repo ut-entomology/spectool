@@ -1,8 +1,6 @@
-import type { Knex } from 'knex';
-
-import type { SpecGeography, SpecGeographyTreeDefItem } from '../../shared/schema';
 import type { GeoDictionary } from '../../shared/specify_data';
 import { RegionRank, Region } from '../../shared/region';
+import * as query from './queries';
 
 // Note: Specify stores the latinizations of locality names
 // with accents and diacritics removed.
@@ -45,32 +43,28 @@ export class Geography {
     return name.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
   }
 
-  async load(db: Knex): Promise<void> {
+  async load(db: query.DB): Promise<void> {
     // Clear first so garbage collection can work during query.
     this._ranksByID = {};
     this._regionsByID = {};
 
     // Load assignments of rank IDs to geographic categories.
-    const rankRows = await db
-      .select<SpecGeographyTreeDefItem[]>('rankID', 'name')
-      .from('geographytreedefitem');
+    const rankRows = await query.getGeographyRanks(db);
     for (const row of rankRows) {
-      const regionRank = RegionRank[row.name as keyof typeof RegionRank];
+      const regionRank = RegionRank[row.Name as keyof typeof RegionRank];
       if (regionRank !== undefined) {
-        this._ranksByID[row.rankID] = regionRank;
+        this._ranksByID[row.RankID] = regionRank;
       }
     }
 
     // Load all geographic regions.
-    const geoRows = await db
-      .select<SpecGeography[]>('geographyID', 'rankID', 'name', 'parentID')
-      .from('geography');
+    const geoRows = await query.getAllGeographicRegions(db);
     for (const row of geoRows) {
-      this._regionsByID[row.geographyID] = new Region(
-        row.geographyID,
-        this._ranksByID[row.rankID],
-        row.name,
-        row.parentID
+      this._regionsByID[row.GeographyID] = new Region(
+        row.GeographyID,
+        this._ranksByID[row.RankID],
+        row.Name,
+        row.ParentID
       );
     }
   }

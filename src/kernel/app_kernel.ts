@@ -1,11 +1,10 @@
-import type { Knex } from 'knex';
-
 import type { Platform } from '../app-util/platform';
 import { AppPrefs } from '../shared/app_prefs';
 import { DatabaseConfig, DatabaseValues } from '../shared/db_config';
 import type { SpecifyUser } from '../shared/specify_user';
 import type { Credentials } from '../shared/credentials';
 import { PreferencesFile } from '../app-util/prefs_file';
+import type * as query from './specify/queries';
 import { DatabaseCredentials } from './db_creds';
 import { UserCredentials } from './user_creds';
 import { Specify } from './specify';
@@ -94,7 +93,7 @@ export class AppKernel {
   /**
    * Returns a client for the configured Specify database.
    */
-  get database(): Knex {
+  get database(): query.DB {
     return this.databaseCreds!.connect();
   }
 
@@ -200,6 +199,6 @@ export class AppKernel {
    * Releases resources associated with the kernel.
    */
   destroy() {
-    this.database.destroy();
+    this.database.end();
   }
 }

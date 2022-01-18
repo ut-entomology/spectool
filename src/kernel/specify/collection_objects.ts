@@ -1,20 +1,10 @@
-import type { Knex } from 'knex';
+import * as query from './queries';
 
 export class CollectionObjects {
-  async getGeographyIDs(db: Knex, collectionID: number): Promise<number[]> {
-    const rows = await db.raw<{ GeographyID: number }[][]>(`
-      select distinct loc.GeographyID from locality as loc
-      join(
-        select ce.LocalityID from collectingevent as ce
-        join(
-          select CollectingEventID from collectionobject
-          where CollectionID=${collectionID}
-        ) as ceID
-        on ce.CollectingEventID = ceID.CollectingEventID
-      ) as locID
-      on loc.LocalityID = locID.LocalityID;`);
+  async getGeographyIDs(db: query.DB, collectionID: number): Promise<number[]> {
+    const rows = await query.getCollectionGeographyIDs(db, collectionID);
     const geographyIDs: number[] = [];
-    for (const row of rows[0]) {
+    for (const row of rows) {
       if (row.GeographyID !== null) {
         geographyIDs.push(row.GeographyID);
       }

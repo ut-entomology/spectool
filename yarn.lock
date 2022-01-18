@@ -783,6 +783,11 @@
   dependencies:
     "@types/node" "*"
 
+"@types/sqlstring@^2.3.0":
+  version "2.3.0"
+  resolved "https://registry.yarnpkg.com/@types/sqlstring/-/sqlstring-2.3.0.tgz#5960ade0166cfaaa4673fc74ec8157a08d06c89e"
+  integrity sha512-kMFecDYYFk/f5fljO0UFrSPwU1JxY4mIjX6ic7MHv5nD6sEd3NYLoWcOV/3s6Drs7RHdCwTQdD5NdgVl0I2zzg==
+
 "@types/stack-utils@^2.0.0":
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/@types/stack-utils/-/stack-utils-2.0.1.tgz#20f18294f797f2209b5f65c8e3b5c8e8261d127c"
@@ -3234,6 +3239,11 @@ ms@2.1.2:
   version "2.1.2"
   resolved "https://registry.yarnpkg.com/ms/-/ms-2.1.2.tgz#d09d1f357b443f493382a8eb3ccd183872ae6009"
   integrity sha512-sGkPx+VjMtmA6MX27oA4FBFELFCZZ4S4XqeGOXCv68tT+jb3vk/RyaKWP0PTKyWtmLSM0b+adUTEvbs1PEaH2w==
+
+mysql2-timeout-additions@^1.1.2:
+  version "1.1.2"
+  resolved "https://registry.yarnpkg.com/mysql2-timeout-additions/-/mysql2-timeout-additions-1.1.2.tgz#2a2b5f480ed0e4796f3916c3d92b8f39e76e0a9e"
+  integrity sha512-nWfLmnA4Lc6KtjMGGy0kava61QvRh9oGGD1k+wR3uaWZMUXhdwpoWQ/m1zNIjuLisKghTQf5ZlNof76Jui1Dyg==
 
 mysql2@^2.3.1:
   version "2.3.3"

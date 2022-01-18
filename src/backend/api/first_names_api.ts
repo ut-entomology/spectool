@@ -1,6 +1,5 @@
 import { AppKernel } from '../../kernel/app_kernel';
 import { IpcHandler, AsyncIpcHandler } from '../util/ipc_handler';
-import { SpecAgent } from '../../shared/schema';
 
 class GetFirstNamesIpc extends AsyncIpcHandler {
   kernel: AppKernel;
@@ -11,13 +10,15 @@ class GetFirstNamesIpc extends AsyncIpcHandler {
   }
 
   async handler(lastName: string) {
-    const rows = await this.kernel.database
-      .select('firstname')
-      .from<SpecAgent>('agent')
-      .where('lastname', lastName);
+    const rows = (
+      await this.kernel.database.execute(
+        `select FirstName from agent where LastName = ?`,
+        [lastName]
+      )
+    )[0] as { FirstName: string }[];
     const firstNames: string[] = [];
     for (const row of rows) {
-      firstNames.push(row.firstname);
+      firstNames.push(row.FirstName);
     }
     return firstNames;
   }

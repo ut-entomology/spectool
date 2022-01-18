@@ -1,15 +1,17 @@
-import knex, { Knex } from 'knex';
+import * as mysql from 'mysql2/promise';
+import { addTimeoutToPromisePool } from 'mysql2-timeout-additions';
 
 import type { AppKernel } from './app_kernel';
 import { SavableCredentials } from '../app-util/savable_creds';
 import type { SpecCollection } from '../shared/schema';
 import { UserError } from '../shared/user_error';
+import * as query from './specify/queries';
 
-const CONNECTION_TIMEOUT_MILLIS = 15000;
+const CONNECTION_TIMEOUT_SECONDS = 5;
 
 export class DatabaseCredentials extends SavableCredentials {
   private _kernel: AppKernel;
-  private _database?: Knex;
+  private _database?: query.DB;
 
   constructor(kernel: AppKernel) {
     super(kernel.platform.appName, 'database');
@@ -19,12 +21,12 @@ export class DatabaseCredentials extends SavableCredentials {
   async clear(): Promise<void> {
     await super.clear();
     if (this._database) {
-      await this._database.destroy();
+      await this._database.end();
     }
     this._database = undefined;
   }
 
-  connect(): Knex {
+  connect(): query.DB {
     if (this._database) {
       return this._database;
     }
@@ -35,7 +37,7 @@ export class DatabaseCredentials extends SavableCredentials {
   async set(username: string, password: string): Promise<void> {
     super.set(username, password);
     if (this._database) {
-      await this._database.destroy();
+      await this._database.end();
       this._database = this._createDatabaseClient();
     }
   }
@@ -47,12 +49,10 @@ export class DatabaseCredentials extends SavableCredentials {
    */
   async validate(): Promise<SpecCollection[]> {
     try {
-      const rows = await this._kernel.database
-        .select('collectionID', 'collectionName')
-        .from<SpecCollection>('collection');
+      const rows = await query.getAllCollections(this._kernel.database);
       return rows.map((row) => ({
-        collectionID: row.collectionID,
-        collectionName: row.collectionName
+        collectionID: row.CollectionID,
+        collectionName: row.CollectionName
       }));
     } catch (err) {
       await this.clear();
@@ -62,20 +62,18 @@ export class DatabaseCredentials extends SavableCredentials {
 
   //// PRIVATE METHODS ////
 
-  private _createDatabaseClient(): Knex {
+  private _createDatabaseClient() {
     if (!this.username || !this.password)
       throw new UserError('No database credentials assigned');
     const config = this._kernel.databaseConfig;
-    return knex({
-      client: 'mysql2',
-      connection: {
-        host: config.databaseHost,
-        database: config.databaseName,
-        port: config.databasePort,
-        user: this.username,
-        password: this.password
-      },
-      acquireConnectionTimeout: CONNECTION_TIMEOUT_MILLIS
+    const pool = mysql.createPool({
+      host: config.databaseHost,
+      database: config.databaseName,
+      port: config.databasePort,
+      user: this.username,
+      password: this.password
     });
+    addTimeoutToPromisePool({ pool, seconds: CONNECTION_TIMEOUT_SECONDS });
+    return pool;
   }
 }
