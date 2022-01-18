@@ -7,7 +7,7 @@ import type { SpecCollection } from '../shared/schema';
 import { UserError } from '../shared/user_error';
 import * as query from './specify/queries';
 
-const CONNECTION_TIMEOUT_SECONDS = 5;
+const CONNECTION_TIMEOUT_SECONDS = 15;
 
 export class DatabaseCredentials extends SavableCredentials {
   private _kernel: AppKernel;

@@ -20,6 +20,7 @@ import { devMode } from './app/dev_mode';
 
 // Without this handler, electron was not reporting all exceptions.
 process.on('uncaughtException', function (error) {
+  // TODO: gracefully handle mysql2-timeout-additions.TimeoutError
   log.error(error);
   app.exit(1);
 });
