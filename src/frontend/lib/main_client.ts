@@ -7,7 +7,7 @@ import {
 
 import type { AppPrefsApi } from '../../backend/api/app_prefs_api';
 import type { DatabaseApi } from '../../backend/api/database_api';
-import { Connection } from '../shared/connection';
+import { Connection } from '../shared/shared_connection';
 
 export async function bindMainApis() {
   console.log('*** long timeout waiting to bind');

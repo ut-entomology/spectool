@@ -1,7 +1,6 @@
 <script lang="ts">
-  import { SPECIFY_USA } from '../shared/specify_data';
+  import { SPECIFY_USA, Region } from '../shared/shared_geography';
   import { GeographyClient } from '../clients/geography_client';
-  import type { Region } from '../shared/region';
   import { currentCollectionID } from '../stores/currentCollectionID';
   import { closeActivity } from '../components/ActivityBar.svelte';
   import ActivityInstructions from '../components/ActivityInstructions.svelte';

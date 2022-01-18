@@ -1,21 +1,24 @@
-import type { SpecCollection } from '../shared/schema';
+export interface Collection {
+  collectionID: number;
+  collectionName: string;
+}
 
 export class Connection {
   isConfigured; // whether the DB connection has been configured
   username: string | null; // username logged into DB, if logged in
-  collections: SpecCollection[]; // collections to which user has access
+  collections: Collection[]; // collections to which user has access
 
   constructor(
     isConfigured: boolean = false,
     username: string | null = null,
-    collections: SpecCollection[] = []
+    collections: Collection[] = []
   ) {
     this.isConfigured = isConfigured;
     this.username = username;
     this.collections = collections;
   }
 
-  getCollection(collectionID: number): SpecCollection | null {
+  getCollection(collectionID: number): Collection | null {
     for (const collection of this.collections) {
       if (collection.collectionID == collectionID) {
         return collection;

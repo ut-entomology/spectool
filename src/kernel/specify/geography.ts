@@ -1,5 +1,4 @@
-import type { GeoDictionary } from '../../shared/specify_data';
-import { RegionRank, Region } from '../../shared/region';
+import { GeoDictionary, RegionRank, Region } from '../../shared/shared_geography';
 import * as query from './queries';
 
 // Note: Specify stores the latinizations of locality names

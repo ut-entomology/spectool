@@ -1,4 +1,4 @@
-import { Region } from '../../shared/region';
+import { Region } from '../../shared/shared_geography';
 
 export interface AdjoiningRegions {
   getAdjacentRegions(toGeographyID: number): Region[];

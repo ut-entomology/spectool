@@ -1,11 +1,11 @@
-import type { SpecLocality } from '../../shared/schema';
+import type { Locality } from '../../shared/shared_geography';
 import * as query from './queries';
 
 export class Localities {
-  async getLocalities(db: query.DB, forGeoIDs: number[]): Promise<SpecLocality[]> {
+  async getLocalities(db: query.DB, forGeoIDs: number[]): Promise<Locality[]> {
     const rows = await query.getGeographicRegionLocalities(db, forGeoIDs);
 
-    const localities: SpecLocality[] = [];
+    const localities: Locality[] = [];
     rows.forEach((row) =>
       localities.push({
         localityID: row.LocalityID,

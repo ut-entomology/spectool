@@ -12,9 +12,31 @@ export enum Permissions {
   ManageTaxa = 1 << 3
 }
 
+export interface SpecifyUser {
+  id: number;
+  name: string;
+  access: CollectionAccess[];
+  saved: boolean;
+}
+
+export interface Credentials {
+  username: string;
+  password: string;
+}
+
 export interface CollectionAccess {
   collectionID: number;
   accessLevel: AccessLevel;
+}
+
+/**
+ * A generic class of error for which the user is somehow responsible.
+ */
+
+export class UserError extends Error {
+  constructor(message: string) {
+    super(message);
+  }
 }
 
 export function toAccessLevel(specUserType: string): AccessLevel {

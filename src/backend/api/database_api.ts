@@ -1,8 +1,8 @@
 import { PassThroughError } from 'electron-ipc-methods/main';
 
 import type { AppKernel } from '../../kernel/app_kernel';
-import type { Credentials } from '../../shared/credentials';
-import { Connection } from '../../shared/connection';
+import { Connection } from '../../shared/shared_connection';
+import type { Credentials } from '../../shared/shared_user';
 import { connectionPub } from '../../app/connectionPub';
 
 let connection: Connection;

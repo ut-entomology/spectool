@@ -3,8 +3,8 @@ import { addTimeoutToPromisePool } from 'mysql2-timeout-additions';
 
 import type { AppKernel } from './app_kernel';
 import { SavableCredentials } from '../app-util/savable_creds';
-import type { SpecCollection } from '../shared/schema';
-import { UserError } from '../shared/user_error';
+import type { Collection } from '../shared/shared_connection';
+import { UserError } from '../shared/shared_user';
 import * as query from './specify/queries';
 
 const CONNECTION_TIMEOUT_SECONDS = 15;
@@ -47,7 +47,7 @@ export class DatabaseCredentials extends SavableCredentials {
    * if they are. If they are not, clears the username and password and
    * throws an exception.
    */
-  async validate(): Promise<SpecCollection[]> {
+  async validate(): Promise<Collection[]> {
     try {
       const rows = await query.getAllCollections(this._kernel.database);
       return rows.map((row) => ({

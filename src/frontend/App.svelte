@@ -7,7 +7,7 @@
   import { currentPrefs } from './stores/currentPrefs';
   import { currentConnection } from './stores/currentConnection';
   import { screenStack } from './stores/screenStack';
-  import type { Connection } from './shared/connection';
+  import type { Connection } from './shared/shared_connection';
   import { DatabaseConfigClient } from './clients/db_config_client';
   import { UserClient } from './clients/user_client';
   import { recordUserLogin } from './dialogs/UserLoginDialog.svelte';

@@ -16,24 +16,49 @@ import type * as mysql from 'mysql2/promise';
  */
 export type DB = mysql.Pool;
 
+//// COLLECTIONS /////////////////////////////////////////////////////////////
+
 /**
  * Query for returning all collections in the database.
  */
 export async function getAllCollections(db: DB) {
-  type Row = {
+  type ResultRow = {
     CollectionID: number;
     CollectionName: string;
   };
   return (
     await db.execute(`select CollectionID, CollectionName from collection`)
-  )[0] as Row[];
+  )[0] as ResultRow[];
+}
+
+//// USERS & AGENTS //////////////////////////////////////////////////////////
+
+/**
+ * Query returning information about all Specify users.
+ */
+export async function getAllUsers(db: DB) {
+  type ResultRow = {
+    SpecifyUserID: number;
+    AgentID: number;
+    LastName: string;
+    FirstName: string;
+    Name: string;
+    UserType: string;
+  };
+  return (
+    await db.execute(
+      `select u.SpecifyUserID, a.AgentID, a.LastName, a.FirstName, u.Name, u.UserType
+        from specifyuser u
+        join agent a on a.SpecifyUserID = u.SpecifyUserID`
+    )
+  )[0] as ResultRow[];
 }
 
 /**
  * Query returning a user's per-collection login credentials.
  */
 export async function getUserCredentials(db: DB, username: string) {
-  type Row = {
+  type ResultRow = {
     SpecifyUserID: number;
     Password: string;
     UserType: string;
@@ -47,14 +72,16 @@ export async function getUserCredentials(db: DB, username: string) {
         where r.CollectionID is not null and u.Name = ?`,
       [username]
     )
-  )[0] as Row[];
+  )[0] as ResultRow[];
 }
+
+//// GEOGRAPHY ///////////////////////////////////////////////////////////////
 
 /**
  * Query returning all geographic regions.
  */
 export async function getAllGeographicRegions(db: DB) {
-  type Row = {
+  type ResultRow = {
     GeographyID: number;
     RankID: number;
     Name: string;
@@ -62,51 +89,51 @@ export async function getAllGeographicRegions(db: DB) {
   };
   return (
     await db.execute(`select GeographyID, RankID, Name, ParentID from geography`)
-  )[0] as Row[];
+  )[0] as ResultRow[];
 }
 
 /**
  * Query returning all geography IDs in use by a given collection.
  */
 export async function getCollectionGeographyIDs(db: DB, collectionID: number) {
-  type Row = {
+  type ResultRow = {
     GeographyID: number;
   };
   return (
     await db.execute(
       `select distinct loc.GeographyID from locality as loc
-      join(
-        select ce.LocalityID from collectingevent as ce
         join(
-          select CollectingEventID from collectionobject
-          where CollectionID = ?
-        ) as ceID
-        on ce.CollectingEventID = ceID.CollectingEventID
-      ) as locID
-      on loc.LocalityID = locID.LocalityID`,
+          select ce.LocalityID from collectingevent as ce
+          join(
+            select CollectingEventID from collectionobject
+            where CollectionID = ?
+          ) as ceID
+          on ce.CollectingEventID = ceID.CollectingEventID
+        ) as locID
+        on loc.LocalityID = locID.LocalityID`,
       [collectionID]
     )
-  )[0] as Row[];
+  )[0] as ResultRow[];
 }
 
 /**
  * Query returning all available ranks of geography.
  */
 export async function getGeographyRanks(db: DB) {
-  type Row = {
+  type ResultRow = {
     RankID: number;
     Name: string;
   };
   return (
     await db.execute(`select RankID, Name from geographytreedefitem`)
-  )[0] as Row[];
+  )[0] as ResultRow[];
 }
 
 /**
  * Query returning all localities found in any of a given set of geographic regions.
  */
 export async function getGeographicRegionLocalities(db: DB, forGeographyIDs: number[]) {
-  type Row = {
+  type ResultRow = {
     LocalityID: number;
     Latitude1: number;
     Longitude1: number;
@@ -118,5 +145,51 @@ export async function getGeographicRegionLocalities(db: DB, forGeographyIDs: num
             where GeographyID in ?`,
       [forGeographyIDs]
     )
-  )[0] as Row[];
+  )[0] as ResultRow[];
+}
+
+//// TAXA ////////////////////////////////////////////////////////////////////
+
+/**
+ * Query returning all taxa neither occurring in a determination nor containing any
+ * taxa occuring in a determination, restricted to a range of creation dates.
+ */
+export async function getUnusedTaxa(db: DB, oldestDate: Date, newestDate: Date) {
+  type ResultRow = {
+    TaxonID: number;
+    Name: string;
+    RankID: number;
+    ParentID: number;
+    CreatedByAgentID: number;
+    TimestampCreated: Date;
+  };
+  return (
+    await db.execute(
+      `with recursive unused_taxa as (
+          select t1.* from taxa as t1
+          left join taxon t2 on t2.ParentID = t1.TaxonID
+          left join dets as d1 on d1.TaxonID = t1.TaxonID
+          where t2.ParentID is null and d1.DeterminationID is null
+          
+          union all
+          
+          select t3.* from taxa as t3
+          join unused_taxa ut on ut.ParentID = t3.TaxonID
+          left join dets as d2 on d2.TaxonID = t3.TaxonID
+          where d2.DeterminationID is null
+        ),
+        taxa as (
+          select TaxonID, Name, RankID, ParentID,
+            CreatedByAgentID, TimestampCreated from taxon
+        ),
+        dets as (
+          select DeterminationID, TaxonID from determination
+        )
+        select distinct TaxonID, Name, RankID, ParentID,
+          CreatedByAgentID, TimestampCreated
+        from unused_taxa
+        where TimestampCreated >= ? and TimestampCreated <= ?`,
+      [oldestDate, newestDate]
+    )
+  )[0] as ResultRow[];
 }

@@ -1,13 +1,12 @@
 import type { Platform } from '../app-util/platform';
-import { AppPrefs } from '../shared/app_prefs';
-import { DatabaseConfig, DatabaseValues } from '../shared/db_config';
-import type { SpecifyUser } from '../shared/specify_user';
-import type { Credentials } from '../shared/credentials';
+import { AppPrefs } from '../shared/shared_app_prefs';
+import { DatabaseConfig, DatabaseValues } from '../shared/shared_db_config';
+import type { SpecifyUser, Credentials } from '../shared/shared_user';
 import { PreferencesFile } from '../app-util/prefs_file';
 import type * as query from './specify/queries';
 import { DatabaseCredentials } from './db_creds';
 import { UserCredentials } from './user_creds';
-import { Specify } from './specify';
+import { SpecifyApi } from './specify_api';
 
 // TODO: Can I move some of these globals to their own modules (and still test)?
 // TODO: Can I move the kernel to a global (and still test)?
@@ -53,7 +52,7 @@ export class AppKernel {
   readonly platform: Platform;
   readonly appPrefsFile: AppPrefsFile;
   readonly databaseConfigFile: DatabaseConfigFile;
-  readonly specify: Specify;
+  readonly specifyApi: SpecifyApi;
   loggedInUser: SpecifyUser | null = null;
 
   private _appPrefs?: AppPrefs;
@@ -74,7 +73,7 @@ export class AppKernel {
       this.platform,
       defaultDatabaseValues
     );
-    this.specify = new Specify();
+    this.specifyApi = new SpecifyApi();
   }
 
   /**

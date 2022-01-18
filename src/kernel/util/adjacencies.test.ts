@@ -2,8 +2,7 @@ import { createTestKernel } from '../../test_util';
 import { AppKernel } from '../app_kernel';
 import { Adjacencies } from './adjacencies';
 import { Geography } from '../specify/geography';
-import { Region } from '../../shared/region';
-import { SPECIFY_USA } from '../../shared/specify_data';
+import { Region, SPECIFY_USA } from '../../shared/shared_geography';
 
 describe('hardcoded region adjacencies', () => {
   let kernel: AppKernel;
@@ -191,7 +190,7 @@ describe('hardcoded region adjacencies', () => {
 
   beforeAll(async () => {
     kernel = await createTestKernel();
-    geography = kernel.specify.geography;
+    geography = kernel.specifyApi.geography;
     await geography.load(kernel.database);
     adjacencies = new Adjacencies(geography);
     await adjacencies.load();

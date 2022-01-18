@@ -1,8 +1,7 @@
 import { createTestKernel } from '../../test_util';
 import { AppKernel } from '../app_kernel';
 import { Geography } from './geography';
-import { RegionRank, Region } from '../../shared/region';
-import { SPECIFY_USA } from '../../shared/specify_data';
+import { RegionRank, Region, SPECIFY_USA } from '../../shared/shared_geography';
 
 describe('Specify geography', () => {
   let kernel: AppKernel;
@@ -36,7 +35,7 @@ describe('Specify geography', () => {
 
   beforeAll(async () => {
     kernel = await createTestKernel();
-    geography = kernel.specify.geography;
+    geography = kernel.specifyApi.geography;
     await geography.load(kernel.database);
   });
 

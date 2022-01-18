@@ -8,7 +8,7 @@
  */
 
 import { AdjoiningRegions } from './adjoining_regions';
-import { Region, RegionRank } from '../../shared/region';
+import { Region, RegionRank } from '../../shared/shared_geography';
 import { TrackedRegionStatus, TrackedRegion } from './tracked_region';
 import { TrackedRegionRoster } from './region_roster';
 import { LocalityCache } from './locality_cache';

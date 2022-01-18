@@ -13,8 +13,8 @@ import dialogApi from './backend/api/dialog_api';
 import geographyApi from './backend/api/geography_api';
 import firstNamesApi from './backend/api/first_names_api';
 import { AppKernel } from './kernel/app_kernel';
-import { Connection } from './shared/connection';
-import { DatabaseConfig } from './shared/db_config';
+import { Connection } from './shared/shared_connection';
+import { DatabaseConfig } from './shared/shared_db_config';
 import { connectionPub } from './app/connectionPub';
 import { devMode } from './app/dev_mode';
 

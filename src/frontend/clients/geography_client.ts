@@ -1,6 +1,5 @@
 import { ClientIpc } from '../util/client_ipc';
-import type { GeoDictionary } from '../shared/specify_data';
-import type { Region } from '../shared/region';
+import type { GeoDictionary, Region } from '../shared/shared_geography';
 
 export class GeographyClient {
   static loadGeography(): Promise<void> {

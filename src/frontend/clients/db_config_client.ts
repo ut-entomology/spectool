@@ -1,5 +1,5 @@
 import { ClientIpc } from '../util/client_ipc';
-import { DatabaseConfig } from '../shared/db_config';
+import { DatabaseConfig } from '../shared/shared_db_config';
 
 export class DatabaseConfigClient {
   static getConfig(): DatabaseConfig {

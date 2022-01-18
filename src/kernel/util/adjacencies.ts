@@ -2,8 +2,12 @@ import * as path from 'path';
 
 import { BinaryCountyAdjacencyFile } from './county_adjacency';
 import { Geography } from '../specify/geography';
-import { GeoDictionary, SPECIFY_USA } from '../../shared/specify_data';
-import { Region, RegionRank } from '../../shared/region';
+import {
+  GeoDictionary,
+  Region,
+  RegionRank,
+  SPECIFY_USA
+} from '../../shared/shared_geography';
 import { US_STATE_ABBREVS, toStateNameFromAbbrev } from './states';
 import { countryAdjacencies, stateAdjacencies, usaAdjacencies } from './adjacency_data';
 

@@ -4,8 +4,8 @@
 
   import { Context } from '../lib/contexts';
   import { createForm, ContextForm, Input } from '../layout/forms';
-  import type { DatabaseConfig } from '../shared/db_config';
-  import { Connection } from '../shared/connection';
+  import type { DatabaseConfig } from '../shared/shared_db_config';
+  import { Connection } from '../shared/shared_connection';
   import { DatabaseConfigClient } from '../clients/db_config_client';
   import { currentConnection } from '../stores/currentConnection';
   import { currentDialog } from '../stores/currentDialog';

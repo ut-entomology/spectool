@@ -2,7 +2,7 @@
   import { flashMessage } from '../layout/VariableFlash.svelte';
   import { currentDialog } from '../stores/currentDialog';
   import { currentConnection } from '../stores/currentConnection';
-  import { Connection } from '../shared/connection';
+  import { Connection } from '../shared/shared_connection';
   import LoginDialog from '../dialogs/LoginDialog.svelte';
 
   export let onSuccess: () => void = () => {};

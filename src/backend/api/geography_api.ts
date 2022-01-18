@@ -11,7 +11,7 @@ class LoadGeographyIpc extends AsyncIpcHandler {
 
   async handler(_data: any) {
     const db = this.kernel.database;
-    await this.kernel.specify.geography.load(db);
+    await this.kernel.specifyApi.geography.load(db);
   }
 }
 
@@ -24,7 +24,7 @@ class GetCountriesIpc extends AsyncIpcHandler {
   }
 
   async handler(_data: any) {
-    return this.kernel.specify.geography.getCountries();
+    return this.kernel.specifyApi.geography.getCountries();
   }
 }
 
@@ -39,11 +39,11 @@ class GetCountriesOfIpc extends AsyncIpcHandler {
   async handler(collectionID: number) {
     try {
       const db = this.kernel.database;
-      const geoIDs = await this.kernel.specify.collectionObjects.getGeographyIDs(
+      const geoIDs = await this.kernel.specifyApi.collectionObjects.getGeographyIDs(
         db,
         collectionID
       );
-      return this.kernel.specify.geography.getCountriesOf(geoIDs);
+      return this.kernel.specifyApi.geography.getCountriesOf(geoIDs);
     } catch (err) {
       console.log(err);
       throw err;
@@ -60,7 +60,7 @@ class GetStatesIpc extends AsyncIpcHandler {
   }
 
   async handler(countryID: number) {
-    return this.kernel.specify.geography.getChildren(countryID);
+    return this.kernel.specifyApi.geography.getChildren(countryID);
   }
 }
 
@@ -74,11 +74,11 @@ class GetStatesOfIpc extends AsyncIpcHandler {
 
   async handler(data: { collectionID: number; countryID: number }) {
     const db = this.kernel.database;
-    const geoIDs = await this.kernel.specify.collectionObjects.getGeographyIDs(
+    const geoIDs = await this.kernel.specifyApi.collectionObjects.getGeographyIDs(
       db,
       data.collectionID
     );
-    return this.kernel.specify.geography.getStatesOf(data.countryID, geoIDs);
+    return this.kernel.specifyApi.geography.getStatesOf(data.countryID, geoIDs);
   }
 }
 

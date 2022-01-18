@@ -2,7 +2,7 @@
   import { currentConnection } from '../stores/currentConnection';
   import { currentDialog } from '../stores/currentDialog';
   import { DialogSpec } from '../lib/dialog_spec';
-  import { Connection } from '../shared/connection';
+  import { Connection } from '../shared/shared_connection';
   import { flashMessage } from '../layout/VariableFlash.svelte';
   import { showNotice } from '../layout/VariableNotice.svelte';
 

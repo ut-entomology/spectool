@@ -1,4 +1,4 @@
-import { Region, RegionRank } from '../../shared/region';
+import { Region, RegionRank } from '../../shared/shared_geography';
 
 export enum TrackedRegionStatus {
   Pending,

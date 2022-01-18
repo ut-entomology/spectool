@@ -6,7 +6,7 @@
   import { currentActivity } from '../stores/currentActivity';
   import { currentConnection } from '../stores/currentConnection';
   import { currentCollectionID } from '../stores/currentCollectionID';
-  import type { Connection } from '../shared/connection';
+  import type { Connection } from '../shared/shared_connection';
 
   let connection: Connection;
   currentConnection.subscribe((conn) => {

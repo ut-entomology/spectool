@@ -1,7 +1,7 @@
 <script lang="ts" context="module">
   import { currentUser } from '../stores/currentUser';
   import { currentCollectionID } from '../stores/currentCollectionID';
-  import type { SpecifyUser } from '../shared/specify_user';
+  import type { SpecifyUser } from '../shared/shared_user';
 
   export function recordUserLogin(user: SpecifyUser) {
     currentUser.set(user);

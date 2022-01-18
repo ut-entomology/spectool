@@ -4,7 +4,7 @@ import * as fs from 'fs';
 import { AdjoiningRegions } from './adjoining_regions';
 import { AdjoiningRegionDriver, Diagnostics } from './region_driver';
 import type { CachedLocality, LocalityCache } from './locality_cache';
-import { Region, RegionRank } from '../../shared/region';
+import { Region, RegionRank } from '../../shared/shared_geography';
 import { TrackedRegionRoster } from './region_roster';
 import { TrackedRegion, TrackedRegionStatus } from './tracked_region';
 

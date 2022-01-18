@@ -1,6 +1,6 @@
 import { IpcHandler, AsyncIpcHandler, SyncIpcHandler } from '../util/ipc_handler';
 import { AppKernel } from '../../kernel/app_kernel';
-import { Credentials } from '../../shared/credentials';
+import { Credentials } from '../../shared/shared_user';
 
 class GetSavedUserCredsIpc extends SyncIpcHandler {
   private kernel: AppKernel;

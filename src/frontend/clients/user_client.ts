@@ -1,6 +1,5 @@
 import { ClientIpc } from '../util/client_ipc';
-import type { Credentials } from '../../shared/credentials';
-import type { SpecifyUser } from '../../shared/specify_user';
+import type { Credentials, SpecifyUser } from '../../shared/shared_user';
 
 export class UserClient {
   static getSavedCreds(): Credentials | null {
