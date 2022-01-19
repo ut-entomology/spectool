@@ -1,12 +1,12 @@
 <script lang="ts">
-  import { SPECIFY_USA, Region } from '../shared/shared_geography';
-  import { GeographyClient } from '../clients/geography_client';
-  import { currentCollectionID } from '../stores/currentCollectionID';
-  import { closeActivity } from '../components/ActivityBar.svelte';
-  import ActivityInstructions from '../components/ActivityInstructions.svelte';
-  import Notice from '../layout/Notice.svelte';
-  import BigSpinner from '../components/BigSpinner.svelte';
-  import Dialog from '../layout/Dialog.svelte';
+  import { SPECIFY_USA, Region } from '../../shared/shared_geography';
+  import { GeographyClient } from '../../clients/geography_client';
+  import { currentCollectionID } from '../../stores/currentCollectionID';
+  import { closeActivity } from '../../components/ActivityBar.svelte';
+  import ActivityInstructions from '../../components/ActivityInstructions.svelte';
+  import Notice from '../../layout/Notice.svelte';
+  import BigSpinner from '../../components/BigSpinner.svelte';
+  import Dialog from '../../layout/Dialog.svelte';
 
   let countries: Region[] = [];
   let countryID = 0;

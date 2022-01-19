@@ -1,8 +1,8 @@
 <script lang="ts">
   import * as yup from 'yup';
-  import { createForm, ContextForm, Input } from '../layout/forms';
-  import ActivityInstructions from '../components/ActivityInstructions.svelte';
-  import Dialog from '../layout/Dialog.svelte';
+  import { createForm, ContextForm, Input } from '../../layout/forms';
+  import ActivityInstructions from '../../components/ActivityInstructions.svelte';
+  import Dialog from '../../layout/Dialog.svelte';
 
   const REGEX_DATE = /^ *\d{1,2} *[/] *\d{1,2} *[/] *\d{4} *$/;
 
@@ -35,7 +35,7 @@
         .string()
         .label('Ending Date')
         .required()
-        .test('test-starting-date', DATE_FORMAT_MESSAGE, validateDate)
+        .test('test-ending-date', DATE_FORMAT_MESSAGE, validateDate)
     }),
     onSubmit: async (values) => {
       const startingDate = new Date(values.startingDateStr);
