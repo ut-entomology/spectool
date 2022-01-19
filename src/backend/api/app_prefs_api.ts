@@ -1,5 +1,5 @@
-import type { AppPrefs } from '../../shared/shared_app_prefs';
 import type { AppKernel } from '../../kernel/app_kernel';
+import type { AppPrefs } from '../../shared/shared_app_prefs';
 
 export class AppPrefsApi {
   _kernel: AppKernel;

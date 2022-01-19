@@ -7,6 +7,7 @@ import {
 
 import type { AppPrefsApi } from '../../backend/api/app_prefs_api';
 import type { DatabaseApi } from '../../backend/api/database_api';
+import type { UserApi } from '../../backend/api/user_api';
 import { Connection } from '../shared/shared_connection';
 
 export async function bindMainApis() {
@@ -14,7 +15,8 @@ export async function bindMainApis() {
   setIpcBindingTimeout(10000);
   return {
     appPrefsApi: await bindMainApi<AppPrefsApi>('AppPrefsApi', restorer),
-    databaseApi: await bindMainApi<DatabaseApi>('DatabaseApi', restorer)
+    databaseApi: await bindMainApi<DatabaseApi>('DatabaseApi', restorer),
+    userApi: await bindMainApi<UserApi>('UserApi', restorer)
   };
 }
 

@@ -8,7 +8,6 @@ import { Platform } from './app-util/platform';
 import { createAppMenu } from './app/app_menu';
 import { installServerApis, exposeServerApis } from './backend/server_apis';
 import databaseConfigApi from './backend/api/db_config_api';
-import userApi from './backend/api/user_api';
 import dialogApi from './backend/api/dialog_api';
 import geographyApi from './backend/api/geography_api';
 import firstNamesApi from './backend/api/first_names_api';
@@ -73,7 +72,6 @@ app
     installServerApis(kernel);
     const ipcHandlerSets = [
       databaseConfigApi(kernel),
-      userApi(kernel),
       dialogApi(kernel),
       geographyApi(kernel),
       firstNamesApi(kernel)

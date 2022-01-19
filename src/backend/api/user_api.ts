@@ -1,64 +1,26 @@
-import { IpcHandler, AsyncIpcHandler, SyncIpcHandler } from '../util/ipc_handler';
-import { AppKernel } from '../../kernel/app_kernel';
-import { Credentials } from '../../shared/shared_user';
+import type { AppKernel } from '../../kernel/app_kernel';
+import type { Credentials } from '../../shared/shared_user';
 
-class GetSavedUserCredsIpc extends SyncIpcHandler {
-  private kernel: AppKernel;
-
-  constructor(kernel: AppKernel) {
-    super('get_saved_user_creds');
-    this.kernel = kernel;
-  }
-
-  handler(_data: any) {
-    return this.kernel.getSavedUserCreds();
-  }
-}
-
-class LoginToSpecifyIpc extends AsyncIpcHandler {
-  private kernel: AppKernel;
+export class UserApi {
+  private _kernel: AppKernel;
 
   constructor(kernel: AppKernel) {
-    super('login_to_specify');
-    this.kernel = kernel;
+    this._kernel = kernel;
   }
 
-  async handler(creds: Credentials) {
-    return this.kernel.loginUser(creds, false);
-  }
-}
-
-class LoginToSpecifyAndSaveIpc extends AsyncIpcHandler {
-  private kernel: AppKernel;
-
-  constructor(kernel: AppKernel) {
-    super('login_to_specify_and_save');
-    this.kernel = kernel;
+  async getSavedCreds() {
+    return this._kernel.getSavedUserCreds();
   }
 
-  async handler(creds: Credentials) {
-    return this.kernel.loginUser(creds, true);
-  }
-}
-
-class LogoutOfSpecifyIpc extends AsyncIpcHandler {
-  private kernel: AppKernel;
-
-  constructor(kernel: AppKernel) {
-    super('logout_of_specify');
-    this.kernel = kernel;
+  async login(creds: Credentials) {
+    return this._kernel.loginUser(creds, false);
   }
 
-  async handler(_data: any) {
-    await this.kernel.logoutUser();
+  async loginAndSave(creds: Credentials) {
+    return this._kernel.loginUser(creds, true);
   }
-}
 
-export default function (kernel: AppKernel): IpcHandler[] {
-  return [
-    new GetSavedUserCredsIpc(kernel), // multiline
-    new LoginToSpecifyIpc(kernel),
-    new LoginToSpecifyAndSaveIpc(kernel),
-    new LogoutOfSpecifyIpc(kernel)
-  ];
+  async logout() {
+    await this._kernel.logoutUser();
+  }
 }

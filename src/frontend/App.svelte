@@ -9,7 +9,6 @@
   import { screenStack } from './stores/screenStack';
   import type { Connection } from './shared/shared_connection';
   import { DatabaseConfigClient } from './clients/db_config_client';
-  import { UserClient } from './clients/user_client';
   import { recordUserLogin } from './dialogs/UserLoginDialog.svelte';
   import { toSvelteTarget } from './util/svelte_targets.svelte';
   import './clients/event_client.svelte';
@@ -73,10 +72,10 @@
   }
 
   async function loginUser() {
-    const userCreds = UserClient.getSavedCreds();
+    const userCreds = await window.apis.userApi.getSavedCreds();
     if (userCreds) {
       try {
-        recordUserLogin(await UserClient.loginAndSave(userCreds));
+        recordUserLogin(await window.apis.userApi.loginAndSave(userCreds));
       } catch (err: any) {
         showNotice(
           `Login failed for user '${userCreds.username}': ${err.message}`,

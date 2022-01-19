@@ -4,7 +4,6 @@
   import { currentConnection } from '../stores/currentConnection';
   import { currentUser } from '../stores/currentUser';
   import * as prereqs from '../lib/prereqs.svelte';
-  import { UserClient } from '../clients/user_client';
 
   export let appTitle = 'untitled';
 
@@ -19,7 +18,8 @@
   };
 
   function logout() {
-    UserClient.logout()
+    window.apis.userApi
+      .logout()
       .then(() => {
         $currentUser = null;
         flashMessage('You have logged out');

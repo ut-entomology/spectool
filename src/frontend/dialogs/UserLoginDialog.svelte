@@ -12,7 +12,6 @@
 <script lang="ts">
   import { flashMessage } from '../layout/VariableFlash.svelte';
   import { currentDialog } from '../stores/currentDialog';
-  import { UserClient } from '../clients/user_client';
   import LoginDialog from '../dialogs/LoginDialog.svelte';
 
   export let onSuccess: () => void = () => {};
@@ -23,8 +22,8 @@
 
   async function login(username: string, password: string, save: boolean) {
     const user = save
-      ? await UserClient.loginAndSave({ username, password })
-      : await UserClient.login({ username, password });
+      ? await window.apis.userApi.loginAndSave({ username, password })
+      : await window.apis.userApi.login({ username, password });
     closeDialog();
     recordUserLogin(user);
     await flashMessage('You are logged in');
