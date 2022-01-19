@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { setContext, onMount } from 'svelte';
+  import { setContext } from 'svelte';
 
   import type { ScreenSpec } from '../lib/screen_spec';
   import { Context } from '../lib/contexts';
@@ -16,6 +16,7 @@
   import HeaderBar from './HeaderBar.svelte';
   import ActivityBar from './ActivityBar.svelte';
   import StatusBar from './StatusBar.svelte';
+  import BigSpinner from './BigSpinner.svelte';
 
   let connection: Connection;
   const initialDatabaseConfig = DatabaseConfigClient.getConfig();
@@ -68,7 +69,7 @@
     }
   }
 
-  onMount(async () => {
+  async function restoreSession() {
     $currentPrefs = await window.apis.appPrefsApi.getPrefs();
     if (connection.username) {
       if (!connection.isActive()) {
@@ -78,22 +79,26 @@
         await loginUser();
       }
     }
-  });
+  }
 </script>
 
-<HeaderBar appTitle="UT SpecTool" />
-<ActivityBar />
-<div class="page-content">
-  <svelte:component
-    this={toSvelteTarget(currentScreen.targetName)}
-    {...currentScreen.params}
-  />
-</div>
-<StatusBar />
+{#await restoreSession()}
+  <BigSpinner />
+{:then}
+  <HeaderBar appTitle="UT SpecTool" />
+  <ActivityBar />
+  <div class="page-content">
+    <svelte:component
+      this={toSvelteTarget(currentScreen.targetName)}
+      {...currentScreen.params}
+    />
+  </div>
+  <StatusBar />
 
-<VariableDialog />
-<VariableNotice />
-<VariableFlash />
+  <VariableDialog />
+  <VariableNotice />
+  <VariableFlash />
+{/await}
 
 <style lang="scss" global>
   // Svelte is not allowing a component to have both local and global SCSS.
