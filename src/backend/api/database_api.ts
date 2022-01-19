@@ -1,4 +1,4 @@
-import { PassThroughError } from 'electron-ipc-methods/main';
+import { RelayedError } from 'electron-ipc-methods/main';
 
 import type { AppKernel } from '../../kernel/app_kernel';
 import { Connection } from '../../shared/shared_connection';
@@ -33,7 +33,7 @@ export class DatabaseApi {
       connectionPub.set(conn);
       return conn;
     } catch (err: any) {
-      throw new PassThroughError(err);
+      throw new RelayedError(err);
     }
   }
 
@@ -46,7 +46,7 @@ export class DatabaseApi {
       connectionPub.set(conn);
       return conn;
     } catch (err: any) {
-      throw new PassThroughError(err);
+      throw new RelayedError(err);
     }
   }
 
@@ -59,7 +59,7 @@ export class DatabaseApi {
         connectionPub.set(new Connection(true));
         return;
       }
-      throw new PassThroughError(Error('Failed to disconnect from database'));
+      throw new RelayedError(Error('Failed to disconnect from database'));
     });
   }
 }
