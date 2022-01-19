@@ -1,5 +1,5 @@
-import { ServerApis } from './backend/server_apis';
+import { LocalApis } from './backend/api/main_apis';
 
 declare global {
-  var serverApis: ServerApis;
+  var localApis: LocalApis;
 }
