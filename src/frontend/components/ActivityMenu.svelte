@@ -5,8 +5,20 @@
 
   const activities: Activity[] = [
     {
+      title: 'Remove Unused Taxa',
+      targetName: 'UnusedTaxaActivity',
+      description:
+        'Selectively remove unused taxa created within a particular range of dates.',
+      requiresLogin: true,
+      prerequisites: [
+        prereqs.databaseConfigPrereq,
+        prereqs.connectionPrereq,
+        prereqs.userLoginPrereq
+      ]
+    },
+    {
       title: 'Consolidate Localities',
-      targetName: 'LocalityConsolidation',
+      targetName: 'LocalityConsolidationActivity',
       description: 'Find and merge different entries for the same localities.',
       requiresLogin: true,
       prerequisites: [
@@ -18,7 +30,7 @@
     },
     {
       title: 'Query for First Names',
-      targetName: 'FirstNames',
+      targetName: 'FirstNamesActivity',
       description: 'Returns all first names for a given last name.',
       requiresLogin: false,
       prerequisites: [

@@ -7,8 +7,9 @@
   import UserLoginDialog from '../dialogs/UserLoginDialog.svelte';
 
   import ActivityMenu from '../components/ActivityMenu.svelte';
-  import FirstNames from '../activities/FirstNames.svelte';
-  import LocalityConsolidation from '../activities/LocalityConsolidation.svelte';
+  import FirstNamesActivity from '../activities/FirstNamesActivity.svelte';
+  import LocalityConsolidationActivity from '../activities/LocalityConsolidationActivity.svelte';
+  import UnusedTaxaActivity from '../activities/UnusedTaxaActivity.svelte';
 
   const targetMap: Record<string, typeof SvelteComponent> = {
     DataFolderDialog,
@@ -16,8 +17,9 @@
     DBLoginDialog,
     UserLoginDialog,
     ActivityMenu,
-    FirstNames,
-    LocalityConsolidation
+    FirstNamesActivity,
+    LocalityConsolidationActivity,
+    UnusedTaxaActivity
   };
 
   export function toSvelteTarget(targetName: string): typeof SvelteComponent {

@@ -22,7 +22,7 @@
     stateID = 0;
   }
 
-  async function preparation() {
+  async function prepare() {
     await GeographyClient.loadGeography();
     countries = await GeographyClient.getCountriesOf($currentCollectionID);
     for (let i = 0; i < countries.length; ++i) {
@@ -36,7 +36,7 @@
   }
 </script>
 
-{#await preparation()}
+{#await prepare()}
   <BigSpinner />
 {:then}
   <main>
