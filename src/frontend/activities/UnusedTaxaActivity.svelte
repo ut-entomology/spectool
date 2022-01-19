@@ -11,6 +11,15 @@
 
   let errorMessage = '';
 
+  const DATE_FORMAT_MESSAGE = 'Enter date as MM/DD/YYYY';
+  function validateDate(dateStr?: string) {
+    if (!dateStr || !REGEX_DATE.test(dateStr)) {
+      return false;
+    }
+    const date = new Date(dateStr);
+    return !isNaN(date.getTime());
+  }
+
   const context = createForm({
     initialValues: {
       startingDateStr,
@@ -19,14 +28,14 @@
     validationSchema: yup.object().shape({
       startingDateStr: yup
         .string()
+        .label('Starting Date')
         .required()
-        .matches(REGEX_DATE, { message: 'Enter date as MM/DD/YYYY' })
-        .label('Starting Date'),
+        .test('test-starting-date', DATE_FORMAT_MESSAGE, validateDate),
       endingDateStr: yup
         .string()
-        .required()
-        .matches(REGEX_DATE, { message: 'Enter date as MM/DD/YYYY' })
         .label('Ending Date')
+        .required()
+        .test('test-starting-date', DATE_FORMAT_MESSAGE, validateDate)
     }),
     onSubmit: async (values) => {
       const startingDate = new Date(values.startingDateStr);
