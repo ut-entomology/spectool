@@ -9,15 +9,20 @@
   import ActivityMenu from '../components/ActivityMenu.svelte';
   import LocalityConsolidationMain from '../activities/locality_consolidation/LocalityConsolidationMain.svelte';
   import UnusedTaxaMain from '../activities/unused_taxa/UnusedTaxaMain.svelte';
+  import UnusedTaxaSelector from '../activities/unused_taxa/UnusedTaxaSelector.svelte';
 
   const targetMap: Record<string, typeof SvelteComponent> = {
+    // Main Screen
+    ActivityMenu,
+    // Activities
+    LocalityConsolidationMain,
+    UnusedTaxaMain,
+    UnusedTaxaSelector,
+    // Dialogs
     DataFolderDialog,
     DBConfigDialog,
     DBLoginDialog,
-    UserLoginDialog,
-    ActivityMenu,
-    LocalityConsolidationMain,
-    UnusedTaxaMain
+    UserLoginDialog
   };
 
   export function toSvelteTarget(targetName: string): typeof SvelteComponent {

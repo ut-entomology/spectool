@@ -33,7 +33,6 @@
   // @ts-ignore TS doesn't understand that the subscriber is immediately called
   if (!currentScreen) {
     screenStack.push({
-      title: 'Activity Menu',
       targetName: 'ActivityMenu',
       params: {}
     });
@@ -224,9 +223,6 @@
   // Activities
 
   .activity-instructions {
-    margin: 1rem 0 2rem 0;
-    // padding: 1rem;
-    // background-color: rgb(255, 239, 187);
-    // border-radius: $border-radius;
+    margin: 1rem 0;
   }
 </style>

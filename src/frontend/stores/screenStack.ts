@@ -12,9 +12,12 @@ function createScreenStack() {
         screens.push(screen);
         return screens;
       }),
-    pop: () =>
+    pop: (params?: Record<string, any>) =>
       update((screens) => {
         screens.pop();
+        if (params) {
+          screens[screens.length - 1].params = params;
+        }
         return screens;
       }),
     replace: (screen: ScreenSpec) =>

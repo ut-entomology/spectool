@@ -1,8 +1,5 @@
 <script lang="ts" context="module">
-  import type { ScreenSpec } from '../../lib/screen_spec';
-
-  export const localityConsolidationScreenSpec: ScreenSpec = {
-    title: 'Consolidate Localities',
+  export const localityConsolidationSpec = {
     targetName: 'LocalityConsolidationMain',
     params: {}
   };
@@ -54,7 +51,7 @@
       Select the geographic regions whose localities for which you'd like to consolidate
       duplicate localities.
     </ActivityInstructions>
-    <Dialog title="Consolidate in which region?">
+    <Dialog class="mt-4" title="Consolidate in which region?">
       <form class="row justify-content-center">
         <div class="col-auto">
           <div class="row mb-2">

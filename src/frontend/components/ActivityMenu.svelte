@@ -2,12 +2,13 @@
   import type { Activity } from '../lib/activity';
   import { openActivity } from './ActivityBar.svelte';
   import * as prereqs from '../lib/prereqs.svelte';
-  import { unusedTaxaScreenSpec } from '../activities/unused_taxa/UnusedTaxaMain.svelte';
-  import { localityConsolidationScreenSpec } from '../activities/locality_consolidation/LocalityConsolidationMain.svelte';
+  import { unusedTaxaSpec } from '../activities/unused_taxa/UnusedTaxaMain.svelte';
+  import { localityConsolidationSpec } from '../activities/locality_consolidation/LocalityConsolidationMain.svelte';
 
   const activities: Activity[] = [
     {
-      screenSpec: unusedTaxaScreenSpec,
+      title: 'Purge Unused Taxa',
+      screenSpec: unusedTaxaSpec,
       description:
         'Selectively remove unused taxa created within a particular range of dates.',
       requiresLogin: true,
@@ -18,7 +19,8 @@
       ]
     },
     {
-      screenSpec: localityConsolidationScreenSpec,
+      title: 'Consolidate Localities',
+      screenSpec: localityConsolidationSpec,
       description: 'Find and merge different entries for the same localities.',
       requiresLogin: true,
       prerequisites: [
@@ -35,7 +37,7 @@
   {#each activities as activity}
     <div class="activity">
       <button class="btn btn-minor" on:click={() => openActivity(activity)}>
-        {activity.screenSpec.title}
+        {activity.title}
       </button>
       <div class="description">{activity.description}</div>
     </div>

@@ -1,10 +1,10 @@
 <script lang="ts" context="module">
-  import type { ScreenSpec } from '../../lib/screen_spec';
-
-  export const unusedTaxaScreenSpec: ScreenSpec = {
-    title: 'Remove Unused Taxa',
+  export const unusedTaxaSpec = {
     targetName: 'UnusedTaxaMain',
-    params: {}
+    params: {} as {
+      startingDateStr: string;
+      endingDateStr: string;
+    }
   };
 </script>
 
@@ -13,11 +13,13 @@
   import { createForm, ContextForm, Input } from '../../layout/forms';
   import ActivityInstructions from '../../components/ActivityInstructions.svelte';
   import Dialog from '../../layout/Dialog.svelte';
+  import { screenStack } from '../../stores/screenStack';
+  import { unusedTaxaSelectorSpec } from './UnusedTaxaSelector.svelte';
 
   const REGEX_DATE = /^ *\d{1,2} *[/] *\d{1,2} *[/] *\d{4} *$/;
 
-  let startingDateStr = new Date(0).toLocaleDateString('en-US');
-  let endingDateStr = new Date().toLocaleDateString('en-US');
+  export let startingDateStr = new Date(0).toLocaleDateString('en-US');
+  export let endingDateStr = new Date().toLocaleDateString('en-US');
 
   let errorMessage = '';
 
@@ -48,10 +50,14 @@
         .test('test-ending-date', DATE_FORMAT_MESSAGE, validateDate)
     }),
     onSubmit: async (values) => {
-      const startingDate = new Date(values.startingDateStr);
-      const endingDate = new Date(values.endingDateStr);
-      if (startingDate > endingDate) {
+      if (new Date(values.startingDateStr) > new Date(values.endingDateStr)) {
         errorMessage = 'Starting date must precede or equal ending date';
+      } else {
+        unusedTaxaSelectorSpec.params = {
+          startingDateStr: values.startingDateStr,
+          endingDateStr: values.endingDateStr
+        };
+        screenStack.push(unusedTaxaSelectorSpec);
       }
     }
   });
@@ -66,7 +72,7 @@
     Enter the range of taxon creation dates for which you&apos;d like to inspect unused
     taxa.
   </ActivityInstructions>
-  <Dialog title="Date range for unused taxa">
+  <Dialog class="mt-4" title="Date range for unused taxa">
     <ContextForm class="row justify-content-center" {context}>
       <div class="col-auto">
         <div class="row mb-2">

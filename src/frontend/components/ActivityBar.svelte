@@ -21,6 +21,7 @@
   }
 
   export function closeActivity() {
+    currentActivity.set(null);
     screenStack.reset();
   }
 </script>
@@ -41,11 +42,11 @@
 
 <div class="activity_bar row g-0 justify-content-between">
   <div class="title_box col-auto">
-    {#if $screenStack.length == 1}
-      <div>{$screenStack[0].title}</div>
+    {#if !$currentActivity}
+      <div>Activity Menu</div>
     {:else}
       <div class="d-block">
-        {$screenStack[1].title}
+        {$currentActivity.title}
         <button
           type="button"
           class="btn-close btn-sm"
