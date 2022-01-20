@@ -2,11 +2,12 @@
   import type { Activity } from '../lib/activity';
   import { openActivity } from './ActivityBar.svelte';
   import * as prereqs from '../lib/prereqs.svelte';
+  import { unusedTaxaScreenSpec } from '../activities/unused_taxa/UnusedTaxaMain.svelte';
+  import { localityConsolidationScreenSpec } from '../activities/locality_consolidation/LocalityConsolidationMain.svelte';
 
   const activities: Activity[] = [
     {
-      title: 'Remove Unused Taxa',
-      targetName: 'UnusedTaxaMain',
+      screenSpec: unusedTaxaScreenSpec,
       description:
         'Selectively remove unused taxa created within a particular range of dates.',
       requiresLogin: true,
@@ -17,25 +18,13 @@
       ]
     },
     {
-      title: 'Consolidate Localities',
-      targetName: 'LocalityConsolidationMain',
+      screenSpec: localityConsolidationScreenSpec,
       description: 'Find and merge different entries for the same localities.',
       requiresLogin: true,
       prerequisites: [
         prereqs.databaseConfigPrereq,
         prereqs.connectionPrereq,
         prereqs.dataFolderPrereq,
-        prereqs.userLoginPrereq
-      ]
-    },
-    {
-      title: 'Query for First Names',
-      targetName: 'FirstNamesMain',
-      description: 'Returns all first names for a given last name.',
-      requiresLogin: false,
-      prerequisites: [
-        prereqs.databaseConfigPrereq,
-        prereqs.connectionPrereq,
         prereqs.userLoginPrereq
       ]
     }
@@ -46,7 +35,7 @@
   {#each activities as activity}
     <div class="activity">
       <button class="btn btn-minor" on:click={() => openActivity(activity)}>
-        {activity.title}
+        {activity.screenSpec.title}
       </button>
       <div class="description">{activity.description}</div>
     </div>

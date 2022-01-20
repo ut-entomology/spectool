@@ -1,3 +1,13 @@
+<script lang="ts" context="module">
+  import type { ScreenSpec } from '../../lib/screen_spec';
+
+  export const localityConsolidationScreenSpec: ScreenSpec = {
+    title: 'Consolidate Localities',
+    targetName: 'LocalityConsolidationMain',
+    params: {}
+  };
+</script>
+
 <script lang="ts">
   import { SPECIFY_USA, Region } from '../../shared/shared_geography';
   import { GeographyClient } from '../../clients/geography_client';

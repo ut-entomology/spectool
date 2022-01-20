@@ -10,7 +10,6 @@ import { installMainApis, exposeMainApis } from './backend/api/main_apis';
 import databaseConfigApi from './backend/api/db_config_api';
 import dialogApi from './backend/api/dialog_api';
 import geographyApi from './backend/api/geography_api';
-import firstNamesApi from './backend/api/first_names_api';
 import { AppKernel } from './kernel/app_kernel';
 import { Connection } from './shared/shared_connection';
 import { DatabaseConfig } from './shared/shared_db_config';
@@ -73,8 +72,7 @@ app
     const ipcHandlerSets = [
       databaseConfigApi(kernel),
       dialogApi(kernel),
-      geographyApi(kernel),
-      firstNamesApi(kernel)
+      geographyApi(kernel)
     ];
     ipcHandlerSets.forEach((handlerSet) => {
       handlerSet.forEach((handler) => {

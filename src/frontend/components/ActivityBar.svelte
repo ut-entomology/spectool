@@ -15,11 +15,7 @@
 
   export function openActivity(activity: Activity) {
     prereqs.satisfyAll(activity.prerequisites, () => {
-      screenStack.push({
-        title: activity.title,
-        targetName: activity.targetName,
-        params: []
-      });
+      screenStack.push(activity.screenSpec);
       currentActivity.set(activity);
     });
   }

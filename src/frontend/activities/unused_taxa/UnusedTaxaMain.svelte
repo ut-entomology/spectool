@@ -1,3 +1,13 @@
+<script lang="ts" context="module">
+  import type { ScreenSpec } from '../../lib/screen_spec';
+
+  export const unusedTaxaScreenSpec: ScreenSpec = {
+    title: 'Remove Unused Taxa',
+    targetName: 'UnusedTaxaMain',
+    params: {}
+  };
+</script>
+
 <script lang="ts">
   import * as yup from 'yup';
   import { createForm, ContextForm, Input } from '../../layout/forms';

@@ -7,7 +7,6 @@
   import UserLoginDialog from '../dialogs/UserLoginDialog.svelte';
 
   import ActivityMenu from '../components/ActivityMenu.svelte';
-  import FirstNamesMain from '../activities/FirstNamesMain.svelte';
   import LocalityConsolidationMain from '../activities/locality_consolidation/LocalityConsolidationMain.svelte';
   import UnusedTaxaMain from '../activities/unused_taxa/UnusedTaxaMain.svelte';
 
@@ -17,7 +16,6 @@
     DBLoginDialog,
     UserLoginDialog,
     ActivityMenu,
-    FirstNamesMain,
     LocalityConsolidationMain,
     UnusedTaxaMain
   };
