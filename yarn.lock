@@ -1512,10 +1512,10 @@ duplexer3@^0.1.4:
   resolved "https://registry.yarnpkg.com/duplexer3/-/duplexer3-0.1.4.tgz#ee01dd1cac0ed3cbc7fdbea37dc0a8f1ce002ce2"
   integrity sha1-7gHdHKwO08vH/b6jfcCo8c4ALOI=
 
-electron-ipc-methods@0.3.10:
-  version "0.3.10"
-  resolved "https://registry.yarnpkg.com/electron-ipc-methods/-/electron-ipc-methods-0.3.10.tgz#8bb6db77a79679910b23df95356dd8382215ae11"
-  integrity sha512-eh9iA9XVGL4G2qbPNWjxolkxKI+5VOI5gd8SuGSHfv4iFmtpZniZ1cgxrpLDtX5EEvWbSqNRdhPr1/caBoeM2w==
+electron-ipc-methods@0.3.11:
+  version "0.3.11"
+  resolved "https://registry.yarnpkg.com/electron-ipc-methods/-/electron-ipc-methods-0.3.11.tgz#e7e96c0b75bc6b2ce5a682b3134e769ab711a80c"
+  integrity sha512-dCzICnTNO3bassNLNtZBaOTPax18RzGv7rfhg0ieMOvfPTgjt2UB4HcZcCQ54PJlBxaBOLqQVLyOgm1BCCfjnw==
 
 electron-log@^4.4.1:
   version "4.4.4"

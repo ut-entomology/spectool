@@ -151,10 +151,18 @@ export async function getGeographicRegionLocalities(db: DB, forGeographyIDs: num
 //// TAXA ////////////////////////////////////////////////////////////////////
 
 /**
- * Query returning all taxa neither occurring in a determination nor containing any
- * taxa occuring in a determination, restricted to a range of creation dates.
+ * Query returning a batch of taxa neither occurring in a determination nor
+ * containing any taxa occuring in a determination, restricted to a range of
+ * creation dates. The batches is given by a lower bound on taxon ID and the
+ * maximum number of rows to return. Rows are orderd by taxon ID.
  */
-export async function getUnusedTaxa(db: DB, oldestDate: Date, newestDate: Date) {
+export async function getUnusedTaxa(
+  db: DB,
+  oldestDate: Date,
+  newestDate: Date,
+  lowerBoundTaxonID: number,
+  maxRows: number
+) {
   type ResultRow = {
     TaxonID: number;
     Name: string;
@@ -185,11 +193,18 @@ export async function getUnusedTaxa(db: DB, oldestDate: Date, newestDate: Date) 
         dets as (
           select DeterminationID, TaxonID from determination
         )
-        select distinct TaxonID, Name, RankID, ParentID,
-          CreatedByAgentID, TimestampCreated
+        select distinct
+          TaxonID,
+          Name,
+          RankID,
+          ParentID,
+          CreatedByAgentID,
+          TimestampCreated
         from unused_taxa
-        where TimestampCreated >= ? and TimestampCreated <= ?`,
-      [oldestDate, newestDate]
+        where TimestampCreated between ? and ?
+          and TaxonID >= ?
+        order by TaxonID limit ?`,
+      [oldestDate, newestDate, lowerBoundTaxonID, maxRows]
     )
   )[0] as ResultRow[];
 }

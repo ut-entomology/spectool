@@ -1,14 +1,14 @@
 import {
   bindMainApi,
   AwaitedType,
-  setIpcBindingTimeout,
-  RestorableClass
+  setIpcBindingTimeout
 } from 'electron-ipc-methods/window';
 
+import { restorer } from '../../shared/shared_restorer';
 import type { AppPrefsApi } from '../../backend/api/app_prefs_api';
 import type { DatabaseApi } from '../../backend/api/database_api';
 import type { UserApi } from '../../backend/api/user_api';
-import { Connection } from '../shared/shared_connection';
+import type { TaxaApi } from '../../backend/api/taxa_api';
 
 export async function bindMainApis() {
   console.log('*** long timeout waiting to bind');
@@ -16,17 +16,9 @@ export async function bindMainApis() {
   return {
     appPrefsApi: await bindMainApi<AppPrefsApi>('AppPrefsApi', restorer),
     databaseApi: await bindMainApi<DatabaseApi>('DatabaseApi', restorer),
-    userApi: await bindMainApi<UserApi>('UserApi', restorer)
+    userApi: await bindMainApi<UserApi>('UserApi', restorer),
+    taxaApi: await bindMainApi<TaxaApi>('TaxaApi', restorer)
   };
 }
 
 export type MainApis = AwaitedType<typeof bindMainApis>;
-
-const restorationMap: Record<string, RestorableClass<any>> = {
-  Connection
-};
-
-function restorer(className: string, obj: Record<string, any>) {
-  const restorableClass = restorationMap[className];
-  return restorableClass === undefined ? obj : restorableClass['restoreClass'](obj);
-}

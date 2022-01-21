@@ -5,12 +5,14 @@ import { AppKernel } from '../../kernel/app_kernel';
 import { AppPrefsApi } from './app_prefs_api';
 import { DatabaseApi } from './database_api';
 import { UserApi } from './user_api';
+import { TaxaApi } from './taxa_api';
 
 export function installMainApis(kernel: AppKernel) {
   const apis = {
     appPrefsApi: new AppPrefsApi(kernel),
     databaseApi: new DatabaseApi(kernel),
-    userApi: new UserApi(kernel)
+    userApi: new UserApi(kernel),
+    taxaApi: new TaxaApi(kernel)
   };
   global.localApis = apis;
   return apis;
