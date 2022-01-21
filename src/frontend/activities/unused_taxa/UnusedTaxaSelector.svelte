@@ -9,19 +9,18 @@
 </script>
 
 <script lang="ts">
+  import type { Taxon } from '../../../backend/api/taxa_api';
   import ActivityInstructions from '../../components/ActivityInstructions.svelte';
   import BigSpinner from '../../components/BigSpinner.svelte';
-  import SelectableTaxonSubtree from './SelectableTaxonSubtree.svelte';
+  import ExpandableTree from '../../components/InteractiveTree.svelte';
+  import { InteractiveTreeFlags } from '../../components/InteractiveTree.svelte';
   import { screenStack } from '../../stores/screenStack';
-  import type { TaxonTree, TaxonSubtree } from '../../lib/taxa_tree';
+  import type { TaxonTree, TaxonNode } from '../../lib/taxa_tree';
 
-  type Taxon = ReturnType<
-    Window['apis']['taxaApi']['getBatchOfUnusedTaxa']
-  > extends Promise<infer R>
-    ? R extends (infer T)[]
-      ? T
-      : never
-    : never;
+  const DEFAULT_NODE_FLAGS =
+    InteractiveTreeFlags.ExpandableFlag |
+    InteractiveTreeFlags.SelectableFlag |
+    InteractiveTreeFlags.ExpandedFlag;
 
   export let startingDateStr = '';
   export let endingDateStr = '';
@@ -50,12 +49,12 @@
   }
 
   async function prepare() {
-    // All taxa represented by subtrees, indexed by taxon ID
-    const subtreeByID: Record<number, TaxonSubtree> = {};
+    // All taxa represented by nodes, indexed by taxon ID
+    const nodeByID: Record<number, TaxonNode> = {};
     // Taxa not yet known to be a child of another unused taxon, indexed by taxon ID
-    const rootSubtreeByID: Record<number, TaxonSubtree> = {};
+    const rootNodeByID: Record<number, TaxonNode> = {};
     // Orphaned child taxa by parent ID, waiting for possible parent taxon.
-    const orphanSubtreesByParentID: Record<number, TaxonSubtree[]> = {};
+    const orphanNodesByParentID: Record<number, TaxonNode[]> = {};
     // Tracks the most recent taxon ID
     let lastTaxonID = 0;
 
@@ -68,45 +67,44 @@
     );
     while (batch.length > 0) {
       for (const taxon of batch) {
-        // Track all subtrees by taxon ID.
-        const subtree: TaxonSubtree = {
+        // Track all nodes by taxon ID.
+        const node: TaxonNode = {
           id: taxon.TaxonID,
-          name: taxon.Name,
-          rankID: taxon.RankID,
-          infoHTML: formatTaxon(taxon),
+          nodeFlags: DEFAULT_NODE_FLAGS,
+          nodeHTML: formatTaxon(taxon),
           children: null
         };
-        subtreeByID[subtree.id] = subtree;
+        nodeByID[node.id] = node;
 
         // If we already have the taxon's parent, place it under the parent.
-        const parentSubtree = subtreeByID[taxon.ParentID];
-        if (parentSubtree) {
-          if (parentSubtree.children === null) {
-            parentSubtree.children = [subtree];
+        const parentNode = nodeByID[taxon.ParentID];
+        if (parentNode) {
+          if (parentNode.children === null) {
+            parentNode.children = [node];
           } else {
-            parentSubtree.children.push(subtree);
+            parentNode.children.push(node);
           }
         }
         // Track taxa for which we don't yet have parents as possible root
         // taxa and as orphans waiting for their parent taxa.
         else {
-          rootSubtreeByID[taxon.TaxonID] = subtree;
-          const orphanSubtrees = orphanSubtreesByParentID[taxon.ParentID];
-          if (orphanSubtrees) {
-            orphanSubtrees.push(subtree);
+          rootNodeByID[taxon.TaxonID] = node;
+          const orphanNodes = orphanNodesByParentID[taxon.ParentID];
+          if (orphanNodes) {
+            orphanNodes.push(node);
           } else {
-            orphanSubtreesByParentID[taxon.ParentID] = [subtree];
+            orphanNodesByParentID[taxon.ParentID] = [node];
           }
         }
 
         // If the new taxon is a parent of orphans, put the orphans under the
         // parent and remove the orphans as possible root taxa.
-        const childSubtrees = orphanSubtreesByParentID[taxon.TaxonID];
-        if (childSubtrees) {
-          delete orphanSubtreesByParentID[taxon.TaxonID];
-          subtree.children = childSubtrees;
-          for (const childSubtree of childSubtrees) {
-            delete rootSubtreeByID[childSubtree.id];
+        const childNodes = orphanNodesByParentID[taxon.TaxonID];
+        if (childNodes) {
+          delete orphanNodesByParentID[taxon.TaxonID];
+          node.children = childNodes;
+          for (const childNode of childNodes) {
+            delete rootNodeByID[childNode.id];
           }
         }
 
@@ -123,10 +121,10 @@
     }
 
     // Construct the taxon trees from the intermediate structures.
-    for (const rootSubtree of Object.values(rootSubtreeByID)) {
+    for (const rootNode of Object.values(rootNodeByID)) {
       taxonTrees.push({
-        containingTaxa: [],
-        root: rootSubtree
+        containingTaxaHTML: [],
+        root: rootNode
       });
     }
   }
@@ -170,32 +168,30 @@
       </div>
     </div>
     <div class="tree_pane">
-      <div class="scrollable_area">
-        {#each taxonTrees as tree}
-          <SelectableTaxonSubtree subtree={tree.root} />
-        {/each}
-      </div>
+      {#each taxonTrees as tree}
+        <ExpandableTree tree={tree.root} />
+      {/each}
     </div>
   </main>
 {/await}
 
 <style>
+  main {
+    height: 100%;
+  }
   main button {
     margin-left: 0.5em;
   }
   .title {
     font-weight: bold;
   }
-  main,
-  .tree_pane {
-    height: 100%;
-  }
   .tree_pane {
     font-size: 0.8em;
-  }
-  .scrollable_area {
     height: 100%;
     overflow: auto;
     scrollbar-width: thin;
+  }
+  .tree_pane :global(.tree_node) {
+    margin-left: 0.8em;
   }
 </style>

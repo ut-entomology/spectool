@@ -44,6 +44,16 @@ export default {
 			compilerOptions: {
 				// enable run-time checks when not in production
 				dev: !production
+			},
+			onwarn: (warning, handler) => {
+				const exportedEnums = ['InteractiveTreeFlags'];
+				const { code, frame } = warning;
+				const mentionsEnum = () =>
+				    exportedEnums.reduce((found, name) => (found || frame.includes(name)), false);
+				if (code == "unused-export-let" && mentionsEnum()) {
+					return;
+				}
+				handler(warning);
 			}
 		}),
 		// we'll extract any component CSS out into

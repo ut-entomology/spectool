@@ -1,15 +1,11 @@
+export interface TaxonTree {
+  containingTaxaHTML: string[];
+  root: TaxonNode;
+}
+
 export interface TaxonNode {
   id: number;
-  name: string;
-  rankID: number;
-}
-
-export interface TaxonTree {
-  containingTaxa: TaxonNode[];
-  root: TaxonSubtree;
-}
-
-export interface TaxonSubtree extends TaxonNode {
-  infoHTML: string;
-  children: TaxonSubtree[] | null;
+  nodeFlags: number;
+  nodeHTML: string;
+  children: TaxonNode[] | null;
 }
