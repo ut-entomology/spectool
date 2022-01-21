@@ -60,10 +60,12 @@
 
     // Construct the intermediate structures of the taxon trees.
 
-    let batch = await window.apis.taxaApi.getBatchOfUnusedTaxa(
-      startingDate,
-      endingDate,
-      lastTaxonID
+    let batch = unbundleTaxa(
+      await window.apis.taxaApi.getBatchOfUnusedTaxa(
+        startingDate,
+        endingDate,
+        lastTaxonID
+      )
     );
     while (batch.length > 0) {
       for (const taxon of batch) {
@@ -113,10 +115,12 @@
       }
 
       // Retrieve the next batch of taxa to process.
-      batch = await window.apis.taxaApi.getBatchOfUnusedTaxa(
-        startingDate,
-        endingDate,
-        lastTaxonID + 1
+      batch = unbundleTaxa(
+        await window.apis.taxaApi.getBatchOfUnusedTaxa(
+          startingDate,
+          endingDate,
+          lastTaxonID + 1
+        )
       );
     }
 
@@ -132,6 +136,28 @@
   function previewPurge() {}
 
   function selectAll() {}
+
+  function unbundleTaxa(bundle: string): Taxon[] {
+    const TAXON_FIELD_COUNT = 6;
+    const values = bundle.split('|');
+    const taxa: Taxon[] = [];
+    // If the bundle is not empty...
+    if (values[0] != '') {
+      let i = 0;
+      while (i < values.length) {
+        let taxon: any = {};
+        taxon.TaxonID = parseInt(values[i]);
+        taxon.Name = values[i + 1];
+        taxon.RankID = parseInt(values[i + 2]);
+        taxon.ParentID = parseInt(values[i + 3]);
+        taxon.CreatedByAgentID = parseInt(values[i + 4]);
+        taxon.TimestampCreated = new Date(values[i + 5]);
+        taxa.push(taxon);
+        i += TAXON_FIELD_COUNT;
+      }
+    }
+    return taxa;
+  }
 </script>
 
 {#await prepare()}
