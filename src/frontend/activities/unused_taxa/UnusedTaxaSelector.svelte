@@ -27,9 +27,14 @@
   const IN_USE_NODE_FLAG = 1 << 14;
   const CONTAINS_UNUSED_TAXA_FLAG = 1 << 15;
   const DEFAULT_USED_NODE_FLAGS =
-    InteractiveTreeFlags.Selectable | InteractiveTreeFlags.Expanded | IN_USE_NODE_FLAG;
+    IN_USE_NODE_FLAG |
+    InteractiveTreeFlags.Expanded |
+    InteractiveTreeFlags.Selectable |
+    InteractiveTreeFlags.SelectDescendents;
   const DEFAULT_UNUSED_NODE_FLAGS =
-    InteractiveTreeFlags.Expandable | InteractiveTreeFlags.Selectable;
+    InteractiveTreeFlags.Expandable |
+    InteractiveTreeFlags.Selectable |
+    InteractiveTreeFlags.SelectDescendents;
 
   export let startingDateStr = '';
   export let endingDateStr = '';
@@ -338,7 +343,15 @@
   .tree_pane :global(.tree_node) {
     margin: 0.3em 0 0 1.5em;
   }
-  .tree_pane :global(.expander),
+  .tree_pane :global(.bullet) {
+    width: 1em;
+    padding-left: 0.1em;
+    opacity: 0.6;
+  }
+  .tree_pane :global(.bullet.selectable) {
+    padding-left: 0;
+    opacity: 1;
+  }
   .tree_pane :global(input) {
     margin-right: 0.3em;
   }
