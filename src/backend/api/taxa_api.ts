@@ -5,6 +5,7 @@ import * as query from '../../kernel/specify/queries';
 
 const TAXON_BATCH_SIZE = 10000;
 
+export type BaseTaxon = query.RowType<typeof query.getAncestorsOfUnusedTaxa>;
 export type Taxon = query.RowType<typeof query.getUnusedTaxa>;
 export type TaxonomicRank = query.RowType<typeof query.getTaxonomicRanks>;
 
@@ -15,29 +16,36 @@ export class TaxaApi {
     this._kernel = kernel;
   }
 
+  async getAncestorsOfUnusedTaxa(oldestDate: Date, newestDate: Date) {
+    return _query(() =>
+      query.getAncestorsOfUnusedTaxa(this._kernel.database, oldestDate, newestDate)
+    );
+  }
+
   async getBatchOfUnusedTaxa(
     oldestDate: Date,
     newestDate: Date,
     lowestBoundTaxonID: number
   ) {
     // runs ~20% faster with bundling
-    try {
-      return bundleTaxa(
-        await query.getUnusedTaxa(
-          this._kernel.database,
-          oldestDate,
-          newestDate,
-          lowestBoundTaxonID,
-          TAXON_BATCH_SIZE
-        )
-      );
-    } catch (err: any) {
-      throw new RelayedError(err);
-    }
+    const taxa = await _query(() =>
+      query.getUnusedTaxa(
+        this._kernel.database,
+        oldestDate,
+        newestDate,
+        lowestBoundTaxonID,
+        TAXON_BATCH_SIZE
+      )
+    );
+    return _bundleTaxa(taxa);
+  }
+
+  async getOrdersAndHigher() {
+    return _query(() => query.getOrdersAndHigher(this._kernel.database));
   }
 
   async getTaxonomicRanks() {
-    const ranks = await query.getTaxonomicRanks(this._kernel.database);
+    const ranks = await _query(() => query.getTaxonomicRanks(this._kernel.database));
     const ranksMap: Record<number, TaxonomicRank> = {};
     for (const rank of ranks) {
       ranksMap[rank.RankID] = rank;
@@ -46,7 +54,7 @@ export class TaxaApi {
   }
 }
 
-function bundleTaxa(taxa: Taxon[]): string {
+function _bundleTaxa(taxa: Taxon[]): string {
   const values: string[] = [];
   for (const taxon of taxa) {
     values.push(taxon.TaxonID.toString());
@@ -61,4 +69,15 @@ function bundleTaxa(taxa: Taxon[]): string {
     );
   }
   return values.join('|');
+}
+
+async function _query<T>(query: () => Promise<T>) {
+  try {
+    return await query();
+  } catch (err: any) {
+    if (!err.message.includes('SQL')) {
+      throw new RelayedError(err);
+    }
+    throw err;
+  }
 }

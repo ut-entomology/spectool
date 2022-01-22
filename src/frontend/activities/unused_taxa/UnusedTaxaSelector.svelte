@@ -9,21 +9,26 @@
 </script>
 
 <script lang="ts">
-  import type { Taxon, TaxonomicRank } from '../../../backend/api/taxa_api';
+  import { onMount } from 'svelte';
+
+  import type { BaseTaxon, Taxon, TaxonomicRank } from '../../../backend/api/taxa_api';
   import type { UserInfo } from '../../../backend/api/user_api';
   import ActivityInstructions from '../../components/ActivityInstructions.svelte';
   import BigSpinner from '../../components/BigSpinner.svelte';
   import ExpandableTree from '../../components/InteractiveTree.svelte';
   import { InteractiveTreeFlags } from '../../components/InteractiveTree.svelte';
+  import StatusMessage from '../../layout/StatusMessage.svelte';
+  import { showStatus } from '../../layout/StatusMessage.svelte';
   import { screenStack } from '../../stores/screenStack';
   import type { TaxonTree, TaxonNode } from '../../lib/taxa_tree';
 
   const GENUS_RANK = 180;
   const MIN_SPECIES_RANK = 220;
-  const DEFAULT_NODE_FLAGS =
-    InteractiveTreeFlags.Expandable |
-    InteractiveTreeFlags.Selectable |
-    InteractiveTreeFlags.Expanded;
+  const IN_USE_NODE_FLAG = 1 << 16;
+  const DEFAULT_USED_NODE_FLAGS =
+    InteractiveTreeFlags.Selectable | InteractiveTreeFlags.Expanded | IN_USE_NODE_FLAG;
+  const DEFAULT_UNUSED_NODE_FLAGS =
+    InteractiveTreeFlags.Expandable | InteractiveTreeFlags.Selectable;
 
   export let startingDateStr = '';
   export let endingDateStr = '';
@@ -47,11 +52,23 @@
     });
   }
 
-  function formatTaxon(
+  function formatTaxonName(taxon: BaseTaxon, rankMap: Record<number, TaxonomicRank>) {
+    let taxonName = taxon.FullName;
+    if (taxon.RankID >= MIN_SPECIES_RANK) {
+      return `<i>${taxonName}</i>`;
+    }
+    if (taxon.RankID == GENUS_RANK) {
+      taxonName = `<i>${taxonName}</i>`;
+    }
+    return `${rankMap[taxon.RankID].Name}: ${taxonName}`;
+  }
+
+  function formatUnusedTaxon(
     taxon: Taxon,
     rankMap: Record<number, TaxonomicRank>,
     userMap: Record<number, UserInfo>
   ) {
+    const taxonName = formatTaxonName(taxon, rankMap);
     let userName = '<i>system</i>';
     if (!isNaN(taxon.CreatedByAgentID)) {
       const user = userMap[taxon.CreatedByAgentID];
@@ -59,15 +76,6 @@
       if (user.FirstName) {
         userName = `${user.FirstName} ${userName}`;
       }
-    }
-    let taxonName = taxon.FullName;
-    if (taxon.RankID >= MIN_SPECIES_RANK) {
-      taxonName = `<i>${taxonName}</i>`;
-    } else {
-      if (taxon.RankID == GENUS_RANK) {
-        taxonName = `<i>${taxonName}</i>`;
-      }
-      taxonName = `${rankMap[taxon.RankID].Name}: ${taxonName}`;
     }
     return `${taxonName} (${userName} ${taxon.TimestampCreated.toLocaleDateString(
       'en-US'
@@ -85,13 +93,53 @@
     let lastTaxonID = 0;
 
     // Load users for showing who created each taxon.
+    showStatus('Loading user information...');
     const userMap = await window.apis.userApi.getAllUsers();
-
     // Load the taxonomic ranks so we can label the taxa.
+    showStatus('Loading taxonomic ranks...');
     const rankMap = await window.apis.taxaApi.getTaxonomicRanks();
+
+    // Adds a taxon's node to the intermediate structures used to create the tree.
+    function addTaxonNode(taxon: BaseTaxon, node: TaxonNode) {
+      // If we already have the taxon's parent, place it under the parent.
+      const parentNode = nodeByID[taxon.ParentID];
+      if (parentNode) {
+        if (parentNode.children === null) {
+          parentNode.children = [node];
+        } else {
+          parentNode.children.push(node);
+        }
+      }
+      // Track taxa for which we don't yet have parents as possible root
+      // taxa and as orphans waiting for their parent taxa.
+      else {
+        rootNodeByID[taxon.TaxonID] = node;
+        if (!isNaN(taxon.ParentID)) {
+          const orphanNodes = orphanNodesByParentID[taxon.ParentID];
+          if (orphanNodes) {
+            orphanNodes.push(node);
+          } else {
+            orphanNodesByParentID[taxon.ParentID] = [node];
+          }
+        }
+      }
+
+      // If the new taxon is a parent of orphans, put the orphans under the
+      // parent and remove the orphans as possible root taxa.
+      const childNodes = orphanNodesByParentID[taxon.TaxonID];
+      if (childNodes) {
+        delete orphanNodesByParentID[taxon.TaxonID];
+        node.children = childNodes;
+        for (const childNode of childNodes) {
+          delete rootNodeByID[childNode.id];
+        }
+      }
+    }
 
     // Construct the intermediate structures of the taxon trees.
 
+    let batchCount = 1;
+    showStatus(`Loading unused taxa (batch ${batchCount})...`);
     let batch = unbundleTaxa(
       await window.apis.taxaApi.getBatchOfUnusedTaxa(
         startingDate,
@@ -104,49 +152,21 @@
         // Track all nodes by taxon ID.
         const node: TaxonNode = {
           id: taxon.TaxonID,
-          nodeFlags: DEFAULT_NODE_FLAGS,
-          nodeHTML: formatTaxon(taxon, rankMap, userMap),
+          nodeFlags: DEFAULT_UNUSED_NODE_FLAGS,
+          nodeHTML: formatUnusedTaxon(taxon, rankMap, userMap),
           children: null
         };
         nodeByID[node.id] = node;
 
-        // If we already have the taxon's parent, place it under the parent.
-        const parentNode = nodeByID[taxon.ParentID];
-        if (parentNode) {
-          if (parentNode.children === null) {
-            parentNode.children = [node];
-          } else {
-            parentNode.children.push(node);
-          }
-        }
-        // Track taxa for which we don't yet have parents as possible root
-        // taxa and as orphans waiting for their parent taxa.
-        else {
-          rootNodeByID[taxon.TaxonID] = node;
-          const orphanNodes = orphanNodesByParentID[taxon.ParentID];
-          if (orphanNodes) {
-            orphanNodes.push(node);
-          } else {
-            orphanNodesByParentID[taxon.ParentID] = [node];
-          }
-        }
-
-        // If the new taxon is a parent of orphans, put the orphans under the
-        // parent and remove the orphans as possible root taxa.
-        const childNodes = orphanNodesByParentID[taxon.TaxonID];
-        if (childNodes) {
-          delete orphanNodesByParentID[taxon.TaxonID];
-          node.children = childNodes;
-          for (const childNode of childNodes) {
-            delete rootNodeByID[childNode.id];
-          }
-        }
+        // Incorporate the taxon's node into intermediate structures.
+        addTaxonNode(taxon, node);
 
         // Track lower bound of next batch of taxa to retrieve.
         lastTaxonID = taxon.TaxonID;
       }
 
       // Retrieve the next batch of taxa to process.
+      showStatus(`Loading unused taxa (batch ${++batchCount})...`);
       batch = unbundleTaxa(
         await window.apis.taxaApi.getBatchOfUnusedTaxa(
           startingDate,
@@ -156,7 +176,32 @@
       );
     }
 
+    // Get the ancestors of unused taxa (may include unused taxa that are
+    // ancestors of other unused taxa, may include duplicates). Use them
+    // to incorporate all unused taxa into a single navigable tree.
+    showStatus('Loading ancestor taxa of unused taxa...');
+    let ancestors = await window.apis.taxaApi.getAncestorsOfUnusedTaxa(
+      startingDate,
+      endingDate
+    );
+    ancestors = ancestors.concat(await window.apis.taxaApi.getOrdersAndHigher());
+    for (const taxon of ancestors) {
+      const node: TaxonNode = {
+        id: taxon.TaxonID,
+        nodeFlags: DEFAULT_USED_NODE_FLAGS,
+        nodeHTML: formatTaxonName(taxon, rankMap),
+        children: null
+      };
+      // don't replace an unused taxon node with a used taxon node
+      if (nodeByID[node.id] === undefined) {
+        nodeByID[node.id] = node;
+        addTaxonNode(taxon, node);
+      } else if (taxon.TaxonID == 1) {
+      }
+    }
+
     // Construct the taxon trees from the intermediate structures.
+    showStatus('Constructing taxa tree...');
     for (const rootNode of Object.values(rootNodeByID)) {
       taxonTrees.push({
         containingTaxaHTML: [],
@@ -190,10 +235,13 @@
     }
     return taxa;
   }
+
+  onMount(() => showStatus(null));
 </script>
 
 {#await prepare()}
-  <BigSpinner />
+  <BigSpinner centered={true} />
+  <StatusMessage />
 {:then}
   <main>
     <ActivityInstructions>

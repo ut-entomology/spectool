@@ -157,6 +157,126 @@ export async function getGeographicRegionLocalities(db: DB, forGeographyIDs: num
 //// TAXA ////////////////////////////////////////////////////////////////////
 
 /**
+ * Query returning all taxa neither occurring in a determination nor
+ * containing any taxa occuring in a determination, restricted to a range
+ * of creation dates.
+ */
+const QUERY_UNUSED_TAXA = `
+  with recursive prospective_unused_taxa as (
+    select t1.* from taxa1 as t1
+    left join taxon t2 on t2.ParentID = t1.TaxonID
+    left join dets as d1 on d1.TaxonID = t1.TaxonID
+    where t2.ParentID is null and d1.DeterminationID is null
+
+    union all
+
+    select t3.* from taxa1 as t3
+    join prospective_unused_taxa ut on ut.ParentID = t3.TaxonID
+    -- next constraint is unnecessary but improves performance
+    left join dets as d2 on d2.TaxonID = t3.TaxonID
+    where d2.DeterminationID is null
+  ),
+  taxa1 as (
+    select TaxonID, FullName, RankID, ParentID,
+      CreatedByAgentID, TimestampCreated from taxon
+  ),
+  dets as (
+    select DeterminationID, TaxonID from determination
+  )
+  select distinct
+    TaxonID,
+    FullName,
+    RankID,
+    ParentID,
+    CreatedByAgentID,
+    TimestampCreated
+  from prospective_unused_taxa
+  where TaxonID not in (
+      with recursive used_taxa as (
+        select t1.* from taxa2 as t1
+        join (
+          select TaxonID from determination
+        ) as d on d.TaxonID = t1.TaxonID
+    
+        union all
+    
+        select t2.* from taxa2 as t2
+        join used_taxa ut on ut.ParentID = t2.TaxonID
+      ),
+      taxa2 as (
+        select TaxonID, ParentID from taxon
+      )
+      select distinct TaxonID from used_taxa
+    )
+    and TimestampCreated between ? and ?`;
+
+/**
+ * Query returning the ancestor taxa up to but excluding order of all unused taxa
+ * that getUnusedTaxa() returns. The query excludes ranks order and above in order
+ * to improve performance. Call getOrdersAndHigher() to get higher taxa. Note that
+ * the result set may incliude unused taxa, because some unused taxa are ancestors
+ * of other unused taxa.
+ */
+export async function getAncestorsOfUnusedTaxa(
+  db: DB,
+  oldestDate: Date,
+  newestDate: Date
+) {
+  type ResultRow = {
+    TaxonID: number;
+    FullName: string;
+    RankID: number;
+    ParentID: number;
+  };
+  return (
+    await db.query(
+      `with recursive ancestor_taxa as (
+          select t4.TaxonID, t4.FullName, t4.RankID, t4.ParentID from (` +
+        QUERY_UNUSED_TAXA +
+        `) as s
+          join taxa as t4 on s.ParentID = t4.TaxonID
+        
+          union all
+          
+          select 
+            t.TaxonID,
+            t.FullName,
+            t.RankID,
+            t.ParentID
+          from taxon t
+          join ancestor_taxa at on at.ParentID = t.TaxonID
+          where t.RankID > (select RankID from order_rank)
+        ),
+        order_rank as (
+          select RankID from taxontreedefitem where Name="Order"
+        )
+        select distinct * from ancestor_taxa
+        where RankID > (select RankID from order_rank)
+        order by RankID`,
+      [oldestDate, newestDate]
+    )
+  )[0] as ResultRow[];
+}
+
+/**
+ * Query returning all taxa at rank order or higher.
+ */
+export async function getOrdersAndHigher(db: DB) {
+  type ResultRow = {
+    TaxonID: number;
+    FullName: string;
+    RankID: number;
+    ParentID: number;
+  };
+  return (
+    await db.execute(
+      `select TaxonID, FullName, RankID, ParentID from taxon
+         where RankID <= (select RankID from taxontreedefitem where Name="Order")`
+    )
+  )[0] as ResultRow[];
+}
+
+/**
  * Query returning the available taxonomic ranks.
  */
 export async function getTaxonomicRanks(db: DB) {
@@ -174,10 +294,6 @@ export async function getTaxonomicRanks(db: DB) {
  * containing any taxa occuring in a determination, restricted to a range of
  * creation dates. The batches is given by a lower bound on taxon ID and the
  * maximum number of rows to return. Rows are orderd by taxon ID.
- *
- * NOTE: This determines *prospective* unused taxa. Each taxon is itself
- * unused, and if it contains any taxa, there is at least one contained
- * taxon that is unused.
  */
 export async function getUnusedTaxa(
   db: DB,
@@ -195,57 +311,11 @@ export async function getUnusedTaxa(
     TimestampCreated: Date;
   };
   return (
-    await db.execute(
-      `with recursive prospective_unused_taxa as (
-          select t1.* from taxa1 as t1
-          left join taxon t2 on t2.ParentID = t1.TaxonID
-          left join dets as d1 on d1.TaxonID = t1.TaxonID
-          where t2.ParentID is null and d1.DeterminationID is null
-        
-          union all
-        
-          select t3.* from taxa1 as t3
-          join prospective_unused_taxa ut on ut.ParentID = t3.TaxonID
-          -- next constraint is unnecessary but improves performance
-          left join dets as d2 on d2.TaxonID = t3.TaxonID
-          where d2.DeterminationID is null
-        ),
-        taxa1 as (
-          select TaxonID, FullName, RankID, ParentID,
-            CreatedByAgentID, TimestampCreated from taxon
-        ),
-        dets as (
-          select DeterminationID, TaxonID from determination
-        )
-        select distinct
-          TaxonID,
-          FullName,
-          RankID,
-          ParentID,
-          CreatedByAgentID,
-          TimestampCreated
-        from prospective_unused_taxa
-        where TaxonID >= ?
-          and TaxonID not in (
-            with recursive used_taxa as (
-              select t1.* from taxa2 as t1
-              join (
-                select TaxonID from determination
-              ) as d on d.TaxonID = t1.TaxonID
-          
-              union all
-          
-              select t2.* from taxa2 as t2
-              join used_taxa ut on ut.ParentID = t2.TaxonID
-            ),
-            taxa2 as (
-              select TaxonID, ParentID from taxon
-            )
-            select distinct TaxonID from used_taxa
-          )
-          and TimestampCreated between ? and ?
-        order by TaxonID limit ?`,
-      [lowerBoundTaxonID, oldestDate, newestDate, maxRows]
-    )
+    await db.query(QUERY_UNUSED_TAXA + ` and TaxonID >= ? order by TaxonID limit ?`, [
+      oldestDate,
+      newestDate,
+      lowerBoundTaxonID,
+      maxRows
+    ])
   )[0] as ResultRow[];
 }
