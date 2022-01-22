@@ -21,12 +21,6 @@
   let flags = tree.nodeFlags;
   let children: SvelteComponent[] = [];
 
-  if (!(flags & InteractiveTreeFlags.Expandable)) {
-    flags &= ~InteractiveTreeFlags.Expanded;
-  }
-  if (!(flags & InteractiveTreeFlags.Selectable)) {
-    flags &= ~InteractiveTreeFlags.Selected;
-  }
   tree.nodeFlags = flags;
 
   export function setExpansion(expanded: boolean) {

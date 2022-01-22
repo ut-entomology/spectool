@@ -20,11 +20,12 @@
   import StatusMessage from '../../layout/StatusMessage.svelte';
   import { showStatus } from '../../layout/StatusMessage.svelte';
   import { screenStack } from '../../stores/screenStack';
-  import type { TaxonTree, TaxonNode } from '../../lib/taxa_tree';
+  import type { TaxonNode } from '../../lib/taxon_node';
 
   const GENUS_RANK = 180;
   const MIN_SPECIES_RANK = 220;
-  const IN_USE_NODE_FLAG = 1 << 16;
+  const IN_USE_NODE_FLAG = 1 << 14;
+  const CONTAINS_UNUSED_TAXA_FLAG = 1 << 15;
   const DEFAULT_USED_NODE_FLAGS =
     InteractiveTreeFlags.Selectable | InteractiveTreeFlags.Expanded | IN_USE_NODE_FLAG;
   const DEFAULT_UNUSED_NODE_FLAGS =
@@ -36,7 +37,7 @@
   const startingDate = new Date(startingDateStr);
   const endingDate = new Date(endingDateStr);
 
-  let taxonTrees: TaxonTree[] = [];
+  let treeRoot: TaxonNode | null;
 
   function changeDates() {
     screenStack.pop({ startingDateStr, endingDateStr });
@@ -100,7 +101,7 @@
     const rankMap = await window.apis.taxaApi.getTaxonomicRanks();
 
     // Adds a taxon's node to the intermediate structures used to create the tree.
-    function addTaxonNode(taxon: BaseTaxon, node: TaxonNode) {
+    function __addTaxonNode(taxon: BaseTaxon, node: TaxonNode) {
       // If we already have the taxon's parent, place it under the parent.
       const parentNode = nodeByID[taxon.ParentID];
       if (parentNode) {
@@ -125,12 +126,19 @@
       }
 
       // If the new taxon is a parent of orphans, put the orphans under the
-      // parent and remove the orphans as possible root taxa.
+      // parent and remove the orphans as possible root taxa. Bubble up whether
+      // the node contains any unused taxa.
       const childNodes = orphanNodesByParentID[taxon.TaxonID];
       if (childNodes) {
         delete orphanNodesByParentID[taxon.TaxonID];
         node.children = childNodes;
         for (const childNode of childNodes) {
+          const containsUnusedTaxa =
+            !(childNode.nodeFlags & IN_USE_NODE_FLAG) ||
+            childNode.nodeFlags & CONTAINS_UNUSED_TAXA_FLAG;
+          if (containsUnusedTaxa) {
+            node.nodeFlags |= CONTAINS_UNUSED_TAXA_FLAG;
+          }
           delete rootNodeByID[childNode.id];
         }
       }
@@ -159,7 +167,7 @@
         nodeByID[node.id] = node;
 
         // Incorporate the taxon's node into intermediate structures.
-        addTaxonNode(taxon, node);
+        __addTaxonNode(taxon, node);
 
         // Track lower bound of next batch of taxa to retrieve.
         lastTaxonID = taxon.TaxonID;
@@ -178,7 +186,8 @@
 
     // Get the ancestors of unused taxa (may include unused taxa that are
     // ancestors of other unused taxa, may include duplicates). Use them
-    // to incorporate all unused taxa into a single navigable tree.
+    // to incorporate all unused taxa into a single navigable tree. That is,
+    // there should only be a single tree left in rootNodeByID.
     showStatus('Loading ancestor taxa of unused taxa...');
     let ancestors = await window.apis.taxaApi.getAncestorsOfUnusedTaxa(
       startingDate,
@@ -195,18 +204,28 @@
       // don't replace an unused taxon node with a used taxon node
       if (nodeByID[node.id] === undefined) {
         nodeByID[node.id] = node;
-        addTaxonNode(taxon, node);
-      } else if (taxon.TaxonID == 1) {
+        __addTaxonNode(taxon, node);
       }
     }
+    treeRoot = Object.values(rootNodeByID)[0];
 
-    // Construct the taxon trees from the intermediate structures.
-    showStatus('Constructing taxa tree...');
-    for (const rootNode of Object.values(rootNodeByID)) {
-      taxonTrees.push({
-        containingTaxaHTML: [],
-        root: rootNode
-      });
+    // Remove all taxa not containing at least one unused taxon.
+    showStatus('Cleaning up data...');
+    function __removeUnusedTaxa(node: TaxonNode) {
+      if (node.children) {
+        const keptChildren: TaxonNode[] = [];
+        for (const child of node.children) {
+          if (child.nodeFlags & CONTAINS_UNUSED_TAXA_FLAG) {
+            keptChildren.push(child);
+            __removeUnusedTaxa(child);
+          }
+        }
+        node.children = keptChildren;
+      }
+    }
+    __removeUnusedTaxa(treeRoot);
+    if (!treeRoot.children || treeRoot.children.length == 0) {
+      treeRoot = null;
     }
   }
 
@@ -274,9 +293,11 @@
       </div>
     </div>
     <div class="tree_pane">
-      {#each taxonTrees as tree}
-        <ExpandableTree tree={tree.root} />
-      {/each}
+      {#if treeRoot == null}
+        <i>No unused taxa found</i>
+      {:else}
+        <ExpandableTree tree={treeRoot} />
+      {/if}
     </div>
   </main>
 {/await}

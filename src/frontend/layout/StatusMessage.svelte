@@ -43,7 +43,7 @@
 
   :global {
     .status-toast {
-      text-align: center;
+      text-align: left;
       font-size: 110%;
       font-weight: bold;
       padding: 1em;
