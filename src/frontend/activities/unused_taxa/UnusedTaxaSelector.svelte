@@ -15,7 +15,7 @@
   import type { UserInfo } from '../../../backend/api/user_api';
   import ActivityInstructions from '../../components/ActivityInstructions.svelte';
   import BigSpinner from '../../components/BigSpinner.svelte';
-  import ExpandableTree from '../../components/InteractiveTree.svelte';
+  import InteractiveTree from '../../components/InteractiveTree.svelte';
   import { InteractiveTreeFlags } from '../../components/InteractiveTree.svelte';
   import StatusMessage from '../../layout/StatusMessage.svelte';
   import { showStatus } from '../../layout/StatusMessage.svelte';
@@ -78,7 +78,7 @@
         userName = `${user.FirstName} ${userName}`;
       }
     }
-    return `${taxonName} (${userName} ${taxon.TimestampCreated.toLocaleDateString(
+    return `<span>${taxonName}</span> (${userName} ${taxon.TimestampCreated.toLocaleDateString(
       'en-US'
     )})`;
   }
@@ -133,15 +133,20 @@
         delete orphanNodesByParentID[taxon.TaxonID];
         node.children = childNodes;
         for (const childNode of childNodes) {
-          const containsUnusedTaxa =
-            !(childNode.nodeFlags & IN_USE_NODE_FLAG) ||
-            childNode.nodeFlags & CONTAINS_UNUSED_TAXA_FLAG;
-          if (containsUnusedTaxa) {
+          if (__containsUnusedTaxa(childNode)) {
             node.nodeFlags |= CONTAINS_UNUSED_TAXA_FLAG;
           }
           delete rootNodeByID[childNode.id];
         }
       }
+    }
+
+    // Indicates whether a node is unused or contains unused taxa.
+    function __containsUnusedTaxa(node: TaxonNode): boolean {
+      return (
+        !(node.nodeFlags & IN_USE_NODE_FLAG) ||
+        !!(node.nodeFlags & CONTAINS_UNUSED_TAXA_FLAG)
+      );
     }
 
     // Construct the intermediate structures of the taxon trees.
@@ -215,12 +220,16 @@
       if (node.children) {
         const keptChildren: TaxonNode[] = [];
         for (const child of node.children) {
-          if (child.nodeFlags & CONTAINS_UNUSED_TAXA_FLAG) {
+          if (__containsUnusedTaxa(child)) {
             keptChildren.push(child);
             __removeUnusedTaxa(child);
           }
         }
-        node.children = keptChildren;
+        if (node.children.length > 0) {
+          node.children = keptChildren;
+        } else {
+          node.children = null;
+        }
       }
     }
     __removeUnusedTaxa(treeRoot);
@@ -281,7 +290,7 @@
           >
         </div>
       </div>
-      <div class="row mb-2">
+      <div class="row mb-2 justify-content-between">
         <div class="col-auto">
           <button class="btn btn-minor compact" type="button" on:click={selectAll}
             >Select All</button
@@ -290,13 +299,14 @@
             >Deselect All</button
           >
         </div>
+        <div class="col-auto unused_note">(Unused taxa are in <b>bold</b>.)</div>
       </div>
     </div>
     <div class="tree_pane">
       {#if treeRoot == null}
         <i>No unused taxa found</i>
       {:else}
-        <ExpandableTree tree={treeRoot} />
+        <InteractiveTree tree={treeRoot} />
       {/if}
     </div>
   </main>
@@ -314,15 +324,28 @@
   .title {
     font-weight: bold;
   }
+  .unused_note {
+    padding-right: 1.5em;
+  }
   .tree_pane {
     flex-basis: 0px;
     flex-grow: 1;
-    font-size: 0.8em;
+    font-size: 0.9em;
     overflow: auto;
     scrollbar-width: thin;
     border: solid 1px #666;
   }
   .tree_pane :global(.tree_node) {
-    margin-left: 0.8em;
+    margin: 0.3em 0 0 1.5em;
+  }
+  .tree_pane :global(.expander),
+  .tree_pane :global(input) {
+    margin-right: 0.3em;
+  }
+  .tree_pane :global(.checkbox) {
+    vertical-align: middle;
+  }
+  .tree_pane :global(span) {
+    font-weight: bold;
   }
 </style>
