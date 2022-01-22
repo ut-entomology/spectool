@@ -15,7 +15,6 @@
   import VariableDialog from '../layout/VariableDialog.svelte';
   import HeaderBar from './HeaderBar.svelte';
   import ActivityBar from './ActivityBar.svelte';
-  import StatusBar from './StatusBar.svelte';
   import BigSpinner from './BigSpinner.svelte';
 
   let connection: Connection;
@@ -92,8 +91,6 @@
       {...currentScreen.params}
     />
   </div>
-  <StatusBar />
-
   <VariableDialog />
   <VariableNotice />
   <VariableFlash />
@@ -150,6 +147,7 @@
     display: flex;
     flex-direction: column;
     margin: 0 $horizontalMargin;
+    margin-bottom: $horizontalMargin;
   }
 
   h2 {
