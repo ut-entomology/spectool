@@ -5,11 +5,8 @@ import * as query from '../../kernel/specify/queries';
 
 const TAXON_BATCH_SIZE = 10000;
 
-export type Taxon = ReturnType<typeof query.getUnusedTaxa> extends Promise<infer R>
-  ? R extends (infer T)[]
-    ? T
-    : never
-  : never;
+export type Taxon = query.RowType<typeof query.getUnusedTaxa>;
+export type TaxonomicRank = query.RowType<typeof query.getTaxonomicRanks>;
 
 export class TaxaApi {
   private _kernel: AppKernel;
@@ -38,13 +35,22 @@ export class TaxaApi {
       throw new RelayedError(err);
     }
   }
+
+  async getTaxonomicRanks() {
+    const ranks = await query.getTaxonomicRanks(this._kernel.database);
+    const ranksMap: Record<number, TaxonomicRank> = {};
+    for (const rank of ranks) {
+      ranksMap[rank.RankID] = rank;
+    }
+    return ranksMap;
+  }
 }
 
 function bundleTaxa(taxa: Taxon[]): string {
   const values: string[] = [];
   for (const taxon of taxa) {
     values.push(taxon.TaxonID.toString());
-    values.push(taxon.Name);
+    values.push(taxon.FullName);
     values.push(taxon.RankID.toString());
     values.push(taxon.ParentID !== null ? taxon.ParentID.toString() : '');
     values.push(

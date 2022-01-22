@@ -9,7 +9,8 @@
 </script>
 
 <script lang="ts">
-  import type { Taxon } from '../../../backend/api/taxa_api';
+  import type { Taxon, TaxonomicRank } from '../../../backend/api/taxa_api';
+  import type { UserInfo } from '../../../backend/api/user_api';
   import ActivityInstructions from '../../components/ActivityInstructions.svelte';
   import BigSpinner from '../../components/BigSpinner.svelte';
   import ExpandableTree from '../../components/InteractiveTree.svelte';
@@ -17,10 +18,12 @@
   import { screenStack } from '../../stores/screenStack';
   import type { TaxonTree, TaxonNode } from '../../lib/taxa_tree';
 
+  const GENUS_RANK = 180;
+  const MIN_SPECIES_RANK = 220;
   const DEFAULT_NODE_FLAGS =
-    InteractiveTreeFlags.ExpandableFlag |
-    InteractiveTreeFlags.SelectableFlag |
-    InteractiveTreeFlags.ExpandedFlag;
+    InteractiveTreeFlags.Expandable |
+    InteractiveTreeFlags.Selectable |
+    InteractiveTreeFlags.Expanded;
 
   export let startingDateStr = '';
   export let endingDateStr = '';
@@ -44,8 +47,31 @@
     });
   }
 
-  function formatTaxon(taxon: Taxon) {
-    return taxon.Name;
+  function formatTaxon(
+    taxon: Taxon,
+    rankMap: Record<number, TaxonomicRank>,
+    userMap: Record<number, UserInfo>
+  ) {
+    let userName = '<i>system</i>';
+    if (!isNaN(taxon.CreatedByAgentID)) {
+      const user = userMap[taxon.CreatedByAgentID];
+      userName = user.LastName;
+      if (user.FirstName) {
+        userName = `${user.FirstName} ${userName}`;
+      }
+    }
+    let taxonName = taxon.FullName;
+    if (taxon.RankID >= MIN_SPECIES_RANK) {
+      taxonName = `<i>${taxonName}</i>`;
+    } else {
+      if (taxon.RankID == GENUS_RANK) {
+        taxonName = `<i>${taxonName}</i>`;
+      }
+      taxonName = `${rankMap[taxon.RankID].Name}: ${taxonName}`;
+    }
+    return `${taxonName} (${userName} ${taxon.TimestampCreated.toLocaleDateString(
+      'en-US'
+    )})`;
   }
 
   async function prepare() {
@@ -57,6 +83,12 @@
     const orphanNodesByParentID: Record<number, TaxonNode[]> = {};
     // Tracks the most recent taxon ID
     let lastTaxonID = 0;
+
+    // Load users for showing who created each taxon.
+    const userMap = await window.apis.userApi.getAllUsers();
+
+    // Load the taxonomic ranks so we can label the taxa.
+    const rankMap = await window.apis.taxaApi.getTaxonomicRanks();
 
     // Construct the intermediate structures of the taxon trees.
 
@@ -73,7 +105,7 @@
         const node: TaxonNode = {
           id: taxon.TaxonID,
           nodeFlags: DEFAULT_NODE_FLAGS,
-          nodeHTML: formatTaxon(taxon),
+          nodeHTML: formatTaxon(taxon, rankMap, userMap),
           children: null
         };
         nodeByID[node.id] = node;
@@ -147,7 +179,7 @@
       while (i < values.length) {
         let taxon: any = {};
         taxon.TaxonID = parseInt(values[i]);
-        taxon.Name = values[i + 1];
+        taxon.FullName = values[i + 1];
         taxon.RankID = parseInt(values[i + 2]);
         taxon.ParentID = parseInt(values[i + 3]);
         taxon.CreatedByAgentID = parseInt(values[i + 4]);
@@ -203,7 +235,9 @@
 
 <style>
   main {
-    height: 100%;
+    flex: auto;
+    display: flex;
+    flex-direction: column;
   }
   main button {
     margin-left: 0.5em;
@@ -212,10 +246,12 @@
     font-weight: bold;
   }
   .tree_pane {
+    flex-basis: 0px;
+    flex-grow: 1;
     font-size: 0.8em;
-    height: 100%;
     overflow: auto;
     scrollbar-width: thin;
+    border: solid 1px #666;
   }
   .tree_pane :global(.tree_node) {
     margin-left: 0.8em;

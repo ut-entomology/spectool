@@ -12,6 +12,12 @@
 import type * as mysql from 'mysql2/promise';
 
 /**
+ * Returns the type of a row in the result set of a given query function F.
+ */
+export type RowType<F extends (...args: any[]) => Promise<any>> =
+  ReturnType<F> extends Promise<infer S> ? (S extends (infer R)[] ? R : never) : never;
+
+/**
  * Database client type on which to issue queries. Abstracts the implmentation.
  */
 export type DB = mysql.Pool;
@@ -151,10 +157,27 @@ export async function getGeographicRegionLocalities(db: DB, forGeographyIDs: num
 //// TAXA ////////////////////////////////////////////////////////////////////
 
 /**
+ * Query returning the available taxonomic ranks.
+ */
+export async function getTaxonomicRanks(db: DB) {
+  type ResultRow = {
+    RankID: number;
+    Name: string;
+  };
+  return (
+    await db.execute(`select Name, RankID from taxontreedefitem`)
+  )[0] as ResultRow[];
+}
+
+/**
  * Query returning a batch of taxa neither occurring in a determination nor
  * containing any taxa occuring in a determination, restricted to a range of
  * creation dates. The batches is given by a lower bound on taxon ID and the
  * maximum number of rows to return. Rows are orderd by taxon ID.
+ *
+ * NOTE: This determines *prospective* unused taxa. Each taxon is itself
+ * unused, and if it contains any taxa, there is at least one contained
+ * taxon that is unused.
  */
 export async function getUnusedTaxa(
   db: DB,
@@ -165,7 +188,7 @@ export async function getUnusedTaxa(
 ) {
   type ResultRow = {
     TaxonID: number;
-    Name: string;
+    FullName: string;
     RankID: number;
     ParentID: number;
     CreatedByAgentID: number;
@@ -173,21 +196,22 @@ export async function getUnusedTaxa(
   };
   return (
     await db.execute(
-      `with recursive unused_taxa as (
-          select t1.* from taxa as t1
+      `with recursive prospective_unused_taxa as (
+          select t1.* from taxa1 as t1
           left join taxon t2 on t2.ParentID = t1.TaxonID
           left join dets as d1 on d1.TaxonID = t1.TaxonID
           where t2.ParentID is null and d1.DeterminationID is null
-          
+        
           union all
-          
-          select t3.* from taxa as t3
-          join unused_taxa ut on ut.ParentID = t3.TaxonID
+        
+          select t3.* from taxa1 as t3
+          join prospective_unused_taxa ut on ut.ParentID = t3.TaxonID
+          -- next constraint is unnecessary but improves performance
           left join dets as d2 on d2.TaxonID = t3.TaxonID
           where d2.DeterminationID is null
         ),
-        taxa as (
-          select TaxonID, Name, RankID, ParentID,
+        taxa1 as (
+          select TaxonID, FullName, RankID, ParentID,
             CreatedByAgentID, TimestampCreated from taxon
         ),
         dets as (
@@ -195,16 +219,33 @@ export async function getUnusedTaxa(
         )
         select distinct
           TaxonID,
-          Name,
+          FullName,
           RankID,
           ParentID,
           CreatedByAgentID,
           TimestampCreated
-        from unused_taxa
-        where TimestampCreated between ? and ?
-          and TaxonID >= ?
+        from prospective_unused_taxa
+        where TaxonID >= ?
+          and TaxonID not in (
+            with recursive used_taxa as (
+              select t1.* from taxa2 as t1
+              join (
+                select TaxonID from determination
+              ) as d on d.TaxonID = t1.TaxonID
+          
+              union all
+          
+              select t2.* from taxa2 as t2
+              join used_taxa ut on ut.ParentID = t2.TaxonID
+            ),
+            taxa2 as (
+              select TaxonID, ParentID from taxon
+            )
+            select distinct TaxonID from used_taxa
+          )
+          and TimestampCreated between ? and ?
         order by TaxonID limit ?`,
-      [oldestDate, newestDate, lowerBoundTaxonID, maxRows]
+      [lowerBoundTaxonID, oldestDate, newestDate, maxRows]
     )
   )[0] as ResultRow[];
 }

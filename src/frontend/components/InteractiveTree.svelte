@@ -1,9 +1,9 @@
 <script lang="ts" context="module">
   export enum InteractiveTreeFlags {
-    ExpandedFlag = 1 << 0, // whether to show the node's children
-    SelectedFlag = 1 << 1, // whether the node is selected
-    ExpandableFlag = 1 << 2, // whether the node is collapsable and expandable
-    SelectableFlag = 1 << 3 // whether the node is selectable
+    Expanded = 1 << 0, // whether to show the node's children
+    Selected = 1 << 1, // whether the node is selected
+    Expandable = 1 << 2, // whether the node is collapsable and expandable
+    Selectable = 1 << 3 // whether the node is selectable
   }
 
   export interface InteractiveTreeNode {
@@ -21,26 +21,43 @@
   let flags = tree.nodeFlags;
   let children: SvelteComponent[] = [];
 
-  if (!(flags & InteractiveTreeFlags.SelectableFlag)) {
-    flags &= ~InteractiveTreeFlags.ExpandedFlag;
+  if (!(flags & InteractiveTreeFlags.Expandable)) {
+    flags &= ~InteractiveTreeFlags.Expanded;
   }
-  if (!(flags & InteractiveTreeFlags.ExpandableFlag)) {
-    flags &= ~InteractiveTreeFlags.SelectedFlag;
+  if (!(flags & InteractiveTreeFlags.Selectable)) {
+    flags &= ~InteractiveTreeFlags.Selected;
+  }
+  tree.nodeFlags = flags;
+
+  export function setExpansion(expanded: boolean) {
+    if (flags & InteractiveTreeFlags.Expandable) {
+      if (expanded) {
+        flags |= InteractiveTreeFlags.Expanded;
+      } else {
+        flags &= ~InteractiveTreeFlags.Expanded;
+      }
+      tree.nodeFlags = flags;
+    }
   }
 
-  export function select() {
-    if (flags & InteractiveTreeFlags.SelectableFlag) {
-      flags |= InteractiveTreeFlags.SelectedFlag;
+  export function setSelection(selected: boolean) {
+    if (flags & InteractiveTreeFlags.Selectable) {
+      if (selected) {
+        flags |= InteractiveTreeFlags.Selected;
+      } else {
+        flags &= ~InteractiveTreeFlags.Selected;
+      }
+      tree.nodeFlags = flags;
     }
     for (const child of children) {
-      child.select();
+      child.setSelection(selected);
     }
   }
 </script>
 
 <div class="tree_node">
-  <div class="node_html">{tree.nodeHTML}</div>
-  {#if flags & InteractiveTreeFlags.ExpandedFlag}
+  <div class="node_html">{@html tree.nodeHTML}</div>
+  {#if flags & InteractiveTreeFlags.Expanded}
     {#if tree.children}
       <div class="node_children">
         {#each tree.children as child, i}

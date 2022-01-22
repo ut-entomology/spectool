@@ -143,7 +143,6 @@
     flex-direction: column;
     margin: 0;
     padding: 0;
-    height: 100%;
   }
 
   .page-content {
@@ -151,7 +150,6 @@
     display: flex;
     flex-direction: column;
     margin: 0 $horizontalMargin;
-    height: 100%;
   }
 
   h2 {
