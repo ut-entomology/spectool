@@ -4,8 +4,7 @@
     Selected = 1 << 1, // whether the node is selected
     Expandable = 1 << 2, // whether the node is collapsable and expandable
     Selectable = 1 << 3, // whether the node is selectable
-    SelectDescendents = 1 << 4,
-    ChildrenHack = 1 << 5
+    SelectDescendents = 1 << 4 // whether selecting the node selects its descendents
   }
 
   export interface InteractiveTreeNode {
@@ -18,8 +17,8 @@
 <script lang="ts">
   import type { SvelteComponent } from 'svelte';
 
-  const UNEXPANDED_SYMBOL = '&#9654;';
   const EXPANDED_SYMBOL = '&#9660';
+  const UNEXPANDED_SYMBOL = '&#9654;';
   const NONEXPANDABLE_SYMBOL = '&#x2981;';
 
   export let tree: InteractiveTreeNode;
@@ -32,7 +31,7 @@
       flags = _setSelectionFlag(flags, selected);
       tree.nodeFlags = _setSelectionFlag(tree.nodeFlags, selected);
       if (flags & InteractiveTreeFlags.SelectDescendents) {
-        if (childComponents.length > 0 && childComponents[0] !== null) {
+        if (flags & InteractiveTreeFlags.Expanded) {
           for (const childComponent of childComponents) {
             childComponent.setSelection(selected);
           }
@@ -69,11 +68,6 @@
       flags &= ~InteractiveTreeFlags.Expanded;
     } else {
       flags |= InteractiveTreeFlags.Expanded;
-      if (flags & InteractiveTreeFlags.ChildrenHack) {
-        flags &= ~InteractiveTreeFlags.ChildrenHack;
-      } else {
-        flags |= InteractiveTreeFlags.ChildrenHack;
-      }
     }
   };
 
@@ -111,11 +105,7 @@
     {#if tree.children}
       <div class="node_children">
         {#each tree.children as childNode, i}
-          {#if flags & InteractiveTreeFlags.ChildrenHack}
-            <svelte:self bind:this={childComponents[i]} tree={childNode} />
-          {:else}
-            <svelte:self bind:this={childComponents[i]} tree={childNode} />
-          {/if}
+          <svelte:self bind:this={childComponents[i]} tree={childNode} />
         {/each}
       </div>
     {/if}
