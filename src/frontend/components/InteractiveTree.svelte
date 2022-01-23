@@ -18,7 +18,7 @@
   import type { SvelteComponent } from 'svelte';
 
   const EXPANDED_SYMBOL = '&#9660';
-  const UNEXPANDED_SYMBOL = '&#9654;';
+  const COLLAPSED_SYMBOL = '&#9654;';
   const NONEXPANDABLE_SYMBOL = '&#x2981;';
 
   export let tree: InteractiveTreeNode;
@@ -84,7 +84,7 @@
       >
         {@html flags & InteractiveTreeFlags.Expanded
           ? EXPANDED_SYMBOL
-          : UNEXPANDED_SYMBOL}
+          : COLLAPSED_SYMBOL}
       </div>
     {:else}
       <div class="bullet">{@html NONEXPANDABLE_SYMBOL}</div>

@@ -304,7 +304,7 @@
             >Deselect All</button
           >
         </div>
-        <div class="col-auto unused_note">(Unused taxa are in <b>bold</b>.)</div>
+        <div class="col-auto unused_note">(unused taxa are in <b>bold</b>)</div>
       </div>
     </div>
     <div class="tree_pane">
