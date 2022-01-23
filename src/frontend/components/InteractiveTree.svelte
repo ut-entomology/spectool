@@ -4,7 +4,8 @@
     Selected = 1 << 1, // whether the node is selected
     Expandable = 1 << 2, // whether the node is collapsable and expandable
     Selectable = 1 << 3, // whether the node is selectable
-    SelectDescendents = 1 << 4
+    SelectDescendents = 1 << 4,
+    ChildrenHack = 1 << 5
   }
 
   export interface InteractiveTreeNode {
@@ -31,11 +32,9 @@
       flags = _setSelectionFlag(flags, selected);
       tree.nodeFlags = _setSelectionFlag(tree.nodeFlags, selected);
       if (flags & InteractiveTreeFlags.SelectDescendents) {
-        if (childComponents.length > 0) {
+        if (childComponents.length > 0 && childComponents[0] !== null) {
           for (const childComponent of childComponents) {
-            if (childComponent !== null) {
-              childComponent.setSelection(selected);
-            }
+            childComponent.setSelection(selected);
           }
         } else {
           _setHiddenDescendentSelections(tree, selected);
@@ -70,6 +69,11 @@
       flags &= ~InteractiveTreeFlags.Expanded;
     } else {
       flags |= InteractiveTreeFlags.Expanded;
+      if (flags & InteractiveTreeFlags.ChildrenHack) {
+        flags &= ~InteractiveTreeFlags.ChildrenHack;
+      } else {
+        flags |= InteractiveTreeFlags.ChildrenHack;
+      }
     }
   };
 
@@ -106,8 +110,12 @@
   {#if flags & InteractiveTreeFlags.Expanded}
     {#if tree.children}
       <div class="node_children">
-        {#each tree.children as child, i}
-          <svelte:self bind:this={childComponents[i]} tree={child} />
+        {#each tree.children as childNode, i}
+          {#if flags & InteractiveTreeFlags.ChildrenHack}
+            <svelte:self bind:this={childComponents[i]} tree={childNode} />
+          {:else}
+            <svelte:self bind:this={childComponents[i]} tree={childNode} />
+          {/if}
         {/each}
       </div>
     {/if}
