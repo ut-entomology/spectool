@@ -9,14 +9,17 @@
 </script>
 
 <script lang="ts">
-  import { onMount } from 'svelte';
+  import { onMount, SvelteComponent } from 'svelte';
 
   import type { BaseTaxon, Taxon, TaxonomicRank } from '../../../backend/api/taxa_api';
   import type { UserInfo } from '../../../backend/api/user_api';
   import ActivityInstructions from '../../components/ActivityInstructions.svelte';
   import BigSpinner from '../../components/BigSpinner.svelte';
   import InteractiveTree from '../../components/InteractiveTree.svelte';
-  import { InteractiveTreeFlags } from '../../components/InteractiveTree.svelte';
+  import {
+    InteractiveTreeFlags,
+    InteractiveTreeNode
+  } from '../../components/InteractiveTree.svelte';
   import StatusMessage from '../../layout/StatusMessage.svelte';
   import { showStatus } from '../../layout/StatusMessage.svelte';
   import { screenStack } from '../../stores/screenStack';
@@ -28,6 +31,7 @@
   const CONTAINS_UNUSED_TAXA_FLAG = 1 << 15;
   const DEFAULT_USED_NODE_FLAGS =
     IN_USE_NODE_FLAG |
+    InteractiveTreeFlags.Expandable |
     InteractiveTreeFlags.Expanded |
     InteractiveTreeFlags.Selectable |
     InteractiveTreeFlags.SelectDescendents;
@@ -43,12 +47,37 @@
   const endingDate = new Date(endingDateStr);
 
   let treeRoot: TaxonNode | null;
+  let rootChildrenComponents: SvelteComponent[] = [];
 
   function changeDates() {
     screenStack.pop({ startingDateStr, endingDateStr });
   }
 
-  function deselectAll() {}
+  function collapseAll() {
+    if (treeRoot && treeRoot.children) {
+      for (const treeRootChildComponent of rootChildrenComponents) {
+        treeRootChildComponent.setExpansion(() => false);
+      }
+    }
+  }
+
+  function deselectAll() {
+    if (treeRoot && treeRoot.children) {
+      for (const treeRootChildComponent of rootChildrenComponents) {
+        treeRootChildComponent.setSelection(false);
+      }
+    }
+  }
+
+  function expandToUnusedTaxa() {
+    if (treeRoot && treeRoot.children) {
+      for (const treeRootChildComponent of rootChildrenComponents) {
+        treeRootChildComponent.setExpansion((node: InteractiveTreeNode) => {
+          return !!(node.nodeFlags & IN_USE_NODE_FLAG);
+        });
+      }
+    }
+  }
 
   function formatDate(date: Date) {
     return date.toLocaleDateString('en-US', {
@@ -75,7 +104,7 @@
     userMap: Record<number, UserInfo>
   ) {
     const taxonName = formatTaxonName(taxon, rankMap);
-    let userName = '<i>system</i>';
+    let userName = '<i>unknown</i>';
     if (!isNaN(taxon.CreatedByAgentID)) {
       const user = userMap[taxon.CreatedByAgentID];
       userName = user.LastName;
@@ -245,7 +274,13 @@
 
   function previewPurge() {}
 
-  function selectAll() {}
+  function selectAll() {
+    if (treeRoot && treeRoot.children) {
+      for (const treeRootChildComponent of rootChildrenComponents) {
+        treeRootChildComponent.setSelection(true);
+      }
+    }
+  }
 
   function unbundleTaxa(bundle: string): Taxon[] {
     const TAXON_FIELD_COUNT = 6;
@@ -303,15 +338,25 @@
           <button class="btn btn-minor compact" type="button" on:click={deselectAll}
             >Deselect All</button
           >
+          <button class="btn btn-minor compact" type="button" on:click={collapseAll}
+            >Collapse All</button
+          >
+          <button
+            class="btn btn-minor compact"
+            type="button"
+            on:click={expandToUnusedTaxa}>Expand to Unused Taxa</button
+          >
         </div>
         <div class="col-auto unused_note">(unused taxa are in <b>bold</b>)</div>
       </div>
     </div>
     <div class="tree_pane">
-      {#if treeRoot == null}
+      {#if treeRoot == null || !treeRoot.children}
         <i>No unused taxa found</i>
       {:else}
-        <InteractiveTree tree={treeRoot} />
+        {#each treeRoot.children as child, i}
+          <InteractiveTree bind:this={rootChildrenComponents[i]} tree={child} />
+        {/each}
       {/if}
     </div>
   </main>
@@ -330,7 +375,8 @@
     font-weight: bold;
   }
   .unused_note {
-    padding-right: 1.5em;
+    padding: 0.4em 1.5em 0 0;
+    font-size: 0.9em;
   }
   .tree_pane {
     flex-basis: 0px;

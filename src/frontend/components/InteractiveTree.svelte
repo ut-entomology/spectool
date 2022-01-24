@@ -26,6 +26,19 @@
   let flags = tree.nodeFlags;
   let childComponents: SvelteComponent[] = [];
 
+  export function setExpansion(expand: (node: InteractiveTreeNode) => boolean) {
+    const expanded = expand(tree);
+    flags = _setExpansionFlag(flags, expanded);
+    tree.nodeFlags = _setExpansionFlag(tree.nodeFlags, expanded);
+    if (childComponents.length > 0 && childComponents[0] !== null) {
+      for (const childComponent of childComponents) {
+        childComponent.setExpansion(expand);
+      }
+    } else {
+      _setHiddenDescendentExpansions(tree, expand);
+    }
+  }
+
   export function setSelection(selected: boolean) {
     if (flags & InteractiveTreeFlags.Selectable) {
       flags = _setSelectionFlag(flags, selected);
@@ -42,6 +55,18 @@
     }
   }
 
+  function _setHiddenDescendentExpansions(
+    node: InteractiveTreeNode,
+    expand: (node: InteractiveTreeNode) => boolean
+  ) {
+    if (node.children) {
+      for (const child of node.children) {
+        child.nodeFlags = _setExpansionFlag(child.nodeFlags, expand(child));
+        _setHiddenDescendentExpansions(child, expand);
+      }
+    }
+  }
+
   function _setHiddenDescendentSelections(
     node: InteractiveTreeNode,
     selected: boolean
@@ -52,6 +77,15 @@
         _setHiddenDescendentSelections(child, selected);
       }
     }
+  }
+
+  function _setExpansionFlag(anyFlags: number, selected: boolean) {
+    if (selected) {
+      anyFlags |= InteractiveTreeFlags.Expanded;
+    } else {
+      anyFlags &= ~InteractiveTreeFlags.Expanded;
+    }
+    return anyFlags;
   }
 
   function _setSelectionFlag(anyFlags: number, selected: boolean) {
