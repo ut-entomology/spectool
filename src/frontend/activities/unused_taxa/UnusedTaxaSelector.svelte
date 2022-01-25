@@ -34,11 +34,11 @@
     InteractiveTreeFlags.Expandable |
     InteractiveTreeFlags.Expanded |
     InteractiveTreeFlags.Selectable |
-    InteractiveTreeFlags.SelectDescendents;
+    InteractiveTreeFlags.IncludesDescendants;
   const DEFAULT_UNUSED_NODE_FLAGS =
     InteractiveTreeFlags.Expandable |
     InteractiveTreeFlags.Selectable |
-    InteractiveTreeFlags.SelectDescendents;
+    InteractiveTreeFlags.IncludesDescendants;
 
   export let startingDateStr = '';
   export let endingDateStr = '';
@@ -64,7 +64,7 @@
   function deselectAll() {
     if (treeRoot && treeRoot.children) {
       for (const treeRootChildComponent of rootChildrenComponents) {
-        treeRootChildComponent.setSelection(false);
+        treeRootChildComponent.deselectAll();
       }
     }
   }

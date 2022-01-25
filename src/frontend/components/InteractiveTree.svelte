@@ -4,7 +4,7 @@
     Selected = 1 << 1, // whether the node is selected
     Expandable = 1 << 2, // whether the node is collapsable and expandable
     Selectable = 1 << 3, // whether the node is selectable
-    SelectDescendents = 1 << 4 // whether selecting the node selects its descendents
+    IncludesDescendants = 1 << 4 // whether selecting the node selects its descendents
   }
 
   export interface InteractiveTreeNode {
@@ -21,10 +21,26 @@
   const COLLAPSED_SYMBOL = '&#9654;';
   const NONEXPANDABLE_SYMBOL = '&#x2981;';
 
+  // Tree of nodes to display.
   export let tree: InteractiveTreeNode;
+
+  // Callback to deselect all ancestors. Internal use only.
+  export let _deselect = () => {};
 
   let flags = tree.nodeFlags;
   let childComponents: SvelteComponent[] = [];
+
+  export function deselectAll() {
+    flags = _setSelectionFlag(flags, false);
+    tree.nodeFlags = _setSelectionFlag(tree.nodeFlags, false);
+    if (flags & InteractiveTreeFlags.Expanded) {
+      for (const childComponent of childComponents) {
+        childComponent.deselectAll();
+      }
+    } else {
+      _setHiddenDescendentSelections(tree, false);
+    }
+  }
 
   export function setExpansion(expand: (node: InteractiveTreeNode) => boolean) {
     const expanded = expand(tree);
@@ -43,15 +59,29 @@
     if (flags & InteractiveTreeFlags.Selectable) {
       flags = _setSelectionFlag(flags, selected);
       tree.nodeFlags = _setSelectionFlag(tree.nodeFlags, selected);
-      if (flags & InteractiveTreeFlags.SelectDescendents) {
-        if (flags & InteractiveTreeFlags.Expanded) {
-          for (const childComponent of childComponents) {
-            childComponent.setSelection(selected);
+      if (selected) {
+        if (flags & InteractiveTreeFlags.IncludesDescendants) {
+          if (flags & InteractiveTreeFlags.Expanded) {
+            for (const childComponent of childComponents) {
+              childComponent.setSelection(true);
+            }
+          } else {
+            _setHiddenDescendentSelections(tree, true);
           }
-        } else {
-          _setHiddenDescendentSelections(tree, selected);
+        }
+      } else {
+        if (flags & InteractiveTreeFlags.IncludesDescendants && _deselect) {
+          _deselect();
         }
       }
+    }
+  }
+
+  function _deselectAncestors() {
+    flags = _setSelectionFlag(flags, false);
+    tree.nodeFlags = _setSelectionFlag(tree.nodeFlags, false);
+    if (_deselect) {
+      _deselect();
     }
   }
 
@@ -139,7 +169,11 @@
     {#if tree.children}
       <div class="node_children">
         {#each tree.children as childNode, i}
-          <svelte:self bind:this={childComponents[i]} tree={childNode} />
+          <svelte:self
+            bind:this={childComponents[i]}
+            tree={childNode}
+            _deselect={_deselectAncestors}
+          />
         {/each}
       </div>
     {/if}
