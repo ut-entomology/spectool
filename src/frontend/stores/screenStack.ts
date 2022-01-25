@@ -12,11 +12,11 @@ function createScreenStack() {
         screens.push(screen);
         return screens;
       }),
-    pop: (params?: Record<string, any>) =>
+    pop: (paramsModifier?: (params: Record<string, any>) => void) =>
       update((screens) => {
         screens.pop();
-        if (params) {
-          screens[screens.length - 1].params = params;
+        if (paramsModifier) {
+          paramsModifier(screens[screens.length - 1].params);
         }
         return screens;
       }),

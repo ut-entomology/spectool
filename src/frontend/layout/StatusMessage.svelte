@@ -3,6 +3,10 @@
 
   const messageStore = writable<string | null>(null);
 
+  /**
+   * Change the status message. Pass in null to close the status message,
+   * but only if the StatusMessage component remains rendered.
+   */
   export function showStatus(text: string | null) {
     if (text !== null) {
       text = escapeHtml(text).replace(' ', '&nbsp;');

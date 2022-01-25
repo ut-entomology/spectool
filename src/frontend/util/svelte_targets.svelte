@@ -10,6 +10,7 @@
   import LocalityConsolidationMain from '../activities/locality_consolidation/LocalityConsolidationMain.svelte';
   import UnusedTaxaMain from '../activities/unused_taxa/UnusedTaxaMain.svelte';
   import UnusedTaxaSelector from '../activities/unused_taxa/UnusedTaxaSelector.svelte';
+  import UnusedTaxaPreview from '../activities/unused_taxa/UnusedTaxaPreview.svelte';
 
   const targetMap: Record<string, typeof SvelteComponent> = {
     // Main Screen
@@ -18,6 +19,7 @@
     LocalityConsolidationMain,
     UnusedTaxaMain,
     UnusedTaxaSelector,
+    UnusedTaxaPreview,
     // Dialogs
     DataFolderDialog,
     DBConfigDialog,

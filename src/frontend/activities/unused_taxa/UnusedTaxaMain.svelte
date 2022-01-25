@@ -55,7 +55,8 @@
       } else {
         unusedTaxaSelectorSpec.params = {
           startingDateStr: values.startingDateStr,
-          endingDateStr: values.endingDateStr
+          endingDateStr: values.endingDateStr,
+          treeRoot: null
         };
         screenStack.push(unusedTaxaSelectorSpec);
       }

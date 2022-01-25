@@ -1,15 +1,22 @@
 <script lang="ts" context="module">
+  import {
+    TaxonNode,
+    IN_USE_NODE_FLAG,
+    CONTAINS_UNUSED_TAXA_FLAG
+  } from '../../lib/taxon_node';
+
   export const unusedTaxaSelectorSpec = {
     targetName: 'UnusedTaxaSelector',
     params: {} as {
       startingDateStr: string;
       endingDateStr: string;
+      treeRoot: TaxonNode | null;
     }
   };
 </script>
 
 <script lang="ts">
-  import { onMount, SvelteComponent } from 'svelte';
+  import type { SvelteComponent } from 'svelte';
 
   import type { BaseTaxon, Taxon, TaxonomicRank } from '../../../backend/api/taxa_api';
   import type { UserInfo } from '../../../backend/api/user_api';
@@ -23,12 +30,11 @@
   import StatusMessage from '../../layout/StatusMessage.svelte';
   import { showStatus } from '../../layout/StatusMessage.svelte';
   import { screenStack } from '../../stores/screenStack';
-  import type { TaxonNode } from '../../lib/taxon_node';
+  import { unusedTaxaPreviewSpec } from './UnusedTaxaPreview.svelte';
+  import { showNotice } from '../../layout/VariableNotice.svelte';
 
   const GENUS_RANK = 180;
   const MIN_SPECIES_RANK = 220;
-  const IN_USE_NODE_FLAG = 1 << 14;
-  const CONTAINS_UNUSED_TAXA_FLAG = 1 << 15;
   const DEFAULT_USED_NODE_FLAGS =
     IN_USE_NODE_FLAG |
     InteractiveTreeFlags.Expandable |
@@ -42,15 +48,18 @@
 
   export let startingDateStr = '';
   export let endingDateStr = '';
+  export let treeRoot: TaxonNode | null = null;
 
   const startingDate = new Date(startingDateStr);
   const endingDate = new Date(endingDateStr);
 
-  let treeRoot: TaxonNode | null;
   let rootChildrenComponents: SvelteComponent[] = [];
 
   function changeDates() {
-    screenStack.pop({ startingDateStr, endingDateStr });
+    screenStack.pop((params) => {
+      params.startingDateStr = startingDateStr;
+      params.endingDateStr = endingDateStr;
+    });
   }
 
   function collapseAll() {
@@ -118,6 +127,11 @@
   }
 
   async function prepare() {
+    // If we're redisplaying the tree after canceling a purge, keeping selections.
+    if (treeRoot !== null) {
+      return;
+    }
+
     // All taxa represented by nodes, indexed by taxon ID
     const nodeByID: Record<number, TaxonNode> = {};
     // Taxa not yet known to be a child of another unused taxon, indexed by taxon ID
@@ -272,7 +286,16 @@
     }
   }
 
-  function previewPurge() {}
+  function previewPurge() {
+    if (treeRoot && treeIncludesSelections(treeRoot)) {
+      unusedTaxaPreviewSpec.params = {
+        treeRoot: treeRoot!
+      };
+      screenStack.push(unusedTaxaPreviewSpec);
+    } else {
+      showNotice('No taxa selected.', 'FAILED', 'warning');
+    }
+  }
 
   function selectAll() {
     if (treeRoot && treeRoot.children) {
@@ -280,6 +303,23 @@
         treeRootChildComponent.setSelection(true);
       }
     }
+  }
+
+  function treeIncludesSelections(node: TaxonNode): boolean {
+    if (
+      node.nodeFlags & InteractiveTreeFlags.Selected &&
+      !(node.nodeFlags & IN_USE_NODE_FLAG)
+    ) {
+      return true;
+    }
+    if (node.children) {
+      for (const child of node.children) {
+        if (treeIncludesSelections(child)) {
+          return true;
+        }
+      }
+    }
+    return false;
   }
 
   function unbundleTaxa(bundle: string): Taxon[] {
@@ -303,13 +343,11 @@
     }
     return taxa;
   }
-
-  onMount(() => showStatus(null));
 </script>
 
 {#await prepare()}
-  <BigSpinner centered={true} />
   <StatusMessage />
+  <BigSpinner centered={true} />
 {:then}
   <main>
     <ActivityInstructions>
