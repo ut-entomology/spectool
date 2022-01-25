@@ -16,22 +16,16 @@
 </script>
 
 <script lang="ts">
-  import type { SvelteComponent } from 'svelte';
-
   import type { BaseTaxon, Taxon, TaxonomicRank } from '../../../backend/api/taxa_api';
   import type { UserInfo } from '../../../backend/api/user_api';
-  import ActivityInstructions from '../../components/ActivityInstructions.svelte';
   import BigSpinner from '../../components/BigSpinner.svelte';
-  import InteractiveTree from '../../components/InteractiveTree.svelte';
-  import {
-    InteractiveTreeFlags,
-    InteractiveTreeNode
-  } from '../../components/InteractiveTree.svelte';
+  import { InteractiveTreeFlags } from '../../components/InteractiveTree.svelte';
   import StatusMessage from '../../layout/StatusMessage.svelte';
   import { showStatus } from '../../layout/StatusMessage.svelte';
   import { screenStack } from '../../stores/screenStack';
   import { unusedTaxaPreviewSpec } from './UnusedTaxaPreview.svelte';
   import { showNotice } from '../../layout/VariableNotice.svelte';
+  import UnusedTaxaTreeView from './UnusedTaxaTreeView.svelte';
 
   const GENUS_RANK = 180;
   const MIN_SPECIES_RANK = 220;
@@ -53,39 +47,13 @@
   const startingDate = new Date(startingDateStr);
   const endingDate = new Date(endingDateStr);
 
-  let rootChildrenComponents: SvelteComponent[] = [];
+  let treeView: UnusedTaxaTreeView;
 
   function changeDates() {
     screenStack.pop((params) => {
       params.startingDateStr = startingDateStr;
       params.endingDateStr = endingDateStr;
     });
-  }
-
-  function collapseAll() {
-    if (treeRoot && treeRoot.children) {
-      for (const treeRootChildComponent of rootChildrenComponents) {
-        treeRootChildComponent.setExpansion(() => false);
-      }
-    }
-  }
-
-  function deselectAll() {
-    if (treeRoot && treeRoot.children) {
-      for (const treeRootChildComponent of rootChildrenComponents) {
-        treeRootChildComponent.deselectAll();
-      }
-    }
-  }
-
-  function expandToUnusedTaxa() {
-    if (treeRoot && treeRoot.children) {
-      for (const treeRootChildComponent of rootChildrenComponents) {
-        treeRootChildComponent.setExpansion((node: InteractiveTreeNode) => {
-          return !!(node.nodeFlags & IN_USE_NODE_FLAG);
-        });
-      }
-    }
   }
 
   function formatDate(date: Date) {
@@ -297,14 +265,6 @@
     }
   }
 
-  function selectAll() {
-    if (treeRoot && treeRoot.children) {
-      for (const treeRootChildComponent of rootChildrenComponents) {
-        treeRootChildComponent.setSelection(true);
-      }
-    }
-  }
-
   function treeIncludesSelections(node: TaxonNode): boolean {
     if (
       node.nodeFlags & InteractiveTreeFlags.Selected &&
@@ -349,100 +309,43 @@
   <StatusMessage />
   <BigSpinner centered={true} />
 {:then}
-  <main>
-    <ActivityInstructions>
-      Select the taxa you would like to purge from the database.
-    </ActivityInstructions>
-    <div class="container-lg">
-      <div class="row mt-2 mb-2 justify-content-between">
-        <div class="col-auto title">
-          Taxa created <i>{formatDate(startingDate)}</i> -
-          <i>{formatDate(endingDate)}</i>
-          <button class="btn btn-minor compact" type="button" on:click={changeDates}
-            >Change Dates</button
-          >
-        </div>
-        <div class="col-auto">
-          <button class="btn btn-major" type="button" on:click={previewPurge}
-            >Preview Purge</button
-          >
-        </div>
-      </div>
-      <div class="row mb-2 justify-content-between">
-        <div class="col-auto">
-          <button class="btn btn-minor compact" type="button" on:click={selectAll}
-            >Select All</button
-          >
-          <button class="btn btn-minor compact" type="button" on:click={deselectAll}
-            >Deselect All</button
-          >
-          <button class="btn btn-minor compact" type="button" on:click={collapseAll}
-            >Collapse All</button
-          >
-          <button
-            class="btn btn-minor compact"
-            type="button"
-            on:click={expandToUnusedTaxa}>Expand to Unused Taxa</button
-          >
-        </div>
-        <div class="col-auto unused_note">(unused taxa are in <b>bold</b>)</div>
-      </div>
-    </div>
-    <div class="tree_pane">
-      {#if treeRoot == null || !treeRoot.children}
-        <i>No unused taxa found</i>
-      {:else}
-        {#each treeRoot.children as child, i}
-          <InteractiveTree bind:this={rootChildrenComponents[i]} tree={child} />
-        {/each}
-      {/if}
-    </div>
-  </main>
+  <UnusedTaxaTreeView
+    bind:this={treeView}
+    title="Taxa created <i>{formatDate(startingDate)}</i> -
+    <i>{formatDate(endingDate)}</i>"
+    instructions="Select the taxa you would like to purge from the database."
+    note="unused taxa are in <b>bold</b>"
+    {treeRoot}
+  >
+    <span slot="title-button">
+      <button class="btn btn-minor compact" type="button" on:click={changeDates}
+        >Change Dates</button
+      >
+    </span>
+    <span slot="main-buttons">
+      <button class="btn btn-major" type="button" on:click={previewPurge}
+        >Preview Purge</button
+      >
+    </span>
+    <span slot="tree-buttons">
+      <button class="btn btn-minor compact" type="button" on:click={treeView.selectAll}
+        >Select All</button
+      >
+      <button
+        class="btn btn-minor compact"
+        type="button"
+        on:click={treeView.deselectAll}>Deselect All</button
+      >
+      <button
+        class="btn btn-minor compact"
+        type="button"
+        on:click={treeView.collapseAll}>Collapse All</button
+      >
+      <button
+        class="btn btn-minor compact"
+        type="button"
+        on:click={treeView.expandToUnusedTaxa}>Expand to Unused Taxa</button
+      >
+    </span>
+  </UnusedTaxaTreeView>
 {/await}
-
-<style>
-  main {
-    flex: auto;
-    display: flex;
-    flex-direction: column;
-  }
-  main button {
-    margin-left: 0.5em;
-  }
-  .title {
-    font-weight: bold;
-  }
-  .unused_note {
-    padding: 0.4em 1.5em 0 0;
-    font-size: 0.9em;
-  }
-  .tree_pane {
-    flex-basis: 0px;
-    flex-grow: 1;
-    font-size: 0.9em;
-    overflow: auto;
-    scrollbar-width: thin;
-    border: solid 1px #666;
-  }
-  .tree_pane :global(.tree_node) {
-    margin: 0.3em 0 0 1.5em;
-  }
-  .tree_pane :global(.bullet) {
-    width: 1em;
-    padding-left: 0.1em;
-    opacity: 0.6;
-  }
-  .tree_pane :global(.bullet.selectable) {
-    padding-left: 0;
-    opacity: 1;
-  }
-  .tree_pane :global(input) {
-    margin-right: 0.3em;
-  }
-  .tree_pane :global(.checkbox) {
-    vertical-align: middle;
-  }
-  .tree_pane :global(span) {
-    font-weight: bold;
-  }
-</style>
