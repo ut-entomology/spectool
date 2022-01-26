@@ -1,5 +1,6 @@
 export const IN_USE_NODE_FLAG = 1 << 14;
 export const CONTAINS_UNUSED_TAXA_FLAG = 1 << 15;
+export const COLLECTED_LEAF_FLAG = 1 << 31;
 
 export interface TaxonNode {
   id: number;

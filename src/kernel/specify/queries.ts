@@ -211,6 +211,16 @@ const QUERY_UNUSED_TAXA = `
     and TimestampCreated between ? and ?`;
 
 /**
+ * Remove the taxa having the given IDs from the taxon table, including
+ * common names and attachments for the taxa.
+ */
+export async function removeTaxonIDs(db: DB, taxonIDs: number[]) {
+  await db.query(`delete from commonnametx where TaxonID in (?)`, [taxonIDs]);
+  await db.query(`delete from taxonattachment where TaxonID in (?)`, [taxonIDs]);
+  await db.query(`delete from taxon where TaxonID in (?)`, [taxonIDs]);
+}
+
+/**
  * Query returning the ancestor taxa up to but excluding order of all unused taxa
  * that getUnusedTaxa() returns. The query excludes ranks order and above in order
  * to improve performance. Call getOrdersAndHigher() to get higher taxa. Note that

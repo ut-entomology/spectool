@@ -2,12 +2,14 @@
   import type { Prerequisite } from './prerequisite';
   import type { AppPrefs } from '../shared/shared_app_prefs';
   import type { Connection } from '../shared/shared_connection';
-  import type { SpecifyUser } from '../shared/shared_user';
+  import { AccessLevel, SpecifyUser, findAccessLevel } from '../shared/shared_user';
   import { DialogSpec } from '../lib/dialog_spec';
   import { currentPrefs } from '../stores/currentPrefs';
   import { currentConnection } from '../stores/currentConnection';
+  import { currentCollectionID } from '../stores/currentCollectionID';
   import { currentUser } from '../stores/currentUser';
   import { currentDialog } from '../stores/currentDialog';
+  import { showNotice } from '../layout/VariableNotice.svelte';
 
   let appPrefs: AppPrefs;
   currentPrefs.subscribe((prefs) => {
@@ -17,6 +19,11 @@
   let connection: Connection;
   currentConnection.subscribe((conn) => {
     connection = conn;
+  });
+
+  let collectionID: number;
+  currentCollectionID.subscribe((id) => {
+    collectionID = id;
   });
 
   let _currentUser: SpecifyUser | null;
@@ -49,6 +56,16 @@
     check: () => connection.username !== null,
     satisfy: (onSuccess) =>
       currentDialog.set(new DialogSpec('DBLoginDialog', { onSuccess }))
+  };
+
+  export const managerPrereq: Prerequisite = {
+    check: () => {
+      return (
+        _currentUser !== null &&
+        findAccessLevel(_currentUser, collectionID) === AccessLevel.Manager
+      );
+    },
+    satisfy: () => showNotice('Only managers can use his function', 'NOTICE', 'warning')
   };
 
   export const userLoginPrereq: Prerequisite = {

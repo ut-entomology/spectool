@@ -1,6 +1,7 @@
 <script lang="ts" context="module">
   import {
     IN_USE_NODE_FLAG,
+    COLLECTED_LEAF_FLAG,
     TaxonNode,
     duplicateTaxonNode
   } from '../../lib/taxon_node';
@@ -20,6 +21,10 @@
   import StatusMessage from '../../layout/StatusMessage.svelte';
   import { showStatus } from '../../layout/StatusMessage.svelte';
   import { screenStack } from '../../stores/screenStack';
+  import { flashMessage } from '../../layout/VariableFlash.svelte';
+  import ConfirmationRequest from '../../layout/ConfirmationRequest.svelte';
+
+  // const DELETION_BATCH_SIZE = 1000;
 
   const DEFAULT_USED_NODE_FLAGS =
     IN_USE_NODE_FLAG | InteractiveTreeFlags.Expandable | InteractiveTreeFlags.Expanded;
@@ -29,9 +34,10 @@
 
   let treeView: UnusedTaxaTreeView;
   let savedSelectionsTree: TaxonNode;
-  let taxonIDsToPurge: number[] = [];
+  let selectionCount = 0;
+  let requestConfirmation = false;
 
-  function cancel() {
+  function cancelPage() {
     screenStack.pop((params) => {
       params.treeRoot = savedSelectionsTree;
     });
@@ -46,14 +52,57 @@
     });
   }
 
-  async function purgeTaxa() {}
+  async function purgeTaxa() {
+    requestConfirmation = true;
+  }
+
+  async function confirmPurge() {
+    requestConfirmation = false;
+    let count = 0;
+    let taxonIDs: number[];
+    do {
+      taxonIDs = [];
+      _collectLeafTaxa(taxonIDs, treeRoot);
+      if (taxonIDs.length > 0) {
+        await window.apis.taxaApi.removeTaxonIDs(taxonIDs);
+        count += taxonIDs.length;
+      }
+    } while (taxonIDs.length > 0);
+    await flashMessage(`Removed ${count} taxa`);
+    screenStack.reset();
+  }
+
+  async function cancelPurge() {
+    requestConfirmation = false;
+    await flashMessage('Canceled purge');
+  }
+
+  function _collectLeafTaxa(taxonIDs: number[], node: TaxonNode) {
+    let isLeaf = true;
+    if (node.children) {
+      for (const child of node.children) {
+        if (!(child.nodeFlags & COLLECTED_LEAF_FLAG)) {
+          _collectLeafTaxa(taxonIDs, child);
+          isLeaf = false;
+        }
+      }
+    }
+    if (isLeaf) {
+      if (!(node.nodeFlags & IN_USE_NODE_FLAG)) {
+        taxonIDs.push(node.id);
+      }
+      node.nodeFlags |= COLLECTED_LEAF_FLAG;
+    }
+  }
 
   function _pruneUnselectedTaxa(node: TaxonNode): boolean {
     const selected =
       !!(node.nodeFlags & InteractiveTreeFlags.Selected) &&
       !(node.nodeFlags & IN_USE_NODE_FLAG);
     if (selected) {
-      taxonIDsToPurge.push(node.id);
+      ++selectionCount;
+    } else {
+      node.nodeHTML = node.nodeHTML.replace('<span>', '').replace('</span>', '');
     }
     if (node.children) {
       const childrenHavingSelections: TaxonNode[] = [];
@@ -81,11 +130,11 @@
     bind:this={treeView}
     title="Unused taxa selected for removal"
     instructions="Confirm that you would like to remove the indicated unused taxa."
-    note="taxa in <b>bold</b> will be removed"
+    note="{selectionCount} taxa in <b>bold</b> will be removed"
     {treeRoot}
   >
     <span slot="main-buttons">
-      <button class="btn btn-minor" type="button" on:click={cancel}>Cancel</button>
+      <button class="btn btn-minor" type="button" on:click={cancelPage}>Cancel</button>
       <button class="btn btn-major" type="button" on:click={purgeTaxa}
         >Purge Taxa</button
       >
@@ -106,4 +155,13 @@
       >
     </span>
   </UnusedTaxaTreeView>
+
+  {#if requestConfirmation}
+    <ConfirmationRequest
+      message="Permanently delete the {selectionCount} selected taxa?"
+      okayButton="Delete"
+      onOkay={confirmPurge}
+      onCancel={cancelPurge}
+    />
+  {/if}
 {/await}

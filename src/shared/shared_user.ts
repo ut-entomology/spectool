@@ -39,6 +39,15 @@ export class UserError extends Error {
   }
 }
 
+export function findAccessLevel(user: SpecifyUser, collectionID: number) {
+  for (const access of user.access) {
+    if (access.collectionID == collectionID) {
+      return access.accessLevel;
+    }
+  }
+  return null;
+}
+
 export function toAccessLevel(specUserType: string): AccessLevel {
   switch (specUserType) {
     case 'manager':
@@ -54,19 +63,19 @@ export function toAccessLevel(specUserType: string): AccessLevel {
   }
 }
 
-export function toPermissions(accessLevel: AccessLevel): Permissions {
-  switch (accessLevel) {
-    case AccessLevel.Manager:
-      return ~0; // all permissions
-    case AccessLevel.Full:
-      return (
-        Permissions.AddToCollection |
-        Permissions.ModifyCollection |
-        Permissions.DeleteFromCollection
-      );
-    case AccessLevel.Limited:
-      return Permissions.AddToCollection | Permissions.ModifyCollection;
-    case AccessLevel.Guest:
-      return 0; // only permission to read
-  }
-}
+// export function toPermissions(accessLevel: AccessLevel): Permissions {
+//   switch (accessLevel) {
+//     case AccessLevel.Manager:
+//       return ~0; // all permissions
+//     case AccessLevel.Full:
+//       return (
+//         Permissions.AddToCollection |
+//         Permissions.ModifyCollection |
+//         Permissions.DeleteFromCollection
+//       );
+//     case AccessLevel.Limited:
+//       return Permissions.AddToCollection | Permissions.ModifyCollection;
+//     case AccessLevel.Guest:
+//       return 0; // only permission to read
+//   }
+// }

@@ -15,7 +15,8 @@
       prerequisites: [
         prereqs.databaseConfigPrereq,
         prereqs.connectionPrereq,
-        prereqs.userLoginPrereq
+        prereqs.userLoginPrereq,
+        prereqs.managerPrereq
       ]
     },
     {
@@ -27,7 +28,8 @@
         prereqs.databaseConfigPrereq,
         prereqs.connectionPrereq,
         prereqs.dataFolderPrereq,
-        prereqs.userLoginPrereq
+        prereqs.userLoginPrereq,
+        prereqs.managerPrereq
       ]
     }
   ];

@@ -23,7 +23,6 @@
 
   const closeNotice = () => {
     noticeStore.set(null);
-    console.log('closed notice');
   };
 </script>
 

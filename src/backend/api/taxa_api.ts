@@ -52,6 +52,10 @@ export class TaxaApi {
     }
     return ranksMap;
   }
+
+  async removeTaxonIDs(taxonIDs: number[]) {
+    await query.removeTaxonIDs(this._kernel.database, taxonIDs);
+  }
 }
 
 function _bundleTaxa(taxa: Taxon[]): string {

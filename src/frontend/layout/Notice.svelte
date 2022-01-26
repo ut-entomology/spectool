@@ -7,9 +7,7 @@
 
   let isOpen = true;
 
-  const closeNotice = () => {
-    isOpen = false;
-  };
+  const closeNotice = () => (isOpen = false);
 </script>
 
 {#if isOpen}
