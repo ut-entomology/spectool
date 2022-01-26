@@ -313,7 +313,7 @@
     bind:this={treeView}
     title="Taxa created <i>{formatDate(startingDate)}</i> -
     <i>{formatDate(endingDate)}</i>"
-    instructions="Select the taxa you would like to purge from the database."
+    instructions="Select the taxa you would like to purge from the database. Only <b>bold</b> taxa that are selected will be deleted."
     note="unused taxa are in <b>bold</b>"
     {treeRoot}
   >

@@ -22,6 +22,7 @@
   import { showStatus } from '../../layout/StatusMessage.svelte';
   import { screenStack } from '../../stores/screenStack';
   import { flashMessage } from '../../layout/VariableFlash.svelte';
+  import { showNotice } from '../../layout/VariableNotice.svelte';
   import ConfirmationRequest from '../../layout/ConfirmationRequest.svelte';
 
   // const DELETION_BATCH_SIZE = 1000;
@@ -57,19 +58,23 @@
   }
 
   async function confirmPurge() {
-    requestConfirmation = false;
-    let count = 0;
-    let taxonIDs: number[];
-    do {
-      taxonIDs = [];
-      _collectLeafTaxa(taxonIDs, treeRoot);
-      if (taxonIDs.length > 0) {
-        await window.apis.taxaApi.removeTaxonIDs(taxonIDs);
-        count += taxonIDs.length;
-      }
-    } while (taxonIDs.length > 0);
-    await flashMessage(`Removed ${count} taxa`);
-    screenStack.reset();
+    try {
+      requestConfirmation = false;
+      let count = 0;
+      let taxonIDs: number[];
+      do {
+        taxonIDs = [];
+        _collectLeafTaxa(taxonIDs, treeRoot);
+        if (taxonIDs.length > 0) {
+          await window.apis.taxaApi.removeTaxonIDs(taxonIDs);
+          count += taxonIDs.length;
+        }
+      } while (taxonIDs.length > 0);
+      await flashMessage(`Removed ${count} taxa`);
+      screenStack.reset();
+    } catch (err: any) {
+      showNotice(err.message, 'ERROR', 'danger');
+    }
   }
 
   async function cancelPurge() {
@@ -129,7 +134,7 @@
   <UnusedTaxaTreeView
     bind:this={treeView}
     title="Unused taxa selected for removal"
-    instructions="Confirm that you would like to remove the indicated unused taxa."
+    instructions="Confirm that you would like to remove the indicated unused taxa, shown in <b>bold</b>."
     note="{selectionCount} taxa in <b>bold</b> will be removed"
     {treeRoot}
   >

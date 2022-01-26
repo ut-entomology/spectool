@@ -82,7 +82,7 @@
 </script>
 
 <main>
-  <ActivityInstructions>{instructions}</ActivityInstructions>
+  <ActivityInstructions>{@html instructions}</ActivityInstructions>
   <div class="container-lg">
     <div class="row mt-2 mb-2 justify-content-between">
       <div class="col-auto title">
