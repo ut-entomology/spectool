@@ -6,7 +6,9 @@
   import type { SvelteComponent } from 'svelte';
 
   import ActivityInstructions from '../../components/ActivityInstructions.svelte';
-  import InteractiveTree from '../../components/InteractiveTree.svelte';
+  import InteractiveTree, {
+    InteractiveTreeFlags
+  } from '../../components/InteractiveTree.svelte';
   import type { InteractiveTreeNode } from '../../components/InteractiveTree.svelte';
 
   export let title: string;
@@ -41,12 +43,15 @@
   }
 
   export function expandToUnusedTaxa() {
-    if (treeRoot && treeRoot.children) {
-      for (const treeRootChildComponent of rootChildrenComponents) {
-        treeRootChildComponent.setExpansion((node: InteractiveTreeNode) => {
-          return !!(node.nodeFlags & IN_USE_NODE_FLAG);
-        });
+    if (treeRoot) {
+      if (treeRoot.children) {
+        for (const treeRootChildComponent of rootChildrenComponents) {
+          treeRootChildComponent.setExpansion((node: InteractiveTreeNode) => {
+            return !!(node.nodeFlags & IN_USE_NODE_FLAG);
+          });
+        }
       }
+      _expandToSelections(treeRoot);
     }
   }
 
@@ -56,6 +61,23 @@
         treeRootChildComponent.setSelection(true);
       }
     }
+  }
+
+  function _expandToSelections(node: TaxonNode) {
+    if (node.nodeFlags & InteractiveTreeFlags.Selected) {
+      // don't further expand under containing selection
+      return true;
+    }
+    let containsSelection = false;
+    if (node.children) {
+      for (const child of node.children) {
+        if (_expandToSelections(child)) {
+          node.nodeFlags |= InteractiveTreeFlags.Expanded;
+          containsSelection = true;
+        }
+      }
+    }
+    return containsSelection;
   }
 </script>
 

@@ -50,13 +50,11 @@
   nav {
     display: flex;
     flex-flow: column wrap;
-    justify-items: center;
-    align-items: center;
   }
 
   .activity {
     width: 350px;
-    margin: 2rem;
+    margin: 2rem 0 0 2rem;
   }
 
   .description {
