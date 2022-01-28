@@ -8,9 +8,6 @@ import { Region, RegionRank } from '../../shared/shared_geography';
 import { TrackedRegionRoster } from './region_roster';
 import { TrackedRegion, TrackedRegionStatus } from './tracked_region';
 
-// TODO: I'm computing adjoiningPendingCount for regions that have no localities. Does that make sense?
-// TODO: Look into remove regions from the region roster as soon as able.
-
 const TEST_LOG_DIR = path.join(__dirname, '../../../test_logs');
 
 interface TestSpec {
