@@ -13,7 +13,15 @@ import { TrackedRegion, TrackedRegionStatus } from './tracked_region';
 
 const TEST_LOG_DIR = path.join(__dirname, '../../../test_logs');
 
-// Explanation of region matrix string data:
+interface TestSpec {
+  regionGrid: string;
+  containingTotals: Record<string, number>;
+  withCornerAdjacency: boolean;
+  initialRegion: string;
+  expectedProcessOrder: string;
+}
+
+// Explanation of region grid string data:
 
 // 'a' prefix means it's adjacent, not in the domain
 // 'c-' prefix means county or municipality
@@ -24,154 +32,97 @@ const TEST_LOG_DIR = path.join(__dirname, '../../../test_logs');
 // < indicates that the region to the left extends to this point
 // ^ indicates that the region above extends to this point
 
-describe('locality consolidator', () => {
-  test('processes regions in correct order (equal localities, without corner adjacency)', async () => {
-    const scenario = new RegionScenario(
-      `as-MA-1|<     |<     |as-MB-1
-       c-CA-1 |c-CB-1|c-CC-1|c-CD-1 |as-NM-1
-       c-CE-1 |c-CF-1|c-CG-1|c-CH-1 |^
-       c-CI-1 |c-CJ-1|c-CK-1|c-CL-1 |as-LA-1`,
-      { US: 1, TX: 1, MX: 1 },
-      false
-    );
-
-    const processedRegionIDs: number[] = [];
-    const localityCache = new DummyLocalityCache(scenario);
-    const diagnostics = new TestDiagnostics(
-      scenario,
-      localityCache,
-      'region-driver-1.txt'
-    );
-
-    const regionDriver = new AdjoiningRegionDriver(
-      scenario,
-      scenario.getDomainRegions(),
-      localityCache,
-      (region) => {
-        processedRegionIDs.push(region.id);
-        localityCache.uncacheLocality(region.id);
-      },
-      diagnostics,
-      scenario.codeToRegion('CB').id
-    );
-    await regionDriver.run();
-    diagnostics.close();
-
-    expect(processedRegionIDs.map((id) => scenario.regionsByID[id].code)).toEqual([
-      'CB',
-      'MA',
-      'CA',
-      'CE',
-      'CI',
-      'CF',
-      'CC',
-      'MX',
-      'CJ',
-      'CG',
-      'CK',
-      'US',
-      'CH',
-      'NM',
-      'CD',
-      'MB',
-      'CL',
-      'TX',
-      'LA'
-    ]);
+describe('locality consolidator region process order', () => {
+  test('equal localities, without corner adjacency', async () => {
+    await runTest(1, {
+      regionGrid: `
+        as-MA-1|<     |<     |as-MB-1
+        c-CA-1 |c-CB-1|c-CC-1|c-CD-1 |as-NM-1
+        c-CE-1 |c-CF-1|c-CG-1|c-CH-1 |^
+        c-CI-1 |c-CJ-1|c-CK-1|c-CL-1 |as-LA-1`,
+      containingTotals: { US: 1, TX: 1, MX: 1 },
+      withCornerAdjacency: false,
+      initialRegion: 'CB',
+      expectedProcessOrder: 'CB,MA,CA,CE,CI,CF,CC,MX,CJ,CG,CK,US,CH,NM,CD,MB,CL,TX,LA'
+    });
   });
 
-  test('processes regions in correct order (equal localities, with corner adjacency)', async () => {
-    const scenario = new RegionScenario(
-      `as-MA-1|<     |<     |as-MB-1
-       c-CA-1 |c-CB-1|c-CC-1|c-CD-1 |as-NM-1
-       c-CE-1 |c-CF-1|c-CG-1|c-CH-1 |^
-       c-CI-1 |c-CJ-1|c-CK-1|c-CL-1 |as-LA-1`,
-      { US: 1, TX: 1, MX: 1 },
-      true
-    );
-
-    const processedRegionIDs: number[] = [];
-    const localityCache = new DummyLocalityCache(scenario);
-    const diagnostics = new TestDiagnostics(
-      scenario,
-      localityCache,
-      'region-driver-2.txt'
-    );
-
-    const regionDriver = new AdjoiningRegionDriver(
-      scenario,
-      scenario.getDomainRegions(),
-      localityCache,
-      (region) => {
-        processedRegionIDs.push(region.id);
-        localityCache.uncacheLocality(region.id);
-      },
-      diagnostics,
-      scenario.codeToRegion('CB').id
-    );
-    await regionDriver.run();
-    diagnostics.close();
-
-    expect(processedRegionIDs.map((id) => scenario.regionsByID[id].code)).toEqual([
-      'CB',
-      'CA',
-      'MA',
-      'MX',
-      'CC',
-      'MB',
-      'CD',
-      'NM',
-      'CE',
-      'CI',
-      'CF',
-      'CG',
-      'CJ',
-      'CK',
-      'US',
-      'CH',
-      'CL',
-      'TX',
-      'LA'
-    ]);
+  test('equal localities, with corner adjacency', async () => {
+    await runTest(2, {
+      regionGrid: `
+        as-MA-1|<     |<     |as-MB-1
+        c-CA-1 |c-CB-1|c-CC-1|c-CD-1 |as-NM-1
+        c-CE-1 |c-CF-1|c-CG-1|c-CH-1 |^
+        c-CI-1 |c-CJ-1|c-CK-1|c-CL-1 |as-LA-1`,
+      containingTotals: { US: 1, TX: 1, MX: 1 },
+      withCornerAdjacency: true,
+      initialRegion: 'CB',
+      expectedProcessOrder: 'CB,CA,MA,MX,CC,MB,CD,NM,CE,CI,CF,CG,CJ,CK,US,CH,CL,TX,LA'
+    });
   });
 
-  test('processes regions in correct order (unequal localities, without corner adjacency)', async () => {
-    const scenario = new RegionScenario(
-      `as-MA-1|<     |<     |as-MB-0
-       c-CA-4 |c-CB-1|c-CC-1|c-CD-1 |as-NM-2
-       c-CE-1 |c-CF-0|c-CG-2|c-CH-1 |^
-       c-CI-1 |c-CJ-0|c-CK-1|c-CL-3 |as-LA-0`,
-      { US: 0, TX: 2, MX: 1 },
-      false
-    );
-
-    const processedRegionIDs: number[] = [];
-    const localityCache = new DummyLocalityCache(scenario);
-    const diagnostics = new TestDiagnostics(
-      scenario,
-      localityCache,
-      'region-driver-3.txt'
-    );
-
-    const regionDriver = new AdjoiningRegionDriver(
-      scenario,
-      scenario.getDomainRegions(),
-      localityCache,
-      (region) => {
-        processedRegionIDs.push(region.id);
-        localityCache.uncacheLocality(region.id);
-      },
-      diagnostics,
-      scenario.codeToRegion('CB').id
-    );
-    await regionDriver.run();
-    diagnostics.close();
-
-    expect(processedRegionIDs.map((id) => scenario.regionsByID[id].code)).toEqual([
-      /* TBD */
-    ]);
+  test('unequal localities, without corner adjacency', async () => {
+    await runTest(3, {
+      regionGrid: `
+        as-MA-1|<     |<     |as-MB-0
+        c-CA-4 |c-CB-1|c-CC-1|c-CD-1 |as-NM-2
+        c-CE-1 |c-CF-0|c-CG-2|c-CH-1 |^
+        c-CI-1 |c-CJ-0|c-CK-1|c-CL-3 |as-LA-0`,
+      containingTotals: { US: 1, TX: 1, MX: 1 },
+      withCornerAdjacency: false,
+      initialRegion: 'CB',
+      expectedProcessOrder: ''
+    });
   });
 });
+
+test('isolated localities, without corner adjacency', async () => {
+  await runTest(4, {
+    regionGrid: `
+      as-MA-1|<     |<     |as-MB-0
+      c-CA-4 |c-CB-0|c-CC-0|c-CD-1 |as-NM-2
+      c-CE-1 |c-CF-0|c-CG-1|c-CH-0 |^
+      c-CI-1 |c-CJ-0|c-CK-0|c-CL-0 |as-LA-0`,
+    containingTotals: { US: 0, TX: 0, MX: 0 },
+    withCornerAdjacency: false,
+    initialRegion: 'CB',
+    expectedProcessOrder: ''
+  });
+});
+
+async function runTest(testID: number, spec: TestSpec) {
+  const scenario = new RegionScenario(
+    spec.regionGrid,
+    spec.containingTotals,
+    spec.withCornerAdjacency
+  );
+
+  const processedRegionIDs: number[] = [];
+  const localityCache = new DummyLocalityCache(scenario);
+  const diagnostics = new TestDiagnostics(
+    scenario,
+    localityCache,
+    `region-driver-${testID}.txt`
+  );
+
+  const regionDriver = new AdjoiningRegionDriver(
+    scenario,
+    scenario.getDomainRegions(),
+    localityCache,
+    (region) => {
+      processedRegionIDs.push(region.id);
+      localityCache.uncacheLocality(region.id);
+    },
+    diagnostics,
+    scenario.codeToRegion(spec.initialRegion).id
+  );
+  await regionDriver.run();
+  diagnostics.close();
+
+  expect(processedRegionIDs.map((id) => scenario.regionsByID[id].code)).toEqual(
+    spec.expectedProcessOrder.split(',')
+  );
+}
 
 class RegionScenario implements AdjoiningRegions {
   private _withCornerAdjacency: boolean;
@@ -181,7 +132,7 @@ class RegionScenario implements AdjoiningRegions {
   regionsByID: Record<number, DummyRegion> = {};
 
   constructor(
-    regionData: string,
+    regionGrid: string,
     containingLocalityTotals: Record<string, number>,
     withCornerAdjacency: boolean
   ) {
@@ -216,7 +167,7 @@ class RegionScenario implements AdjoiningRegions {
 
     // Create a region for each cell of the matrix.
 
-    const rows = regionData.split('\n');
+    const rows = regionGrid.trim().split('\n');
     let rowIndex = 0;
     let nextID = 1;
     for (const row of rows) {

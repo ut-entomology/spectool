@@ -394,9 +394,11 @@ class FinishCachingAroundRegionVisitor extends RegionVisitor {
     _aroundRegion: TrackedRegion
   ) {
     await this._regionDriver._cachePendingRegion(nearRegion);
-    await this._regionDriver._pendingNearDomainRegionVisitor.visitAroundRegion(
-      nearRegion
-    );
+    if (this._computeLocalityCount(nearRegion) > 0) {
+      await this._regionDriver._pendingNearDomainRegionVisitor.visitAroundRegion(
+        nearRegion
+      );
+    }
   }
 
   protected async _visitSubsetAroundNonDomainRegion(
@@ -404,16 +406,18 @@ class FinishCachingAroundRegionVisitor extends RegionVisitor {
     _aroundRegion: TrackedRegion
   ): Promise<void> {
     await this._regionDriver._cachePendingRegion(nearRegion);
-    for (const aroundNearRegion of this._getAdjoiningRegions(nearRegion)) {
-      if (aroundNearRegion.status == TrackedRegionStatus.Cached) {
-        // Decrement pending count for newly cached region adjoining non-domain region
-        aroundNearRegion.adjoiningPendingCount -=
-          this._computeLocalityCount(nearRegion);
-        this._reportSecondaryState(
-          'decrement pending count for newly cached region adjoining non-domain region',
-          aroundNearRegion,
-          nearRegion
-        );
+    if (this._computeLocalityCount(nearRegion) > 0) {
+      for (const aroundNearRegion of this._getAdjoiningRegions(nearRegion)) {
+        if (aroundNearRegion.status == TrackedRegionStatus.Cached) {
+          // Decrement pending count for newly cached region adjoining non-domain region
+          aroundNearRegion.adjoiningPendingCount -=
+            this._computeLocalityCount(nearRegion);
+          this._reportSecondaryState(
+            'decrement pending count for newly cached region adjoining non-domain region',
+            aroundNearRegion,
+            nearRegion
+          );
+        }
       }
     }
   }
