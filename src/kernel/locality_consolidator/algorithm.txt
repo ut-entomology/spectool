@@ -214,6 +214,8 @@ The file is deleted after consolidation completes.
 
 Select each next region to process in a way that minimizes the number of localities cached at any time while still allowing the user to evaluate one locality at a time before forever moving on to other localities.
 
+The algorithm need not process all regions containing no localities. It does process some of them in order to ensure that all regions get examined in adjacency order.
+
 Processes the current region (R), which must be a cached region of RegionRoster.
 
 (+) Consolidate and remove (R) as follows:

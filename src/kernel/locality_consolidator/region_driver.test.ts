@@ -71,22 +71,24 @@ describe('locality consolidator region process order', () => {
       containingTotals: { US: 1, TX: 1, MX: 1 },
       withCornerAdjacency: false,
       initialRegion: 'CB',
-      expectedProcessOrder: ''
+      // CJ and LA are not processed
+      expectedProcessOrder: 'CB,MA,CA,CE,CI,MX,CC,CF,CG,CD,MB,NM,CH,CK,CL,TX,US'
     });
   });
-});
 
-test('isolated localities, without corner adjacency', async () => {
-  await runTest(4, {
-    regionGrid: `
+  test('isolated localities, without corner adjacency', async () => {
+    await runTest(4, {
+      regionGrid: `
       as-MA-1|<     |<     |as-MB-0
       c-CA-4 |c-CB-0|c-CC-0|c-CD-1 |as-NM-2
       c-CE-1 |c-CF-0|c-CG-1|c-CH-0 |^
       c-CI-1 |c-CJ-0|c-CK-0|c-CL-0 |as-LA-0`,
-    containingTotals: { US: 0, TX: 0, MX: 0 },
-    withCornerAdjacency: false,
-    initialRegion: 'CB',
-    expectedProcessOrder: ''
+      containingTotals: { US: 0, TX: 0, MX: 0 },
+      withCornerAdjacency: false,
+      initialRegion: 'CA',
+      // CK, CL, and LA are not processed
+      expectedProcessOrder: 'CA,CB,MA,CE,CI,CF,CG,CJ,MX,CC,US,CD,CH,TX,MB,NM'
+    });
   });
 });
 
