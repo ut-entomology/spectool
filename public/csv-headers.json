@@ -1,0 +1,194 @@
+{
+    "INSTRUCTIONS": [
+        "This file tells the app how to interpret the headers of CSV files intended",
+        "  for upload to Specify. The file must conform to the JSON format.",
+        "Do not change any of the quoted terms that start each line. You may only",
+        "  change what comes after the colon.",
+        "Each indented group describes a particular column or series of columns. A",
+        "  series of columns is a set of columns that differ only by a trailing number.",
+        "The 'PURPOSE' line, when present, explains which column the header represents.",
+        "After 'synonyms', list each header you would like to be able to use to refer",
+        "  to the column. Do not append numbers to these synonyms. For example, even",
+        "  though the CSV can contain a column named 'Collector Last Name 1', only the",
+        "  portion of this header preceding the number appears in synonyms. Each",
+        "  synonym must appear between double-quotes, and they must be comma delimited.",
+        "  Letter case, spaces, dashes, underscores, and periods are not significant in",
+        "  header names, so there is no need to include variations for such differences.",
+        "  (See 'accessionNumber' and 'catalogNumber' for examples.)",
+        "After 'maxNumber', indicate the maximum number of times the column may",
+        "  repeat in a series when numbers are appended to the column. For example, if",
+        "  you can have up to 8 collector last names, set this to 8. If it is not valid",
+        "  to append a number to the header, set 'maxNumber' to 0."
+    ],
+    "accessionNumber": {
+        "synonyms": [
+            "Accession Accession Number",
+            "Accession Number",
+            "Accession No.",
+            "Accession #"
+        ],
+        "maxNumber": 0
+    },
+    "catalogNumber": {
+        "synonyms": ["Catalog Number", "Catalog No.", "Catalog #", "Cat #"],
+        "maxNumber": 0
+    },
+    "catalogerFirstName": {
+        "synonyms": ["Cataloger First Name"],
+        "maxNumber": 0
+    },
+    "catalogerLastName": {
+        "synonyms": ["Cataloger Last Name"],
+        "maxNumber": 0
+    },
+    "catalogedDate": {
+        "synonyms": ["Cataloged Date"],
+        "maxNumber": 0
+    },
+    "phylum": {
+        "synonyms": ["Phylum1"],
+        "maxNumber": 1
+    },
+    "class": {
+        "synonyms": ["Class1"],
+        "maxNumber": 1
+    },
+    "subclass": {
+        "NOTE": "Not presently in Specify",
+        "synonyms": ["Subclass"],
+        "maxNumber": 1
+    },
+    "order": {
+        "synonyms": ["Order1"],
+        "maxNumber": 1
+    },
+    "suborder": {
+        "NOTE": "Not presently in Specify",
+        "synonyms": ["Suborder"],
+        "maxNumber": 1
+    },
+    "infraorder": {
+        "NOTE": "Not presently in Specify",
+        "synonyms": ["Infraorder"],
+        "maxNumber": 1
+    },
+    "family": {
+        "synonyms": ["Family1"],
+        "maxNumber": 1
+    },
+    "subfamily": {
+        "synonyms": ["Subfamily1"],
+        "maxNumber": 1
+    },
+    "genus": {
+        "synonyms": ["Genus1"],
+        "maxNumber": 1
+    },
+    "species": {
+        "NOTE": "In Specify as 'Species'",
+        "synonyms": ["Species1"],
+        "maxNumber": 1
+    },
+    "subspecies": {
+        "synonyms": ["Subspecies1"],
+        "maxNumber": 1
+    },
+    "country": {
+        "synonyms": ["Country"],
+        "maxNumber": 0
+    },
+    "state": {
+        "synonyms": ["State"],
+        "maxNumber": 0
+    },
+    "county": {
+        "synonyms": ["County"],
+        "maxNumber": 0
+    },
+    "localityName": {
+        "synonyms": ["Locality Name"],
+        "maxNumber": 0
+    },
+    "latitude": {
+        "synonyms": ["Latitude"],
+        "maxNumber": 0
+    },
+    "longitude": {
+        "synonyms": ["Longitude"],
+        "maxNumber": 0
+    },
+    "localityAndHabitatNotes": {
+        "synonyms": ["CI Locality and Habitat Notes"],
+        "maxNumber": 0
+    },
+    "collectorFirstName": {
+        "synonyms": ["Collector First Name"],
+        "maxNumber": 8
+    },
+    "collectorLastName": {
+        "synonyms": ["Collector Last Name"],
+        "maxNumber": 8
+    },
+    "startDate": {
+        "PURPOSE": "Starting date of a range of collection dates",
+        "synonyms": ["Start Date"],
+        "maxNumber": 0
+    },
+    "endDate": {
+        "PURPOSE": "Ending date of a range of collection dates.",
+        "synonyms": ["End Date"],
+        "maxNumber": 0
+    },
+    "verbatimDate": {
+        "PURPOSE": "Date as it appears on the label",
+        "synonyms": ["CI Verbatim Date"],
+        "maxNumber": 0
+    },
+    "prepType": {
+        "synonyms": ["Prep Type"],
+        "maxNumber": 0
+    },
+    "count": {
+        "PURPOSE": "Number of specimens associated with this catalog number",
+        "synonyms": ["Count"],
+        "maxNumber": 1
+    },
+    "determinerFirstName": {
+        "synonyms": ["Determiner First Name"],
+        "maxNumber": 1
+    },
+    "determinerLastName": {
+        "synonyms": ["Determiner Last Name"],
+        "maxNumber": 1
+    },
+    "determinedDate": {
+        "synonyms": ["Determined Date"],
+        "maxNumber": 0
+    },
+    "determinationRemarks": {
+        "synonyms": ["Determination Remarks"],
+        "maxNumber": 0
+    },
+    "typeStatus": {
+        "synonyms": ["Type Status"],
+        "maxNumber": 0
+    },
+    "sex": {
+        "synonyms": ["CoA Sex"],
+        "maxNumber": 0
+    },
+    "stage": {
+        "PURPOSE": "Life stage of the specimen",
+        "synonyms": ["CoA Stage"],
+        "maxNumber": 0
+    },
+    "coaRemarks": {
+        "PURPOSE": "",
+        "synonyms": ["CoA Remarks"],
+        "maxNumber": 0
+    },
+    "storageLocation": {
+        "synonyms": ["Storage Location"],
+        "maxNumber": 0
+    }
+}
