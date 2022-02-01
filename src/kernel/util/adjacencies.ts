@@ -13,7 +13,7 @@ import { countryAdjacencies, stateAdjacencies, usaAdjacencies } from './adjacenc
 
 const BINARY_COUNTY_ADJACENCIES_FILE = path.join(
   __dirname,
-  '../../../public/county-adjacencies.bin'
+  '../../../public/data/county-adjacencies.bin'
 );
 
 type adjacentRegionsByID = Record<number, Region[]>;

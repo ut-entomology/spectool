@@ -2,9 +2,7 @@ import * as fs from 'fs';
 import * as fsp from 'fs/promises';
 import { parse as parseCSV } from '@fast-csv/parse';
 
-import { SpecimenRow } from './specimen_row';
-
-// TODO: I'm not pushing the right row columns yet. Need trailing numbers.
+import { Specimen, HEADER_REGEX } from './specimen';
 
 type HeaderDef = {
   synonyms: string[];
@@ -16,8 +14,9 @@ type HeaderDefs = Record<string, HeaderDef>;
 export class SpecimenSet {
   csvFilePath: string;
   headerJSONPath: string;
-  rawHeaders: string[] = [];
-  rows: SpecimenRow[] = [];
+  rawHeaderMap: Record<string, string> = {}; // maps standard headers to raw headers
+  unrecognizedHeaders: string[] = [];
+  specimens: Specimen[] = [];
 
   constructor(csvFilePath: string, headerJSONPath: string) {
     this.csvFilePath = csvFilePath;
@@ -30,7 +29,7 @@ export class SpecimenSet {
       return new Promise<void>((resolve, reject) => {
         fs.createReadStream(this.csvFilePath)
           .pipe(parseCSV({ headers: this._transformHeaders.bind(this, headerDefs) }))
-          .on('data', (row) => this.rows.push(row))
+          .on('data', (row) => this.specimens.push(new Specimen(row)))
           .on('end', () => resolve())
           .on('error', (err) => reject(err));
       });
@@ -41,34 +40,54 @@ export class SpecimenSet {
     headerDefs: HeaderDefs,
     rawHeaders: (string | null | undefined)[]
   ): string[] {
-    this.rawHeaders = rawHeaders as any;
     const headers: string[] = [];
     for (const rawHeader of rawHeaders) {
-      if (!rawHeader) {
-        throw Error('Non-string CSV header');
+      if (rawHeader) {
+        const standardHeader = this._transformHeader(headerDefs, rawHeader);
+        headers.push(standardHeader);
+        this.rawHeaderMap[standardHeader] = rawHeader;
+      } else if (rawHeader == '') {
+        headers.push('(blank)');
+      } else if (rawHeader == null) {
+        headers.push('(null)');
+      } else {
+        headers.push('(undefined)');
       }
-      headers.push(this._transformHeader(headerDefs, rawHeader));
     }
     return headers;
   }
 
   _transformHeader(headerDefs: HeaderDefs, rawHeader: string): string {
-    const normalizedHeader = this._normalizeHeader(rawHeader);
-    for (const [property, def] of Object.entries(headerDefs)) {
-      if (!def.normalizedSynonyms) {
-        def.normalizedSynonyms = [];
-        for (const synonym of def.synonyms) {
-          def.normalizedSynonyms.push(this._normalizeHeader(synonym));
+    rawHeader = rawHeader.trim();
+    const matches = rawHeader.match(HEADER_REGEX);
+    if (matches) {
+      const normalizedHeader = this._normalizeHeader(matches[1]);
+      const columnNumber = matches[2] ? parseInt(matches[2]) : 0;
+
+      for (const [standardHeader, def] of Object.entries(headerDefs)) {
+        if (!def.normalizedSynonyms) {
+          def.normalizedSynonyms = [];
+          def.normalizedSynonyms.push(this._normalizeHeader(standardHeader));
+          for (const synonym of def.synonyms) {
+            def.normalizedSynonyms.push(this._normalizeHeader(synonym));
+          }
+        }
+        if (
+          columnNumber <= def.maxNumber &&
+          def.normalizedSynonyms.includes(normalizedHeader)
+        ) {
+          if (def.maxNumber <= 1) {
+            return standardHeader;
+          }
+          return standardHeader + (columnNumber == 0 ? 1 : columnNumber);
         }
       }
-      if (def.normalizedSynonyms.includes(normalizedHeader)) {
-        return property;
-      }
     }
-    throw Error(`CSV file column header '${rawHeader}' not recognized`);
+    this.unrecognizedHeaders.push(rawHeader);
+    return rawHeader;
   }
 
   _normalizeHeader(header: string) {
-    return header.replace(/[-_. ]/, '').toLowerCase();
+    return header.replace(/[-_. ]/g, '').toLowerCase();
   }
 }

@@ -20,126 +20,125 @@
         "  you can have up to 8 collector last names, set this to 8. If it is not valid",
         "  to append a number to the header, set 'maxNumber' to 0."
     ],
-    "accessionNumber": {
+    "Accession Number": {
         "synonyms": [
             "Accession Accession Number",
-            "Accession Number",
             "Accession No.",
             "Accession #"
         ],
         "maxNumber": 0
     },
-    "catalogNumber": {
-        "synonyms": ["Catalog Number", "Catalog No.", "Catalog #", "Cat #"],
+    "Catalog Number": {
+        "synonyms": ["Catalog No.", "Catalog #", "Cat #"],
         "maxNumber": 0
     },
-    "catalogerFirstName": {
-        "synonyms": ["Cataloger First Name"],
+    "Cataloger First Name": {
+        "synonyms": [],
         "maxNumber": 0
     },
-    "catalogerLastName": {
-        "synonyms": ["Cataloger Last Name"],
+    "Cataloger Last Name": {
+        "synonyms": [],
         "maxNumber": 0
     },
-    "catalogedDate": {
-        "synonyms": ["Cataloged Date"],
+    "Cataloged Date": {
+        "synonyms": [],
         "maxNumber": 0
     },
-    "phylum": {
-        "synonyms": ["Phylum1"],
+    "Phylum": {
+        "synonyms": [],
         "maxNumber": 1
     },
-    "class": {
-        "synonyms": ["Class1"],
+    "Class": {
+        "synonyms": [],
         "maxNumber": 1
     },
-    "subclass": {
+    "Subclass": {
         "NOTE": "Not presently in Specify",
-        "synonyms": ["Subclass"],
+        "synonyms": [],
         "maxNumber": 1
     },
-    "order": {
-        "synonyms": ["Order1"],
+    "Order": {
+        "synonyms": [],
         "maxNumber": 1
     },
-    "suborder": {
+    "Suborder": {
         "NOTE": "Not presently in Specify",
-        "synonyms": ["Suborder"],
+        "synonyms": [],
         "maxNumber": 1
     },
-    "infraorder": {
+    "Infraorder": {
         "NOTE": "Not presently in Specify",
-        "synonyms": ["Infraorder"],
+        "synonyms": [],
         "maxNumber": 1
     },
-    "family": {
-        "synonyms": ["Family1"],
+    "Family": {
+        "synonyms": [],
         "maxNumber": 1
     },
-    "subfamily": {
-        "synonyms": ["Subfamily1"],
+    "Subfamily": {
+        "synonyms": [],
         "maxNumber": 1
     },
-    "genus": {
-        "synonyms": ["Genus1"],
+    "Genus": {
+        "synonyms": [],
         "maxNumber": 1
     },
-    "species": {
+    "Species": {
         "NOTE": "In Specify as 'Species'",
-        "synonyms": ["Species1"],
+        "synonyms": [],
         "maxNumber": 1
     },
-    "subspecies": {
-        "synonyms": ["Subspecies1"],
+    "Subspecies": {
+        "synonyms": [],
         "maxNumber": 1
     },
-    "country": {
-        "synonyms": ["Country"],
+    "Country": {
+        "synonyms": [],
         "maxNumber": 0
     },
-    "state": {
-        "synonyms": ["State"],
+    "State": {
+        "synonyms": [],
         "maxNumber": 0
     },
-    "county": {
-        "synonyms": ["County"],
+    "County": {
+        "synonyms": [],
         "maxNumber": 0
     },
-    "localityName": {
-        "synonyms": ["Locality Name"],
+    "Locality Name": {
+        "synonyms": [],
         "maxNumber": 0
     },
-    "latitude": {
-        "synonyms": ["Latitude"],
+    "Latitude": {
+        "synonyms": [],
         "maxNumber": 0
     },
-    "longitude": {
-        "synonyms": ["Longitude"],
+    "Longitude": {
+        "synonyms": [],
         "maxNumber": 0
     },
-    "localityAndHabitatNotes": {
+    "Locality and Habitat Notes": {
         "synonyms": ["CI Locality and Habitat Notes"],
         "maxNumber": 0
     },
-    "collectorFirstName": {
-        "synonyms": ["Collector First Name"],
+    "Collector First Name": {
+        "synonyms": [],
         "maxNumber": 8
     },
-    "collectorLastName": {
-        "synonyms": ["Collector Last Name"],
+    "Collector Last Name": {
+        "synonyms": [],
         "maxNumber": 8
     },
-    "startDate": {
+    "Start Date": {
         "PURPOSE": "Starting date of a range of collection dates",
-        "synonyms": ["Start Date"],
+        "synonyms": [],
         "maxNumber": 0
     },
-    "endDate": {
+    "End Date": {
         "PURPOSE": "Ending date of a range of collection dates.",
-        "synonyms": ["End Date"],
+        "synonyms": [],
         "maxNumber": 0
     },
-    "verbatimDate": {
+    "Verbatim Date": {
         "PURPOSE": "Date as it appears on the label",
         "synonyms": ["CI Verbatim Date"],
         "maxNumber": 0
@@ -148,47 +147,47 @@
         "synonyms": ["Prep Type"],
         "maxNumber": 0
     },
-    "count": {
+    "Count": {
         "PURPOSE": "Number of specimens associated with this catalog number",
-        "synonyms": ["Count"],
+        "synonyms": [],
         "maxNumber": 1
     },
-    "determinerFirstName": {
-        "synonyms": ["Determiner First Name"],
+    "Determiner First Name": {
+        "synonyms": [],
         "maxNumber": 1
     },
-    "determinerLastName": {
-        "synonyms": ["Determiner Last Name"],
+    "Determiner Last Name": {
+        "synonyms": [],
         "maxNumber": 1
     },
-    "determinedDate": {
-        "synonyms": ["Determined Date"],
+    "Determined Date": {
+        "synonyms": [],
         "maxNumber": 0
     },
-    "determinationRemarks": {
-        "synonyms": ["Determination Remarks"],
+    "Determination Remarks": {
+        "synonyms": [],
         "maxNumber": 0
     },
-    "typeStatus": {
-        "synonyms": ["Type Status"],
+    "Type Status": {
+        "synonyms": [],
         "maxNumber": 0
     },
-    "sex": {
+    "Sex": {
         "synonyms": ["CoA Sex"],
         "maxNumber": 0
     },
-    "stage": {
+    "Stage": {
         "PURPOSE": "Life stage of the specimen",
         "synonyms": ["CoA Stage"],
         "maxNumber": 0
     },
-    "coaRemarks": {
+    "CoA Remarks": {
         "PURPOSE": "",
-        "synonyms": ["CoA Remarks"],
+        "synonyms": [],
         "maxNumber": 0
     },
-    "storageLocation": {
-        "synonyms": ["Storage Location"],
+    "Storage Location": {
+        "synonyms": [],
         "maxNumber": 0
     }
 }
