@@ -1,8 +1,13 @@
 import * as fs from 'fs';
 import * as fsp from 'fs/promises';
+import * as path from 'path';
 import { parse as parseCSV } from '@fast-csv/parse';
 
+import type { AppKernel } from '../../kernel/app_kernel';
 import { Specimen, HEADER_REGEX } from './specimen';
+
+const DEFAULT_HEADER_JSON_DIR = '../../../public/data';
+const HEADER_JSON_FILE_NAME = 'csv-headers.json';
 
 type HeaderDef = {
   synonyms: string[];
@@ -10,6 +15,46 @@ type HeaderDef = {
   normalizedSynonyms?: string[];
 };
 type HeaderDefs = Record<string, HeaderDef>;
+
+let specimenSet: SpecimenSet | null;
+
+export async function getHeaderJSONPath(kernel: AppKernel) {
+  const defaultHeaderJSONPath = path.join(
+    __dirname,
+    DEFAULT_HEADER_JSON_DIR,
+    HEADER_JSON_FILE_NAME
+  );
+  const dataFolderHeaderJSONPath = path.join(
+    kernel.appPrefs.dataFolder,
+    HEADER_JSON_FILE_NAME
+  );
+  try {
+    // Fails to copy if destination already exists.
+    await fsp.copyFile(
+      defaultHeaderJSONPath,
+      dataFolderHeaderJSONPath,
+      fs.constants.COPYFILE_EXCL
+    );
+  } catch (err) {
+    // ignore failure to copy, as destination likely already exists
+  }
+  // Make sure we can access the file.
+  await fsp.access(dataFolderHeaderJSONPath);
+  return dataFolderHeaderJSONPath;
+}
+
+export async function openSpecimenSet(csvFilePath: string, headerJSONPath: string) {
+  specimenSet = new SpecimenSet(csvFilePath, headerJSONPath);
+  await specimenSet.load();
+}
+
+export function getSpecimenSet() {
+  return specimenSet;
+}
+
+export function closeSpecimenSet() {
+  specimenSet = null;
+}
 
 export class SpecimenSet {
   csvFilePath: string;

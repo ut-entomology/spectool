@@ -8,7 +8,6 @@ import { Platform } from './app-util/platform';
 import { createAppMenu } from './app/app_menu';
 import { installMainApis, exposeMainApis } from './backend/api/main_apis';
 import databaseConfigApi from './backend/api/db_config_api';
-import dialogApi from './backend/api/dialog_api';
 import geographyApi from './backend/api/geography_api';
 import { AppKernel } from './kernel/app_kernel';
 import { Connection } from './shared/shared_connection';
@@ -69,11 +68,7 @@ app
     const platform = new Platform(APP_NAME, APP_NAME);
     const kernel = new AppKernel(platform, new DatabaseConfig());
     installMainApis(kernel);
-    const ipcHandlerSets = [
-      databaseConfigApi(kernel),
-      dialogApi(kernel),
-      geographyApi(kernel)
-    ];
+    const ipcHandlerSets = [databaseConfigApi(kernel), geographyApi(kernel)];
     ipcHandlerSets.forEach((handlerSet) => {
       handlerSet.forEach((handler) => {
         handler.register(ipcMain);

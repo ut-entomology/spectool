@@ -9,7 +9,6 @@
     SetInputValue
   } from '../layout/forms';
   import { AppPrefs } from '../shared/shared_app_prefs';
-  import { DirDialogClient } from '../clients/dir_dialog_client';
   import { currentPrefs } from '../stores/currentPrefs';
   import { currentDialog } from '../stores/currentDialog';
   import ModalDialog from '../layout/ModalDialog.svelte';
@@ -41,7 +40,9 @@
   });
 
   async function chooseFolder() {
-    const folderPath = DirDialogClient.openDirectoryDialog('Choose the data folder');
+    const folderPath = await window.apis.dialogApi.openDirectoryDialog(
+      'Choose the data folder'
+    );
     if (folderPath) {
       await setDataFolder(folderPath);
     }

@@ -100,7 +100,7 @@
       <div class="col-auto unused_note">({@html note})</div>
     </div>
   </div>
-  <div class="tree_pane">
+  <div class="scroll_pane">
     {#if !treeRoot || !treeRoot.children}
       No unused taxa found
     {:else}
@@ -127,33 +127,25 @@
     padding: 0.4em 1.5em 0 0;
     font-size: 0.9em;
   }
-  .tree_pane {
-    flex-basis: 0px;
-    flex-grow: 1;
-    font-size: 0.9em;
-    overflow: auto;
-    scrollbar-width: thin;
-    border: solid 1px #666;
-  }
-  .tree_pane :global(.tree_node) {
+  :global(.scroll_pane) :global(.tree_node) {
     margin: 0.3em 0 0 1.5em;
   }
-  .tree_pane :global(.bullet) {
+  :global(.scroll_pane) :global(.bullet) {
     width: 1em;
     padding-left: 0.1em;
     opacity: 0.6;
   }
-  .tree_pane :global(.bullet.selectable) {
+  :global(.scroll_pane) :global(.bullet.selectable) {
     padding-left: 0;
     opacity: 1;
   }
-  .tree_pane :global(input) {
+  :global(.scroll_pane) :global(input) {
     margin-right: 0.3em;
   }
-  .tree_pane :global(.checkbox) {
+  :global(.scroll_pane) :global(.checkbox) {
     vertical-align: middle;
   }
-  .tree_pane :global(span) {
+  :global(.scroll_pane) :global(span) {
     font-weight: bold;
   }
 </style>

@@ -64,6 +64,7 @@
     "sqlstring": "^2.3.2",
     "subleveldown": "^6.0.1",
     "svelte-forms-lib": "^1.10.7",
+    "svelte-window-system": "^0.1.0",
     "sveltestrap": "5.7.0",
     "talisman": "^1.1.4",
     "yup": "^0.32.11"

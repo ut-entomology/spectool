@@ -156,6 +156,15 @@
     margin-bottom: 1.5rem;
   }
 
+  :global(.scroll_pane) {
+    flex-basis: 0px;
+    flex-grow: 1;
+    font-size: 0.9em;
+    overflow: auto;
+    scrollbar-width: thin;
+    border: solid 1px #666;
+  }
+
   // Buttons
 
   button.btn-major,

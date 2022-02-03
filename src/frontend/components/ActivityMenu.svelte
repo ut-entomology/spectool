@@ -2,10 +2,24 @@
   import type { Activity } from '../lib/activity';
   import { openActivity } from './ActivityBar.svelte';
   import * as prereqs from '../lib/prereqs.svelte';
+  import { csvValidationSpec } from '../activities/csv_validation/CsvValidationMain.svelte';
   import { unusedTaxaSpec } from '../activities/unused_taxa/UnusedTaxaMain.svelte';
   import { localityConsolidationSpec } from '../activities/locality_consolidation/LocalityConsolidationMain.svelte';
 
   const activities: Activity[] = [
+    {
+      title: 'Validate Specimen CSV',
+      screenSpec: csvValidationSpec,
+      description:
+        'Validate a CSV of specimen records intended for uploading to Specify.',
+      requiresLogin: true,
+      prerequisites: [
+        prereqs.databaseConfigPrereq,
+        prereqs.connectionPrereq,
+        prereqs.dataFolderPrereq,
+        prereqs.userLoginPrereq
+      ]
+    },
     {
       title: 'Purge Unused Taxa',
       screenSpec: unusedTaxaSpec,
