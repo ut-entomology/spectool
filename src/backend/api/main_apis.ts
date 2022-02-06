@@ -2,6 +2,7 @@ import { BrowserWindow } from 'electron';
 import { exposeMainApi, setIpcBindingTimeout } from 'electron-ipc-methods/main';
 
 import { AppKernel } from '../../kernel/app_kernel';
+import { AgentApi } from './agent_api';
 import { AppPrefsApi } from './app_prefs_api';
 import { DatabaseApi } from './database_api';
 import { DialogApi } from './dialog_api';
@@ -11,6 +12,7 @@ import { TaxaApi } from './taxa_api';
 
 export function installMainApis(kernel: AppKernel) {
   const apis = {
+    agentApi: new AgentApi(kernel),
     appPrefsApi: new AppPrefsApi(kernel),
     databaseApi: new DatabaseApi(kernel),
     dialogApi: new DialogApi(),

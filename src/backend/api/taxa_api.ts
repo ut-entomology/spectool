@@ -1,7 +1,6 @@
-import { RelayedError } from 'electron-ipc-methods';
-
 import type { AppKernel } from '../../kernel/app_kernel';
 import * as query from '../../kernel/specify/queries';
+import { runQuery } from '../util/api_util';
 
 const TAXON_BATCH_SIZE = 10000;
 
@@ -17,7 +16,7 @@ export class TaxaApi {
   }
 
   async getAncestorsOfUnusedTaxa(oldestDate: Date, newestDate: Date) {
-    return _query(() =>
+    return runQuery(() =>
       query.getAncestorsOfUnusedTaxa(this._kernel.database, oldestDate, newestDate)
     );
   }
@@ -28,7 +27,7 @@ export class TaxaApi {
     lowestBoundTaxonID: number
   ) {
     // runs ~20% faster with bundling
-    const taxa = await _query(() =>
+    const taxa = await runQuery(() =>
       query.getUnusedTaxa(
         this._kernel.database,
         oldestDate,
@@ -41,11 +40,11 @@ export class TaxaApi {
   }
 
   async getOrdersAndHigher() {
-    return _query(() => query.getOrdersAndHigher(this._kernel.database));
+    return runQuery(() => query.getOrdersAndHigher(this._kernel.database));
   }
 
   async getTaxonomicRanks() {
-    const ranks = await _query(() => query.getTaxonomicRanks(this._kernel.database));
+    const ranks = await runQuery(() => query.getTaxonomicRanks(this._kernel.database));
     const ranksMap: Record<number, TaxonomicRank> = {};
     for (const rank of ranks) {
       ranksMap[rank.RankID] = rank;
@@ -73,15 +72,4 @@ function _bundleTaxa(taxa: Taxon[]): string {
     );
   }
   return values.join('|');
-}
-
-async function _query<T>(query: () => Promise<T>) {
-  try {
-    return await query();
-  } catch (err: any) {
-    if (!err.message.includes('SQL')) {
-      throw new RelayedError(err);
-    }
-    throw err;
-  }
 }

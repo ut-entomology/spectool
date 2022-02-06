@@ -48,7 +48,10 @@ export async function openSpecimenSet(csvFilePath: string, headerJSONPath: strin
   await specimenSet.load();
 }
 
-export function getSpecimenSet() {
+export function getSpecimenSet(): SpecimenSet {
+  if (specimenSet === null) {
+    throw Error('SpecimenSet not loaded');
+  }
   return specimenSet;
 }
 

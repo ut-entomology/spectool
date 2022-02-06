@@ -40,6 +40,25 @@ export async function getAllCollections(db: DB) {
 //// USERS & AGENTS //////////////////////////////////////////////////////////
 
 /**
+ * Query returning information about all Specify agents.
+ */
+export async function getAllAgents(db: DB) {
+  type ResultRow = {
+    AgentID: number;
+    FirstName: string;
+    MiddleInitial: string;
+    LastName: string;
+    Suffix: string;
+  };
+  return (
+    await db.execute(
+      `select AgentID, FirstName, MiddleInitial, LastName, Suffix
+        from agent`
+    )
+  )[0] as ResultRow[];
+}
+
+/**
  * Query returning information about all Specify users.
  */
 export async function getAllUsers(db: DB) {
