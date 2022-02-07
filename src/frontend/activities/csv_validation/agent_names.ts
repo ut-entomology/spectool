@@ -40,23 +40,42 @@ export function areSimilarNames(name1: AgentName, name2: AgentName): boolean {
     // Words in the short name must match those in the longer name in the
     // order in which they appear.
 
-    while (index1 < name1.words.length) {
+    let matched = false;
+    while (!matched && index1 < name1.words.length) {
       const name1Word = name1.words[index1];
-      if (
-        (lowerName2Word != WILDCARD_NAME || name1Word != lowerName2Word) &&
-        (name1.phonetics[index1] == name2.phonetics[index2] ||
-          name1Word == WILDCARD_NAME ||
-          lowerName2Word == WILDCARD_NAME ||
-          ((lowerName2Word.length == 1 || name1Word.length == 1) &&
-            name1Word[0].toLowerCase() == lowerName2Word[0]))
-      ) {
-        break; // words match
-      }
-      ++index1; // words don't match
+      matched =
+        name1.phonetics[index1] == name2.phonetics[index2] ||
+        name1Word == WILDCARD_NAME ||
+        lowerName2Word == WILDCARD_NAME ||
+        ((lowerName2Word.length == 1 || name1Word.length == 1) &&
+          name1Word[0].toLowerCase() == lowerName2Word[0]);
+      ++index1;
     }
-    if (index1 == name1.words.length) {
+    if (!matched) {
       return false;
     }
   }
+
+  // Suffixes have to match when both are present.
+
+  if (name1.suffix && name2.suffix) {
+    return normalizeSuffix(name1.suffix) == normalizeSuffix(name2.suffix);
+  }
   return true;
+}
+
+function normalizeSuffix(suffix: string | null) {
+  if (suffix) {
+    suffix = suffix.toLowerCase();
+    if (suffix == '2nd') {
+      return 'ii';
+    }
+    if (suffix == '3rd') {
+      return 'iii';
+    }
+    if (suffix == '4th') {
+      return 'iv';
+    }
+  }
+  return suffix;
 }
