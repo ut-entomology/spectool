@@ -1,4 +1,5 @@
 # from https://github.com/carltonnorthern/nickname-and-diminutive-names-lookup
+# added "wm" to lists with "william"
 aaron,erin,ronnie,ron
 abbigail,nabby,abby,gail,abbi,abbey
 abednego,bedney
@@ -159,8 +160,8 @@ bethena,beth,thaney
 beverly,bev
 bezaleel,zeely
 biddie,biddy
-bill,william,billy,robert,willie,fred
-billy,william,robert,fred
+bill,william,wm,billy,robert,willie,fred
+billy,william,wm,robert,fred
 blanche,bea
 bob,rob,robert
 bobby,rob,bob
@@ -1060,10 +1061,10 @@ wilfred,will,willie,fred,wil
 wilhelm,wil,willie
 wilhelmina,mina,wilma,willie,minnie
 will,bill,willie,wilbur,fred
-william,willy,bell,bela,bill,will,billy,willie,wil
-willie,william,fred
+william,wm,willy,bell,bela,bill,will,billy,willie,wil
+willie,william,wm,fred
 willis,willy,bill
-wilma,william,billiewilhelm
+wilma,william,wm
 wilson,will,willy,willie
 winfield,field,winny,win
 winifred,freddie,winnie,winnet

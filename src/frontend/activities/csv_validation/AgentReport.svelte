@@ -3,7 +3,9 @@
   import Notice from '../../layout/Notice.svelte';
   import StatusMessage from '../../layout/StatusMessage.svelte';
   import { showStatus } from '../../layout/StatusMessage.svelte';
-  import { AgentName } from './agent_names';
+  import { AgentName, parseNicknames } from './agent_names';
+
+  type AgentNamesByGroup = Record<string, AgentName[]>;
 
   async function prepare() {
     showStatus('Loading agents from Specify...');
@@ -16,11 +18,16 @@
     const specifyAgents = parseEncodedAgents(specifyEncodings);
     const csvAgents = parseEncodedAgents(csvEncodings);
 
+    showStatus('Loading and parsing nicknames...');
+    const fetchResponse = await fetch('/data/nicknames.txt');
+    const rawNicknames = await fetchResponse.text();
+    const nicknames = await parseNicknames(rawNicknames);
+
     showStatus('Grouping agents by similarity...');
   }
 
-  function parseEncodedAgents(encodings: string) {
-    const namesByGroup: Record<string, AgentName[]> = {};
+  function parseEncodedAgents(encodings: string): AgentNamesByGroup {
+    const namesByGroup: AgentNamesByGroup = {};
     const entries = encodings.split('|');
     for (let i = 0; i < entries.length; i += 2) {
       const agentName = new AgentName(entries[i], entries[i + 1]);

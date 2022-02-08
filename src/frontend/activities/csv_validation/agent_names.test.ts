@@ -1,16 +1,24 @@
 import assert from 'assert';
+import * as path from 'path';
+import * as fs from 'fs';
 
-import { AgentName, areSimilarNames } from './agent_names';
+import { AgentName, NicknameMap, areSimilarNames, parseNicknames } from './agent_names';
+
+const nicknamesBuf = fs.readFileSync(
+  path.join(__dirname, '../../../../public/data/nicknames.txt')
+);
+const nicknames = parseNicknames(nicknamesBuf.toString());
+const noNicknames = {};
 
 test('agent names that should be similar', () => {
-  verifyMutualSimilarity([
+  verifyMutualSimilarity(noNicknames, [
     new AgentName('Roy Gee Biv', 'RY GE BF'),
     new AgentName('roy gee biv', 'RY GE BF'),
     new AgentName('r g biv iii', 'R G BF III'),
     new AgentName('r g biv III', 'R G BF III'),
     new AgentName('r g b', 'R G B')
   ]);
-  verifyMutualSimilarity([
+  verifyMutualSimilarity(noNicknames, [
     new ExactName('Roy Gee Biv'),
     new ExactName('Roy Gee Biv'),
     new ExactName('Roy Gee Biv III'),
@@ -27,7 +35,7 @@ test('agent names that should be similar', () => {
     new ExactName('R G *'),
     new ExactName('Gee *')
   ]);
-  verifyMutualSimilarity([
+  verifyMutualSimilarity(noNicknames, [
     new AgentName('Roy Gee Biv', 'RY GE BF'),
     new AgentName('Roy Gee Biv III', 'RY GE BF I'),
     new AgentName('Roy Gee Biv 3rd', 'RY GE BF 3RD'),
@@ -43,7 +51,7 @@ test('agent names that should be similar', () => {
     new AgentName('R G *', 'R G *'),
     new AgentName('Gee *', 'GE *')
   ]);
-  verifyMutualSimilarity([
+  verifyMutualSimilarity(noNicknames, [
     new ExactName('Roy Gee Biv'),
     new ExactName('Roy Gee Biv Sr'),
     new ExactName('Roy Gee Biv Sr'),
@@ -59,7 +67,7 @@ test('agent names that should be similar', () => {
     new ExactName('R G *'),
     new ExactName('Roy *')
   ]);
-  verifyMutualSimilarity([
+  verifyMutualSimilarity(noNicknames, [
     new AgentName('Roy Gee Biv', 'RY GE BF'),
     new AgentName('Roy Gee Biv Sr', 'RY GE BF SR'),
     new AgentName('Roy Gee Biv Sr', 'RY GE BF SR'),
@@ -75,12 +83,12 @@ test('agent names that should be similar', () => {
     new AgentName('R G *', 'R G *'),
     new AgentName('Roy *', 'RY *')
   ]);
-  verifyMutualSimilarity([
+  verifyMutualSimilarity(noNicknames, [
     new ExactName('Roy Gee Biv'),
     new ExactName('Roy Biv II'),
     new ExactName('R Biv 2nd')
   ]);
-  verifyMutualSimilarity([
+  verifyMutualSimilarity(noNicknames, [
     new AgentName('Roy Gee Biv', 'RY GE BF'),
     new AgentName('Roy Biv II', 'RY BF II'), // HERE
     new AgentName('R Biv 2nd', 'RY BF 2ND'),
@@ -92,83 +100,128 @@ test('agent names that should be similar', () => {
   ]);
 });
 
+test('agent names with equivalent nicknames', () => {
+  verifyMutualSimilarity(nicknames, [
+    new AgentName('Joe Biv', 'JO BF'),
+    new AgentName('Joe *', 'JO *'),
+    new AgentName('Joey Biv', 'JY BF'),
+    new AgentName('joey Biv', 'JY BF'),
+    new AgentName('Joseph Biv', 'JSF BF')
+  ]);
+  verifyMutualSimilarity(nicknames, [
+    new AgentName('Jody Biv', 'JDY BF'),
+    new AgentName('jody Biv', 'JDY BF'),
+    new AgentName('Jo Biv', 'Jo BF')
+  ]);
+  verifyMutualSimilarity(nicknames, [
+    new AgentName('Jo Biv', 'JO BF'),
+    new AgentName('jo Biv', 'JO BF'),
+    new AgentName('Jody Biv', 'JDY BF')
+  ]);
+});
+
 test('agent names that should NOT be similar', () => {
-  verifyMutualDissimilarity([new ExactName('Biv'), new ExactName('Black')]);
-  verifyMutualDissimilarity([new ExactName('R Biv'), new ExactName('R Black')]);
-  verifyMutualDissimilarity([
+  verifyMutualDissimilarity(noNicknames, [
+    new ExactName('Biv'),
+    new ExactName('Black')
+  ]);
+  verifyMutualDissimilarity(noNicknames, [
+    new ExactName('R Biv'),
+    new ExactName('R Black')
+  ]);
+  verifyMutualDissimilarity(noNicknames, [
     new ExactName('Roy Gee Biv'),
     new ExactName('Red Green Biv'),
     new ExactName('Red Green Blue'),
     new ExactName('R G Black'),
     new ExactName('Fred')
   ]);
-  verifyMutualDissimilarity([
+  verifyMutualDissimilarity(noNicknames, [
     new AgentName('Roy Gee Biv', 'RY GE BF'),
     new AgentName('Red Green Biv', 'RD GN BF'),
     new AgentName('Red Green Blue', 'RD GN BL'),
     new AgentName('R G Black', 'R G BK'),
     new AgentName('Fred', 'FD')
   ]);
-  verifyMutualDissimilarity([
+  verifyMutualDissimilarity(noNicknames, [
     new ExactName('Roy Gee Biv'),
     new ExactName('Gee Roy Biv'),
     new ExactName('Biv Roy Gee'),
     new ExactName('Rose *')
   ]);
-  verifyMutualDissimilarity([
+  verifyMutualDissimilarity(noNicknames, [
     new AgentName('Roy Gee Biv', 'RY GE BF'),
     new AgentName('Gee Roy Biv', 'GE RY BF'),
     new AgentName('Biv Roy Gee', 'BF RY GE'),
     new AgentName('Rose *', 'RS *')
   ]);
-  verifyMutualDissimilarity([
+  verifyMutualDissimilarity(noNicknames, [
     new ExactName('Roy Gee Biv'),
     new ExactName('G R Biv'),
     new ExactName('Biv R G')
   ]);
-  verifyMutualDissimilarity([
+  verifyMutualDissimilarity(noNicknames, [
     new AgentName('Roy Gee Biv', 'RY GE BF'),
     new AgentName('G R Biv', 'G R BF'),
     new AgentName('Biv R G', 'BF R G')
   ]);
-  verifyMutualDissimilarity([
+  verifyMutualDissimilarity(noNicknames, [
     new ExactName('Roy Gee Biv II'),
     new ExactName('Roy Gee Biv III'),
     new ExactName('Roy Gee Biv Jr')
   ]);
-  verifyMutualDissimilarity([
+  verifyMutualDissimilarity(noNicknames, [
     new AgentName('Roy Gee Biv II', 'RY GE BF II'),
     new AgentName('Roy Gee Biv III', 'RY GE BF III'),
     new AgentName('Roy Gee Biv Jr', 'RY GE BF JR')
   ]);
-  verifyMutualDissimilarity([new ExactName('Rose *'), new ExactName('Roy *')]);
-  verifyMutualDissimilarity([
+  verifyMutualDissimilarity(noNicknames, [
+    new ExactName('Rose *'),
+    new ExactName('Roy *')
+  ]);
+  verifyMutualDissimilarity(noNicknames, [
     new AgentName('Rose *', 'RS *'),
     new AgentName('Roy *', 'RY *')
   ]);
-  verifyMutualDissimilarity([
+  verifyMutualDissimilarity(noNicknames, [
     new AgentName('Roy Rose Biv', 'RY RS BF'),
     new AgentName('R Roy Biv', 'R RY BF'),
     new AgentName('R R Black', 'R R BK')
   ]);
-  verifyMutualDissimilarity([
+  verifyMutualDissimilarity(noNicknames, [
     new AgentName('Roy Rose Biv', 'RY RS BF'),
     new AgentName('Rose R Biv', 'RS R BF'),
     new AgentName('R R Black', 'R R BK')
   ]);
-  verifyMutualDissimilarity([
+  verifyMutualDissimilarity(noNicknames, [
     new AgentName('B Biv', 'B BF'),
     new AgentName('B Black', 'B BK')
   ]);
-  verifyMutualDissimilarity([
+  verifyMutualDissimilarity(noNicknames, [
     new AgentName('Blue Biv', 'BU BF'),
     new AgentName('B Black', 'B BK'),
     new AgentName('Black Biv', 'BK BF')
   ]);
-  verifyMutualDissimilarity([
+  verifyMutualDissimilarity(noNicknames, [
     new AgentName('Blue Beard Biv', 'BU BD BF'),
     new AgentName('Blue B Black', 'BU B BK'),
     new AgentName('B Black Biv', 'B BK BF')
+  ]);
+});
+
+test("last names can't have nicknames", () => {
+  verifyMutualDissimilarity(nicknames, [
+    new AgentName('Billy Joe', 'BY JO'),
+    new AgentName('Billy Joey', 'BY JY'),
+    new AgentName('Billy Joseph', 'BY JSF')
+  ]);
+  verifyMutualDissimilarity(nicknames, [
+    new AgentName('Billy Jody', 'BY JDY'),
+    new AgentName('Billy Jo', 'BY JO')
+  ]);
+  verifyMutualDissimilarity(nicknames, [
+    new AgentName('Billy Jo', 'BY JO'),
+    new AgentName('Billy Jody', 'BY JDY')
   ]);
 });
 
@@ -178,18 +231,24 @@ class ExactName extends AgentName {
   }
 }
 
-function verifyMutualDissimilarity(names: AgentName[]) {
+function verifyMutualDissimilarity(nicknameMap: NicknameMap, names: AgentName[]) {
   for (let i = 0; i < names.length - 1; ++i) {
     for (let j = i + 1; j < names.length; ++j) {
-      assert(!areSimilarNames(names[i], names[j]), `'${names[i]}' vs. '${names[j]}'`);
+      assert(
+        !areSimilarNames(nicknameMap, names[i], names[j]),
+        `'${names[i]}' vs. '${names[j]}'`
+      );
     }
   }
 }
 
-function verifyMutualSimilarity(names: AgentName[]) {
+function verifyMutualSimilarity(nicknameMap: NicknameMap, names: AgentName[]) {
   for (let i = 0; i < names.length - 1; ++i) {
     for (let j = i + 1; j < names.length; ++j) {
-      assert(areSimilarNames(names[i], names[j]), `'${names[i]}' vs. '${names[j]}'`);
+      assert(
+        areSimilarNames(nicknameMap, names[i], names[j]),
+        `'${names[i]}' vs. '${names[j]}'`
+      );
     }
   }
 }

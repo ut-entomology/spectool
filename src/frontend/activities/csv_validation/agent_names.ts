@@ -1,5 +1,7 @@
 const SUFFIXES = ['jr', 'sr', 'ii', 'iii', '1st', '2nd', '3rd'];
 
+export type NicknameMap = Record<string, string[]>;
+
 export const WILDCARD_NAME = '*';
 
 export class AgentName {
@@ -34,7 +36,11 @@ export class AgentName {
   }
 }
 
-export function areSimilarNames(name1: AgentName, name2: AgentName): boolean {
+export function areSimilarNames(
+  nicknamesMap: NicknameMap,
+  name1: AgentName,
+  name2: AgentName
+): boolean {
   // Put the longer name in name1, ignoring any present suffixes
 
   if (name2.words.length > name1.words.length) {
@@ -46,19 +52,27 @@ export function areSimilarNames(name1: AgentName, name2: AgentName): boolean {
   let index1 = 0;
   for (let index2 = 0; index2 < name2.words.length; ++index2) {
     const lowerName2Word = name2.words[index2].toLowerCase();
+    const isLastName2 = index2 == name2.words.length - 1;
 
     // Words in the short name must match those in the longer name in the
     // order in which they appear.
 
     let matched = false;
     while (!matched && index1 < name1.words.length) {
-      const name1Word = name1.words[index1];
+      const lowerName1Word = name1.words[index1].toLowerCase();
+      const isLastName1 = index1 == name1.words.length - 1;
+      const nicknames1 = nicknamesMap[lowerName1Word];
+      const nicknames2 = nicknamesMap[lowerName2Word];
       matched =
         name1.phoneticCodes[index1] == name2.phoneticCodes[index2] ||
-        name1Word == WILDCARD_NAME ||
+        (!isLastName1 &&
+          !isLastName2 &&
+          ((nicknames1 && nicknames1.includes(lowerName2Word)) ||
+            (nicknames2 && nicknames2.includes(lowerName1Word)))) ||
+        lowerName1Word == WILDCARD_NAME ||
         lowerName2Word == WILDCARD_NAME ||
-        ((lowerName2Word.length == 1 || name1Word.length == 1) &&
-          name1Word[0].toLowerCase() == lowerName2Word[0]);
+        ((lowerName2Word.length == 1 || lowerName1Word.length == 1) &&
+          lowerName1Word[0] == lowerName2Word[0]);
       ++index1;
     }
     if (!matched) {
@@ -88,4 +102,20 @@ function normalizeSuffix(suffix: string | null) {
     }
   }
   return suffix;
+}
+
+export function parseNicknames(rawNicknames: string): NicknameMap {
+  const rawGroups = rawNicknames.split('\n');
+  const nicknamesByName: NicknameMap = {};
+  for (const rawGroup of rawGroups) {
+    if (rawGroup[0] != '#') {
+      const names = rawGroup.split(',');
+      const group: string[] = [];
+      for (let i = 1; i < names.length; ++i) {
+        group.push(names[i]);
+      }
+      nicknamesByName[names[0]] = group;
+    }
+  }
+  return nicknamesByName;
 }
