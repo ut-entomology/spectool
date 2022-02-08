@@ -3,6 +3,8 @@ import * as query from '../../kernel/specify/queries';
 import { runQuery } from '../util/api_util';
 import fuzzySoundex from 'talisman/phonetics/fuzzy-soundex';
 
+const WILDCARD_NAME = '*';
+
 export class AgentApi {
   private _kernel: AppKernel;
 
@@ -26,7 +28,11 @@ export class AgentApi {
 
       const phonetics: string[] = [];
       for (const word of words) {
-        phonetics.push(fuzzySoundex(word));
+        if (word == WILDCARD_NAME) {
+          phonetics.push(WILDCARD_NAME);
+        } else {
+          phonetics.push(fuzzySoundex(word));
+        }
       }
       entries.push(phonetics.join(' '));
     }
@@ -43,7 +49,7 @@ export function addAgentWords(
 ) {
   if (name === undefined || name == '') {
     if (isLastName) {
-      words.push('*');
+      words.push(WILDCARD_NAME);
     }
   } else {
     const splits = name.replace('.', ' ').replace(',', ' ').split(' ');

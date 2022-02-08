@@ -1,4 +1,4 @@
-const SUFFIXES = ['jr', 'sr', 'ii', 'iii', '2nd', '3rd'];
+const SUFFIXES = ['jr', 'sr', 'ii', 'iii', '1st', '2nd', '3rd'];
 
 export const WILDCARD_NAME = '*';
 
@@ -6,17 +6,27 @@ export class AgentName {
   // Words are assumed to have periods and commas removed and no double-spaces
   words: string[]; // a final word of '*' indicates no last name, no suffix
   suffix: string | null; // name suffix, if any
-  phonetics: string[]; // phonetics for all words but suffix, except '*' for '*'
+  phoneticCodes: string[]; // phonetics for all words but suffix, except '*' for '*'
 
   constructor(name: string, phonetics: string) {
     this.words = name.split(' ');
-    this.phonetics = phonetics.split(' ');
+    this.phoneticCodes = phonetics.split(' ');
     const lastWord = this.words[this.words.length - 1];
     this.suffix = SUFFIXES.includes(lastWord.toLowerCase()) ? lastWord : null;
     if (this.suffix) {
       this.words.pop();
-      this.phonetics.pop();
+      this.phoneticCodes.pop();
     }
+  }
+
+  getLastName(): string | null {
+    const lastName = this.words[this.words.length - 1];
+    return lastName == WILDCARD_NAME ? null : lastName;
+  }
+
+  getLastPhoneticCode(): string | null {
+    const lastCode = this.phoneticCodes[this.phoneticCodes.length - 1];
+    return lastCode == WILDCARD_NAME ? null : lastCode;
   }
 
   toString() {
@@ -44,7 +54,7 @@ export function areSimilarNames(name1: AgentName, name2: AgentName): boolean {
     while (!matched && index1 < name1.words.length) {
       const name1Word = name1.words[index1];
       matched =
-        name1.phonetics[index1] == name2.phonetics[index2] ||
+        name1.phoneticCodes[index1] == name2.phoneticCodes[index2] ||
         name1Word == WILDCARD_NAME ||
         lowerName2Word == WILDCARD_NAME ||
         ((lowerName2Word.length == 1 || name1Word.length == 1) &&

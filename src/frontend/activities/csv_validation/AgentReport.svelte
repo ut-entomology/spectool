@@ -3,18 +3,7 @@
   import Notice from '../../layout/Notice.svelte';
   import StatusMessage from '../../layout/StatusMessage.svelte';
   import { showStatus } from '../../layout/StatusMessage.svelte';
-
-  const SUFFIXES = ['jr', 'sr', 'ii', 'iii', '2nd', '3rd'];
-
-  interface Agent {
-    isInSpecify: boolean;
-    isInCSV: boolean;
-    groupName: string;
-    words: string[];
-    phonetics: string[];
-  }
-
-  const agentsByGroupCode: Record<string, Agent[]> = {};
+  import { AgentName } from './agent_names';
 
   async function prepare() {
     showStatus('Loading agents from Specify...');
@@ -24,37 +13,27 @@
     const csvEncodings = await window.apis.specimenSetApi.getEncodedAgents();
 
     showStatus('Parsing agents...');
-    parseEncodedAgents(specifyEncodings, true);
-    parseEncodedAgents(csvEncodings, false);
+    const specifyAgents = parseEncodedAgents(specifyEncodings);
+    const csvAgents = parseEncodedAgents(csvEncodings);
 
     showStatus('Grouping agents by similarity...');
   }
 
-  function parseEncodedAgents(encodings: string, fromSpecify: boolean) {
+  function parseEncodedAgents(encodings: string) {
+    const namesByGroup: Record<string, AgentName[]> = {};
     const entries = encodings.split('|');
     for (let i = 0; i < entries.length; i += 2) {
-      const words = entries[i].split(' ');
-      const phonetics = entries[i + 1].split(' ');
+      const agentName = new AgentName(entries[i], entries[i + 1]);
+      const groupCode = agentName.getLastPhoneticCode() || '';
 
-      let groupNameIndex = words.length - 1;
-      if (groupNameIndex > 0) {
-        if (SUFFIXES.includes(words[groupNameIndex].toLowerCase())) {
-          --groupNameIndex;
-        }
-      }
-      const groupName = words[groupNameIndex];
-      const groupCode = phonetics[groupNameIndex];
-
-      let group = agentsByGroupCode[groupCode];
+      let group = namesByGroup[groupCode];
       if (!group) {
         group = [];
-        agentsByGroupCode[groupCode] = group;
+        namesByGroup[groupCode] = group;
       }
-      group.push({ 
-        isInSpecify: fromSpecify,
-        isInCSV: !fromSpecify,
-        groupName, words, phonetics
-      });
+      group.push(agentName);
+    }
+    return namesByGroup;
   }
 
   function closeWindow() {
