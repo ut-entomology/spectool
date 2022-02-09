@@ -278,7 +278,7 @@ describe('trusted vs untrusted names report', () => {
         new ExactName('Rex')
       ])
     );
-    assertEqualGroups(groups, [
+    assert.deepEqual(groups, [
       [
         new ExactName('Fred Foo'),
         new ExactName('S F Foo'),
@@ -310,7 +310,7 @@ describe('trusted vs untrusted names report', () => {
         new ExactName('Smith')
       ])
     );
-    assertEqualGroups(groups, [
+    assert.deepEqual(groups, [
       [
         new ExactName('Fred S *'),
         new ExactName('F S Foo'),
@@ -354,7 +354,7 @@ describe('trusted vs untrusted names report', () => {
         new ExactName('S J *')
       ])
     );
-    assertEqualGroups(groups, [
+    assert.deepEqual(groups, [
       [new ExactName('Fred *'), new ExactName('F S *')],
       [
         new ExactName('Jeff Boop'),
@@ -413,17 +413,6 @@ describe('compare untrusted agent names with one another', () => {
 class ExactName extends AgentName {
   constructor(name: string) {
     super(name, name);
-  }
-}
-
-function assertEqualGroups(nameGroups1: AgentName[][], nameGroups2: AgentName[][]) {
-  assert.equal(nameGroups1.length, nameGroups2.length);
-  for (let i = 0; i < nameGroups1.length; ++i) {
-    const [names1, names2] = [nameGroups1[i], nameGroups2[i]];
-    assert.equal(names1.length, names2.length);
-    for (let j = 0; j < names1.length; ++j) {
-      assert.equal(names1[j].toString(), names2[j].toString());
-    }
   }
 }
 
