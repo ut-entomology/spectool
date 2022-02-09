@@ -83,7 +83,16 @@ export function areSimilarNames(
   return true;
 }
 
-export function compareNames(
+/**
+ * Compares agent names with one another, trusting that none are necessarily
+ * correct. It returns a set of lists of names, the names in each list being
+ * similar to one another, with no two lists containing exactly the same names.
+ * The first name in each list is the longest name of the list (by number of
+ * words), each list is otherwise ordered first by last name and then by full
+ * name, and the set is ordered by the first names in each list.
+ */
+
+export function compareUntrustedNames(
   nicknamesMap: NicknameMap,
   nameGroups: AgentNamesByGroup
 ): AgentName[][] {
@@ -93,13 +102,11 @@ export function compareNames(
   // Process last names, collecting groups of similar names.
 
   for (const lastName of Object.keys(nameGroups)) {
-    // Process the names in order of word length, so that the longest (and
-    // presumably most complete) names appear first in each similarity group.
+    // Process the names in order of name complexity, so that the presumed
+    // most-complete names appear first in each similarity group.
     // The remaining names are proposed synonyms of the first.
 
-    const names = nameGroups[lastName].sort((a, b) =>
-      a.words.length <= b.words.length ? -1 : 1
-    );
+    const names = nameGroups[lastName].sort(_sorterOfNameComplexity);
     for (let i = 0; i < names.length - 1; ++i) {
       // Each similarity group consists of the names in the list that are
       // similar to any name but follow that name. This ensures that those
@@ -169,18 +176,24 @@ export function compareNames(
   }
 
   // Return the similarity groups sorted first by last name and then by full
-  // name, leaving out the groups that were subsets of other groups. Sort
-  // each similarity group alphabetically.
+  // name, leaving out the groups that were subsets of other groups.
 
   const prunedSimilarityGroups: AgentName[][] = [];
   for (const similarityGroup of similarityGroups) {
     if (similarityGroupsByInitialName[similarityGroup[0].toString()]) {
-      similarityGroup.sort(_nameStringSorter);
       prunedSimilarityGroups.push(similarityGroup);
     }
   }
-  return prunedSimilarityGroups.sort((a, b) => _fullNameSorter(a[0], b[0]));
+  return prunedSimilarityGroups.sort((a, b) => _sorterOfFullNames(a[0], b[0]));
 }
+
+/**
+ * Compares an untrusted set of agent names to a trusted set of agent names,
+ * returning lists of agent names, each list beginning with a trusted name and
+ * followed by all the untrusted names that are similar to it. The set is
+ * ordered by trusted name, last name first, as are the untrusted names that
+ * follow each trusted name in the list.
+ */
 
 export function compareToTrustedNames(
   nicknamesMap: NicknameMap,
@@ -198,7 +211,7 @@ export function compareToTrustedNames(
     if (lastName == WILDCARD_NAME) {
       // Process all trusted names that are missing a last name.
 
-      const sortedTrustedNames = trustedNameGroups[lastName].sort(_nameStringSorter);
+      const sortedTrustedNames = trustedNameGroups[lastName].sort(_sorterOfNameStrings);
       for (const trustedName of sortedTrustedNames) {
         // Compare the trusted name to every untrusted name for possible similarity.
 
@@ -214,7 +227,7 @@ export function compareToTrustedNames(
           }
         }
         if (similarNamesGroup.length > 0) {
-          similarNamesGroup.sort(_fullNameSorter);
+          similarNamesGroup.sort(_sorterOfFullNames);
           similarNamesGroup.unshift(trustedName);
           similarityGroups.push(similarNamesGroup);
         }
@@ -233,8 +246,9 @@ export function compareToTrustedNames(
         // Process the trusted names having the current last name in alphabetic
         // order so they are listed in this order in the report.
 
-        const sortedTrustedNames = trustedNameGroups[lastName].sort(_nameStringSorter);
-        const sortedUntrustedNames = untrustedNames.sort(_nameStringSorter);
+        const sortedTrustedNames =
+          trustedNameGroups[lastName].sort(_sorterOfNameStrings);
+        const sortedUntrustedNames = untrustedNames.sort(_sorterOfNameStrings);
         for (const trustedName of sortedTrustedNames) {
           // Collect untrusted names that are similar to the trusted name, doing so
           // in alphabetic order so that they list in alphabetic order in the report.
@@ -289,12 +303,6 @@ export function parseNicknames(rawNicknames: string): NicknameMap {
   return nicknamesByName;
 }
 
-function _fullNameSorter(nameA: AgentName, nameB: AgentName) {
-  const lastA = nameA.words[nameA.words.length - 1];
-  const lastB = nameB.words[nameB.words.length - 1];
-  return lastA <= lastB && nameA.toString() <= nameB.toString() ? -1 : 1;
-}
-
 function _getSimilarNames(
   nicknamesMap: NicknameMap,
   trustedName: AgentName,
@@ -313,10 +321,6 @@ function _getSimilarNames(
   return similarNames.length > 0 ? similarNames : null;
 }
 
-function _nameStringSorter(a: AgentName, b: AgentName) {
-  return a.toString() <= b.toString() ? -1 : 1;
-}
-
 function _normalizeSuffix(suffix: string | null) {
   if (suffix) {
     suffix = suffix.toLowerCase();
@@ -331,4 +335,31 @@ function _normalizeSuffix(suffix: string | null) {
     }
   }
   return suffix;
+}
+
+function _sorterOfFullNames(nameA: AgentName, nameB: AgentName): number {
+  const lastA = nameA.words[nameA.words.length - 1];
+  const lastB = nameB.words[nameB.words.length - 1];
+  return lastA <= lastB && nameA.toString() <= nameB.toString() ? -1 : 1;
+}
+
+function _sorterOfNameComplexity(nameA: AgentName, nameB: AgentName): number {
+  if (nameA.words.length != nameB.words.length) {
+    return nameB.words.length - nameA.words.length;
+  }
+  if (nameA.suffix != null && nameB.suffix == null) {
+    return -1;
+  }
+  if (nameB.suffix != null && nameA.suffix == null) {
+    return 1;
+  }
+  const [nameAStr, nameBStr] = [nameA.toString(), nameB.toString()];
+  if (nameAStr.length != nameBStr.length) {
+    return nameBStr.length - nameAStr.length;
+  }
+  return nameAStr <= nameBStr ? -1 : 1;
+}
+
+function _sorterOfNameStrings(a: AgentName, b: AgentName): number {
+  return a.toString() <= b.toString() ? -1 : 1;
 }

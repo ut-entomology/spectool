@@ -2,10 +2,13 @@ import assert from 'assert';
 import * as path from 'path';
 import * as fs from 'fs';
 
+// TODO: test comparing suffixes
+
 import {
   AgentName,
   NicknameMap,
   areSimilarNames,
+  compareUntrustedNames,
   compareToTrustedNames,
   parseNicknames
 } from './agent_names';
@@ -351,7 +354,6 @@ describe('trusted vs untrusted names report', () => {
         new ExactName('S J *')
       ])
     );
-    showGroups(groups);
     assertEqualGroups(groups, [
       [new ExactName('Fred *'), new ExactName('F S *')],
       [
@@ -367,6 +369,43 @@ describe('trusted vs untrusted names report', () => {
         new ExactName('S J *')
       ],
       [new ExactName('Fred Smith'), new ExactName('F S *'), new ExactName('Fred *')]
+    ]);
+  });
+});
+
+describe('compare untrusted agent names with one another', () => {
+  test('no similar names', () => {
+    const groups = compareUntrustedNames(
+      noNicknames,
+      groupByLastName([
+        new ExactName('Sue Rex'),
+        new ExactName('Jeff Boo'),
+        new ExactName('X Boo')
+      ])
+    );
+    assert.deepEqual(groups, []);
+  });
+
+  test('similar names, all last names known', () => {
+    const groups = compareUntrustedNames(
+      noNicknames,
+      groupByLastName([
+        new ExactName('Sue Rex'),
+        new ExactName('Jeff Boo'),
+        new ExactName('J Boo'),
+        new ExactName('J T Boo'),
+        new ExactName('James T Boo'),
+        new ExactName('Rex'),
+        new ExactName('S Q Rex'),
+        new ExactName('Q S Rex'),
+        new ExactName('Sue Boo')
+      ])
+    );
+    assert.deepEqual(groups, [
+      [new ExactName('J T Boo'), new ExactName('Jeff Boo'), new ExactName('J Boo')],
+      [new ExactName('James T Boo'), new ExactName('J T Boo'), new ExactName('J Boo')],
+      [new ExactName('Q S Rex'), new ExactName('Sue Rex'), new ExactName('Rex')],
+      [new ExactName('S Q Rex'), new ExactName('Sue Rex'), new ExactName('Rex')]
     ]);
   });
 });
@@ -402,9 +441,9 @@ function groupByLastName(names: AgentName[]): Record<string, AgentName[]> {
   return groupMap;
 }
 
-function showGroups(groups: AgentName[][]) {
-  console.log(JSON.stringify(groups, undefined, '  '));
-}
+// function showGroups(groups: AgentName[][]) {
+//   console.log(JSON.stringify(groups, undefined, '  '));
+// }
 
 function verifyMutualDissimilarity(nicknameMap: NicknameMap, names: AgentName[]) {
   for (let i = 0; i < names.length - 1; ++i) {
