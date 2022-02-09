@@ -221,10 +221,15 @@ export function compareToTrustedNames(
       }
     } else {
       // Only similar names are collected, so skips last names not found
-      // among both the trusted and untrusted names.
+      // among both the trusted and untrusted names, but includes all
+      // untrusted names lacking last names.
 
-      const untrustedNames = untrustedNameGroups[lastName];
-      if (untrustedNames) {
+      const untrustedNames = untrustedNameGroups[lastName] || [];
+      const untrustedWithoutLastNames = untrustedNameGroups[WILDCARD_NAME];
+      if (untrustedWithoutLastNames) {
+        untrustedNames.push(...untrustedWithoutLastNames);
+      }
+      if (untrustedNames.length > 0) {
         // Process the trusted names having the current last name in alphabetic
         // order so they are listed in this order in the report.
 

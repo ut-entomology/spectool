@@ -307,7 +307,6 @@ describe('trusted vs untrusted names report', () => {
         new ExactName('Smith')
       ])
     );
-    showGroups(groups);
     assertEqualGroups(groups, [
       [
         new ExactName('Fred S *'),
@@ -333,9 +332,44 @@ describe('trusted vs untrusted names report', () => {
       [new ExactName('Sue Rex'), new ExactName('S Rex')]
     ]);
   });
-});
 
-// TODO: test wildcard names in similarity reports
+  test('untrusted names with missing last names', () => {
+    const groups = compareToTrustedNames(
+      noNicknames,
+      groupByLastName([
+        new ExactName('Fred *'),
+        new ExactName('Fred Smith'),
+        new ExactName('Jeff Boop'),
+        new ExactName('J Rex')
+      ]),
+      groupByLastName([
+        new ExactName('Alex *'),
+        new ExactName('Fred *'),
+        new ExactName('F S *'),
+        new ExactName('Jeff *'),
+        new ExactName('J S *'),
+        new ExactName('S J *')
+      ])
+    );
+    showGroups(groups);
+    assertEqualGroups(groups, [
+      [new ExactName('Fred *'), new ExactName('F S *')],
+      [
+        new ExactName('Jeff Boop'),
+        new ExactName('J S *'),
+        new ExactName('Jeff *'),
+        new ExactName('S J *')
+      ],
+      [
+        new ExactName('J Rex'),
+        new ExactName('J S *'),
+        new ExactName('Jeff *'),
+        new ExactName('S J *')
+      ],
+      [new ExactName('Fred Smith'), new ExactName('F S *'), new ExactName('Fred *')]
+    ]);
+  });
+});
 
 class ExactName extends AgentName {
   constructor(name: string) {
