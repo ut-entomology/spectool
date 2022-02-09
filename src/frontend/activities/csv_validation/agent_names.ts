@@ -22,14 +22,8 @@ export class AgentName {
     }
   }
 
-  getLastName(): string | null {
-    const lastName = this.words[this.words.length - 1];
-    return lastName == WILDCARD_NAME ? null : lastName;
-  }
-
-  getLastPhoneticCode(): string | null {
-    const lastCode = this.phoneticCodes[this.phoneticCodes.length - 1];
-    return lastCode == WILDCARD_NAME ? null : lastCode;
+  getLastNameCode(): string {
+    return this.phoneticCodes[this.phoneticCodes.length - 1];
   }
 
   toString() {
@@ -181,16 +175,11 @@ export function compareNames(
   const prunedSimilarityGroups: AgentName[][] = [];
   for (const similarityGroup of similarityGroups) {
     if (similarityGroupsByInitialName[similarityGroup[0].toString()]) {
-      similarityGroup.sort(_name_sorter);
+      similarityGroup.sort(_nameStringSorter);
       prunedSimilarityGroups.push(similarityGroup);
     }
   }
-  return prunedSimilarityGroups.sort((a, b) => {
-    const [initialA, initialB] = [a[0], b[0]];
-    const lastA = initialA.words[initialA.words.length - 1];
-    const lastB = initialB.words[initialB.words.length - 1];
-    return lastA <= lastB && initialA.toString() <= initialB.toString() ? -1 : 1;
-  });
+  return prunedSimilarityGroups.sort((a, b) => _fullNameSorter(a[0], b[0]));
 }
 
 export function compareToTrustedNames(
@@ -205,37 +194,56 @@ export function compareToTrustedNames(
   const sortedTrustedLastNames = Object.keys(trustedNameGroups).sort();
   for (const lastName of sortedTrustedLastNames) {
     // Process the untrusted names having the current trusted last name.
-    // Only similar names are collected, so skips last names not found
-    // among both the trusted and untrusted names.
 
-    const untrustedNames = untrustedNameGroups[lastName];
-    if (untrustedNames) {
-      // Process the trusted names having the current last name in alphabetic
-      // order so they are listed in this order in the report.
+    if (lastName == WILDCARD_NAME) {
+      // Process all trusted names that are missing a last name.
 
-      // TODO: compare trusted wildcard last name to all other names (?)
-
-      const sortedTrustedNames = trustedNameGroups[lastName].sort(_name_sorter);
-      const sortedUntrustedNames = untrustedNames.sort(_name_sorter);
+      const sortedTrustedNames = trustedNameGroups[lastName].sort(_nameStringSorter);
       for (const trustedName of sortedTrustedNames) {
-        // Collect untrusted names that are similar to the trusted name, doing so
-        // in alphabetic order so that they list in alphabetic order in the report.
-        // The first name in each group of similar names is the trusted name.
+        // Compare the trusted name to every untrusted name for possible similarity.
 
-        const similarNames: AgentName[] = [trustedName];
-        for (const untrustedName of sortedUntrustedNames) {
-          if (
-            areSimilarNames(nicknamesMap, trustedName, untrustedName) &&
-            trustedName.toString() != untrustedName.toString()
-          ) {
-            similarNames.push(untrustedName);
+        const similarNamesGroup: AgentName[] = [];
+        for (const untrustedNames of Object.values(untrustedNameGroups)) {
+          const similarNames = _getSimilarNames(
+            nicknamesMap,
+            trustedName,
+            untrustedNames
+          );
+          if (similarNames) {
+            similarNamesGroup.push(...similarNames);
           }
         }
+        if (similarNamesGroup.length > 0) {
+          similarNamesGroup.sort(_fullNameSorter);
+          similarNamesGroup.unshift(trustedName);
+          similarityGroups.push(similarNamesGroup);
+        }
+      }
+    } else {
+      // Only similar names are collected, so skips last names not found
+      // among both the trusted and untrusted names.
 
-        // Whenever two or more names are found to be similar, collect them.
+      const untrustedNames = untrustedNameGroups[lastName];
+      if (untrustedNames) {
+        // Process the trusted names having the current last name in alphabetic
+        // order so they are listed in this order in the report.
 
-        if (similarNames.length >= 2) {
-          similarityGroups.push(similarNames);
+        const sortedTrustedNames = trustedNameGroups[lastName].sort(_nameStringSorter);
+        const sortedUntrustedNames = untrustedNames.sort(_nameStringSorter);
+        for (const trustedName of sortedTrustedNames) {
+          // Collect untrusted names that are similar to the trusted name, doing so
+          // in alphabetic order so that they list in alphabetic order in the report.
+          // The first name in each group of similar names is the trusted name.
+
+          const similarNamesGroup = _getSimilarNames(
+            nicknamesMap,
+            trustedName,
+            sortedUntrustedNames
+          );
+          if (similarNamesGroup) {
+            similarNamesGroup.unshift(trustedName);
+            similarityGroups.push(similarNamesGroup);
+          }
         }
       }
     }
@@ -248,7 +256,7 @@ export function parseEncodedAgents(encodings: string): AgentNamesByGroup {
   const entries = encodings.split('|');
   for (let i = 0; i < entries.length; i += 2) {
     const agentName = new AgentName(entries[i], entries[i + 1]);
-    const groupCode = agentName.getLastPhoneticCode() || '';
+    const groupCode = agentName.getLastNameCode();
 
     let group = namesByGroup[groupCode];
     if (!group) {
@@ -276,7 +284,31 @@ export function parseNicknames(rawNicknames: string): NicknameMap {
   return nicknamesByName;
 }
 
-function _name_sorter(a: AgentName, b: AgentName) {
+function _fullNameSorter(nameA: AgentName, nameB: AgentName) {
+  const lastA = nameA.words[nameA.words.length - 1];
+  const lastB = nameB.words[nameB.words.length - 1];
+  return lastA <= lastB && nameA.toString() <= nameB.toString() ? -1 : 1;
+}
+
+function _getSimilarNames(
+  nicknamesMap: NicknameMap,
+  trustedName: AgentName,
+  untrustedNames: AgentName[]
+): AgentName[] | null {
+  const similarNames: AgentName[] = [];
+  for (const untrustedName of untrustedNames) {
+    if (
+      areSimilarNames(nicknamesMap, trustedName, untrustedName) &&
+      trustedName.toString() != untrustedName.toString()
+    ) {
+      similarNames.push(untrustedName);
+    }
+  }
+  // similarity groups require at least 2 similar names
+  return similarNames.length > 0 ? similarNames : null;
+}
+
+function _nameStringSorter(a: AgentName, b: AgentName) {
   return a.toString() <= b.toString() ? -1 : 1;
 }
 

@@ -3,7 +3,6 @@ import * as path from 'path';
 import * as fs from 'fs';
 
 import {
-  WILDCARD_NAME,
   AgentName,
   NicknameMap,
   areSimilarNames,
@@ -293,7 +292,8 @@ describe('trusted vs untrusted names report', () => {
         new ExactName('Sue Rex'),
         new ExactName('Jeff *'),
         new ExactName('Fred S *'),
-        new ExactName('Stan *')
+        new ExactName('Stan *'),
+        new ExactName('Ziggy *')
       ]),
       groupByLastName([
         new ExactName('Fred Foo'),
@@ -307,14 +307,29 @@ describe('trusted vs untrusted names report', () => {
         new ExactName('Smith')
       ])
     );
+    showGroups(groups);
     assertEqualGroups(groups, [
       [
         new ExactName('Fred S *'),
         new ExactName('F S Foo'),
         new ExactName('Fred Foo'),
-        new ExactName('Fred Sam Foo')
+        new ExactName('Fred Sam Foo'),
+        new ExactName('S Rex'),
+        new ExactName('Smith')
       ],
-      [new ExactName('Jeff *'), new ExactName('J Smith'), new ExactName('Jeff Boop')],
+      [
+        new ExactName('Jeff *'),
+        new ExactName('Jeff Boop'),
+        new ExactName('J Smith'),
+        new ExactName('Smith')
+      ],
+      [
+        new ExactName('Stan *'),
+        new ExactName('F S Foo'),
+        new ExactName('S Rex'),
+        new ExactName('Smith')
+      ],
+      [new ExactName('Ziggy *'), new ExactName('Smith')],
       [new ExactName('Sue Rex'), new ExactName('S Rex')]
     ]);
   });
@@ -343,9 +358,6 @@ function groupByLastName(names: AgentName[]): Record<string, AgentName[]> {
   const groupMap: Record<string, AgentName[]> = {};
   for (const name of names) {
     let lastName = name.words[name.words.length - 1];
-    if (lastName == WILDCARD_NAME) {
-      lastName = '';
-    }
     let group = groupMap[lastName];
     if (!group) {
       group = [];
@@ -356,9 +368,9 @@ function groupByLastName(names: AgentName[]): Record<string, AgentName[]> {
   return groupMap;
 }
 
-// function showGroups(groups: AgentName[][]) {
-//   console.log(JSON.stringify(groups, undefined, '  '));
-// }
+function showGroups(groups: AgentName[][]) {
+  console.log(JSON.stringify(groups, undefined, '  '));
+}
 
 function verifyMutualDissimilarity(nicknameMap: NicknameMap, names: AgentName[]) {
   for (let i = 0; i < names.length - 1; ++i) {
