@@ -2,8 +2,6 @@ import assert from 'assert';
 import * as path from 'path';
 import * as fs from 'fs';
 
-// TODO: test comparing suffixes
-
 import {
   AgentName,
   NicknameMap,
@@ -372,6 +370,15 @@ describe('comparing trusted and untrusted names', () => {
     ]);
   });
 
+  test('case-independent name similarity', () => {
+    const groups = compareToTrustedNames(
+      noNicknames,
+      groupByLastName([new ExactName('Fred Foo'), new ExactName('sam souix')]),
+      groupByLastName([new ExactName('fred foo'), new ExactName('Sam Souix')])
+    );
+    assert.deepEqual(groups, []);
+  });
+
   test('trusted and untrusted name suffixes', () => {
     const groups = compareToTrustedNames(
       noNicknames,
@@ -511,6 +518,19 @@ describe('comparing untrusted names with one another', () => {
       [new ExactName('Jeff *'), new ExactName('J *')],
       [new ExactName('S Tommie *'), new ExactName('S T *')]
     ]);
+  });
+
+  test('case-independent name similarity', () => {
+    const groups = compareUntrustedNames(
+      noNicknames,
+      groupByLastName([
+        new ExactName('Fred Foo'),
+        new ExactName('sam souix'),
+        new ExactName('fred foo'),
+        new ExactName('Sam Souix')
+      ])
+    );
+    assert.deepEqual(groups, []);
   });
 
   test('similar names, some with suffixes', () => {
