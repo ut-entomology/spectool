@@ -19,7 +19,7 @@ const nicknamesBuf = fs.readFileSync(
 const nicknames = parseNicknames(nicknamesBuf.toString());
 const noNicknames = {};
 
-describe('agent name similarity', () => {
+describe('checking for agent name similarity', () => {
   test('agent names that should be similar', () => {
     verifyMutualSimilarity(noNicknames, [
       new AgentName('Roy Gee Biv', 'RY GE BF'),
@@ -236,8 +236,8 @@ describe('agent name similarity', () => {
   });
 });
 
-describe('trusted vs untrusted names report', () => {
-  test('all untrusted names found', () => {
+describe('comparing trusted and untrusted names', () => {
+  test('all untrusted names identical to trusted names', () => {
     const groups = compareToTrustedNames(
       noNicknames,
       groupByLastName([new ExactName('Sue Rex'), new ExactName('Jeff Boo')]),
@@ -373,7 +373,7 @@ describe('trusted vs untrusted names report', () => {
   });
 });
 
-describe('compare untrusted agent names with one another', () => {
+describe('comparing untrusted names with one another', () => {
   test('no similar names', () => {
     const groups = compareUntrustedNames(
       noNicknames,
@@ -406,6 +406,41 @@ describe('compare untrusted agent names with one another', () => {
       [new ExactName('James T Boo'), new ExactName('J T Boo'), new ExactName('J Boo')],
       [new ExactName('Q S Rex'), new ExactName('Sue Rex'), new ExactName('Rex')],
       [new ExactName('S Q Rex'), new ExactName('Sue Rex'), new ExactName('Rex')]
+    ]);
+  });
+
+  test('similar names, some unknown last names', () => {
+    const groups = compareUntrustedNames(
+      noNicknames,
+      groupByLastName([
+        new ExactName('Jeff *'),
+        new ExactName('S T *'),
+        new ExactName('S Tommie *'),
+        new ExactName('J S Foo'),
+        new ExactName('Foo'),
+        new ExactName('Jeff Rex'),
+        new ExactName('Jeff Boo'),
+        new ExactName('J *'),
+        new ExactName('Sue T Rex')
+      ])
+    );
+    assert.deepEqual(groups, [
+      [new ExactName('Jeff Boo'), new ExactName('Jeff *'), new ExactName('J *')],
+      [
+        new ExactName('Foo'),
+        new ExactName('S Tommie *'),
+        new ExactName('S T *'),
+        new ExactName('Jeff *'),
+        new ExactName('J *')
+      ],
+      [
+        new ExactName('J S Foo'),
+        new ExactName('Foo'),
+        new ExactName('Jeff *'),
+        new ExactName('J *')
+      ],
+      [new ExactName('Jeff Rex'), new ExactName('Jeff *'), new ExactName('J *')],
+      [new ExactName('Sue T Rex'), new ExactName('S Tommie *'), new ExactName('S T *')]
     ]);
   });
 });

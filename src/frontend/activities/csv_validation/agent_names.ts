@@ -98,15 +98,20 @@ export function compareUntrustedNames(
 ): AgentName[][] {
   const similarityGroups: AgentName[][] = [];
   const similarityGroupsByInitialName: Record<string, AgentName[] | null> = {};
+  const namesWithoutLastNames = nameGroups[WILDCARD_NAME];
 
   // Process last names, collecting groups of similar names.
 
-  for (const lastName of Object.keys(nameGroups)) {
+  for (const lastName of Object.keys(nameGroups).sort()) {
     // Process the names in order of name complexity, so that the presumed
     // most-complete names appear first in each similarity group.
     // The remaining names are proposed synonyms of the first.
 
-    const names = nameGroups[lastName].sort(_sorterOfNameComplexity);
+    const names = nameGroups[lastName].slice();
+    if (lastName != WILDCARD_NAME && namesWithoutLastNames) {
+      names.push(...namesWithoutLastNames);
+    }
+    names.sort(_sorterOfNameComplexity);
     for (let i = 0; i < names.length - 1; ++i) {
       // Each similarity group consists of the names in the list that are
       // similar to any name but follow that name. This ensures that those
@@ -237,7 +242,8 @@ export function compareToTrustedNames(
       // among both the trusted and untrusted names, but includes all
       // untrusted names lacking last names.
 
-      const untrustedNames = untrustedNameGroups[lastName] || [];
+      let untrustedNames = untrustedNameGroups[lastName];
+      untrustedNames = untrustedNames ? untrustedNames.slice() : [];
       const untrustedWithoutLastNames = untrustedNameGroups[WILDCARD_NAME];
       if (untrustedWithoutLastNames) {
         untrustedNames.push(...untrustedWithoutLastNames);
@@ -344,19 +350,41 @@ function _sorterOfFullNames(nameA: AgentName, nameB: AgentName): number {
 }
 
 function _sorterOfNameComplexity(nameA: AgentName, nameB: AgentName): number {
-  if (nameA.words.length != nameB.words.length) {
-    return nameB.words.length - nameA.words.length;
+  // Names with last names precede those without.
+  const [nameAWordLength, nameBWordLength] = [nameA.words.length, nameB.words.length];
+  if (
+    nameB.words[nameBWordLength - 1] == WILDCARD_NAME &&
+    nameA.words[nameAWordLength - 1] != WILDCARD_NAME
+  ) {
+    return -1;
   }
+  if (
+    nameA.words[nameAWordLength - 1] == WILDCARD_NAME &&
+    nameB.words[nameBWordLength - 1] != WILDCARD_NAME
+  ) {
+    return 1;
+  }
+
+  // Names with more words precede those with fewer.
+  if (nameAWordLength != nameBWordLength) {
+    return nameBWordLength - nameAWordLength;
+  }
+
+  // Names with suffixes precede those without.
   if (nameA.suffix != null && nameB.suffix == null) {
     return -1;
   }
   if (nameB.suffix != null && nameA.suffix == null) {
     return 1;
   }
+
+  // Names with more characters precede those with fewer.
   const [nameAStr, nameBStr] = [nameA.toString(), nameB.toString()];
   if (nameAStr.length != nameBStr.length) {
     return nameBStr.length - nameAStr.length;
   }
+
+  // Names otherwise sort alphabetically.
   return nameAStr <= nameBStr ? -1 : 1;
 }
 
