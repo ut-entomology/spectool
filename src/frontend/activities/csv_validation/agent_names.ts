@@ -102,13 +102,13 @@ export function compareUntrustedNames(
 
   // Process last names, collecting groups of similar names.
 
-  for (const lastName of Object.keys(nameGroups).sort()) {
+  for (const lastNameCode of Object.keys(nameGroups).sort()) {
     // Process the names in order of name complexity, so that the presumed
     // most-complete names appear first in each similarity group.
     // The remaining names are proposed synonyms of the first.
 
-    const names = nameGroups[lastName].slice();
-    if (lastName != WILDCARD_NAME && namesWithoutLastNames) {
+    const names = nameGroups[lastNameCode].slice();
+    if (lastNameCode != WILDCARD_NAME && namesWithoutLastNames) {
       names.push(...namesWithoutLastNames);
     }
     names.sort(_sorterOfNameComplexity);
@@ -210,13 +210,14 @@ export function compareToTrustedNames(
   // Process trusted last names in alphabetic order, collecting groups of similar names.
 
   const sortedTrustedLastNames = Object.keys(trustedNameGroups).sort();
-  for (const lastName of sortedTrustedLastNames) {
+  for (const lastNameCode of sortedTrustedLastNames) {
     // Process the untrusted names having the current trusted last name.
 
-    if (lastName == WILDCARD_NAME) {
+    if (lastNameCode == WILDCARD_NAME) {
       // Process all trusted names that are missing a last name.
 
-      const sortedTrustedNames = trustedNameGroups[lastName].sort(_sorterOfNameStrings);
+      const sortedTrustedNames =
+        trustedNameGroups[lastNameCode].sort(_sorterOfNameStrings);
       for (const trustedName of sortedTrustedNames) {
         // Compare the trusted name to every untrusted name for possible similarity.
 
@@ -242,7 +243,7 @@ export function compareToTrustedNames(
       // among both the trusted and untrusted names, but includes all
       // untrusted names lacking last names.
 
-      let untrustedNames = untrustedNameGroups[lastName];
+      let untrustedNames = untrustedNameGroups[lastNameCode];
       untrustedNames = untrustedNames ? untrustedNames.slice() : [];
       const untrustedWithoutLastNames = untrustedNameGroups[WILDCARD_NAME];
       if (untrustedWithoutLastNames) {
@@ -253,7 +254,7 @@ export function compareToTrustedNames(
         // order so they are listed in this order in the report.
 
         const sortedTrustedNames =
-          trustedNameGroups[lastName].sort(_sorterOfNameStrings);
+          trustedNameGroups[lastNameCode].sort(_sorterOfNameStrings);
         untrustedNames.sort(_sorterOfNameComplexity);
         for (const trustedName of sortedTrustedNames) {
           // Collect untrusted names that are similar to the trusted name. The
