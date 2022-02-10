@@ -443,6 +443,22 @@ describe('comparing untrusted names with one another', () => {
       [new ExactName('Sue T Rex'), new ExactName('S Tommie *'), new ExactName('S T *')]
     ]);
   });
+
+  test('similar names, only unknown last names', () => {
+    const groups = compareUntrustedNames(
+      noNicknames,
+      groupByLastName([
+        new ExactName('Jeff *'),
+        new ExactName('S T *'),
+        new ExactName('S Tommie *'),
+        new ExactName('J *')
+      ])
+    );
+    assert.deepEqual(groups, [
+      [new ExactName('Jeff *'), new ExactName('J *')],
+      [new ExactName('S Tommie *'), new ExactName('S T *')]
+    ]);
+  });
 });
 
 class ExactName extends AgentName {
