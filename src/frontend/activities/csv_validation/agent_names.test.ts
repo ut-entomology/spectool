@@ -373,8 +373,16 @@ describe('comparing trusted and untrusted names', () => {
   test('case-independent name similarity', () => {
     const groups = compareToTrustedNames(
       noNicknames,
-      groupByLastName([new ExactName('Fred Foo'), new ExactName('sam souix')]),
-      groupByLastName([new ExactName('fred foo'), new ExactName('Sam Souix')])
+      groupByLastName([
+        new ExactName('Fred Foo'),
+        new ExactName('sam souix'),
+        new ExactName('Jim Bob Jr')
+      ]),
+      groupByLastName([
+        new ExactName('fred foo'),
+        new ExactName('jim bob jr'),
+        new ExactName('Sam Souix')
+      ])
     );
     assert.deepEqual(groups, []);
   });
@@ -525,8 +533,10 @@ describe('comparing untrusted names with one another', () => {
       noNicknames,
       groupByLastName([
         new ExactName('Fred Foo'),
+        new ExactName('Jim Bob Jr'),
         new ExactName('sam souix'),
         new ExactName('fred foo'),
+        new ExactName('jim bob jr'),
         new ExactName('Sam Souix')
       ])
     );
