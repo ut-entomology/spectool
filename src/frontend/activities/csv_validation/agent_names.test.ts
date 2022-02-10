@@ -281,10 +281,10 @@ describe('comparing trusted and untrusted names', () => {
     assert.deepEqual(groups, [
       [
         new ExactName('Fred Foo'),
-        new ExactName('S F Foo'),
-        new ExactName('Sam Fred Foo')
+        new ExactName('Sam Fred Foo'),
+        new ExactName('S F Foo')
       ],
-      [new ExactName('Sue Rex'), new ExactName('Rex'), new ExactName('S Rex')]
+      [new ExactName('Sue Rex'), new ExactName('S Rex'), new ExactName('Rex')]
     ]);
   });
 
@@ -313,9 +313,9 @@ describe('comparing trusted and untrusted names', () => {
     assert.deepEqual(groups, [
       [
         new ExactName('Fred S *'),
+        new ExactName('Fred Sam Foo'),
         new ExactName('F S Foo'),
         new ExactName('Fred Foo'),
-        new ExactName('Fred Sam Foo'),
         new ExactName('S Rex'),
         new ExactName('Smith')
       ],
@@ -359,16 +359,69 @@ describe('comparing trusted and untrusted names', () => {
       [
         new ExactName('Jeff Boop'),
         new ExactName('J S *'),
-        new ExactName('Jeff *'),
-        new ExactName('S J *')
+        new ExactName('S J *'),
+        new ExactName('Jeff *')
       ],
       [
         new ExactName('J Rex'),
         new ExactName('J S *'),
-        new ExactName('Jeff *'),
-        new ExactName('S J *')
+        new ExactName('S J *'),
+        new ExactName('Jeff *')
       ],
       [new ExactName('Fred Smith'), new ExactName('F S *'), new ExactName('Fred *')]
+    ]);
+  });
+
+  test('trusted and untrusted name suffixes', () => {
+    const groups = compareToTrustedNames(
+      noNicknames,
+      groupByLastName([
+        new ExactName('Fred Foo Shoe'),
+        new ExactName('Fred Foo III'),
+        new ExactName('Fred Foo'),
+        new ExactName('Sam Good'),
+        new ExactName('Sam Good Sr')
+      ]),
+      groupByLastName([
+        new ExactName('Foo III'),
+        new ExactName('Fred Foo 3rd'),
+        new ExactName('Fred Foo II'),
+        new ExactName('Sam Good'),
+        new ExactName('F Foo'),
+        new ExactName('Fred Foo III'),
+        new ExactName('Fred Foo Shoe'),
+        new ExactName('Sam Good Jr'),
+        new ExactName('Sam Good Sr'),
+        new ExactName('Fred Foo 2nd'),
+        new ExactName('Foo'),
+        new ExactName('Fred Foo')
+      ])
+    );
+    assert.deepEqual(groups, [
+      [
+        new ExactName('Fred Foo'),
+        new ExactName('Fred Foo 2nd'),
+        new ExactName('Fred Foo 3rd'),
+        new ExactName('Fred Foo III'),
+        new ExactName('Fred Foo II'),
+        new ExactName('F Foo'),
+        new ExactName('Foo III'),
+        new ExactName('Foo')
+      ],
+      [
+        new ExactName('Fred Foo III'),
+        new ExactName('Fred Foo 3rd'),
+        new ExactName('Fred Foo'),
+        new ExactName('F Foo'),
+        new ExactName('Foo III'),
+        new ExactName('Foo')
+      ],
+      [
+        new ExactName('Sam Good'),
+        new ExactName('Sam Good Jr'),
+        new ExactName('Sam Good Sr')
+      ],
+      [new ExactName('Sam Good Sr'), new ExactName('Sam Good')]
     ]);
   });
 });
@@ -457,6 +510,45 @@ describe('comparing untrusted names with one another', () => {
     assert.deepEqual(groups, [
       [new ExactName('Jeff *'), new ExactName('J *')],
       [new ExactName('S Tommie *'), new ExactName('S T *')]
+    ]);
+  });
+
+  test('similar names, some with suffixes', () => {
+    const groups = compareUntrustedNames(
+      noNicknames,
+      groupByLastName([
+        new ExactName('Foo III'),
+        new ExactName('Fred Foo 3rd'),
+        new ExactName('Fred Foo II'),
+        new ExactName('Sam Good'),
+        new ExactName('F Foo'),
+        new ExactName('Fred Foo III'),
+        new ExactName('Fred Foo Shoe'),
+        new ExactName('Sam Good Jr'),
+        new ExactName('Sam Good Sr'),
+        new ExactName('Fred Foo 2nd'),
+        new ExactName('Foo'),
+        new ExactName('Fred Foo')
+      ])
+    );
+    assert.deepEqual(groups, [
+      [
+        new ExactName('Fred Foo 2nd'),
+        new ExactName('Fred Foo II'),
+        new ExactName('Fred Foo'),
+        new ExactName('F Foo'),
+        new ExactName('Foo')
+      ],
+      [
+        new ExactName('Fred Foo 3rd'),
+        new ExactName('Fred Foo III'),
+        new ExactName('Fred Foo'),
+        new ExactName('F Foo'),
+        new ExactName('Foo III'),
+        new ExactName('Foo')
+      ],
+      [new ExactName('Sam Good Jr'), new ExactName('Sam Good')],
+      [new ExactName('Sam Good Sr'), new ExactName('Sam Good')]
     ]);
   });
 });

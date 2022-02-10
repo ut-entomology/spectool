@@ -232,7 +232,7 @@ export function compareToTrustedNames(
           }
         }
         if (similarNamesGroup.length > 0) {
-          similarNamesGroup.sort(_sorterOfFullNames);
+          similarNamesGroup.sort(_sorterOfNameComplexity);
           similarNamesGroup.unshift(trustedName);
           similarityGroups.push(similarNamesGroup);
         }
@@ -249,21 +249,20 @@ export function compareToTrustedNames(
         untrustedNames.push(...untrustedWithoutLastNames);
       }
       if (untrustedNames.length > 0) {
-        // Process the trusted names having the current last name in alphabetic
+        // Process the trusted names having the current last name in complexity
         // order so they are listed in this order in the report.
 
         const sortedTrustedNames =
           trustedNameGroups[lastName].sort(_sorterOfNameStrings);
-        const sortedUntrustedNames = untrustedNames.sort(_sorterOfNameStrings);
+        untrustedNames.sort(_sorterOfNameComplexity);
         for (const trustedName of sortedTrustedNames) {
-          // Collect untrusted names that are similar to the trusted name, doing so
-          // in alphabetic order so that they list in alphabetic order in the report.
-          // The first name in each group of similar names is the trusted name.
+          // Collect untrusted names that are similar to the trusted name. The
+          // first name in each group of similar names is the trusted name.
 
           const similarNamesGroup = _getSimilarNames(
             nicknamesMap,
             trustedName,
-            sortedUntrustedNames
+            untrustedNames
           );
           if (similarNamesGroup) {
             similarNamesGroup.unshift(trustedName);
