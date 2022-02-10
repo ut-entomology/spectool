@@ -385,7 +385,6 @@ describe('comparing trusted and untrusted names', () => {
         new AgentName('Sam Souix', 'SM SO')
       ])
     );
-    showGroups(groups);
     assert.deepEqual(groups, [
       [new AgentName('J Bob Jr', 'J BB JR'), new AgentName('jim bob jr', 'JM BB JR')],
       [
@@ -622,9 +621,9 @@ function groupByLastNameCode(names: AgentName[]): Record<string, AgentName[]> {
   return groupMap;
 }
 
-function showGroups(groups: AgentName[][]) {
-  console.log(JSON.stringify(groups, undefined, '  '));
-}
+// function showGroups(groups: AgentName[][]) {
+//   console.log(JSON.stringify(groups, undefined, '  '));
+// }
 
 function verifyMutualDissimilarity(nicknameMap: NicknameMap, names: AgentName[]) {
   for (let i = 0; i < names.length - 1; ++i) {

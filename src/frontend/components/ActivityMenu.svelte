@@ -2,11 +2,23 @@
   import type { Activity } from '../lib/activity';
   import { openActivity } from './ActivityBar.svelte';
   import * as prereqs from '../lib/prereqs.svelte';
+  import { agentSimilaritiesSpec } from '../activities/agent_similarities/AgentSimilaritiesMain.svelte';
   import { csvValidationSpec } from '../activities/csv_validation/CsvValidationMain.svelte';
   import { unusedTaxaSpec } from '../activities/unused_taxa/UnusedTaxaMain.svelte';
   import { localityConsolidationSpec } from '../activities/locality_consolidation/LocalityConsolidationMain.svelte';
 
   const activities: Activity[] = [
+    {
+      title: 'Report Agent Name Similarities',
+      screenSpec: agentSimilaritiesSpec,
+      description: 'Check Specify agent names for similarity with one another.',
+      requiresLogin: true,
+      prerequisites: [
+        prereqs.databaseConfigPrereq,
+        prereqs.connectionPrereq,
+        prereqs.userLoginPrereq
+      ]
+    },
     {
       title: 'Validate Specimen CSV',
       screenSpec: csvValidationSpec,
@@ -16,8 +28,21 @@
       prerequisites: [
         prereqs.databaseConfigPrereq,
         prereqs.connectionPrereq,
-        prereqs.dataFolderPrereq,
+        prereqs.dataFolderPrereq, // provides CSV header equivalences
         prereqs.userLoginPrereq
+      ]
+    },
+    {
+      title: 'Consolidate Localities',
+      screenSpec: localityConsolidationSpec,
+      description: 'Find and merge different entries for the same localities.',
+      requiresLogin: true,
+      prerequisites: [
+        prereqs.databaseConfigPrereq,
+        prereqs.connectionPrereq,
+        prereqs.dataFolderPrereq, // stores knowledge and caches intermediate data
+        prereqs.userLoginPrereq,
+        prereqs.managerPrereq
       ]
     },
     {
@@ -29,19 +54,6 @@
       prerequisites: [
         prereqs.databaseConfigPrereq,
         prereqs.connectionPrereq,
-        prereqs.userLoginPrereq,
-        prereqs.managerPrereq
-      ]
-    },
-    {
-      title: 'Consolidate Localities',
-      screenSpec: localityConsolidationSpec,
-      description: 'Find and merge different entries for the same localities.',
-      requiresLogin: true,
-      prerequisites: [
-        prereqs.databaseConfigPrereq,
-        prereqs.connectionPrereq,
-        prereqs.dataFolderPrereq,
         prereqs.userLoginPrereq,
         prereqs.managerPrereq
       ]
