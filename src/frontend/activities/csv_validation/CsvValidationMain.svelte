@@ -20,7 +20,7 @@
   import ActivityInstructions from '../../components/ActivityInstructions.svelte';
   import Notice from '../../layout/Notice.svelte';
   import StatusMessage from '../../layout/StatusMessage.svelte';
-  import AgentReport from './CsvAgentReport.svelte';
+  import AgentReport from '../agent_similarities/AgentReport.svelte';
   import { closeActivity } from '../../components/ActivityBar.svelte';
   import { currentDirectory } from '../../stores/currentDirectory';
   import { showStatus } from '../../layout/StatusMessage.svelte';

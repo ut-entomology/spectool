@@ -44,10 +44,10 @@ export class AgentApi {
 
 export function addAgentWords(
   words: string[],
-  name: string | undefined,
+  name: string | null | undefined,
   isLastName: boolean = false
 ) {
-  if (name === undefined || name == '') {
+  if (!name || name == '') {
     if (isLastName) {
       words.push(WILDCARD_NAME);
     }

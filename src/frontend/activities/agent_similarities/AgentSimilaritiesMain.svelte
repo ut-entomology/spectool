@@ -14,7 +14,7 @@
     on:click={() =>
       openReport(AgentReport, {
         includeCsvAgents: false,
-        includeSpecifyAgents: false
+        includeSpecifyAgents: true
       })}
   >
     Open/refresh report of Specify agent names
