@@ -9,7 +9,6 @@
   import { onDestroy } from 'svelte';
   import * as yup from 'yup';
 
-  import { openReport } from '../../lib/reports';
   import {
     createForm,
     ContextForm,
@@ -20,10 +19,12 @@
   import ActivityInstructions from '../../components/ActivityInstructions.svelte';
   import Notice from '../../layout/Notice.svelte';
   import StatusMessage from '../../layout/StatusMessage.svelte';
+  import WindowReport from '../../layout/WindowReport.svelte';
   import AgentReport from '../agent_similarities/AgentReport.svelte';
   import { closeActivity } from '../../components/ActivityBar.svelte';
   import { currentDirectory } from '../../stores/currentDirectory';
   import { showStatus } from '../../layout/StatusMessage.svelte';
+  import { openReport } from '../../layout/WindowReport.svelte';
 
   const DIRECTORY_REGEX = /^(.*)[\/\\]/;
 
@@ -168,6 +169,7 @@
       {/if}
     </ContextForm>
     <StatusMessage />
+    <WindowReport />
   </main>
 {:catch err}
   <Notice

@@ -1,6 +1,7 @@
 <script lang="ts" context="module">
-  import { openReport } from '../../lib/reports';
+  import WindowReport from '../../layout/WindowReport.svelte';
   import AgentReport from './AgentReport.svelte';
+  import { openReport } from '../../layout/WindowReport.svelte';
 
   export const agentSimilaritiesSpec = {
     targetName: 'AgentSimilaritiesMain',
@@ -17,8 +18,9 @@
         includeSpecifyAgents: true
       })}
   >
-    Open/refresh report of Specify agent names
+    Generate report
   </button>
+  <WindowReport />
 </main>
 
 <style>

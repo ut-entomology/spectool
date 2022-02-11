@@ -1,8 +1,6 @@
 <script lang="ts">
-  import BigSpinner from '../../components/BigSpinner.svelte';
   import Notice from '../../layout/Notice.svelte';
-  import StatusMessage from '../../layout/StatusMessage.svelte';
-  import { showStatus } from '../../layout/StatusMessage.svelte';
+  import type { ReportCallbacks } from '../../layout/WindowReport.svelte';
   import {
     AgentName,
     AgentNamesByGroup,
@@ -15,6 +13,7 @@
   export let includeCsvAgents: boolean;
   export let includeSpecifyAgents: boolean;
   export let trustSpecifyAgents = true;
+  export let callbacks: ReportCallbacks;
 
   let title: string;
   let subtitle = '';
@@ -26,26 +25,26 @@
   async function prepare() {
     let csvAgents: AgentNamesByGroup | null = null;
     if (includeCsvAgents) {
-      showStatus('Loading agents from CSV file...');
+      callbacks.showStatus('Loading agents from CSV file...');
       const csvEncodings = await window.apis.specimenSetApi.getEncodedAgents();
-      showStatus('Parsing the CSV agents...');
+      callbacks.showStatus('Parsing the CSV agents...');
       csvAgents = parseEncodedAgents(csvEncodings);
     }
 
     let specifyAgents: AgentNamesByGroup | null = null;
     if (includeSpecifyAgents) {
-      showStatus('Loading agents from Specify...');
+      callbacks.showStatus('Loading agents from Specify...');
       const specifyEncodings = await window.apis.agentApi.getEncodedAgents();
-      showStatus('Parsing the Specify agents...');
+      callbacks.showStatus('Parsing the Specify agents...');
       specifyAgents = parseEncodedAgents(specifyEncodings);
     }
 
-    showStatus('Loading and parsing nicknames...');
+    callbacks.showStatus('Loading and parsing nicknames...');
     const fetchResponse = await fetch('/data/nicknames.txt');
     const rawNicknames = await fetchResponse.text();
     const nicknames = parseNicknames(rawNicknames);
 
-    showStatus('Grouping agents by similarity...');
+    callbacks.showStatus('Grouping agents by similarity...');
     if (csvAgents) {
       if (specifyAgents) {
         if (trustSpecifyAgents) {
@@ -81,45 +80,122 @@
       similarNameColumnLabel = 'Similar Agent Names';
       agentGroups = compareUntrustedNames(nicknames, specifyAgents);
     }
+
+    callbacks.showReport(
+      'agent_report',
+      `<style>
+        body {
+          margin: 0;
+          padding: 0;
+        }
+        .agent_report {
+          margin: 1em;
+        }
+        .title {
+          font-size: 1.3em;
+          text-align: center;
+        }
+        .subtitle {
+          font-size: 1.2em;
+          text-align: center;
+          margin-top: 0.6em;
+        }
+        .none_found {
+          font-size: 1.2em;
+          text-align: center;
+          font-weight: bold;
+          margin-top: 4em;
+        }
+        .section {
+          width: 800px;
+        }
+        .notes {
+          margin: 1em 40px 0 40px;
+        }
+        .heading {
+          font-weight: bold;
+          margin: 1em 0;
+        }
+        .group {
+          padding: .25em .5em;
+        }
+        .group:nth-child(even) {
+          background-color: #eee;
+        }
+        .row {
+          display: flex;
+        }
+        .col {
+          flex: 1;
+          margin-bottom: .3em;
+        }
+        .notes {
+          font-style: italic;
+        }
+      </style>`
+    );
   }
-  showStatus('Rendering report...');
 
   function closeWindow() {
     window.close();
   }
 </script>
 
-{#await prepare()}
-  <StatusMessage />
-  <BigSpinner centered={true} />
-{:then}
+{#await prepare() then}
   <div class="agent_report">
     <div class="title">{title}</div>
     {#if subtitle != ''}
       <div class="subtitle">{subtitle}</div>
     {/if}
     {#if notes != ''}
-      <div class="container-md">
-        <div class="row notes">{notes}</div>
+      <div class="section">
+        <div class="notes">{notes}</div>
       </div>
     {/if}
     {#if agentGroups.length == 0}
       <div class="none_found">No similar agent names found.</div>
     {:else}
-      <div class="container-md">
-        <div class="row mb-2">
-          <div class="col-6">{primaryNameColumnLabel}</div>
-          <div class="col-6">{similarNameColumnLabel}</div>
+      <div class="section">
+        <div class="group row">
+          <div class="col heading">{primaryNameColumnLabel}</div>
+          <div class="col heading">{similarNameColumnLabel}</div>
+          <div class="col" />
         </div>
-        {#each agentGroups as group}
-          <div class="row mb-1">
-            {#each group as _, i}
-              {#if i == 1}
-                <div class="col-6">{group[0].toString()}</div>
-                <div class="col-6">{group[1].toString()}</div>
-              {:else if i >= 2}
-                <div class="col-6" />
-                <div class="col-6">{group[i].toString()}</div>
+        {#each agentGroups as groupOfNames}
+          <div class="group">
+            {#each groupOfNames as _, i}
+              {@const similarCount = groupOfNames.length - 1}
+              {@const firstColumnHeight = Math.ceil(similarCount / 2)}
+              {@const similarIndex1 = i - 1}
+              {@const similarIndex2 = similarIndex1 + firstColumnHeight}
+              {#if similarIndex1 == 0}
+                <div class="row">
+                  <div class="col">
+                    {groupOfNames[0].toString()} [{similarCount}]
+                  </div>
+                  <div class="col">
+                    {groupOfNames[1].toString()}
+                  </div>
+                  {#if similarCount > 1}
+                    <div class="col">
+                      {groupOfNames[similarIndex2 + 1].toString()}
+                    </div>
+                  {:else}
+                    <div class="col" />
+                  {/if}
+                </div>
+              {:else if similarIndex1 > 0 && similarIndex1 < firstColumnHeight}
+                <div class="row">
+                  <div class="col" />
+                  <div class="col">{groupOfNames[similarIndex1 + 1].toString()}</div>
+                  {#if similarIndex2 < similarCount}
+                    <div class="col">
+                      {groupOfNames[similarIndex2 + 1].toString()}
+                    </div>
+                  {:else}
+                    <div class="col" />
+                  {/if}
+                </div>
               {/if}
             {/each}
           </div>
@@ -135,27 +211,3 @@
     on:close={closeWindow}
   />
 {/await}
-
-<style>
-  .agent_report {
-    margin: 3em 0 2em 0;
-  }
-  .title {
-    font-size: 1.4em;
-    text-align: center;
-  }
-  .subtitle {
-    font-size: 1.2em;
-    text-align: center;
-    margin-top: 0.6em;
-  }
-  .none_found {
-    font-size: 1.2em;
-    text-align: center;
-    font-weight: bold;
-    margin-top: 4em;
-  }
-  .notes {
-    font-style: italic;
-  }
-</style>
