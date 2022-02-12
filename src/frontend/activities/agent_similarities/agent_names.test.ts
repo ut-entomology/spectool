@@ -8,7 +8,8 @@ import {
   areSimilarNames,
   compareUntrustedNames,
   compareToTrustedNames,
-  parseNicknames
+  parseNicknames,
+  missingLastNameStandIn
 } from './agent_names';
 
 const nicknamesBuf = fs.readFileSync(
@@ -286,6 +287,34 @@ describe('comparing trusted and untrusted names', () => {
     ]);
   });
 
+  test('trusted names with no first name', () => {
+    const groups = compareToTrustedNames(
+      noNicknames,
+      groupByLastNameCode([
+        new ExactName('Foo'),
+        new ExactName('R Foo'),
+        new ExactName('Boop')
+      ]),
+      groupByLastNameCode([
+        new ExactName('Sam *'),
+        new ExactName('J R *'),
+        new ExactName('X Boop'),
+        new ExactName('Foo'),
+        new ExactName('Ron *')
+      ])
+    );
+    assert.deepEqual(groups, [
+      [new ExactName('Boop'), new ExactName('X Boop'), missingLastNameStandIn],
+      [new ExactName('Foo'), missingLastNameStandIn],
+      [
+        new ExactName('R Foo'),
+        new ExactName('Foo'),
+        new ExactName('J R *'),
+        new ExactName('Ron *')
+      ]
+    ]);
+  });
+
   test('trusted names with missing last names', () => {
     const groups = compareToTrustedNames(
       noNicknames,
@@ -503,13 +532,7 @@ describe('comparing untrusted names with one another', () => {
     );
     assert.deepEqual(groups, [
       [new ExactName('Jeff Boo'), new ExactName('Jeff *'), new ExactName('J *')],
-      [
-        new ExactName('Foo'),
-        new ExactName('S Tommie *'),
-        new ExactName('S T *'),
-        new ExactName('Jeff *'),
-        new ExactName('J *')
-      ],
+      [new ExactName('Foo'), missingLastNameStandIn],
       [
         new ExactName('J S Foo'),
         new ExactName('Foo'),

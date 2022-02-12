@@ -31,6 +31,8 @@ export class AgentName {
   }
 }
 
+export const missingLastNameStandIn = new AgentName('*', '*');
+
 export function areSimilarNames(
   nicknamesMap: NicknameMap,
   name1: AgentName,
@@ -121,10 +123,20 @@ export function compareUntrustedNames(
       // be grouped with longer names.
 
       const outerName = names[i];
+      const outerHasFirstName = outerName.words.length > 1;
       const similarNames: AgentName[] = [outerName];
+      let includedNamesWithoutLastNames = false;
       for (let j = i + 1; j < names.length; ++j) {
         const innerName = names[j];
         if (
+          !outerHasFirstName &&
+          innerName.words[innerName.words.length - 1] == WILDCARD_NAME
+        ) {
+          if (!includedNamesWithoutLastNames) {
+            similarNames.push(missingLastNameStandIn);
+            includedNamesWithoutLastNames = true;
+          }
+        } else if (
           areSimilarNames(nicknamesMap, outerName, innerName) &&
           outerName.toString() != innerName.toString()
         ) {
@@ -315,8 +327,18 @@ function _getSimilarNames(
   untrustedNames: AgentName[]
 ): AgentName[] | null {
   const similarNames: AgentName[] = [];
+  const trustedHasFirstName = trustedName.words.length > 1;
+  let includedNamesWithoutLastNames = false;
   for (const untrustedName of untrustedNames) {
     if (
+      !trustedHasFirstName &&
+      untrustedName.words[untrustedName.words.length - 1] == WILDCARD_NAME
+    ) {
+      if (!includedNamesWithoutLastNames) {
+        similarNames.push(missingLastNameStandIn);
+        includedNamesWithoutLastNames = true;
+      }
+    } else if (
       areSimilarNames(nicknamesMap, trustedName, untrustedName) &&
       trustedName.toString() != untrustedName.toString()
     ) {
