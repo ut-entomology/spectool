@@ -3,6 +3,7 @@
   import type { ReportCallbacks } from '../../layout/WindowReport.svelte';
   import {
     WILDCARD_NAME,
+    AgentName,
     AgentNamesByGroup,
     AgentComparison,
     parseEncodedAgents,
@@ -66,7 +67,7 @@
         title = 'Comparison of CSV Agent Names';
         subtitle = '(ignoring Specify agent names)';
         notes =
-          'This report compares agent names in the CSV file with other names in the CSV file. It does not perform any comparisons with the Specify database.';
+          'This report compares agent names in the CSV file with other names in the CSV file, ignoring names in the Specify database.';
         primaryNameColumnLabel = 'Most Complete Agent Name';
         similarNameColumnLabel = 'Similar Agent Names';
         results = compareUntrustedNames(nicknames, csvAgents);
@@ -77,7 +78,7 @@
       }
       title = 'Comparison of Specify Agent Names';
       notes =
-        'This report compares agent names in the Specify database with other names in the Specify database. It does not perform any comparisons with any CSV file.';
+        'This report compares agent names in the Specify database with other names in the Specify database.';
       primaryNameColumnLabel = 'Most Complete Agent Name';
       similarNameColumnLabel = 'Similar Agent Names';
       results = compareUntrustedNames(nicknames, specifyAgents);
@@ -98,6 +99,7 @@
         }
         .agent_report {
           padding: 1em;
+          padding-top: 0;
         }
         .title {
           font-size: 1.3em;
@@ -150,6 +152,13 @@
     );
   }
 
+  function toDisplayName(name: AgentName): string {
+    if (name == missingLastNameStandIn) {
+      return '* (any with no last name)';
+    }
+    return name.toString();
+  }
+
   function closeWindow() {
     window.close();
   }
@@ -193,11 +202,11 @@
                     {/if}
                   </div>
                   <div class="col">
-                    {groupOfNames[1].toString()}
+                    {toDisplayName(groupOfNames[1])}
                   </div>
                   {#if similarCount > 1}
                     <div class="col">
-                      {groupOfNames[similarIndex2 + 1].toString()}
+                      {toDisplayName(groupOfNames[similarIndex2 + 1])}
                     </div>
                   {:else}
                     <div class="col" />
@@ -206,10 +215,12 @@
               {:else if similarIndex1 > 0 && similarIndex1 < firstColumnHeight}
                 <div class="row">
                   <div class="col" />
-                  <div class="col">{groupOfNames[similarIndex1 + 1].toString()}</div>
+                  <div class="col">
+                    {toDisplayName(groupOfNames[similarIndex1 + 1])}
+                  </div>
                   {#if similarIndex2 < similarCount}
                     <div class="col">
-                      {groupOfNames[similarIndex2 + 1].toString()}
+                      {toDisplayName(groupOfNames[similarIndex2 + 1])}
                     </div>
                   {:else}
                     <div class="col" />

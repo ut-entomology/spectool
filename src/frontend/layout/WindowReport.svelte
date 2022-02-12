@@ -31,6 +31,14 @@
   let reportWindow: Window | null = null;
   let element: any;
 
+  const pageHeader = `
+    <div style="text-align: right; margin: 5px 20px 0 0">
+      <button onclick="window.print()" style="">Print</button>
+    </div>
+    <style type="text/css">
+      @media print { body { -webkit-print-color-adjust: exact; } }
+    </style>\n`;
+
   function showStatus(message: string) {
     statusMessages = [...statusMessages, message];
   }
@@ -42,7 +50,7 @@
       `width=${DEFAULT_WINDOW_WIDTH},height=${DEFAULT_WINDOW_HEIGHT},status=no,menubar=no,scrollbars=yes,resizable=yes`
     );
     if (reportWindow) {
-      awaitRendering(style);
+      awaitRendering(style ? pageHeader + style : pageHeader);
     } else {
       failReport('Failed to open window');
     }
@@ -55,19 +63,17 @@
 
   const callbacks: ReportCallbacks = { showStatus, showReport, failReport };
 
-  function awaitRendering(style?: string) {
+  function awaitRendering(head: string) {
     setTimeout(() => {
       let html = element.innerHTML;
       if (html) {
-        if (style) {
-          html = `${style}\n\n${html}`;
-        }
+        html = `${head}\n\n${html}`;
         reportWindow!.document.body.innerHTML = html;
         reportStore.set(null);
         reportWindow = null;
         statusMessages = [];
       } else {
-        awaitRendering();
+        awaitRendering(head);
       }
     }, 500);
   }
