@@ -11,16 +11,27 @@ export interface AgentComparison {
 export const WILDCARD_NAME = '*';
 
 export class AgentName {
-  // Words are assumed to have periods and commas removed and no double-spaces
-  words: string[]; // a final word of '*' indicates no last name, no suffix
+  name: string;
+  words: string[] = []; // a final word of '*' indicates no last name, no suffix
   suffix: string | null; // name suffix, if any
   phoneticCodes: string[]; // phonetics for all words but suffix, except '*' for '*'
 
   constructor(name: string, phonetics: string) {
-    this.words = name.split(' ');
+    this.name = name;
+    const splits = name
+      .trim()
+      .toLowerCase()
+      .replace(/[`']/g, '')
+      .replace(/[.,]/g, ' ')
+      .split(' ');
+    for (const split of splits) {
+      if (split != '') {
+        this.words.push(split);
+      }
+    }
     this.phoneticCodes = phonetics.split(' ');
     const lastWord = this.words[this.words.length - 1];
-    this.suffix = SUFFIXES.includes(lastWord.toLowerCase()) ? lastWord : null;
+    this.suffix = SUFFIXES.includes(lastWord) ? lastWord : null;
     if (this.suffix) {
       this.words.pop();
       this.phoneticCodes.pop();
@@ -31,7 +42,7 @@ export class AgentName {
     return this.phoneticCodes[this.phoneticCodes.length - 1];
   }
 
-  toString() {
+  toNormString() {
     return this.words.join(' ') + (this.suffix ? ', ' + this.suffix : '');
   }
 }
@@ -53,7 +64,7 @@ export function areSimilarNames(
 
   let index1 = 0;
   for (let index2 = 0; index2 < name2.words.length; ++index2) {
-    const lowerName2Word = name2.words[index2].toLowerCase();
+    const name2Word = name2.words[index2];
     const isLastName2 = index2 == name2.words.length - 1;
 
     // Words in the short name must match those in the longer name in the
@@ -61,20 +72,20 @@ export function areSimilarNames(
 
     let matched = false;
     while (!matched && index1 < name1.words.length) {
-      const lowerName1Word = name1.words[index1].toLowerCase();
+      const name1Word = name1.words[index1];
       const isLastName1 = index1 == name1.words.length - 1;
-      const nicknames1 = nicknamesMap[lowerName1Word];
-      const nicknames2 = nicknamesMap[lowerName2Word];
+      const nicknames1 = nicknamesMap[name1Word];
+      const nicknames2 = nicknamesMap[name2Word];
       matched =
         name1.phoneticCodes[index1] == name2.phoneticCodes[index2] ||
         (!isLastName1 &&
           !isLastName2 &&
-          ((nicknames1 && nicknames1.includes(lowerName2Word)) ||
-            (nicknames2 && nicknames2.includes(lowerName1Word)))) ||
-        lowerName1Word == WILDCARD_NAME ||
-        lowerName2Word == WILDCARD_NAME ||
-        ((lowerName2Word.length == 1 || lowerName1Word.length == 1) &&
-          lowerName1Word[0] == lowerName2Word[0]);
+          ((nicknames1 && nicknames1.includes(name2Word)) ||
+            (nicknames2 && nicknames2.includes(name1Word)))) ||
+        name1Word == WILDCARD_NAME ||
+        name2Word == WILDCARD_NAME ||
+        ((name2Word.length == 1 || name1Word.length == 1) &&
+          name1Word[0] == name2Word[0]);
       ++index1;
     }
     if (!matched) {
@@ -137,7 +148,7 @@ export function compareUntrustedNames(
       if (similarNames) {
         similarNames.unshift(outerName);
         similarityGroups.push(similarNames);
-        similarityGroupsByInitialName[similarNames[0].toString()] = similarNames;
+        similarityGroupsByInitialName[similarNames[0].name] = similarNames;
       }
     }
   }
@@ -151,14 +162,14 @@ export function compareUntrustedNames(
   for (const outerSimilarityGroup of similarityGroups) {
     // Only examine similarity groups that have not been removed.
 
-    if (similarityGroupsByInitialName[outerSimilarityGroup[0].toString()]) {
+    if (similarityGroupsByInitialName[outerSimilarityGroup[0].name]) {
       // Check the remainder of the group for the existence of subset groups.
 
       for (let i = 1; i < outerSimilarityGroup.length; ++i) {
         // When a subset group exists, see if all other members of the group
         // are also subsets of the outer similarity group being examined.
 
-        const nameToCheck = outerSimilarityGroup[i].toString();
+        const nameToCheck = outerSimilarityGroup[i].name;
         const groupOfNameToCheck = similarityGroupsByInitialName[nameToCheck];
         if (groupOfNameToCheck) {
           let isSubsetOfOuterSimilarityGroup = true;
@@ -185,14 +196,14 @@ export function compareUntrustedNames(
 
   const prunedSimilarityGroups: AgentName[][] = [];
   for (const similarityGroup of similarityGroups) {
-    if (similarityGroupsByInitialName[similarityGroup[0].toString()]) {
+    if (similarityGroupsByInitialName[similarityGroup[0].name]) {
       prunedSimilarityGroups.push(similarityGroup);
     }
   }
   return {
     groups: prunedSimilarityGroups.sort((a, b) => _sorterOfFullNames(a[0], b[0])),
     unknownLastNameGroup: namesWithoutLastNames
-      ? namesWithoutLastNames.sort(_sorterOfNameStrings)
+      ? namesWithoutLastNames.sort(_sorterOfNormStrings)
       : []
   };
 }
@@ -224,7 +235,7 @@ export function compareToTrustedNames(
       // Process all trusted names that are missing a last name.
 
       const sortedTrustedNames =
-        trustedNameGroups[lastNameCode].sort(_sorterOfNameStrings);
+        trustedNameGroups[lastNameCode].sort(_sorterOfNormStrings);
       for (const trustedName of sortedTrustedNames) {
         // Compare the trusted name to every untrusted name for possible similarity.
 
@@ -261,7 +272,7 @@ export function compareToTrustedNames(
         // order so they are listed in this order in the report.
 
         const sortedTrustedNames =
-          trustedNameGroups[lastNameCode].sort(_sorterOfNameStrings);
+          trustedNameGroups[lastNameCode].sort(_sorterOfNormStrings);
         untrustedNames.sort(_sorterOfNameComplexity);
         for (const trustedName of sortedTrustedNames) {
           // Collect untrusted names that are similar to the trusted name. The
@@ -284,7 +295,7 @@ export function compareToTrustedNames(
   return {
     groups: similarityGroups,
     unknownLastNameGroup: untrustedWithoutLastNames
-      ? untrustedWithoutLastNames.sort(_sorterOfNameStrings)
+      ? untrustedWithoutLastNames.sort(_sorterOfNormStrings)
       : []
   };
 }
@@ -343,7 +354,7 @@ function _getSimilarNames(
       }
     } else if (
       areSimilarNames(nicknamesMap, outerName, innerName) &&
-      outerName.toString() != innerName.toString()
+      outerName.name != innerName.name
     ) {
       similarNames.push(innerName);
     }
@@ -372,7 +383,10 @@ function _normalizeSuffix(suffix: string | null) {
 function _sorterOfFullNames(nameA: AgentName, nameB: AgentName): number {
   const lastA = nameA.words[nameA.words.length - 1];
   const lastB = nameB.words[nameB.words.length - 1];
-  return lastA <= lastB && nameA.toString() <= nameB.toString() ? -1 : 1;
+  return lastA < lastB ||
+    (lastA == lastB && nameA.toNormString() <= nameB.toNormString())
+    ? -1
+    : 1;
 }
 
 function _sorterOfNameComplexity(nameA: AgentName, nameB: AgentName): number {
@@ -405,7 +419,7 @@ function _sorterOfNameComplexity(nameA: AgentName, nameB: AgentName): number {
   }
 
   // Names with more characters precede those with fewer.
-  const [nameAStr, nameBStr] = [nameA.toString(), nameB.toString()];
+  const [nameAStr, nameBStr] = [nameA.toNormString(), nameB.toNormString()];
   if (nameAStr.length != nameBStr.length) {
     return nameBStr.length - nameAStr.length;
   }
@@ -414,6 +428,6 @@ function _sorterOfNameComplexity(nameA: AgentName, nameB: AgentName): number {
   return nameAStr <= nameBStr ? -1 : 1;
 }
 
-function _sorterOfNameStrings(a: AgentName, b: AgentName): number {
-  return a.toString().toLowerCase() <= b.toString().toLowerCase() ? -1 : 1;
+function _sorterOfNormStrings(a: AgentName, b: AgentName): number {
+  return a.toNormString() <= b.toNormString() ? -1 : 1;
 }

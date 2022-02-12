@@ -7,7 +7,7 @@ import {
   getSpecimenSet,
   closeSpecimenSet
 } from '../../kernel/csv_validation/specimen_set';
-import { addAgentWords } from './agent_api';
+import { addAgentNames } from './agent_api';
 
 export class SpecimenSetApi {
   _kernel: AppKernel;
@@ -30,14 +30,14 @@ export class SpecimenSetApi {
     const entries: string[] = [];
     for (const specimen of specimens) {
       for (const agent of specimen.collectors) {
-        const words: string[] = [];
-        addAgentWords(words, agent.firstName);
-        addAgentWords(words, agent.lastName, true);
-        entries.push(words.join(' '));
+        const names: string[] = [];
+        addAgentNames(names, agent.firstName);
+        addAgentNames(names, agent.lastName, true);
+        entries.push(names.join(' '));
 
         const phonetics: string[] = [];
-        for (const word of words) {
-          phonetics.push(fuzzySoundex(word));
+        for (const name of names) {
+          phonetics.push(fuzzySoundex(name));
         }
         entries.push(phonetics.join(' '));
       }

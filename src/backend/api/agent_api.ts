@@ -4,6 +4,7 @@ import { runQuery } from '../util/api_util';
 import fuzzySoundex from 'talisman/phonetics/fuzzy-soundex';
 
 const WILDCARD_NAME = '*';
+const PRESERVED_SPACE = '^';
 
 export class AgentApi {
   private _kernel: AppKernel;
@@ -19,18 +20,24 @@ export class AgentApi {
     // Collect the words and phonetic codes of all the names.
     const entries: string[] = [];
     for (const agent of agents) {
-      const words: string[] = [];
-      addAgentWords(words, agent.FirstName);
-      addAgentWords(words, agent.MiddleInitial);
-      addAgentWords(words, agent.LastName, true);
-      addAgentWords(words, agent.Suffix);
-      entries.push(words.join(' '));
+      const names: string[] = [];
+      addAgentNames(names, agent.FirstName);
+      addAgentNames(names, agent.MiddleInitial);
+      addAgentNames(names, agent.LastName, true);
+      addAgentNames(names, agent.Suffix);
+      entries.push(names.join(' '));
 
       const phonetics: string[] = [];
-      for (const word of words) {
-        if (word == WILDCARD_NAME) {
+      for (const name of names) {
+        if (name == WILDCARD_NAME) {
           phonetics.push(WILDCARD_NAME);
         } else {
+          const word = name
+            .replace(PRESERVED_SPACE, ' ')
+            .replace(/[`']/g, '')
+            .replace(/[,.]/g, ' ')
+            .trim()
+            .replace(/  +/g, ' ');
           phonetics.push(fuzzySoundex(word));
         }
       }
@@ -42,21 +49,16 @@ export class AgentApi {
   }
 }
 
-export function addAgentWords(
-  words: string[],
+export function addAgentNames(
+  names: string[],
   name: string | null | undefined,
   isLastName: boolean = false
 ) {
   if (!name || name == '') {
     if (isLastName) {
-      words.push(WILDCARD_NAME);
+      names.push(WILDCARD_NAME);
     }
   } else {
-    const splits = name.replace('.', ' ').replace(',', ' ').split(' ');
-    for (const split of splits) {
-      if (split != '') {
-        words.push(split);
-      }
-    }
+    names.push(name.replace(/ /g, PRESERVED_SPACE));
   }
 }

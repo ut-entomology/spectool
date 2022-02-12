@@ -609,8 +609,8 @@ describe('comparing untrusted names with one another', () => {
     assert.deepEqual(results.groups, [
       [new AgentName('Jim Bob Jr', 'JM BB JR'), new AgentName('j bob jr', 'J BB JR')],
       [
-        new AgentName('Fred Foo', 'FD FO'),
         new AgentName('fred Foo', 'FD FO'),
+        new AgentName('Fred Foo', 'FD FO'),
         new AgentName('f foo', 'F FO')
       ],
       [new AgentName('Sam Souix', 'SM SO'), new AgentName('s souix', 'S SO')]

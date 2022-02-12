@@ -18,6 +18,8 @@
   export let trustSpecifyAgents = true;
   export let callbacks: ReportCallbacks;
 
+  const ORIGINAL_SPACE_CHAR = '&#183;';
+
   let title: string;
   let subtitle = '';
   let notes = '';
@@ -47,18 +49,22 @@
     const rawNicknames = await fetchResponse.text();
     const nicknames = parseNicknames(rawNicknames);
 
+    const middleDotNote = ` The middle dot (<span>${ORIGINAL_SPACE_CHAR}</span>) signifies a space that occurs within a name field. Regular spaces separate names fields.`;
+
     callbacks.showStatus('Grouping agents by similarity...');
     if (csvAgents) {
       if (specifyAgents) {
         if (trustSpecifyAgents) {
           title = 'Comparison of CSV Agents with Specify Agents';
           subtitle = 'Trusting Specify, not trusting the CSV';
+          notes = middleDotNote;
           primaryNameColumnLabel = 'Specify Agent Name';
           similarNameColumnLabel = 'Similar Agent Names from CSV';
           results = compareToTrustedNames(nicknames, specifyAgents, csvAgents);
         } else {
           title = 'Comparison of Specify Agents with CSV Agents';
           subtitle = 'Trusting the CSV, not trusting Speicfy';
+          notes = middleDotNote;
           primaryNameColumnLabel = 'CSV Agent Name';
           similarNameColumnLabel = 'Similar Agent Names from Specify';
           results = compareToTrustedNames(nicknames, csvAgents, specifyAgents);
@@ -67,7 +73,8 @@
         title = 'Comparison of CSV Agent Names';
         subtitle = '(ignoring Specify agent names)';
         notes =
-          'This report compares agent names in the CSV file with other names in the CSV file, ignoring names in the Specify database.';
+          'This report compares agent names in the CSV file with other names in the CSV file, ignoring names in the Specify database.' +
+          middleDotNote;
         primaryNameColumnLabel = 'Most Complete Agent Name';
         similarNameColumnLabel = 'Similar Agent Names';
         results = compareUntrustedNames(nicknames, csvAgents);
@@ -78,7 +85,8 @@
       }
       title = 'Comparison of Specify Agent Names';
       notes =
-        'This report compares agent names in the Specify database with other names in the Specify database.';
+        'This report compares agent names in the Specify database with other names in the Specify database.' +
+        middleDotNote;
       primaryNameColumnLabel = 'Most Complete Agent Name';
       similarNameColumnLabel = 'Similar Agent Names';
       results = compareUntrustedNames(nicknames, specifyAgents);
@@ -148,6 +156,9 @@
         .notes {
           font-style: italic;
         }
+        span {
+          color: #666;
+        }
       </style>`
     );
   }
@@ -156,7 +167,11 @@
     if (name == missingLastNameStandIn) {
       return '* (any with no last name)';
     }
-    return name.toString();
+    return name.name
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/\^/g, `<span>${ORIGINAL_SPACE_CHAR}</span>`);
   }
 
   function closeWindow() {
@@ -187,7 +202,6 @@
         {#each results.groups as groupOfNames}
           <div class="group">
             {#each groupOfNames as _, i}
-              {@const primaryName = groupOfNames[0].toString()}
               {@const similarCount = groupOfNames.length - 1}
               {@const firstColumnHeight = Math.ceil(similarCount / 2)}
               {@const similarIndex1 = i - 1}
@@ -195,18 +209,18 @@
               {#if similarIndex1 == 0}
                 <div class="row">
                   <div class="col">
-                    {#if primaryName == WILDCARD_NAME}
+                    {#if groupOfNames[0].name == WILDCARD_NAME}
                       * (no last name)
                     {:else}
-                      {primaryName}
+                      {@html toDisplayName(groupOfNames[0])}
                     {/if}
                   </div>
                   <div class="col">
-                    {toDisplayName(groupOfNames[1])}
+                    {@html toDisplayName(groupOfNames[1])}
                   </div>
                   {#if similarCount > 1}
                     <div class="col">
-                      {toDisplayName(groupOfNames[similarIndex2 + 1])}
+                      {@html toDisplayName(groupOfNames[similarIndex2 + 1])}
                     </div>
                   {:else}
                     <div class="col" />
@@ -216,11 +230,11 @@
                 <div class="row">
                   <div class="col" />
                   <div class="col">
-                    {toDisplayName(groupOfNames[similarIndex1 + 1])}
+                    {@html toDisplayName(groupOfNames[similarIndex1 + 1])}
                   </div>
                   {#if similarIndex2 < similarCount}
                     <div class="col">
-                      {toDisplayName(groupOfNames[similarIndex2 + 1])}
+                      {@html toDisplayName(groupOfNames[similarIndex2 + 1])}
                     </div>
                   {:else}
                     <div class="col" />
