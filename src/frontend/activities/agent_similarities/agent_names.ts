@@ -424,8 +424,8 @@ function _sorterOfNameComplexity(nameA: AgentName, nameB: AgentName): number {
     return nameBStr.length - nameAStr.length;
   }
 
-  // Names otherwise sort alphabetically.
-  return nameAStr <= nameBStr ? -1 : 1;
+  // Names otherwise sort alphabetically by original name.
+  return nameA.name <= nameB.name ? -1 : 1;
 }
 
 function _sorterOfNormStrings(a: AgentName, b: AgentName): number {

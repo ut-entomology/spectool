@@ -99,13 +99,21 @@ describe('checking for agent name similarity', () => {
     ]);
     verifyMutualSimilarity(noNicknames, [
       new AgentName('Roy Gee Biv', 'RY GE BF'),
-      new AgentName('Roy Biv II', 'RY BF II'), // HERE
+      new AgentName('Roy Biv II', 'RY BF II'),
       new AgentName('R Biv 2nd', 'RY BF 2ND'),
       new AgentName('Roy Gi Biv', 'RY GE BF'),
       new AgentName('Roi Gi Biv', 'RY GE BF'),
-      new AgentName('R G Biv', 'R G BF'), // HERE
+      new AgentName('R G Biv', 'R G BF'),
       new AgentName('Roi G Biv', 'RY G BF'),
       new AgentName('R Gi Biv', 'R GE BF')
+    ]);
+    verifyMutualSimilarity(noNicknames, [
+      new AgentName("J D O'Reilly", 'J D ORY'),
+      new AgentName("J.D. O'Reilly", 'J D ORY'),
+      new AgentName("J,D O'Reilly", 'J D ORY'),
+      new AgentName("JD O'Reilly", 'J D ORY'),
+      new AgentName('J D OReilly', 'J D ORY'),
+      new AgentName('J D O`Reilly', 'J D ORY')
     ]);
   });
 
@@ -536,6 +544,30 @@ describe('comparing untrusted names with one another', () => {
     assert.deepEqual(results.unknownLastNameGroup, []);
   });
 
+  test('similar names, different punctuation', () => {
+    const results = compareUntrustedNames(
+      noNicknames,
+      groupByLastNameCode([
+        new AgentName('J D O`Reilly', 'J D ORY'),
+        new AgentName("J D O'Reilly", 'J D ORY'),
+        new AgentName("J.D. O'Reilly", 'J D ORY'),
+        new AgentName("J,D O'Reilly", 'J D ORY'),
+        new AgentName("JD O'Reilly", 'J D ORY'),
+        new AgentName('J D OReilly', 'J D ORY')
+      ])
+    );
+    assert.deepEqual(results.groups, [
+      [
+        new AgentName("J D O'Reilly", 'J D ORY'),
+        new AgentName('J D OReilly', 'J D ORY'),
+        new AgentName('J D O`Reilly', 'J D ORY'),
+        new AgentName("J,D O'Reilly", 'J D ORY'),
+        new AgentName("J.D. O'Reilly", 'J D ORY'),
+        new AgentName("JD O'Reilly", 'J D ORY')
+      ]
+    ]);
+  });
+
   test('similar names, some unknown last names', () => {
     const results = compareUntrustedNames(
       noNicknames,
@@ -609,8 +641,8 @@ describe('comparing untrusted names with one another', () => {
     assert.deepEqual(results.groups, [
       [new AgentName('Jim Bob Jr', 'JM BB JR'), new AgentName('j bob jr', 'J BB JR')],
       [
-        new AgentName('fred Foo', 'FD FO'),
         new AgentName('Fred Foo', 'FD FO'),
+        new AgentName('fred Foo', 'FD FO'),
         new AgentName('f foo', 'F FO')
       ],
       [new AgentName('Sam Souix', 'SM SO'), new AgentName('s souix', 'S SO')]
