@@ -3,6 +3,11 @@ const SUFFIXES = ['jr', 'sr', 'ii', 'iii', '1st', '2nd', '3rd'];
 export type NicknameMap = Record<string, string[]>;
 export type AgentNamesByGroup = Record<string, AgentName[]>;
 
+export interface AgentComparison {
+  groups: AgentName[][];
+  unknownLastNameGroup: AgentName[];
+}
+
 export const WILDCARD_NAME = '*';
 
 export class AgentName {
@@ -97,7 +102,7 @@ export function areSimilarNames(
 export function compareUntrustedNames(
   nicknamesMap: NicknameMap,
   nameGroups: AgentNamesByGroup
-): AgentName[][] {
+): AgentComparison {
   const similarityGroups: AgentName[][] = [];
   const similarityGroupsByInitialName: Record<string, AgentName[] | null> = {};
   const namesWithoutLastNames = nameGroups[WILDCARD_NAME];
@@ -184,7 +189,12 @@ export function compareUntrustedNames(
       prunedSimilarityGroups.push(similarityGroup);
     }
   }
-  return prunedSimilarityGroups.sort((a, b) => _sorterOfFullNames(a[0], b[0]));
+  return {
+    groups: prunedSimilarityGroups.sort((a, b) => _sorterOfFullNames(a[0], b[0])),
+    unknownLastNameGroup: namesWithoutLastNames
+      ? namesWithoutLastNames.sort(_sorterOfNameStrings)
+      : []
+  };
 }
 
 /**
@@ -199,12 +209,14 @@ export function compareToTrustedNames(
   nicknamesMap: NicknameMap,
   trustedNameGroups: AgentNamesByGroup,
   untrustedNameGroups: AgentNamesByGroup
-): AgentName[][] {
+): AgentComparison {
   const similarityGroups: AgentName[][] = [];
 
   // Process trusted last names in alphabetic order, collecting groups of similar names.
 
   const sortedTrustedLastNames = Object.keys(trustedNameGroups).sort();
+  const untrustedWithoutLastNames = untrustedNameGroups[WILDCARD_NAME];
+
   for (const lastNameCode of sortedTrustedLastNames) {
     // Process the untrusted names having the current trusted last name.
 
@@ -241,7 +253,6 @@ export function compareToTrustedNames(
 
       let untrustedNames = untrustedNameGroups[lastNameCode];
       untrustedNames = untrustedNames ? untrustedNames.slice() : [];
-      const untrustedWithoutLastNames = untrustedNameGroups[WILDCARD_NAME];
       if (untrustedWithoutLastNames) {
         untrustedNames.push(...untrustedWithoutLastNames);
       }
@@ -270,7 +281,12 @@ export function compareToTrustedNames(
       }
     }
   }
-  return similarityGroups;
+  return {
+    groups: similarityGroups,
+    unknownLastNameGroup: untrustedWithoutLastNames
+      ? untrustedWithoutLastNames.sort(_sorterOfNameStrings)
+      : []
+  };
 }
 
 export function parseEncodedAgents(encodings: string): AgentNamesByGroup {
@@ -399,5 +415,5 @@ function _sorterOfNameComplexity(nameA: AgentName, nameB: AgentName): number {
 }
 
 function _sorterOfNameStrings(a: AgentName, b: AgentName): number {
-  return a.toString() <= b.toString() ? -1 : 1;
+  return a.toString().toLowerCase() <= b.toString().toLowerCase() ? -1 : 1;
 }

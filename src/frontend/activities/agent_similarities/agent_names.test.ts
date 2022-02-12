@@ -237,16 +237,17 @@ describe('checking for agent name similarity', () => {
 
 describe('comparing trusted and untrusted names', () => {
   test('all untrusted names identical to trusted names', () => {
-    const groups = compareToTrustedNames(
+    const results = compareToTrustedNames(
       noNicknames,
       groupByLastNameCode([new ExactName('Sue Rex'), new ExactName('Jeff Boo')]),
       groupByLastNameCode([new ExactName('Jeff Boo'), new ExactName('Sue Rex')])
     );
-    assert.deepEqual(groups, []);
+    assert.deepEqual(results.groups, []);
+    assert.deepEqual(results.unknownLastNameGroup, []);
   });
 
   test('no similar untrusted names', () => {
-    const groups = compareToTrustedNames(
+    const results = compareToTrustedNames(
       noNicknames,
       groupByLastNameCode([new ExactName('Sue Rex'), new ExactName('Jeff Boo')]),
       groupByLastNameCode([
@@ -256,11 +257,12 @@ describe('comparing trusted and untrusted names', () => {
         new ExactName('Jiff Boo')
       ])
     );
-    assert.deepEqual(groups, []);
+    assert.deepEqual(results.groups, []);
+    assert.deepEqual(results.unknownLastNameGroup, []);
   });
 
   test('some similar untrusted names', () => {
-    const groups = compareToTrustedNames(
+    const results = compareToTrustedNames(
       noNicknames,
       groupByLastNameCode([
         new ExactName('Sue Rex'),
@@ -277,7 +279,7 @@ describe('comparing trusted and untrusted names', () => {
         new ExactName('Rex')
       ])
     );
-    assert.deepEqual(groups, [
+    assert.deepEqual(results.groups, [
       [
         new ExactName('Fred Foo'),
         new ExactName('Sam Fred Foo'),
@@ -285,10 +287,11 @@ describe('comparing trusted and untrusted names', () => {
       ],
       [new ExactName('Sue Rex'), new ExactName('S Rex'), new ExactName('Rex')]
     ]);
+    assert.deepEqual(results.unknownLastNameGroup, []);
   });
 
   test('trusted names with no first name', () => {
-    const groups = compareToTrustedNames(
+    const results = compareToTrustedNames(
       noNicknames,
       groupByLastNameCode([
         new ExactName('Foo'),
@@ -303,7 +306,7 @@ describe('comparing trusted and untrusted names', () => {
         new ExactName('Ron *')
       ])
     );
-    assert.deepEqual(groups, [
+    assert.deepEqual(results.groups, [
       [new ExactName('Boop'), new ExactName('X Boop'), missingLastNameStandIn],
       [new ExactName('Foo'), missingLastNameStandIn],
       [
@@ -313,10 +316,15 @@ describe('comparing trusted and untrusted names', () => {
         new ExactName('Ron *')
       ]
     ]);
+    assert.deepEqual(results.unknownLastNameGroup, [
+      new ExactName('J R *'),
+      new ExactName('Ron *'),
+      new ExactName('Sam *')
+    ]);
   });
 
   test('trusted names with missing last names', () => {
-    const groups = compareToTrustedNames(
+    const results = compareToTrustedNames(
       noNicknames,
       groupByLastNameCode([
         new ExactName('Sue Rex'),
@@ -337,7 +345,7 @@ describe('comparing trusted and untrusted names', () => {
         new ExactName('Smith')
       ])
     );
-    assert.deepEqual(groups, [
+    assert.deepEqual(results.groups, [
       [
         new ExactName('Fred S *'),
         new ExactName('Fred Sam Foo'),
@@ -361,10 +369,11 @@ describe('comparing trusted and untrusted names', () => {
       [new ExactName('Ziggy *'), new ExactName('Smith')],
       [new ExactName('Sue Rex'), new ExactName('S Rex')]
     ]);
+    assert.deepEqual(results.unknownLastNameGroup, []);
   });
 
   test('untrusted names with missing last names', () => {
-    const groups = compareToTrustedNames(
+    const results = compareToTrustedNames(
       noNicknames,
       groupByLastNameCode([
         new ExactName('Fred *'),
@@ -381,7 +390,7 @@ describe('comparing trusted and untrusted names', () => {
         new ExactName('S J *')
       ])
     );
-    assert.deepEqual(groups, [
+    assert.deepEqual(results.groups, [
       [new ExactName('Fred *'), new ExactName('F S *')],
       [
         new ExactName('Jeff Boop'),
@@ -397,10 +406,18 @@ describe('comparing trusted and untrusted names', () => {
       ],
       [new ExactName('Fred Smith'), new ExactName('F S *'), new ExactName('Fred *')]
     ]);
+    assert.deepEqual(results.unknownLastNameGroup, [
+      new ExactName('Alex *'),
+      new ExactName('F S *'),
+      new ExactName('Fred *'),
+      new ExactName('J S *'),
+      new ExactName('Jeff *'),
+      new ExactName('S J *')
+    ]);
   });
 
   test('case-independent name similarity', () => {
-    const groups = compareToTrustedNames(
+    const results = compareToTrustedNames(
       noNicknames,
       groupByLastNameCode([
         new AgentName('Fred Foo', 'FD FO'),
@@ -414,7 +431,7 @@ describe('comparing trusted and untrusted names', () => {
         new AgentName('Sam Souix', 'SM SO')
       ])
     );
-    assert.deepEqual(groups, [
+    assert.deepEqual(results.groups, [
       [new AgentName('J Bob Jr', 'J BB JR'), new AgentName('jim bob jr', 'JM BB JR')],
       [
         new AgentName('Fred Foo', 'FD FO'),
@@ -423,10 +440,11 @@ describe('comparing trusted and untrusted names', () => {
       ],
       [new AgentName('s souix', 'S SO'), new AgentName('Sam Souix', 'SM SO')]
     ]);
+    assert.deepEqual(results.unknownLastNameGroup, []);
   });
 
   test('trusted and untrusted name suffixes', () => {
-    const groups = compareToTrustedNames(
+    const results = compareToTrustedNames(
       noNicknames,
       groupByLastNameCode([
         new ExactName('Fred Foo Shoe'),
@@ -450,7 +468,7 @@ describe('comparing trusted and untrusted names', () => {
         new ExactName('Fred Foo')
       ])
     );
-    assert.deepEqual(groups, [
+    assert.deepEqual(results.groups, [
       [
         new ExactName('Fred Foo'),
         new ExactName('Fred Foo 2nd'),
@@ -476,12 +494,13 @@ describe('comparing trusted and untrusted names', () => {
       ],
       [new ExactName('Sam Good Sr'), new ExactName('Sam Good')]
     ]);
+    assert.deepEqual(results.unknownLastNameGroup, []);
   });
 });
 
 describe('comparing untrusted names with one another', () => {
   test('no similar names', () => {
-    const groups = compareUntrustedNames(
+    const results = compareUntrustedNames(
       noNicknames,
       groupByLastNameCode([
         new ExactName('Sue Rex'),
@@ -489,11 +508,12 @@ describe('comparing untrusted names with one another', () => {
         new ExactName('X Boo')
       ])
     );
-    assert.deepEqual(groups, []);
+    assert.deepEqual(results.groups, []);
+    assert.deepEqual(results.unknownLastNameGroup, []);
   });
 
   test('similar names, all last names known', () => {
-    const groups = compareUntrustedNames(
+    const results = compareUntrustedNames(
       noNicknames,
       groupByLastNameCode([
         new ExactName('Sue Rex'),
@@ -507,16 +527,17 @@ describe('comparing untrusted names with one another', () => {
         new ExactName('Sue Boo')
       ])
     );
-    assert.deepEqual(groups, [
+    assert.deepEqual(results.groups, [
       [new ExactName('J T Boo'), new ExactName('Jeff Boo'), new ExactName('J Boo')],
       [new ExactName('James T Boo'), new ExactName('J T Boo'), new ExactName('J Boo')],
       [new ExactName('Q S Rex'), new ExactName('Sue Rex'), new ExactName('Rex')],
       [new ExactName('S Q Rex'), new ExactName('Sue Rex'), new ExactName('Rex')]
     ]);
+    assert.deepEqual(results.unknownLastNameGroup, []);
   });
 
   test('similar names, some unknown last names', () => {
-    const groups = compareUntrustedNames(
+    const results = compareUntrustedNames(
       noNicknames,
       groupByLastNameCode([
         new ExactName('Jeff *'),
@@ -530,7 +551,7 @@ describe('comparing untrusted names with one another', () => {
         new ExactName('Sue T Rex')
       ])
     );
-    assert.deepEqual(groups, [
+    assert.deepEqual(results.groups, [
       [new ExactName('Jeff Boo'), new ExactName('Jeff *'), new ExactName('J *')],
       [new ExactName('Foo'), missingLastNameStandIn],
       [
@@ -542,10 +563,16 @@ describe('comparing untrusted names with one another', () => {
       [new ExactName('Jeff Rex'), new ExactName('Jeff *'), new ExactName('J *')],
       [new ExactName('Sue T Rex'), new ExactName('S Tommie *'), new ExactName('S T *')]
     ]);
+    assert.deepEqual(results.unknownLastNameGroup, [
+      new ExactName('J *'),
+      new ExactName('Jeff *'),
+      new ExactName('S T *'),
+      new ExactName('S Tommie *')
+    ]);
   });
 
   test('similar names, only unknown last names', () => {
-    const groups = compareUntrustedNames(
+    const results = compareUntrustedNames(
       noNicknames,
       groupByLastNameCode([
         new ExactName('Jeff *'),
@@ -554,14 +581,20 @@ describe('comparing untrusted names with one another', () => {
         new ExactName('J *')
       ])
     );
-    assert.deepEqual(groups, [
+    assert.deepEqual(results.groups, [
       [new ExactName('Jeff *'), new ExactName('J *')],
       [new ExactName('S Tommie *'), new ExactName('S T *')]
+    ]);
+    assert.deepEqual(results.unknownLastNameGroup, [
+      new ExactName('J *'),
+      new ExactName('Jeff *'),
+      new ExactName('S T *'),
+      new ExactName('S Tommie *')
     ]);
   });
 
   test('case-independent name similarity', () => {
-    const groups = compareUntrustedNames(
+    const results = compareUntrustedNames(
       noNicknames,
       groupByLastNameCode([
         new AgentName('Fred Foo', 'FD FO'),
@@ -573,7 +606,7 @@ describe('comparing untrusted names with one another', () => {
         new AgentName('Sam Souix', 'SM SO')
       ])
     );
-    assert.deepEqual(groups, [
+    assert.deepEqual(results.groups, [
       [new AgentName('Jim Bob Jr', 'JM BB JR'), new AgentName('j bob jr', 'J BB JR')],
       [
         new AgentName('Fred Foo', 'FD FO'),
@@ -582,10 +615,11 @@ describe('comparing untrusted names with one another', () => {
       ],
       [new AgentName('Sam Souix', 'SM SO'), new AgentName('s souix', 'S SO')]
     ]);
+    assert.deepEqual(results.unknownLastNameGroup, []);
   });
 
   test('similar names, some with suffixes', () => {
-    const groups = compareUntrustedNames(
+    const results = compareUntrustedNames(
       noNicknames,
       groupByLastNameCode([
         new ExactName('Foo III'),
@@ -602,7 +636,7 @@ describe('comparing untrusted names with one another', () => {
         new ExactName('Fred Foo')
       ])
     );
-    assert.deepEqual(groups, [
+    assert.deepEqual(results.groups, [
       [
         new ExactName('Fred Foo 2nd'),
         new ExactName('Fred Foo II'),
@@ -621,6 +655,7 @@ describe('comparing untrusted names with one another', () => {
       [new ExactName('Sam Good Jr'), new ExactName('Sam Good')],
       [new ExactName('Sam Good Sr'), new ExactName('Sam Good')]
     ]);
+    assert.deepEqual(results.unknownLastNameGroup, []);
   });
 });
 
@@ -644,8 +679,8 @@ function groupByLastNameCode(names: AgentName[]): Record<string, AgentName[]> {
   return groupMap;
 }
 
-// function showGroups(groups: AgentName[][]) {
-//   console.log(JSON.stringify(groups, undefined, '  '));
+// function showGroups(results.groups: AgentName[][]) {
+//   console.log(JSON.stringify(results.groups, undefined, '  '));
 // }
 
 function verifyMutualDissimilarity(nicknameMap: NicknameMap, names: AgentName[]) {
