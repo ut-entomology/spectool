@@ -79,7 +79,6 @@
   }
 
   .activity {
-    width: 350px;
     margin: 2rem 0 0 2rem;
   }
 
