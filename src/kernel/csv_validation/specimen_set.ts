@@ -6,6 +6,7 @@ import { parse as parseCSV } from '@fast-csv/parse';
 import type { AppKernel } from '../../kernel/app_kernel';
 import { Specimen, HEADER_REGEX } from './specimen';
 
+const INSTRUCTIONS_HEADER = 'INSTRUCTIONS';
 const DEFAULT_HEADER_JSON_DIR = '../../../public/data';
 const HEADER_JSON_FILE_NAME = 'csv-headers.json';
 
@@ -43,8 +44,8 @@ export async function getHeaderJSONPath(kernel: AppKernel) {
   return dataFolderHeaderJSONPath;
 }
 
-export async function openSpecimenSet(csvFilePath: string, headerJSONPath: string) {
-  specimenSet = new SpecimenSet(csvFilePath, headerJSONPath);
+export async function openSpecimenSet(headerJSONPath: string, csvFilePath: string) {
+  specimenSet = new SpecimenSet(headerJSONPath, csvFilePath);
   await specimenSet.load();
 }
 
@@ -60,13 +61,13 @@ export function closeSpecimenSet() {
 }
 
 export class SpecimenSet {
-  csvFilePath: string;
   headerJSONPath: string;
+  csvFilePath: string;
   rawHeaderMap: Record<string, string> = {}; // maps standard headers to raw headers
   unrecognizedHeaders: string[] = [];
   specimens: Specimen[] = [];
 
-  constructor(csvFilePath: string, headerJSONPath: string) {
+  constructor(headerJSONPath: string, csvFilePath: string) {
     this.csvFilePath = csvFilePath;
     this.headerJSONPath = headerJSONPath;
   }
@@ -79,7 +80,10 @@ export class SpecimenSet {
           .pipe(parseCSV({ headers: this._transformHeaders.bind(this, headerDefs) }))
           .on('data', (row) => this.specimens.push(new Specimen(row)))
           .on('end', () => resolve())
-          .on('error', (err) => reject(err));
+          .on('error', (err) => {
+            console.log('SpecimenSet streaming error:', err);
+            reject(err);
+          });
       });
     });
   }
@@ -113,21 +117,23 @@ export class SpecimenSet {
       const columnNumber = matches[2] ? parseInt(matches[2]) : 0;
 
       for (const [standardHeader, def] of Object.entries(headerDefs)) {
-        if (!def.normalizedSynonyms) {
-          def.normalizedSynonyms = [];
-          def.normalizedSynonyms.push(this._normalizeHeader(standardHeader));
-          for (const synonym of def.synonyms) {
-            def.normalizedSynonyms.push(this._normalizeHeader(synonym));
+        if (standardHeader != INSTRUCTIONS_HEADER) {
+          if (!def.normalizedSynonyms) {
+            def.normalizedSynonyms = [];
+            def.normalizedSynonyms.push(this._normalizeHeader(standardHeader));
+            for (const synonym of def.synonyms) {
+              def.normalizedSynonyms.push(this._normalizeHeader(synonym));
+            }
           }
-        }
-        if (
-          columnNumber <= def.maxNumber &&
-          def.normalizedSynonyms.includes(normalizedHeader)
-        ) {
-          if (def.maxNumber <= 1) {
-            return standardHeader;
+          if (
+            columnNumber <= def.maxNumber &&
+            def.normalizedSynonyms.includes(normalizedHeader)
+          ) {
+            if (def.maxNumber <= 1) {
+              return standardHeader;
+            }
+            return standardHeader + (columnNumber == 0 ? 1 : columnNumber);
           }
-          return standardHeader + (columnNumber == 0 ? 1 : columnNumber);
         }
       }
     }

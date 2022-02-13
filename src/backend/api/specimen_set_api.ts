@@ -18,8 +18,8 @@ export class SpecimenSetApi {
     return await getHeaderJSONPath(this._kernel);
   }
 
-  async openSpecimenSet(csvFilePath: string, headerJSONPath: string): Promise<void> {
-    return await openSpecimenSet(csvFilePath, headerJSONPath);
+  async openSpecimenSet(headerJSONPath: string, csvFilePath: string): Promise<void> {
+    return await openSpecimenSet(headerJSONPath, csvFilePath);
   }
 
   async getEncodedAgents(): Promise<string> {
