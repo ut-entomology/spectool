@@ -113,7 +113,7 @@
           <div class="alert alert-danger" role="alert">{errorMessage}</div>
         </div>
       {/if}
-      {#if chosenCsvFile == loadedCsvFile}
+      {#if chosenCsvFile !== null && chosenCsvFile == loadedCsvFile}
         <div class="csv_reports">
           <div class="title">Available Reports</div>
           <div class="container-md">
@@ -184,7 +184,7 @@
   .title {
     font-size: 1.3em;
     text-align: center;
-    margin: 2em 0;
+    margin: 1em 0;
   }
   .group_header {
     font-weight: bold;
