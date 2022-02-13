@@ -1,5 +1,3 @@
-import fuzzySoundex from 'talisman/phonetics/fuzzy-soundex';
-
 import type { AppKernel } from '../../kernel/app_kernel';
 import {
   getHeaderJSONPath,
@@ -7,7 +5,7 @@ import {
   getSpecimenSet,
   closeSpecimenSet
 } from '../../kernel/csv_validation/specimen_set';
-import { addAgentNames } from './agent_api';
+import { addAgentName, addAgentEntries } from './agent_api';
 
 export class SpecimenSetApi {
   _kernel: AppKernel;
@@ -31,15 +29,9 @@ export class SpecimenSetApi {
     for (const specimen of specimens) {
       for (const agent of specimen.collectors) {
         const names: string[] = [];
-        addAgentNames(names, agent.firstName);
-        addAgentNames(names, agent.lastName, true);
-        entries.push(names.join(' '));
-
-        const phonetics: string[] = [];
-        for (const name of names) {
-          phonetics.push(fuzzySoundex(name));
-        }
-        entries.push(phonetics.join(' '));
+        addAgentName(names, agent.firstName);
+        addAgentName(names, agent.lastName, true);
+        addAgentEntries(entries, names);
       }
     }
     return entries.join('|');

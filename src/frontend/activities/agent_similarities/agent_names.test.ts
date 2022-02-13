@@ -551,6 +551,7 @@ describe('comparing untrusted names with one another', () => {
         new AgentName('J D O`Reilly', 'J D ORY'),
         new AgentName("J D O'Reilly", 'J D ORY'),
         new AgentName("J.D. O'Reilly", 'J D ORY'),
+        new AgentName('jenny *', 'JY *'),
         new AgentName("J,D O'Reilly", 'J D ORY'),
         new AgentName("JD O'Reilly", 'J D ORY'),
         new AgentName('J D OReilly', 'J D ORY')
@@ -563,7 +564,26 @@ describe('comparing untrusted names with one another', () => {
         new AgentName('J D O`Reilly', 'J D ORY'),
         new AgentName("J,D O'Reilly", 'J D ORY'),
         new AgentName("J.D. O'Reilly", 'J D ORY'),
-        new AgentName("JD O'Reilly", 'J D ORY')
+        new AgentName("JD O'Reilly", 'J D ORY'),
+        new AgentName('jenny *', 'JY *')
+      ]
+    ]);
+  });
+
+  test('similar names, recreate debugging problem', () => {
+    const results = compareUntrustedNames(
+      noNicknames,
+      groupByLastNameCode([
+        new AgentName('J.D. Oswald', 'J D OS'),
+        new AgentName('J D Oswald', 'J D OS'),
+        new AgentName('jenny *', 'JY *')
+      ])
+    );
+    assert.deepEqual(results.groups, [
+      [
+        new AgentName('J D Oswald', 'J D OS'),
+        new AgentName('J.D. Oswald', 'J D OS'),
+        new AgentName('jenny *', 'JY *')
       ]
     ]);
   });

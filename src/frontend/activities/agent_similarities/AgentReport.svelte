@@ -49,7 +49,7 @@
     const rawNicknames = await fetchResponse.text();
     const nicknames = parseNicknames(rawNicknames);
 
-    const middleDotNote = ` The middle dot (<span>${ORIGINAL_SPACE_CHAR}</span>) signifies a space that occurs within a name field. Regular spaces separate names fields.`;
+    const middleDotNote = ` The middle dot (<span>${ORIGINAL_SPACE_CHAR}</span>) signifies a space that occurs within a name field. Regular spaces separate name fields.`;
 
     callbacks.showStatus('Grouping agents by similarity...');
     if (csvAgents) {

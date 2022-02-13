@@ -21,27 +21,11 @@ export class AgentApi {
     const entries: string[] = [];
     for (const agent of agents) {
       const names: string[] = [];
-      addAgentNames(names, agent.FirstName);
-      addAgentNames(names, agent.MiddleInitial);
-      addAgentNames(names, agent.LastName, true);
-      addAgentNames(names, agent.Suffix);
-      entries.push(names.join(' '));
-
-      const phonetics: string[] = [];
-      for (const name of names) {
-        if (name == WILDCARD_NAME) {
-          phonetics.push(WILDCARD_NAME);
-        } else {
-          const word = name
-            .replace(PRESERVED_SPACE, ' ')
-            .replace(/[`']/g, '')
-            .replace(/[,.]/g, ' ')
-            .trim()
-            .replace(/  +/g, ' ');
-          phonetics.push(fuzzySoundex(word));
-        }
-      }
-      entries.push(phonetics.join(' '));
+      addAgentName(names, agent.FirstName);
+      addAgentName(names, agent.MiddleInitial);
+      addAgentName(names, agent.LastName, true);
+      addAgentName(names, agent.Suffix);
+      addAgentEntries(entries, names);
     }
 
     // Return the names in a fast-to-encode reply.
@@ -49,7 +33,7 @@ export class AgentApi {
   }
 }
 
-export function addAgentNames(
+export function addAgentName(
   names: string[],
   name: string | null | undefined,
   isLastName: boolean = false
@@ -61,4 +45,15 @@ export function addAgentNames(
   } else {
     names.push(name.replace(/ /g, PRESERVED_SPACE));
   }
+}
+
+export function addAgentEntries(entries: string[], names: string[]): void {
+  const fullName = names.join(' ');
+  entries.push(fullName);
+  const words = fullName.replace(/['`]/g, '').match(/[A-Za-z*]+/g);
+  entries.push(
+    words!
+      .map((word) => (word == WILDCARD_NAME ? WILDCARD_NAME : fuzzySoundex(word)))
+      .join(' ')
+  );
 }
