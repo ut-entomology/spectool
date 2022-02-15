@@ -12,26 +12,24 @@
   import ActivityInstructions from '../../components/ActivityInstructions.svelte';
   import WindowReport from '../../layout/WindowReport.svelte';
   import AgentReport from '../agent_similarities/AgentReport.svelte';
-  import { currentDirectory } from '../../stores/currentDirectory';
+  import { currentCsvFile } from '../../stores/currentCsvFile';
   import { flashMessage } from '../../layout/VariableFlash.svelte';
   import { openReport } from '../../layout/WindowReport.svelte';
 
-  const DIRECTORY_REGEX = /^(.*)[\/\\]/;
-
-  let csvFile = '';
+  let csvFile = $currentCsvFile;
 
   async function chooseFile() {
     csvFile =
       (await window.apis.dialogApi.openFileDialog('Choose the CSV file', ['csv'])) ||
       '';
+    currentCsvFile.set(csvFile);
   }
 
   function openCsvReport(component: typeof SvelteComponent, params: any) {
     if (csvFile.trim() == '') {
-      flashMessage('Please select a CSV file', 'warning');
+      flashMessage('Please select a CSV file', 'warning', 1750);
     } else {
-      const match = csvFile.match(DIRECTORY_REGEX);
-      currentDirectory.set(match ? match[1] : '');
+      params.csvFile = csvFile;
       openReport(component, params);
     }
   }
@@ -69,7 +67,6 @@
               class="btn btn-minor"
               on:click={() =>
                 openCsvReport(AgentReport, {
-                  csvFile,
                   includeSpecifyAgents: true,
                   trustSpecifyAgents: true
                 })}
@@ -85,7 +82,6 @@
               class="btn btn-minor"
               on:click={() =>
                 openCsvReport(AgentReport, {
-                  csvFile,
                   includeSpecifyAgents: true,
                   trustSpecifyAgents: false
                 })}
@@ -101,7 +97,6 @@
               class="btn btn-minor"
               on:click={() =>
                 openCsvReport(AgentReport, {
-                  csvFile,
                   includeSpecifyAgents: false
                 })}
             >

@@ -32,7 +32,6 @@
 
 <style>
   .button {
-    margin: 5em 0;
-    text-align: center;
+    margin: 1em 2em;
   }
 </style>
