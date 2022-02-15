@@ -8,12 +8,18 @@
   export interface ReportCallbacks {
     showStatus: (message: string) => void;
     showReport: (windowName: string, style?: string) => void;
-    failReport: (message: string) => void;
+    failReport: (err: Error) => void;
   }
 
   interface ReportData {
     component: typeof SvelteComponent;
     params: any;
+  }
+
+  export class ReportNoticeError extends Error {
+    constructor(message: string) {
+      super(message);
+    }
   }
 
   const reportStore = writable<ReportData | null>(null);
@@ -52,13 +58,17 @@
     if (reportWindow) {
       awaitRendering(style ? pageHeader + style : pageHeader);
     } else {
-      failReport('Failed to open window');
+      failReport(Error('Failed to open window'));
     }
   }
 
-  function failReport(message: string) {
+  function failReport(err: Error) {
     reportStore.set(null);
-    showNotice(message, 'ERROR', 'danger');
+    showNotice(
+      err.message,
+      err instanceof ReportNoticeError ? 'NOTICE' : 'ERROR',
+      err instanceof ReportNoticeError ? 'warning' : 'danger'
+    );
   }
 
   const callbacks: ReportCallbacks = { showStatus, showReport, failReport };

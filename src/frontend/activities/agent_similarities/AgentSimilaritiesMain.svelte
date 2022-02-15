@@ -20,7 +20,7 @@
       class="btn btn-major"
       on:click={() =>
         openReport(AgentReport, {
-          includeCsvAgents: false,
+          csvFile: null,
           includeSpecifyAgents: true
         })}
     >

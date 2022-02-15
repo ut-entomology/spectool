@@ -90,15 +90,15 @@ export class Specimen {
       const matches = header.match(HEADER_REGEX);
       if (matches && matches[2] !== undefined) {
         const index = parseInt(matches[2]) - 1;
-        switch (matches[1]) {
+        switch (matches[1].trimEnd()) {
           case 'Collector First Name':
             addPersonName(collectors, index, value, true);
             break;
           case 'Collector Last Name':
-            addPersonName(determiners, index, value, false);
+            addPersonName(collectors, index, value, false);
             break;
           case 'Determiner First Name':
-            addPersonName(collectors, index, value, true);
+            addPersonName(determiners, index, value, true);
             break;
           case 'Determiner Last Name':
             addPersonName(determiners, index, value, false);

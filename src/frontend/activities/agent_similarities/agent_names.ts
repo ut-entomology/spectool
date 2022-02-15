@@ -225,10 +225,10 @@ export function compareToTrustedNames(
 
   // Process trusted last names in alphabetic order, collecting groups of similar names.
 
-  const sortedTrustedLastNames = Object.keys(trustedNameGroups).sort();
+  const sortedTrustedLastNameCodes = Object.keys(trustedNameGroups).sort();
   const untrustedWithoutLastNames = untrustedNameGroups[WILDCARD_NAME];
 
-  for (const lastNameCode of sortedTrustedLastNames) {
+  for (const lastNameCode of sortedTrustedLastNameCodes) {
     // Process the untrusted names having the current trusted last name.
 
     if (lastNameCode == WILDCARD_NAME) {
@@ -383,10 +383,9 @@ function _normalizeSuffix(suffix: string | null) {
 function _sorterOfFullNames(nameA: AgentName, nameB: AgentName): number {
   const lastA = nameA.words[nameA.words.length - 1];
   const lastB = nameB.words[nameB.words.length - 1];
-  return lastA < lastB ||
-    (lastA == lastB && nameA.toNormString() <= nameB.toNormString())
-    ? -1
-    : 1;
+  const [normA, normB] = [nameA.toNormString(), nameB.toNormString()];
+  if (lastA == lastB && normA == normB) return 0;
+  return lastA < lastB || (lastA == lastB && normA < normB) ? -1 : 1;
 }
 
 function _sorterOfNameComplexity(nameA: AgentName, nameB: AgentName): number {
@@ -425,9 +424,12 @@ function _sorterOfNameComplexity(nameA: AgentName, nameB: AgentName): number {
   }
 
   // Names otherwise sort alphabetically by original name.
-  return nameA.name <= nameB.name ? -1 : 1;
+  if (nameA == nameB) return 0;
+  return nameA.name < nameB.name ? -1 : 1;
 }
 
 function _sorterOfNormStrings(a: AgentName, b: AgentName): number {
-  return a.toNormString() <= b.toNormString() ? -1 : 1;
+  const [normA, normB] = [a.toNormString(), b.toNormString()];
+  if (normA == normB) return 0;
+  return normA < normB ? -1 : 1;
 }

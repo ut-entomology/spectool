@@ -73,9 +73,9 @@ export class SpecimenSet {
   }
 
   async load() {
-    fsp.readFile(this.headerJSONPath, 'utf8').then((json) => {
-      const headerDefs = JSON.parse(json);
-      return new Promise<void>((resolve, reject) => {
+    return new Promise<void>((resolve, reject) => {
+      fsp.readFile(this.headerJSONPath, 'utf8').then((json) => {
+        const headerDefs = JSON.parse(json);
         fs.createReadStream(this.csvFilePath)
           .pipe(parseCSV({ headers: this._transformHeaders.bind(this, headerDefs) }))
           .on('data', (row) => this.specimens.push(new Specimen(row)))

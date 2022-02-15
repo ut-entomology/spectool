@@ -3,8 +3,8 @@ import * as query from '../../kernel/specify/queries';
 import { runQuery } from '../util/api_util';
 import fuzzySoundex from 'talisman/phonetics/fuzzy-soundex';
 
-const WILDCARD_NAME = '*';
-const PRESERVED_SPACE = '^';
+export const WILDCARD_NAME = '*';
+export const PRESERVED_SPACE = '^';
 
 export class AgentApi {
   private _kernel: AppKernel;
@@ -25,7 +25,7 @@ export class AgentApi {
       addAgentName(names, agent.MiddleInitial);
       addAgentName(names, agent.LastName, true);
       addAgentName(names, agent.Suffix);
-      addAgentEntries(entries, names);
+      addAgentEntries(entries, names.join(' '));
     }
 
     // Return the names in a fast-to-encode reply.
@@ -47,10 +47,9 @@ export function addAgentName(
   }
 }
 
-export function addAgentEntries(entries: string[], names: string[]): void {
-  const fullName = names.join(' ');
-  entries.push(fullName);
-  const words = fullName.replace(/['`]/g, '').match(/[A-Za-z*]+/g);
+export function addAgentEntries(entries: string[], name: string): void {
+  entries.push(name);
+  const words = name.replace(/['`]/g, '').match(/[A-Za-z*]+/g);
   entries.push(
     words!
       .map((word) => (word == WILDCARD_NAME ? WILDCARD_NAME : fuzzySoundex(word)))
