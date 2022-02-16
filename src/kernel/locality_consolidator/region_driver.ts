@@ -12,6 +12,7 @@ import { Region, RegionRank } from '../../shared/shared_geography';
 import { TrackedRegionStatus, TrackedRegion } from './tracked_region';
 import { TrackedRegionRoster } from './region_roster';
 import { LocalityCache } from './locality_cache';
+import { IntervalTicker } from './interval_ticker';
 
 export interface Diagnostics {
   reportPrimaryState(
@@ -36,9 +37,11 @@ export interface Diagnostics {
 }
 
 export class AdjoiningRegionDriver {
+  private _domainRegions?: Region[];
   private _overDomainIDLookup: Record<number, boolean> = {};
   private _localityCache: LocalityCache;
   private _initialGeographyID: number | null;
+  private _ticker = new IntervalTicker(400, 4, 10);
 
   _regionRoster: TrackedRegionRoster;
   _adjoiningRegions: AdjoiningRegions;
@@ -54,6 +57,7 @@ export class AdjoiningRegionDriver {
     diagnostics?: Diagnostics,
     initialGeographyID?: number
   ) {
+    this._domainRegions = domainRegions;
     this._regionRoster = new TrackedRegionRoster();
     this._adjoiningRegions = adjoiningRegions;
     this._localityCache = localityCache;
@@ -63,11 +67,16 @@ export class AdjoiningRegionDriver {
     this._newlyCachedRegionNeighborVisitor = new NewlyCachedRegionNeighborVisitor(this);
     this._finishCachingAroundRegionVisitor = new FinishCachingAroundRegionVisitor(this);
     this._pendingNearDomainRegionVisitor = new PendingNearDomainRegionVisitor(this);
+  }
+
+  async *run(): AsyncGenerator<TrackedRegion | null, void, void> {
+    this._ticker.start();
 
     // Generate the tracked regions used for consolidation.
 
     const domainsByID: Record<number, Region> = {};
-    for (const domainRegion of domainRegions) {
+    for (const domainRegion of this._domainRegions!) {
+      if (this._ticker.interval()) yield null;
       domainsByID[domainRegion.id] = domainRegion;
       this._regionRoster.add(new TrackedRegion(domainRegion, true));
     }
@@ -76,20 +85,19 @@ export class AdjoiningRegionDriver {
     // of the geographic regions immediately containing geographics regions of the
     // domain but not themselves in the domain.
 
-    for (const domainRegion of domainRegions) {
+    for (const domainRegion of this._domainRegions!) {
       if (domainRegion.rank !== RegionRank.Earth) {
         if (domainsByID[domainRegion.parentID] === undefined) {
+          if (this._ticker.interval()) yield null;
           this._overDomainIDLookup[domainRegion.parentID] = true;
         }
       }
     }
-  }
-
-  async *run(): AsyncGenerator<TrackedRegion, void, void> {
     if (this._diagnostics) {
       this._diagnostics.reportPrimaryState(this._regionRoster, 'After initialization');
     }
 
+    // Select and cache the initial region.
     let currentRegion: TrackedRegion | null = this._regionRoster.getArbitraryRegion();
     if (this._initialGeographyID !== null) {
       currentRegion = this._regionRoster.getByID(this._initialGeographyID)!;
@@ -98,6 +106,7 @@ export class AdjoiningRegionDriver {
 
     // Loop
     while (currentRegion != null) {
+      if (this._ticker.interval()) yield null;
       if (this._diagnostics) {
         this._diagnostics.reportPrimaryState(
           this._regionRoster,
@@ -119,6 +128,7 @@ export class AdjoiningRegionDriver {
       let lowestUncachedCount = Infinity;
       currentRegion = null;
       for (const prospect of this._regionRoster) {
+        if (this._ticker.interval()) yield null;
         if (
           prospect.status == TrackedRegionStatus.Cached &&
           prospect.adjoiningPendingCount < lowestUncachedCount

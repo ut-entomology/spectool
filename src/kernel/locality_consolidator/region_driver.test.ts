@@ -112,8 +112,10 @@ async function runTest(testID: number, spec: TestSpec) {
     scenario.codeToRegion(spec.initialRegion).id
   );
   for await (const region of regionDriver.run()) {
-    processedRegionIDs.push(region.id);
-    localityCache.uncacheLocality(region.id);
+    if (region != null) {
+      processedRegionIDs.push(region.id);
+      localityCache.uncacheLocality(region.id);
+    }
   }
   diagnostics.close();
 
