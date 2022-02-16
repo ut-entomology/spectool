@@ -116,9 +116,9 @@ export class AdjoiningRegionDriver {
       }
 
       // Consolidate
-      const visitAround =
-        this._finishCachingAroundRegionVisitor.visitAroundRegion(currentRegion);
       if (currentRegion.adjoiningPendingCount != 0) {
+        const visitAround =
+          this._finishCachingAroundRegionVisitor.visitAroundRegion(currentRegion);
         for await (const _ of visitAround) yield null;
       }
       // yield for processing region and uncaching its localities
