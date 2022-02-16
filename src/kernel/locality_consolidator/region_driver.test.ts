@@ -108,14 +108,13 @@ async function runTest(testID: number, spec: TestSpec) {
     scenario,
     scenario.getDomainRegions(),
     localityCache,
-    (region) => {
-      processedRegionIDs.push(region.id);
-      localityCache.uncacheLocality(region.id);
-    },
     diagnostics,
     scenario.codeToRegion(spec.initialRegion).id
   );
-  await regionDriver.run();
+  for await (const region of regionDriver.run()) {
+    processedRegionIDs.push(region.id);
+    localityCache.uncacheLocality(region.id);
+  }
   diagnostics.close();
 
   expect(processedRegionIDs.map((id) => scenario.regionsByID[id].code)).toEqual(

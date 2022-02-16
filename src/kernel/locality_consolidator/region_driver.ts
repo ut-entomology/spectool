@@ -13,8 +13,6 @@ import { TrackedRegionStatus, TrackedRegion } from './tracked_region';
 import { TrackedRegionRoster } from './region_roster';
 import { LocalityCache } from './locality_cache';
 
-export type ProcessRegionCallback = (region: TrackedRegion) => void;
-
 export interface Diagnostics {
   reportPrimaryState(
     regionRoster: TrackedRegionRoster,
@@ -39,7 +37,6 @@ export interface Diagnostics {
 
 export class AdjoiningRegionDriver {
   private _overDomainIDLookup: Record<number, boolean> = {};
-  private _processRegionCallback: ProcessRegionCallback;
   private _localityCache: LocalityCache;
   private _initialGeographyID: number | null;
 
@@ -54,14 +51,12 @@ export class AdjoiningRegionDriver {
     adjoiningRegions: AdjoiningRegions,
     domainRegions: Region[],
     localityCache: LocalityCache,
-    processRegionCallback: ProcessRegionCallback,
     diagnostics?: Diagnostics,
     initialGeographyID?: number
   ) {
     this._regionRoster = new TrackedRegionRoster();
     this._adjoiningRegions = adjoiningRegions;
     this._localityCache = localityCache;
-    this._processRegionCallback = processRegionCallback;
     this._diagnostics = diagnostics || null;
     this._initialGeographyID = initialGeographyID || null;
 
@@ -90,7 +85,7 @@ export class AdjoiningRegionDriver {
     }
   }
 
-  async run() {
+  async *run(): AsyncGenerator<TrackedRegion, void, void> {
     if (this._diagnostics) {
       this._diagnostics.reportPrimaryState(this._regionRoster, 'After initialization');
     }
@@ -116,7 +111,7 @@ export class AdjoiningRegionDriver {
         await this._finishCachingAroundRegionVisitor.visitAroundRegion(currentRegion);
       }
       // also responsible for uncaching localities as each is processed
-      this._processRegionCallback(currentRegion);
+      yield currentRegion;
       // have region treated as no longer pending or cached
       currentRegion.status = TrackedRegionStatus.Complete;
 
