@@ -117,9 +117,9 @@ export class AdjoiningRegionDriver {
 
       // Consolidate
       if (currentRegion.adjoiningPendingCount != 0) {
-        const visitAround =
+        const visits =
           this._finishCachingAroundRegionVisitor.visitAroundRegion(currentRegion);
-        for await (const _ of visitAround) yield null;
+        for await (const _ of visits) yield null;
       }
       // yield for processing region and uncaching its localities
       yield currentRegion;
@@ -154,9 +154,9 @@ export class AdjoiningRegionDriver {
   ): AsyncGenerator<void, void, void> {
     this._localityCache.cacheRegionLocalities(regionToCache);
     regionToCache.status = TrackedRegionStatus.Cached;
-    const visitAround =
+    const visits =
       this._newlyCachedRegionNeighborVisitor.visitAroundRegion(regionToCache);
-    for await (const _ of visitAround) yield;
+    for await (const _ of visits) yield;
   }
 
   _isInOverDomain(geographicID: number): boolean {
@@ -201,11 +201,8 @@ abstract class RegionVisitor {
         await this._visitAroundDomainRegion(nearRegion);
         if (this._visitationRestriction(nearRegion)) {
           if (this._interval()) yield;
-          const visitSubsetAround = this._visitSubsetAroundDomainRegion(
-            nearRegion,
-            aroundRegion
-          );
-          for await (const _ of visitSubsetAround) yield;
+          const visits = this._visitSubsetAroundDomainRegion(nearRegion, aroundRegion);
+          for await (const _ of visits) yield;
           //this._showState('after in-domain all', nearRegion, aroundRegion);
         }
       }
@@ -218,11 +215,11 @@ abstract class RegionVisitor {
       for (const nearRegion of this._getAdjacentRegions(aroundRegion)) {
         if (nearRegion.inDomain && this._visitationRestriction(nearRegion)) {
           if (this._interval()) yield;
-          const visitAround = this._visitSubsetAroundNonDomainRegion(
+          const visits = this._visitSubsetAroundNonDomainRegion(
             nearRegion,
             aroundRegion
           );
-          for await (const _ of visitAround) yield;
+          for await (const _ of visits) yield;
           //this._showState('after non-domain adjacent', nearRegion, aroundRegion);
         }
       }
@@ -236,11 +233,11 @@ abstract class RegionVisitor {
           // Not every child of an over-domain region need be in the domain.
           if (childRegion.inDomain && this._visitationRestriction(childRegion)) {
             if (this._interval()) yield;
-            const visitSubsetAround = this._visitSubsetAroundNonDomainRegion(
+            const visits = this._visitSubsetAroundNonDomainRegion(
               childRegion,
               aroundRegion
             );
-            for await (const _ of visitSubsetAround) yield;
+            for await (const _ of visits) yield;
             //this._showState('after non-domain child', childRegion, aroundRegion);
           }
         }
@@ -319,11 +316,8 @@ abstract class RegionVisitor {
     nearRegion: TrackedRegion,
     aroundRegion: TrackedRegion
   ): AsyncGenerator<void, void, void> {
-    const visitSubsetAround = this._visitSubsetAroundDomainRegion(
-      nearRegion,
-      aroundRegion
-    );
-    for await (const _ of visitSubsetAround) yield;
+    const visits = this._visitSubsetAroundDomainRegion(nearRegion, aroundRegion);
+    for await (const _ of visits) yield;
   }
 
   protected _reportSecondaryProcess(
@@ -432,11 +426,11 @@ class FinishCachingAroundRegionVisitor extends RegionVisitor {
   ): AsyncGenerator<void, void, void> {
     for await (const _ of this._regionDriver._cachePendingRegion(nearRegion)) yield;
     if (this._computeLocalityCount(nearRegion) > 0) {
-      const visitAround =
+      const visits =
         this._regionDriver._pendingNearDomainRegionVisitor.visitAroundRegion(
           nearRegion
         );
-      for await (const _ of visitAround) yield;
+      for await (const _ of visits) yield;
     }
   }
 
