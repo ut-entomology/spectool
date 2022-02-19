@@ -3,7 +3,8 @@ import * as fs from 'fs';
 
 import { AdjoiningRegions } from './adjoining_regions';
 import { AdjoiningRegionDriver, Diagnostics } from './region_driver';
-import type { CachedLocality, LocalityCache } from './locality_cache';
+import { CachedLocality } from './cached_locality';
+import { LocalityCache } from './locality_cache';
 import { Region, RegionRank } from '../../shared/shared_geography';
 import { TrackedRegionRoster } from './region_roster';
 import { TrackedRegion, TrackedRegionStatus } from './tracked_region';
@@ -510,16 +511,15 @@ class DummyLocalityCache implements LocalityCache {
   }
 
   cacheRegionLocalities(region: TrackedRegion): void {
-    this._cache[region.id] = {
-      localityID: region.id,
-      regionID: region.id,
-      lastModified: Date.now(),
-      latitude: 0,
-      longitude: 0,
-      name: 'Dummy Locality Name',
-      phonemes: '',
-      remarks: ''
-    };
+    this._cache[region.id] = new CachedLocality(
+      region,
+      region.id,
+      0,
+      0,
+      'Dummy Locality Name',
+      '',
+      Date.now()
+    );
     this._cachedCodes.push(this._scenario.regionsByID[region.id].code);
   }
 
@@ -529,6 +529,12 @@ class DummyLocalityCache implements LocalityCache {
 
   getLocality(localityID: number): CachedLocality {
     return this._cache[localityID];
+  }
+
+  async *localitiesOfRegion(
+    _region: TrackedRegion
+  ): AsyncGenerator<CachedLocality, void, void> {
+    // not needed for this test
   }
 
   uncacheLocality(localityID: number): void {

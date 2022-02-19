@@ -1,4 +1,5 @@
 import { Region, RegionRank } from '../../shared/shared_geography';
+import { PROCESS_SUBREGIONS_FLAG } from '../util/adjacencies';
 
 export enum TrackedRegionStatus {
   Pending,
@@ -13,10 +14,12 @@ export class TrackedRegion {
   localityTotal: number | null = null;
   status = TrackedRegionStatus.Pending;
   adjoiningPendingCount = 0;
+  processSubregions: boolean;
 
   constructor(region: Region, inDomain: boolean) {
     this.id = region.id;
     this.rank = region.rank;
     this.inDomain = inDomain;
+    this.processSubregions = !!(region.flags & PROCESS_SUBREGIONS_FLAG);
   }
 }

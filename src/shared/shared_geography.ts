@@ -16,6 +16,7 @@ export class Region {
   name: string;
   exactName: string;
   parentID: number;
+  flags = 0; // flags vary with use
 
   constructor(id: number, rank: RegionRank, name: string, parentID: number) {
     this.id = id;

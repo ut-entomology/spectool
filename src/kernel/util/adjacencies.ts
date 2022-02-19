@@ -11,25 +11,27 @@ import {
 import { US_STATE_ABBREVS, toStateNameFromAbbrev } from './states';
 import { countryAdjacencies, stateAdjacencies, usaAdjacencies } from './adjacency_data';
 
+const NA_COUNTRIES = [SPECIFY_USA, 'Canada', 'Mexico'];
+
 const BINARY_COUNTY_ADJACENCIES_FILE = path.join(
   __dirname,
   '../../../public/data/county-adjacencies.bin'
 );
 
-type adjacentRegionsByID = Record<number, Region[]>;
+// Region.flags flag indicating that adjacencies were not available for subregions
+// of the characterized region, so the region should be assumed to include them.
+export const PROCESS_SUBREGIONS_FLAG = 0x01;
+
+type AdjacentRegionsByID = Record<number, Region[]>;
 
 export class Adjacencies {
-  private _adjacenciesByID: adjacentRegionsByID = {};
+  private _adjacenciesByID: AdjacentRegionsByID = {};
   private _geography: Geography;
   private _nameToID: Record<string, number> = {};
 
   constructor(geography: Geography) {
     this._geography = geography;
-    Geography.addIDs(this._nameToID, geography.getCountries(), [
-      SPECIFY_USA,
-      'Canada',
-      'Mexico'
-    ]);
+    Geography.addIDs(this._nameToID, geography.getCountries(), NA_COUNTRIES);
   }
 
   forID(geographicID: number): Region[] {
@@ -59,7 +61,7 @@ export class Adjacencies {
     this._addReciprocateAdjacencies();
   }
 
-  private _getAdjacentNorthAmericanCountries(): adjacentRegionsByID {
+  private _getAdjacentNorthAmericanCountries(): AdjacentRegionsByID {
     const countries = this._geography.getCountries();
 
     function toCountryID(countryName: string): number {
@@ -67,7 +69,7 @@ export class Adjacencies {
       return foundIDs[countryName];
     }
 
-    const adjacentRegionsByID: adjacentRegionsByID = {};
+    const adjacentRegionsByID: AdjacentRegionsByID = {};
     for (const [countryName, adjacentCountryNames] of Object.entries(
       countryAdjacencies
     )) {
@@ -79,6 +81,10 @@ export class Adjacencies {
         if (adjacentRegion === null) {
           throw Error(`Could not find region for country ID ${adjacentCountryID}`);
         }
+        if (!NA_COUNTRIES.includes(adjacentCountryName)) {
+          // States adjacencies are only available for the U.S., Canada, and Mexico.
+          adjacentRegion.flags |= PROCESS_SUBREGIONS_FLAG;
+        }
         adjacentRegions.push(adjacentRegion);
       }
       adjacentRegionsByID[countryID] = adjacentRegions;
@@ -88,7 +94,7 @@ export class Adjacencies {
 
   private _getAdjacentNorthAmericanStates(
     naStates: GeoDictionary
-  ): adjacentRegionsByID {
+  ): AdjacentRegionsByID {
     function toStateID(stateAbbrev: string): number {
       let stateName = toStateNameFromAbbrev(stateAbbrev);
       if (stateName === null) {
@@ -100,7 +106,7 @@ export class Adjacencies {
       return foundIDs[stateName];
     }
 
-    const adjacentRegionsByID: adjacentRegionsByID = {};
+    const adjacentRegionsByID: AdjacentRegionsByID = {};
     for (const [stateAbbrev, adjacentStateAbbrevs] of Object.entries(
       stateAdjacencies
     )) {
@@ -112,6 +118,10 @@ export class Adjacencies {
         if (adjacentRegion === null) {
           throw Error(`Could not find region for state ID ${adjacentStateID}`);
         }
+        if (adjacentRegion.parentID != this._nameToID[SPECIFY_USA]) {
+          // County adjacencies are only available for the U.S.
+          adjacentRegion.flags |= PROCESS_SUBREGIONS_FLAG;
+        }
         adjacentRegions.push(adjacentRegion);
       }
       adjacentRegionsByID[stateID] = adjacentRegions;
@@ -119,7 +129,7 @@ export class Adjacencies {
     return adjacentRegionsByID;
   }
 
-  private async _getAdjacentUSACounties(): Promise<adjacentRegionsByID> {
+  private async _getAdjacentUSACounties(): Promise<AdjacentRegionsByID> {
     // Load the binary county adjacency file.
 
     const fileCountyAdjacencyFile = new BinaryCountyAdjacencyFile(
@@ -156,7 +166,7 @@ export class Adjacencies {
 
     // Store away the county adjacencies as regions.
 
-    const adjacentRegionsByID: adjacentRegionsByID = {};
+    const adjacentRegionsByID: AdjacentRegionsByID = {};
     for (const fileCountyAdjacency of fileCountyAdjacencies) {
       const countyRegion = fileIDToRegionMap[fileCountyAdjacency.countyID];
       if (countyRegion) {

@@ -40,11 +40,11 @@ At this time, I have no idea how long this process takes or how long the user mi
 
 (+) Normalized word: A word latinized by removing all accents and diacritics, by converting to lowercase, and by deleting single quotes.
 
-(+) Word series: A set of one or more consecutive words found in text excluding words of fewer than 3 characters and other specific words, normalized and then alphanumerically ordered. Words of fewer than 3 characters are ignored for purposes of determining whether words are consecutive, as are the following words: and, for, from, the, with.
+(+) Word series: A set of one or more consecutive words found in text excluding words of fewer than 3 characters and other specific words, normalized. Words of fewer than 3 characters are ignored for purposes of determining whether words are consecutive, as are the following words: and, for, from, the, with. An "occurrence-ordered" word series orders the words in their order of occurrence, while a "sorted" word series orders the words alphanumerically.
 
 (+) Phonetic code: The phonetic code of a word containing no digits is the phonetic encoding of the word, according to some phonetic encoding algorithm. The phonetic code of a word containing at least one digit is the exact word itself, preceded by a pound ('#'), assuming that the pound does not appear in any phonetic encoding. The phonetic code for any other word that the phonetic encoding algorithm cannot code is also the exact word preceded by a pound. Phonetic codes are used to catch misspellings, but they can only catch misspellings that sound similar to the intended word.
 
-(+) Phonetic series: A set of one or more phonetic codes together corresponding to a word series, with each phonetic code being the phonetic code for its corresponding (normalized) word in the word series, ordered alphanumerically by phonetic code.
+(+) Phonetic series: A set of one or more phonetic codes together corresponding to a word series, with each phonetic code being the phonetic code for its corresponding (normalized) word in the word series. An "occurrence-ordered" phonetic series orders the words in their order of occurrence, while a "sorted" phonetic series orders the codes alphanumerically.
 
 (+) Locality key: A storage key that is a hybrid of the ID for the most-specific geographic region associated with the locality and the locality ID.
 
@@ -111,37 +111,37 @@ The key is a locality key, allowing localities to be looked up or deleted as a g
 (+) latitude1
 (+) longitude1
 (+) locality name
-(+) phonetic encoding of locality name
+(+) occurrence-ordered phonetic series encoding of locality name
 (+) remarks
 
 ### PhoneticLocalityIndex
 
-Associates phonetic codes with cached localities whose phonetically-encoded text contains at least one instance of the phonetic code. Used to process groups of localities all sharing phonetic codes for possible presentation to the user to consider for consolidation.
+Indexes cached localities and synonymous phonetic series by the phonetic codes they contain, so that cached localities and phonetic series synonyms can be looked up by containing phonetic codes.
 
 They key is a phonetic code. The value is the following structure:
 
 (+) localityKeys: a list of the keys for localities containing a word with the phonetic code given by the key.
-(+) synonyms: a list of the phonetic series found in PotentialSynonymsStore that contain the phonetic code given by the key
+(+) synonyms: a list of the phonetic series found in PotentialSynonymsStore that contain the phonetic code given by the key. The order of phonetic codes in each series does not matter.
 
-When a cached locality is removed from the LocalityCache, its locality keys are removed from all of its phonetic codes in PhoneticLocalityIndex. When a phonetic key loses all of its associated locality keys, the record is removed from PhoneticLocalityIndex if there are no synonyms, thus keeping the size of PhoneticLocalityIndex to the minimum needed.
+When a cached locality is removed from the LocalityCache, its locality keys are removed from all of its phonetic codes in PhoneticLocalityIndex. When a phonetic key loses all of its associated locality keys, the record is removed from PhoneticLocalityIndex if there are no synonyms, thus keeping the size of PhoneticLocalityIndex to the minimum needed, improving performance.
 
 For now, the number of synonyms is expected to be small, so it's okay to keep entries around for the phonetic codes with synonyms, even if none of the cached localities use them.
 
 ### ExcludedMatchesStore
 
-Stores permanent knowledge about which pairs of word series having identical phonetic series are not to be considered suggestive of having duplicate localities.
+Stores permanent knowledge about which pairs of sorted word series having identical phonetic series are not to be considered suggestive of having duplicate localities.
 
-The key (K) is a word series. The value consists of at least one of the following:
+The key (K) is a sorted word series. The value consists of at least one of the following:
 
 (+) regions: an optional list of regions, given by their geographic IDs; when present, there will be at least two regions in the list, indicating different regions having the same locality description
 (+) coordinates: an optional list of lat/long coordinate pairs; when present, there will be at least two coordinate pairs, indicating locality descriptions that are to be considered distinct by virtue of their different coordinates
-(+) mismatches: an optional list of word series each indicating that they refer to something different from (K); if (K) itself appears in this list, occurrences of (K) are to be ignored for purposes of matching localities, except when (K) appears within a larger word series that is not ignored, and except when (K) is the entire locality description. Mismatches other than (K) indicate semantically different word series that are either phonetically identical or phonetically synonymous. Each word series in mismatches also appears as a key in ExcludedMatchesStore containing (K) among its mismatches.
+(+) mismatches: an optional list of sorted word series each indicating that they refer to something different from (K); if (K) itself appears in this list, occurrences of (K) are to be ignored for purposes of matching localities, except when the phonetic codes of (K) appear within a larger word series that is not ignored, and except when (K) represents the entire locality description. Mismatches other than (K) indicate semantically different word series that are either phonetically identical (when sorted) or phonetically synonymous. Each word series in mismatches also appears as a key in ExcludedMatchesStore containing (K) among its mismatches.
 
-Two localities are presented as possible duplicates if there is at least one match between them. Matches are made between localities on the basis of the phonetic series they contain. A phonetic series (P) that otherwise designates a match is not considered a match if any of the following apply, where (W) is the word series for (P):
+Two localities are presented as possible duplicates if there is at least one match between them. Matches are made between localities on the basis of sorts of the sequential phonetic series they contain. A sorted phonetic series (P) that otherwise designates a match is not considered a match if any of the following apply, where (W) is the sorted word series for (P):
 
 (a) If (W) is a key of ExcludedMatchesStore, both localities contain (W), and the regions assigned to the localities are different but each associated with this key.
-(b) If (W) is a key of ExcludedMatchesStore, both localities contain (W), both localities are either assigned to the same region or the region of one locality contains that of the other, and the lat/long coordinate pairs assigned to the localities each match different coordinate pairs (C1) and (C2) associated with this key, within the precisions given by (C1) and (C2), respectively. This condition fails if either locality lacks a coordinate pair.
-(c) If (W) is a key of ExcludedMatchesStore, one locality contains (W), and the other locality contains a word series in the mismatches associated with this key.
+(b) If (W) is a key of ExcludedMatchesStore, both localities contain sequential words that sorts as (W), both localities are either assigned to the same region or the region of one locality contains that of the other, and the lat/long coordinate pairs assigned to the localities each match different coordinate pairs (C1) and (C2) associated with this key, within the precisions given by (C1) and (C2), respectively. This condition fails if either locality lacks a coordinate pair.
+(c) If (W) is a key of ExcludedMatchesStore, one locality contains sequential words that sort as (W), and the other locality contains a word series in the mismatches associated with this key.
 
 A word series in one locality is said to be paired in ExcludedMatchesStore with a word series of another locality if the two word series together satisfy any of the above conditions.
 
@@ -159,12 +159,12 @@ ExcludedMatchesStore provides all of these inequivalences.
 
 Stores words and phrases that the user has indicated are synonymous, but in a way that treats entities phonetically identical to synonymous entities as potentially synonymous.
 
-The key (K) is a phonetic phoneticSeries. The value consists of the following:
+The key (K) is a sorted phonetic series. The value consists of the following:
 
-(+) wordSeries: the word series for the key
+(+) wordSeries: the sorted word series for the key
 (+) equivalents: a list of equivalents, each entry consisting of the following:
-	(+) wordSeries: an equivalent word series
-	(+) phoneticSeries: the phonetic series for the equivalent word series. Each phonetic series also occurs in PotentialSynonymsStore as a key whose phoneticSeries contains (K).
+	(+) wordSeries: an equivalent occurrence-ordered word series
+	(+) phoneticSeries: the sorted phonetic series for the equivalent word series. Each phonetic series also occurs in PotentialSynonymsStore as a key whose phoneticSeries contains (K).
 
 The store preserves the word series associated with each phonetic series because these are the representations of the phonetic series that the user provides and subsequently sees.
 
@@ -269,8 +269,8 @@ Processes the current region (R), which must be a cached region of RegionRoster.
 Process the region (R), which must be a cached region.
 
 Define a "found match" as a structure containing the following information:
-	(+) the matching word series (W1) and its phonetic series (Z1) from the first locality (L1)
-	(+) the matching word series (W2) and its phonetic series (Z2) from the second locality (L2)
+	(+) the matching word series (W1) and its sorted phonetic series (Z1) from the first locality (L1)
+	(+) the matching word series (W2) and its sorted phonetic series (Z2) from the second locality (L2)
 	(+) the two word series that define the associated synonymous phonetic series, if applicable
 
 (+) For each region (R1) in includedRegions(R, R.includesLowerRanks):
@@ -282,8 +282,8 @@ Define a "found match" as a structure containing the following information:
 				(+) If (L2) is not in (D):
 					(+) If there is no baseline date, or if (R) is in the domain and (L1) is marked on or after the baseline date, or if (R) is not in the domain and (L2) is marked on or after the baseline date:
 						(+) Let (R2) be the region assigned to (L2).
-						(+) If (R1) is in the domain and ((R2) is adjacent to (R), contains (R), or contained in (R)), or if (R2) is in the domain and is adjacent to (R) [notes: because (R1) is not in the domain, (R2) won't contain or be contained in (R); the comparison is with (R) not (R1) because adjacencies may be defined for (R1)]:
-							(+) Collect the found matches (M) of all word series (W1) in (L1) having a phonetic series identical to a word series (W2) in (L2), such that (W1) is the entire text of (L1), (W2) is the entire text of (L2), or (W1) is not paired with (W2) in ExcludedMatchesStore.
+						(+) If (R1) is in the domain and ((R2) is adjacent to (R), contains (R), or contained in (R)), or if (R2) is in the domain and is adjacent to (R) [notes:  because (R1) is not in the domain, (R2) won't contain or be contained in (R); the comparison is with (R) not (R1) because adjacencies may not be defined for (R1)]:
+							(+) Collect the found matches (M) of all word series (W1) in (L1) having a sorted phonetic series identical to that of a word series (W2) in (L2), such that (W1) is the entire text of (L1), (W2) is the entire text of (L2), or (W1) is not paired with (W2) in ExcludedMatchesStore.
 							(+) If (M) is not empty:
 								(+) Call processMatchingLocalities(L1, L2, M)
 								(+) Add (L2) to (D).
@@ -293,7 +293,7 @@ Define a "found match" as a structure containing the following information:
 				(+) For each locality (L2) associated with (P2) in PhoneticLocalityIndex:
 					(+) If (L2) is not in (D):
 						(+) If there is no baseline date, or if (R) is in the domain and (L1) is marked on or after the baseline date, or if (R) is not in the domain and (L2) is marked on or after the baseline date:
-							(+) Collect the found matches (M) of all the phonetic series (Z2) in (L2) that are synonymous with a phonetic series (Z1) in (H) according to PotentialSynonymsStore, such that the word series (W1) for (Z1) is not paired with the word series (W2) for (Z2) in ExcludedMatchesStore.
+							(+) Collect the found matches (M) of all sorted phonetic series (Z2) in (L2) that are synonymous with a sorted phonetic series (Z1) in (H) according to PotentialSynonymsStore, such that the sorted word series (W1) for (Z1) is not paired with the sorted word series (W2) for (Z2) in ExcludedMatchesStore.
 							(+) If (M) is not empty:
 								(+) Call processMatchingLocalities(L1, L2, M)
 								(+) Add (L2) to (D).
