@@ -1,8 +1,9 @@
 {
-  "name": "ut-spectool",
+  "name": "spectool",
   "version": "0.1.0",
-  "private": true,
   "main": "./build/electron.js",
+  "license": "Apache-2.0",
+  "author": "Joseph T. Lapp",
   "scripts": {
     "build": "tsc && rollup -c",
     "build-client": "run-s build client",
