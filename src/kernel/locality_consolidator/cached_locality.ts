@@ -183,6 +183,7 @@ export class CachedLocality {
         }
         ++wordIndex;
       }
+      nextMatch = wordRegex.exec(text);
     }
   }
 
