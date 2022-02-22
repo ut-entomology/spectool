@@ -178,7 +178,7 @@ export class RegionProcessor {
     baseLocality: CachedLocality,
     testLocalityID: number
   ): Promise<boolean> {
-    // Make sure one of the localities fits the baseline date requirement.
+    // Make sure at least one of the localities fits the baseline date requirement.
 
     const testLocality = this._localityCache.getLocality(testLocalityID);
     if (
@@ -190,15 +190,42 @@ export class RegionProcessor {
     // Make sure at least one of the regions associated with the localities
     // is in the domain, so that we're only examining requested regions.
 
-    const testRegion = this._regionRoster.getByID(testLocalityID)!;
-    if (!currentRegion.inDomain && !testRegion.inDomain) {
+    if (!currentRegion.inDomain) {
+      const testRegion = this._regionRoster.getByID(testLocalityID)!;
+      if (!testRegion.inDomain) {
+        return false;
+      }
+    }
+
+    // In order to avoid the N^2 complexity problem of comparing every locality to
+    // every other locality, only examine the localities of adjoining regions.
+
+    if (!adjoiningRegionIDs.includes(testLocality.regionID)) {
       return false;
     }
 
-    // Make sure we're only examing localities of adjoining regions, which
-    // is something done for efficiency.
-    if (!adjoiningRegionIDs.includes(testLocality.regionID)) {
-      return false;
+    // Collect all phonetic matches between the two localities. There will be at
+    // least one, because only localities sharing a phonetic code are compared.
+
+    const matches = baseLocality.findPhoneticMatches(testLocality);
+
+    // If a match of either locality spans the entire locality name, indicate
+    // that the localities need to be presented as possible duplicates. If there
+    // is such a match, it is necessarily the first match for at least one of
+    // the localities, since no other matches will follow for that locality.
+    // Check word indexes rather than character offsets because some characters
+    // might not correspond to any phonetic encodings.
+
+    const firstMatch = matches[0];
+    const firstBaseSubset = firstMatch.baseSubsets[0];
+    const firstTestSubset = firstMatch.testSubsets[0];
+    if (
+      (firstBaseSubset.firstWordIndex == 0 &&
+        firstBaseSubset.lastWordIndex == baseLocality.words!.length - 1) ||
+      (firstTestSubset.firstWordIndex == 0 &&
+        firstTestSubset.lastWordIndex == testLocality.words!.length - 1)
+    ) {
+      return true;
     }
   }
 

@@ -51,32 +51,59 @@ export class CachedLocality {
       }
     }
 
-    //
+    // Find the phonetic series that are common to both localities.
 
-    const matches: PhoneticMatch[] = [];
     const baseSubsetsBySeries = this._getPhoneticSubsetsMap(commonCodesMap, this);
     const testSubsetsBySeries = this._getPhoneticSubsetsMap(
       commonCodesMap,
       testLocality
     );
-
+    const commonPhoneticSeries: string[] = [];
     for (const phoneticSeries of Object.keys(baseSubsetsBySeries)) {
       const testSubsets = testSubsetsBySeries[phoneticSeries];
       if (testSubsets !== undefined) {
         // phoneticSeries now known to be common to both base and test localities
-        const baseCaptures = this._toOrderedMaximalSubsets(
-          this,
-          baseSubsetsBySeries[phoneticSeries]
-        );
-        this._markWordLocations(this, baseCaptures);
-        const testCaptures = this._toOrderedMaximalSubsets(
-          testLocality,
-          testSubsetsBySeries[phoneticSeries]
-        );
-        this._markWordLocations(testLocality, testCaptures);
+        commonPhoneticSeries.push(phoneticSeries);
       }
     }
 
+    // Collect the phonetic subsets for the common phonetic series.
+
+    const commonBaseSubsets: PhoneticSubset[] = [];
+    const commonTestSubsets: PhoneticSubset[] = [];
+    for (const phoneticSeries of commonPhoneticSeries) {
+      commonBaseSubsets.push(...baseSubsetsBySeries[phoneticSeries]);
+      commonTestSubsets.push(...testSubsetsBySeries[phoneticSeries]);
+    }
+
+    // Determine the longest-spanning of these subsets for each locality,
+    // indexed by phonetic series. This will eliminate subsets that are part
+    // of longer subsets, but because the longer subsets were known to exist
+    // in both localities, there will still be subsets in common.
+
+    const baseCapturesBySeries = this._getSubsetCapturesBySeries(
+      this,
+      commonBaseSubsets
+    );
+    const testCapturesBySeries = this._getSubsetCapturesBySeries(
+      testLocality,
+      commonTestSubsets
+    );
+
+    // Assemble and return the corresponding phonetic series matches.
+
+    const matches: PhoneticMatch[] = [];
+    for (const phoneticSeries of Object.keys(baseCapturesBySeries)) {
+      const testCaptures = testCapturesBySeries[phoneticSeries];
+      if (testCaptures !== undefined) {
+        // phoneticSeries now known to be common to both sets of captures
+        matches.push({
+          phoneticSeries,
+          baseSubsets: baseCapturesBySeries[phoneticSeries],
+          testSubsets: testCaptures
+        });
+      }
+    }
     return matches;
   }
 
@@ -123,8 +150,10 @@ export class CachedLocality {
   }
 
   /**
-   * Returns all possible consecutive subsets of phonetic codes of a given
-   * locality restricted to the codes in the provided code map.
+   * Returns all possible subsets of consecutive phonetic codes of a given
+   * locality restricted to the codes in the provided code map, indexed by
+   * a sort of the phonetic series. Because a single phonetic series may
+   * occur multiple times, each index returns a list of phonetic subsets.
    */
 
   private _getPhoneticSubsetsMap(
@@ -158,7 +187,8 @@ export class CachedLocality {
 
   /**
    * Modifies the provided phonetic subsets to indicate their starting and
-   * ending character locations within the original locality name.
+   * ending character locations within the original locality name. Assumes
+   * that subsets are listed in their order of occurrence in the locality.
    */
   private _markWordLocations(
     locality: CachedLocality,
@@ -177,7 +207,8 @@ export class CachedLocality {
       if (word.length >= 3 && !EXCLUDED_WORDS.includes(word)) {
         if (wordIndex == subset.firstWordIndex) {
           subset.firstCharIndex = nextMatch.index;
-        } else if (wordIndex == subset.lastWordIndex) {
+        }
+        if (wordIndex == subset.lastWordIndex) {
           subset.lastCharIndexPlusOne = nextMatch.index + nextMatch[0].length;
           ++subsetIndex;
         }
@@ -188,15 +219,16 @@ export class CachedLocality {
   }
 
   /**
-   * Given all found phonetic subsets of a locality, returns the minimal set of
-   * subsets that includes all subsets, which is the set of subsets providing
+   * Given all found phonetic subsets of a locality, determines the minimal set
+   * of subsets that includes all subsets, which is the set of subsets providing
    * maximal coverage over the set of words. Any subsets that fully contain
-   * other subsets are dropped. Returns subsets in their order of occurrence.
+   * other subsets are dropped. Returns subsets indexed by phonetic series and
+   * marked for the locations of their associated words.
    */
-  private _toOrderedMaximalSubsets(
+  private _getSubsetCapturesBySeries(
     locality: CachedLocality,
     subsets: PhoneticSubset[]
-  ): PhoneticSubset[] {
+  ): Record<string, PhoneticSubset[]> {
     const words = locality.words!;
     const capturesByStartIndex: PhoneticSubset[] = Array(words.length);
     // Process longest subsets first so previously-captured subsets are
@@ -235,8 +267,23 @@ export class CachedLocality {
         }
       }
     }
-    // Return all
-    return capturesByStartIndex.filter((capture) => !!capture);
+
+    // Collect all the subsets in their order of occurrence.
+    const orderedCaptures = capturesByStartIndex.filter((capture) => !!capture);
+    // Mark the starting and ending characters of these subsets.
+    this._markWordLocations(locality, orderedCaptures);
+
+    // Return a map of all subsets indexed by phonetic series.
+    const capturesBySeries: Record<string, PhoneticSubset[]> = {};
+    for (const capture of orderedCaptures) {
+      let capturedSubsets = capturesBySeries[capture.phoneticSeries];
+      if (!capturedSubsets === undefined) {
+        capturedSubsets = [];
+        capturesBySeries[capture.phoneticSeries] = capturedSubsets;
+      }
+      capturedSubsets.push(capture);
+    }
+    return capturesBySeries;
   }
 
   /**
