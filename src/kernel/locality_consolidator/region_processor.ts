@@ -1,13 +1,13 @@
 import { Adjacencies } from '../util/adjacencies';
 import { AdjoiningRegions } from './adjoining_regions';
-import { EXTRA_MATCHES, CachedLocality } from './cached_locality';
+import { CachedLocality } from './cached_locality';
 import { LocalityCache } from './locality_cache';
 import { Geography } from '../specify/geography';
 import { PhoneticLocalityIndex } from './phonetic_locality_index';
 import { TrackedRegionRoster } from './region_roster';
 import { TrackedRegion } from './tracked_region';
 import { ExcludedMatchesStore, containsCoords } from './excluded_matches';
-import { PhoneticSubset } from './phonetic_match';
+import { LocalityMatch, PhoneticSubset } from '../../shared/shared_locality';
 
 export class RegionProcessor {
   private _geography: Geography;
@@ -39,7 +39,7 @@ export class RegionProcessor {
   async *run(
     baselineDate: Date | null,
     overallRegion: TrackedRegion
-  ): AsyncGenerator<void, void, void> {
+  ): AsyncGenerator<LocalityMatch, void, void> {
     // Cache information needed about overallRegion.
 
     const overallRegionID = overallRegion.id;
@@ -76,18 +76,19 @@ export class RegionProcessor {
           for (const testLocalityID of await this._phoneticLocalityIndex.getLocalityIDs(
             basePhoneticCode
           )) {
-            if (
-              !previouslyComparedIDs[testLocalityID] &&
-              (await this._comparePhoneticallyRelatedLocalities(
+            if (!previouslyComparedIDs[testLocalityID]) {
+              const localityMatch = await this._comparePhoneticallyRelatedLocalities(
                 adjoiningRegionIDs,
                 baselineDate,
                 overallRegion,
                 currentRegion,
                 baseLocality,
                 testLocalityID
-              ))
-            ) {
-              previouslyComparedIDs[testLocalityID] = true;
+              );
+              if (localityMatch) {
+                previouslyComparedIDs[testLocalityID] = true;
+                yield localityMatch;
+              }
             }
           }
 
@@ -106,22 +107,25 @@ export class RegionProcessor {
             for (const testLocalityID of await this._phoneticLocalityIndex.getLocalityIDs(
               synonymPhoneticCode
             )) {
-              if (
-                !previouslyComparedIDs[testLocalityID] &&
-                (await this._compareSynonymouslyRelatedLocalities(
+              if (!previouslyComparedIDs[testLocalityID]) {
+                const localityMatch = await this._compareSynonymouslyRelatedLocalities(
                   adjoiningRegionIDs,
                   baselineDate,
                   overallRegion,
                   currentRegion,
                   baseLocality,
                   testLocalityID
-                ))
-              ) {
-                previouslyComparedIDs[testLocalityID] = true;
+                );
+                if (localityMatch) {
+                  previouslyComparedIDs[testLocalityID] = true;
+                  yield localityMatch;
+                }
               }
             }
           }
         }
+        // TODO: (+) Remove (L1)'s contribution to PhoneticLocalityIndex.
+        // TODO: (+) Remove (L1) from LocalityCache.
       }
     }
   }
@@ -182,14 +186,14 @@ export class RegionProcessor {
     currentRegion: TrackedRegion,
     baseLocality: CachedLocality,
     testLocalityID: number
-  ): Promise<boolean> {
+  ): Promise<LocalityMatch | null> {
     // Make sure at least one of the localities fits the baseline date requirement.
 
     const testLocality = this._localityCache.getLocality(testLocalityID);
     if (
       !this._checkBaselineDate(baselineDate, overallRegion, baseLocality, testLocality)
     ) {
-      return false;
+      return null;
     }
 
     // Make sure at least one of the regions associated with the localities
@@ -198,7 +202,7 @@ export class RegionProcessor {
     if (!currentRegion.inDomain) {
       const testRegion = this._regionRoster.getByID(testLocalityID)!;
       if (!testRegion.inDomain) {
-        return false;
+        return null;
       }
     }
 
@@ -206,7 +210,7 @@ export class RegionProcessor {
     // every other locality, only examine the localities of adjoining regions.
 
     if (!adjoiningRegionIDs.includes(testLocality.regionID)) {
-      return false;
+      return null;
     }
 
     // Collect all phonetic matches between the two localities. There will be at
@@ -239,7 +243,7 @@ export class RegionProcessor {
               testLocality.longitude
             ])
           ) {
-            return false;
+            return null;
           }
         } else {
           // Skip localities expected to have identical names in different regions.
@@ -249,7 +253,7 @@ export class RegionProcessor {
             exclusions.nonmatchingRegionIDs.includes(currentRegion.id) &&
             exclusions.nonmatchingRegionIDs.includes(testRegion.id)
           ) {
-            return false;
+            return null;
           }
         }
       }
@@ -261,6 +265,7 @@ export class RegionProcessor {
     // as such, in case it confuses the user to see matching words not highlighted.
 
     const excludedSubsetPairs: PhoneticSubset[][] = [];
+    let isPossibleDuplicate = false;
     for (let i = 0; i < matches.length; ++i) {
       const match = matches[i];
       const baseSubsets = match.baseSubsets;
@@ -269,25 +274,34 @@ export class RegionProcessor {
         const baseWordSeries = baseLocality.getWordSeries(baseSubset);
         const exclusions =
           this._excludedMatchesStore.getExcludedMatches(baseWordSeries);
-        const testSubsets = match.testSubsets;
-        for (let k = 0; k < testSubsets.length; ++k) {
-          const testSubset = testSubsets[k];
-          const testWordSeries = testLocality.getWordSeries(testSubset);
-          if (exclusions?.nonmatchingWords.includes(testWordSeries)) {
-            excludedSubsetPairs.push([baseSubset, testSubset]);
-          } else {
-            // TODO: need to present to user
-            return true;
+        if (exclusions) {
+          const testSubsets = match.testSubsets;
+          for (let k = 0; k < testSubsets.length; ++k) {
+            const testSubset = testSubsets[k];
+            const testWordSeries = testLocality.getWordSeries(testSubset);
+            if (exclusions.nonmatchingWords.includes(testWordSeries)) {
+              excludedSubsetPairs.push([baseSubset, testSubset]);
+            } else {
+              // Allow excludedSubsetPairs to finish collecting for the presentation.
+              // No need to short-circuit; about to require user interaction.
+              isPossibleDuplicate = true;
+            }
           }
         }
         // Note: There's no need to also test all test word series against base
         // word series because ExcludedMatchesStore is symmetric on word series.
       }
     }
+    if (!isPossibleDuplicate) return null;
 
-    // TODO: what if all full matches are exclusions, but there are extras?
+    // The localities meet all the matching requirements, so return the match.
 
-    return false;
+    return {
+      baseLocality,
+      testLocality,
+      matches,
+      excludedSubsetPairs
+    };
   }
 
   private async _compareSynonymouslyRelatedLocalities(
@@ -297,7 +311,7 @@ export class RegionProcessor {
     currentRegion: TrackedRegion,
     baseLocality: CachedLocality,
     testLocalityID: number
-  ): Promise<boolean> {
+  ): Promise<LocalityMatch | null> {
     //
   }
 

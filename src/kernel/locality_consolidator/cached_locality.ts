@@ -2,7 +2,11 @@ import fuzzySoundex from 'talisman/phonetics/fuzzy-soundex';
 
 import { Geography } from '../specify/geography';
 import { TrackedRegion } from './tracked_region';
-import { PhoneticSubset, PhoneticMatch } from './phonetic_match';
+import {
+  MatchedLocality,
+  PhoneticSubset,
+  PhoneticMatch
+} from '../../shared/shared_locality';
 
 const EXCLUDED_WORDS = ['and', 'for', 'from', 'the', 'with'];
 
@@ -190,6 +194,21 @@ export class CachedLocality {
       }
     }
     return false;
+  }
+
+  /**
+   * Returns a subset of the cached locality for transfer to the client.
+   */
+  toMatchedLocality(): MatchedLocality {
+    return {
+      regionID: this.regionID,
+      localityID: this.localityID,
+      latitude: this.latitude,
+      longitude: this.longitude,
+      name: this.name,
+      remarks: this.remarks,
+      lastModified: this.lastModified
+    };
   }
 
   /**
