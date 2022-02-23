@@ -283,12 +283,15 @@ Define a "found match" as a structure containing the following information:
 		(+) For each phonetic code (P1) in (L1):
 
 			(+) For each locality (L2) associated with (P1) in PhoneticLocalityIndex:
+				[BEGIN COMMON LOGIC]
 				(+) If (L2) is not in (D):
 					(+) If there is no baseline date, or if (R) is in the domain and (L1) is marked on or after the baseline date, or if (R) is not in the domain and (L2) is marked on or after the baseline date:
 						(+) Let (R2) be the region assigned to (L2).
-						(+) If (R1) is in the domain and ((R2) is adjacent to (R), contains (R), or contained in (R)), or if (R2) is in the domain and is adjacent to (R) [notes:  because (R1) is not in the domain, (R2) won't contain or be contained in (R); the comparison is with (R) not (R1) because adjacencies may not be defined for (R1)]:
+						(+) If (R1) is in the domain and ((R2) is adjacent to (R), contains (R), or contained in (R)), or if (R2) is in the domain and is adjacent to (R) [notes:  because (R1) is not in the domain, (R2) won't contain or be contained in (R); the comparison is with (R) not (R1) because adjacencies may not be defined for (R1)] -- prevents comparison when neither locality is in the domain:
+							[END COMMON LOGIC]
 							(+) If the entire word series of (L1) and (L2) are not identical or they are identical but neither a region match nor a coordinate match in ExcludedMatchesStore for that word series:
 								(+) Collect the found matches (M) of all word series (W1) in (L1) having a sorted phonetic series identical to that of a word series (W2) in (L2), such that (W1) is not paired with (W2) in ExcludedMatchesStore.
+								[BEGIN COMMON LOGIC]
 								(+) If (M) is not empty:
 									(+) Call processMatchingLocalities(L1, L2, M)
 									(+) Add (L2) to (D).
@@ -296,12 +299,18 @@ Define a "found match" as a structure containing the following information:
 			(+) Let (H) be the set of phonetic series associated with (P1) in PhoneticLocalityIndex and found in (L1).
 			(+) For each phonetic code (P2) found in (H):
 				(+) For each locality (L2) associated with (P2) in PhoneticLocalityIndex:
+					[BEGIN COMMON LOGIC]
 					(+) If (L2) is not in (D):
 						(+) If there is no baseline date, or if (R) is in the domain and (L1) is marked on or after the baseline date, or if (R) is not in the domain and (L2) is marked on or after the baseline date:
-							(+) Collect the found matches (M) of all sorted phonetic series (Z2) in (L2) that are synonymous with a sorted phonetic series (Z1) in (H) according to PotentialSynonymsStore, such that the sorted word series (W1) for (Z1) is not paired with the sorted word series (W2) for (Z2) in ExcludedMatchesStore.
-							(+) If (M) is not empty:
-								(+) Call processMatchingLocalities(L1, L2, M)
-								(+) Add (L2) to (D).
+							(+) Let (R2) be the region assigned to (L2).
+							(+) If (R1) is in the domain and ((R2) is adjacent to (R), contains (R), or contained in (R)), or if (R2) is in the domain and is adjacent to (R) [notes:  because (R1) is not in the domain, (R2) won't contain or be contained in (R); the comparison is with (R) not (R1) because adjacencies may not be defined for (R1)] -- prevents comparison when neither locality is in the domain:
+								[END COMMON LOGIC]
+								(+) Collect the found matches (M) of all sorted phonetic series (Z2) in (L2) that are synonymous with a sorted phonetic series (Z1) in (H) according to PotentialSynonymsStore, such that the sorted word series (W1) for (Z1) is not paired with the sorted word series (W2) for (Z2) in ExcludedMatchesStore.
+								[BEGIN COMMON LOGIC]
+								(+) If (M) is not empty:
+									(+) Call processMatchingLocalities(L1, L2, M)
+									(+) Add (L2) to (D).
+									[END COMMON LOGIC]
 
 	(+) Remove (L1)'s contribution to PhoneticLocalityIndex.
 	(+) Remove (L1) from LocalityCache.

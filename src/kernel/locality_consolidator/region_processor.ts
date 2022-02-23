@@ -83,7 +83,7 @@ export class RegionProcessor {
                 overallRegion,
                 currentRegion,
                 baseLocality,
-                testLocalityID
+                this._localityCache.getLocality(testLocalityID)
               );
               if (localityMatch) {
                 previouslyComparedIDs[testLocalityID] = true;
@@ -108,13 +108,13 @@ export class RegionProcessor {
               synonymPhoneticCode
             )) {
               if (!previouslyComparedIDs[testLocalityID]) {
-                const localityMatch = await this._compareSynonymouslyRelatedLocalities(
+                const localityMatch = this._compareSynonymouslyRelatedLocalities(
                   adjoiningRegionIDs,
                   baselineDate,
                   overallRegion,
                   currentRegion,
                   baseLocality,
-                  testLocalityID
+                  this._localityCache.getLocality(testLocalityID)
                 );
                 if (localityMatch) {
                   previouslyComparedIDs[testLocalityID] = true;
@@ -183,37 +183,30 @@ export class RegionProcessor {
     return codes;
   }
 
-  private async _comparePhoneticallyRelatedLocalities(
+  /**
+   * Compares the phonetic similarity of the provided base and test localities,
+   * returning a description of their similarities if they in scope and not
+   * precluded from matching by the `ExcludedMatchesStore`, and null otherwise.
+   */
+  private _comparePhoneticallyRelatedLocalities(
     adjoiningRegionIDs: number[],
     baselineDate: Date | null,
     overallRegion: TrackedRegion,
     currentRegion: TrackedRegion,
     baseLocality: CachedLocality,
-    testLocalityID: number
-  ): Promise<LocalityMatch | null> {
-    // Make sure at least one of the localities fits the baseline date requirement.
+    testLocality: CachedLocality
+  ): LocalityMatch | null {
 
-    const testLocality = this._localityCache.getLocality(testLocalityID);
-    if (
-      !this._checkBaselineDate(baselineDate, overallRegion, baseLocality, testLocality)
-    ) {
-      return null;
-    }
+    // Make sure the localities are spatially and temporally in scope.
 
-    // Make sure at least one of the regions associated with the localities
-    // is in the domain, so that we're only examining requested regions.
-
-    if (!currentRegion.inDomain) {
-      const testRegion = this._regionRoster.getByID(testLocalityID)!;
-      if (!testRegion.inDomain) {
-        return null;
-      }
-    }
-
-    // In order to avoid the N^2 complexity problem of comparing every locality to
-    // every other locality, only examine the localities of adjoining regions.
-
-    if (!adjoiningRegionIDs.includes(testLocality.regionID)) {
+    if (!this._localityIsInScope(
+      adjoiningRegionIDs,
+      baselineDate,
+      overallRegion,
+      currentRegion,
+      baseLocality,
+      testLocality
+    )) {
       return null;
     }
 
@@ -234,7 +227,7 @@ export class RegionProcessor {
     if (baseNameSeries == testNameSeries) {
       const exclusions = this._excludedMatchesStore.getExcludedMatches(baseNameSeries);
       if (exclusions) {
-        const testRegion = this._regionRoster.getByID(testLocalityID)!;
+        const testRegion = this._regionRoster.getByID(testLocality.regionID)!;
         if (currentRegion.id == testRegion.id) {
           // Skip localities expected to have identical names at different coordinates.
           if (
@@ -308,15 +301,71 @@ export class RegionProcessor {
     };
   }
 
-  private async _compareSynonymouslyRelatedLocalities(
+  /**
+   * Compares the phonetic synonymies of the provided base and test localities,
+   * returning a description of their synonymies if they in scope and not
+   * precluded from matching by the `ExcludedMatchesStore`, and null otherwise.
+   */
+   private _compareSynonymouslyRelatedLocalities(
     adjoiningRegionIDs: number[],
     baselineDate: Date | null,
     overallRegion: TrackedRegion,
     currentRegion: TrackedRegion,
     baseLocality: CachedLocality,
-    testLocalityID: number
-  ): Promise<LocalityMatch | null> {
-    //
+    testLocality: CachedLocality
+  ): LocalityMatch | null {
+
+    // Make sure the localities are spatially and temporally in scope.
+
+    if (!this._localityIsInScope(
+      adjoiningRegionIDs,
+      baselineDate,
+      overallRegion,
+      currentRegion,
+      baseLocality,
+      testLocality
+    )) {
+      return null;
+    }
+  }
+
+  /**
+   * Determines whether the test locality is temporally and spatially in scope.
+   */
+  private _localityIsInScope(
+    adjoiningRegionIDs: number[],
+    baselineDate: Date | null,
+    overallRegion: TrackedRegion,
+    currentRegion: TrackedRegion,
+    baseLocality: CachedLocality,
+    testLocality: CachedLocality
+  ): boolean {
+    // Make sure at least one of the localities fits the baseline date requirement.
+
+    if (
+      !this._checkBaselineDate(baselineDate, overallRegion, baseLocality, testLocality)
+    ) {
+      return false;
+    }
+
+    // Make sure at least one of the regions associated with the localities
+    // is in the domain, so that we're only examining requested regions.
+
+    if (!currentRegion.inDomain) {
+      const testRegion = this._regionRoster.getByID(testLocality.regionID)!;
+      if (!testRegion.inDomain) {
+        return false;
+      }
+    }
+
+    // In order to avoid the N^2 complexity problem of comparing every locality to
+    // every other locality, only examine the localities of adjoining regions.
+
+    if (!adjoiningRegionIDs.includes(testLocality.regionID)) {
+      return false;
+    }
+
+    return true;
   }
 
   /**
