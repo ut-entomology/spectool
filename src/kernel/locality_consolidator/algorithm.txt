@@ -129,21 +129,19 @@ For now, the number of synonyms is expected to be small, so it's okay to keep en
 
 ### ExcludedMatchesStore
 
-Stores permanent knowledge about which pairs of sorted word series having identical phonetic series are not to be considered suggestive of having duplicate localities.
+Stores permanent knowledge about which pairs of sorted word series having identical or synonymous phonetic series are not to be considered suggestive of having duplicate localities.
 
-The key (K) is a sorted word series. The value consists of at least one of the following:
+The key (K) is an occurrence-ordered word series. The value consists of at least one of the following:
 
 (+) regions: an optional list of regions, given by their geographic IDs; when present, there will be at least two regions in the list, indicating different regions having the same locality description
-(+) coordinates: an optional list of lat/long coordinate pairs; when present, there will be at least two coordinate pairs, indicating locality descriptions that are to be considered distinct by virtue of their different coordinates
-(+) mismatches: an optional list of sorted word series each indicating that they refer to something different from (K); if (K) itself appears in this list, occurrences of (K) are to be ignored for purposes of matching localities, except when the phonetic codes of (K) appear within a larger word series that is not ignored, and except when (K) represents the entire locality description. Mismatches other than (K) indicate semantically different word series that are either phonetically identical (when sorted) or phonetically synonymous. Each word series in mismatches also appears as a key in ExcludedMatchesStore containing (K) among its mismatches.
+(+) coordinates: an optional list of lat/long coordinate pairs; when present, there will be at least two coordinate pairs, indicating locality descriptions that are to be considered distinct by virtue of their different coordinates when both localities are in the same region.
+(+) mismatches: an optional list of occurrence-ordered word series each indicating that they refer to something different from (K); if (K) itself appears in this list, occurrences of (K) are to be ignored for purposes of matching localities, except when the phonetic codes of (K) appear within a larger word series that is not ignored, and except when (K) represents the entire locality description. Mismatches other than (K) indicate semantically different word series that are either phonetically identical (when sorted) or phonetically synonymous. Each word series in mismatches also appears as a key in ExcludedMatchesStore containing (K) among its mismatches.
 
-Two localities are presented as possible duplicates if there is at least one match between them. Matches are made between localities on the basis of sorts of the sequential phonetic series they contain. A sorted phonetic series (P) that otherwise designates a match is not considered a match if any of the following apply, where (W) is the sorted word series for (P):
+Two localities are presented as possible duplicates if there is at least one match between them. Matches are made between localities on the basis of sorts of the sequential phonetic series they contain. A sorted phonetic series (P) that otherwise designates a match is not considered a match if any of the following apply, where (W) is the occurrence-ordered word series for (P):
 
-(a) If (W) is a key of ExcludedMatchesStore, both localities contain (W), and the regions assigned to the localities are different but each associated with this key.
-(b) If (W) is a key of ExcludedMatchesStore, both localities contain sequential words that sorts as (W), both localities are either assigned to the same region or the region of one locality contains that of the other, and the lat/long coordinate pairs assigned to the localities each match different coordinate pairs (C1) and (C2) associated with this key, within the precisions given by (C1) and (C2), respectively. This condition fails if either locality lacks a coordinate pair.
-(c) If (W) is a key of ExcludedMatchesStore, one locality contains sequential words that sort as (W), and the other locality contains a word series in the mismatches associated with this key.
-
-A word series in one locality is said to be paired in ExcludedMatchesStore with a word series of another locality if the two word series together satisfy any of the above conditions.
+(a) If (W) is a key of ExcludedMatchesStore, (W) is the entire name of each locality, and the regions assigned to the localities are different but each associated with this key.
+(b) If (W) is a key of ExcludedMatchesStore, (W) is the entire name of each locality, the localities belong to the same region, and the lat/long coordinate pairs assigned to the localities are each identical to different coordinate pairs. This condition fails if either locality lacks a coordinate pair.
+(c) If (W) is a key of ExcludedMatchesStore, one locality contains (W), and the other locality contains a word series in the mismatches associated with this key. In this latter case, localities are still presented as potential duplicates if either (W) or the associated word series is the entire locality name.
 
 Possible reasons that two matching localities might be inequivalent:
 
@@ -283,10 +281,11 @@ Define a "found match" as a structure containing the following information:
 					(+) If there is no baseline date, or if (R) is in the domain and (L1) is marked on or after the baseline date, or if (R) is not in the domain and (L2) is marked on or after the baseline date:
 						(+) Let (R2) be the region assigned to (L2).
 						(+) If (R1) is in the domain and ((R2) is adjacent to (R), contains (R), or contained in (R)), or if (R2) is in the domain and is adjacent to (R) [notes:  because (R1) is not in the domain, (R2) won't contain or be contained in (R); the comparison is with (R) not (R1) because adjacencies may not be defined for (R1)]:
-							(+) Collect the found matches (M) of all word series (W1) in (L1) having a sorted phonetic series identical to that of a word series (W2) in (L2), such that (W1) is the entire text of (L1), (W2) is the entire text of (L2), or (W1) is not paired with (W2) in ExcludedMatchesStore.
-							(+) If (M) is not empty:
-								(+) Call processMatchingLocalities(L1, L2, M)
-								(+) Add (L2) to (D).
+							(+) If the entire word series of (L1) and (L2) are not identical or they are identical but neither a region match nor a coordinate match in ExcludedMatchesStore for that word series:
+								(+) Collect the found matches (M) of all word series (W1) in (L1) having a sorted phonetic series identical to that of a word series (W2) in (L2), such that (W1) is not paired with (W2) in ExcludedMatchesStore.
+								(+) If (M) is not empty:
+									(+) Call processMatchingLocalities(L1, L2, M)
+									(+) Add (L2) to (D).
 
 			(+) Let (H) be the set of phonetic series associated with (P1) in PhoneticLocalityIndex and found in (L1).
 			(+) For each phonetic code (P2) found in (H):

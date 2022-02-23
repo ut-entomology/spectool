@@ -1,11 +1,13 @@
 import { Adjacencies } from '../util/adjacencies';
 import { AdjoiningRegions } from './adjoining_regions';
-import { CachedLocality } from './cached_locality';
+import { EXTRA_MATCHES, CachedLocality } from './cached_locality';
 import { LocalityCache } from './locality_cache';
 import { Geography } from '../specify/geography';
 import { PhoneticLocalityIndex } from './phonetic_locality_index';
 import { TrackedRegionRoster } from './region_roster';
 import { TrackedRegion } from './tracked_region';
+import { ExcludedMatchesStore, containsCoords } from './excluded_matches';
+import { PhoneticSubset } from './phonetic_match';
 
 export class RegionProcessor {
   private _geography: Geography;
@@ -14,6 +16,7 @@ export class RegionProcessor {
   private _localityCache: LocalityCache;
   private _phoneticLocalityIndex: PhoneticLocalityIndex;
   private _regionRoster: TrackedRegionRoster;
+  private _excludedMatchesStore: ExcludedMatchesStore;
 
   constructor(
     geography: Geography,
@@ -21,7 +24,8 @@ export class RegionProcessor {
     adjoiningRegions: AdjoiningRegions,
     localityCache: LocalityCache,
     phoneticLocalityIndex: PhoneticLocalityIndex,
-    regionRoster: TrackedRegionRoster
+    regionRoster: TrackedRegionRoster,
+    excludedMatchesStore: ExcludedMatchesStore
   ) {
     this._geography = geography;
     this._adjacencies = adjacencies;
@@ -29,6 +33,7 @@ export class RegionProcessor {
     this._localityCache = localityCache;
     this._phoneticLocalityIndex = phoneticLocalityIndex;
     this._regionRoster = regionRoster;
+    this._excludedMatchesStore = excludedMatchesStore;
   }
 
   async *run(
@@ -206,27 +211,83 @@ export class RegionProcessor {
 
     // Collect all phonetic matches between the two localities. There will be at
     // least one, because only localities sharing a phonetic code are compared.
+    // (`matches` actually contains at least two entries, because the last entry
+    // indicates leftover subsets of unmatched for being subsumed by other,
+    // longer subsets in the other locality, even if there are no leftovers.)
 
     const matches = baseLocality.findPhoneticMatches(testLocality);
 
-    // If a match of either locality spans the entire locality name, indicate
-    // that the localities need to be presented as possible duplicates. If there
-    // is such a match, it is necessarily the first match for at least one of
-    // the localities, since no other matches will follow for that locality.
-    // Check word indexes rather than character offsets because some characters
-    // might not correspond to any phonetic encodings.
+    // Skip over localities having known to have identical names but be in
+    // different regions or at different coordinates. Localities in different
+    // regions having the same coordinates won't be skipped.
 
-    const firstMatch = matches[0];
-    const firstBaseSubset = firstMatch.baseSubsets[0];
-    const firstTestSubset = firstMatch.testSubsets[0];
-    if (
-      (firstBaseSubset.firstWordIndex == 0 &&
-        firstBaseSubset.lastWordIndex == baseLocality.words!.length - 1) ||
-      (firstTestSubset.firstWordIndex == 0 &&
-        firstTestSubset.lastWordIndex == testLocality.words!.length - 1)
-    ) {
-      return true;
+    const baseNameSeries = baseLocality.getEntireWordSeries();
+    const testNameSeries = testLocality.getEntireWordSeries();
+    if (baseNameSeries == testNameSeries) {
+      const exclusions = this._excludedMatchesStore.getExcludedMatches(baseNameSeries);
+      if (exclusions) {
+        const testRegion = this._regionRoster.getByID(testLocalityID)!;
+        if (currentRegion.id == testRegion.id) {
+          // Skip localities expected to have identical names at different coordinates.
+          if (
+            containsCoords(exclusions.nonmatchingCoordinates, [
+              baseLocality.latitude,
+              baseLocality.longitude
+            ]) &&
+            containsCoords(exclusions.nonmatchingCoordinates, [
+              testLocality.latitude,
+              testLocality.longitude
+            ])
+          ) {
+            return false;
+          }
+        } else {
+          // Skip localities expected to have identical names in different regions.
+          if (
+            exclusions &&
+            exclusions.nonmatchingRegionIDs.length != 0 /*short-circuits*/ &&
+            exclusions.nonmatchingRegionIDs.includes(currentRegion.id) &&
+            exclusions.nonmatchingRegionIDs.includes(testRegion.id)
+          ) {
+            return false;
+          }
+        }
+      }
     }
+
+    // Before presenting the possible duplicate to the user, make sure that the
+    // word matches actually aren't all excluded. Keep track of subsets rejected
+    // for having excluded word series, so that they can be presented to the user
+    // as such, in case it confuses the user to see matching words not highlighted.
+
+    const excludedSubsetPairs: PhoneticSubset[][] = [];
+    for (let i = 0; i < matches.length; ++i) {
+      const match = matches[i];
+      const baseSubsets = match.baseSubsets;
+      for (let j = 0; j < baseSubsets.length; ++j) {
+        const baseSubset = baseSubsets[j];
+        const baseWordSeries = baseLocality.getWordSeries(baseSubset);
+        const exclusions =
+          this._excludedMatchesStore.getExcludedMatches(baseWordSeries);
+        const testSubsets = match.testSubsets;
+        for (let k = 0; k < testSubsets.length; ++k) {
+          const testSubset = testSubsets[k];
+          const testWordSeries = testLocality.getWordSeries(testSubset);
+          if (exclusions?.nonmatchingWords.includes(testWordSeries)) {
+            excludedSubsetPairs.push([baseSubset, testSubset]);
+          } else {
+            // TODO: need to present to user
+            return true;
+          }
+        }
+        // Note: There's no need to also test all test word series against base
+        // word series because ExcludedMatchesStore is symmetric on word series.
+      }
+    }
+
+    // TODO: what if all full matches are exclusions, but there are extras?
+
+    return false;
   }
 
   private async _compareSynonymouslyRelatedLocalities(

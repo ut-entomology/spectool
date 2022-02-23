@@ -6,11 +6,13 @@ import { PhoneticSubset, PhoneticMatch } from './phonetic_match';
 
 const EXCLUDED_WORDS = ['and', 'for', 'from', 'the', 'with'];
 
+export const EXTRA_MATCHES = ''; // phonetic series representing partial matches
+
 export class CachedLocality {
   regionID: number;
   localityID: number;
-  latitude: number;
-  longitude: number;
+  latitude: number | null;
+  longitude: number | null;
   name: string;
   words: string[] | null; // occurrence-ordered
   phonetics: string[] | null; // occurrence-ordered
@@ -20,8 +22,8 @@ export class CachedLocality {
   constructor(
     region: TrackedRegion,
     localityID: number,
-    latitude: number,
-    longitude: number,
+    latitude: number | null,
+    longitude: number | null,
     name: string,
     remarks: string,
     lastModified: number
@@ -90,12 +92,19 @@ export class CachedLocality {
       commonTestSubsets
     );
 
-    // Assemble and return the corresponding phonetic series matches.
+    // Assemble and return the corresponding phonetic series matches. Phonetic
+    // subsets of each locality that are identical to those of the other
+    // locality but subsumed by other subsets in the other locality are collected
+    // as "extras" for inclusion as the last entry in `matches`.
 
     const matches: PhoneticMatch[] = [];
+    const extraBaseSubsets: PhoneticSubset[] = [];
+    const extraTestSubsets: PhoneticSubset[] = [];
     for (const phoneticSeries of Object.keys(baseCapturesBySeries)) {
       const testCaptures = testCapturesBySeries[phoneticSeries];
-      if (testCaptures !== undefined) {
+      if (testCaptures === undefined) {
+        extraBaseSubsets.push(...baseCapturesBySeries[phoneticSeries]);
+      } else {
         // phoneticSeries now known to be common to both sets of captures
         matches.push({
           phoneticSeries,
@@ -104,7 +113,41 @@ export class CachedLocality {
         });
       }
     }
+    for (const phoneticSeries of Object.keys(testCapturesBySeries)) {
+      const baseCaptures = baseCapturesBySeries[phoneticSeries];
+      if (baseCaptures === undefined) {
+        extraTestSubsets.push(...testCapturesBySeries[phoneticSeries]);
+      }
+    }
+    matches.push({
+      phoneticSeries: EXTRA_MATCHES,
+      baseSubsets: extraBaseSubsets,
+      testSubsets: extraTestSubsets
+    });
     return matches;
+  }
+
+  /**
+   * Returns the word series for the entire locality name. Assumes that
+   * the locality has a name.
+   */
+  getEntireWordSeries(): string {
+    return this.words!.join(' ');
+  }
+
+  /**
+   * Return the occurrence-ordered word series associated with the provided
+   * phonetic subset, caching them within the subset to reduce costs of later
+   * calls to this method on the same subset.
+   */
+  getWordSeries(phoneticSubset: PhoneticSubset): string {
+    if (!phoneticSubset.cachedWordSeries) {
+      phoneticSubset.cachedWordSeries = this.words!.slice(
+        phoneticSubset.firstWordIndex,
+        phoneticSubset.lastWordIndex + 1
+      ).join(' ');
+    }
+    return phoneticSubset.cachedWordSeries;
   }
 
   /**

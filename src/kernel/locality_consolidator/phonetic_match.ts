@@ -4,6 +4,7 @@ export interface PhoneticSubset {
   lastWordIndex: number;
   firstCharIndex?: number;
   lastCharIndexPlusOne?: number;
+  cachedWordSeries?: string; // generated only as needed
 }
 
 export interface PhoneticMatch {
