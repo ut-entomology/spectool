@@ -31,8 +31,8 @@
             "type": "node"
         },
         {
-            "type": "node",
             "name": "vscode-jest-tests",
+            "type": "node",
             "request": "launch",
             "console": "integratedTerminal",
             "internalConsoleOptions": "neverOpen",
