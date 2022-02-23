@@ -124,8 +124,12 @@ export class RegionProcessor {
             }
           }
         }
-        // TODO: (+) Remove (L1)'s contribution to PhoneticLocalityIndex.
-        // TODO: (+) Remove (L1) from LocalityCache.
+
+        // There are no more comparisons to do with the base locality, so remove it
+        // from the cache and the necessary indexes.
+
+        this._phoneticLocalityIndex.removeLocality(baseLocality);
+        this._localityCache.uncacheLocality(baseLocality.localityID);
       }
     }
   }
