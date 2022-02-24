@@ -77,7 +77,7 @@ export class RegionProcessor {
             basePhoneticCode
           )) {
             if (!previouslyComparedIDs[testLocalityID]) {
-              const localityMatch = await this._comparePhoneticallyRelatedLocalities(
+              const localityMatch = this._comparePhoneticallyRelatedLocalities(
                 adjoiningRegionIDs,
                 baselineDate,
                 overallRegion,
@@ -86,8 +86,8 @@ export class RegionProcessor {
                 this._localityCache.getLocality(testLocalityID)
               );
               if (localityMatch) {
-                previouslyComparedIDs[testLocalityID] = true;
                 yield localityMatch;
+                previouslyComparedIDs[testLocalityID] = true;
               }
             }
           }
@@ -117,8 +117,8 @@ export class RegionProcessor {
                   this._localityCache.getLocality(testLocalityID)
                 );
                 if (localityMatch) {
-                  previouslyComparedIDs[testLocalityID] = true;
                   yield localityMatch;
+                  previouslyComparedIDs[testLocalityID] = true;
                 }
               }
             }
@@ -167,7 +167,7 @@ export class RegionProcessor {
 
   /**
    * Returns a list of all phonetic codes found in those of the provide phonetic
-   * series occur in the provided locality, irrespective of the order of the
+   * series that occur in the provided locality, irrespective of the order of the
    * phonetic codes within their series.
    */
   private _collectPhoneticCodesOf(
@@ -365,7 +365,7 @@ export class RegionProcessor {
       return false;
     }
 
-    return true;
+    return true; // locality is in scope
   }
 
   /**

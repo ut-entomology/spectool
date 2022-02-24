@@ -296,8 +296,10 @@ Define a "found match" as a structure containing the following information:
 									(+) Call processMatchingLocalities(L1, L2, M)
 									(+) Add (L2) to (D).
 
-			(+) Let (H) be the set of phonetic series associated with (P1) in PhoneticLocalityIndex and found in (L1).
-			(+) For each phonetic code (P2) found in (H):
+			(+) Let (H) be the set of synonym phonetic series associated with (P1) in PhoneticLocalityIndex and found in (L1). These are the phonetic series of (L1) that have synonyms.
+			(+) Let (I) be the set of synonyms in PotentialSynonymsStore for the phonetic series in (H), so that if there exists a synonym for a series in (H), then that synonym is in (I), except that (I) contains no series found in (H).
+			(+) Let (J) be the set of phonetic codes found in (I).
+			(+) For each phonetic code (P2) found in (J):
 				(+) For each locality (L2) associated with (P2) in PhoneticLocalityIndex:
 					[BEGIN COMMON LOGIC]
 					(+) If (L2) is not in (D):
@@ -305,7 +307,7 @@ Define a "found match" as a structure containing the following information:
 							(+) Let (R2) be the region assigned to (L2).
 							(+) If (R1) is in the domain and ((R2) is adjacent to (R), contains (R), or contained in (R)), or if (R2) is in the domain and is adjacent to (R) [notes:  because (R1) is not in the domain, (R2) won't contain or be contained in (R); the comparison is with (R) not (R1) because adjacencies may not be defined for (R1)] -- prevents comparison when neither locality is in the domain:
 								[END COMMON LOGIC]
-								(+) Collect the found matches (M) of all sorted phonetic series (Z2) in (L2) that are synonymous with a sorted phonetic series (Z1) in (H) according to PotentialSynonymsStore, such that the sorted word series (W1) for (Z1) is not paired with the sorted word series (W2) for (Z2) in ExcludedMatchesStore.
+								(+) Collect the found matches (M) of all sorted phonetic series (Z2) in (L2) that are found in (I), such that the sorted word series (W1) for the phonetic series (Z1) in (L1) that is synonymous with (Z2) is not paired with the sorted word series (W2) for (Z2) in ExcludedMatchesStore.
 								[BEGIN COMMON LOGIC]
 								(+) If (M) is not empty:
 									(+) Call processMatchingLocalities(L1, L2, M)
