@@ -4,7 +4,7 @@ import { CachedLocality } from './cached_locality';
 import { LocalityCache } from './locality_cache';
 import { Geography } from '../specify/geography';
 import { PhoneticLocalityIndex } from './phonetic_locality_index';
-import { PotentialSynonymsStore, SeriesEquivalent } from './potential_synonyms';
+import { PotentialSynonymsStore, SeriesPair } from './potential_synonyms';
 import { TrackedRegionRoster } from './region_roster';
 import { TrackedRegion } from './tracked_region';
 import { ExcludedMatchesStore, containsCoords } from './excluded_matches';
@@ -104,14 +104,14 @@ export class RegionProcessor {
           // with any phonetic series that is synonymous with a phonetic series found
           // in baseLocality, checking them for possible duplication of baseLocality.
 
-          const baseWordSeriesEquivalentsMap = await this._getSynonymsAssociatedWithPhoneticCode(
+          const baseWordSeriesPairsMap = await this._getSynonymsAssociatedWithPhoneticCode(
             baseLocality,
             basePhoneticCode,
             previouslyExaminedBaseWordSeries
           );
-          if (baseWordSeriesEquivalentsMap !== null) {
-            for (const synonymPhoneticCode of this._collectPhoneticCodesFromEquivalentsMap(
-              baseWordSeriesEquivalentsMap
+          if (baseWordSeriesPairsMap !== null) {
+            for (const synonymPhoneticCode of this._collectPhoneticCodesFromSeriesPairs(
+              Object.values(baseWordSeriesPairsMap)
             )) {
               for (const testLocalityID of await this._phoneticLocalityIndex.getLocalityIDs(
                 synonymPhoneticCode
@@ -124,7 +124,7 @@ export class RegionProcessor {
                     currentRegion,
                     baseLocality,
                     this._localityCache.getLocality(testLocalityID),
-                    baseWordSeriesEquivalentsMap
+                    baseWordSeriesPairsMap
                   );
                   if (localityMatch) {
                     yield localityMatch;
@@ -177,16 +177,15 @@ export class RegionProcessor {
   }
 
   /**
-   * Returns a list of all phonetic codes found in the equivalents of the
-   * provided equivalents map. The list is unordered.
+   * Returns a list of all phonetic codes found in the provided series pairs.
    */
-  private _collectPhoneticCodesFromEquivalentsMap(
-    equivalentsMap: Record<string, SeriesEquivalent[]>
+  private _collectPhoneticCodesFromSeriesPairs(
+    listOfSeriesPairs: SeriesPair[][]
   ): string[] {
     const codes: string[] = [];
-    for (const equivalents of Object.values(equivalentsMap)) {
-      for (const equivalent of equivalents) {
-        this._collectPhoneticCodes(codes, equivalent.phoneticSeries.split(' '));
+    for (const seriesPairs of listOfSeriesPairs) {
+      for (const seriesPair of seriesPairs) {
+        this._collectPhoneticCodes(codes, seriesPair.phoneticSeries.split(' '));
       }
     }
     return codes;
@@ -322,7 +321,7 @@ export class RegionProcessor {
     currentRegion: TrackedRegion,
     baseLocality: CachedLocality,
     testLocality: CachedLocality,
-    baseWordSeriesEquivalentsMap: Record<string, SeriesEquivalent[]>
+    baseWordSeriesPairsMap: Record<string, SeriesPair[]>
   ): LocalityMatch | null {
 
     // Make sure the localities are spatially and temporally in scope.
@@ -354,7 +353,7 @@ export class RegionProcessor {
     baseLocality: CachedLocality,
     basePhoneticCode: string,
     previouslyExaminedBaseWordSeries: Record<string, boolean>
-  ): Promise<Record<string, SeriesEquivalent[]> | null> {
+  ): Promise<Record<string, SeriesPair[]> | null> {
     // Find all the synonyms that use the provided phonetic code. This list can
     // include series that are found in the locality and those that are not.
 
@@ -379,7 +378,7 @@ export class RegionProcessor {
     // to a list of its synonymous series. It is possible that more than one series
     // of the locality will both contain the phonetic code and have a synonym.
 
-    const baseWordSeriesEquivalentsMap: Record<string, SeriesEquivalent[]> = {};
+    const baseWordSeriesPairsMap: Record<string, SeriesPair[]> = {};
     for (const baseSubset of basePhoneticSubsetSynonymsUsingCode) {
       const baseWordSeries = baseLocality.getWordSeries(baseSubset);
 
@@ -392,21 +391,21 @@ export class RegionProcessor {
         // from the locality. This will include the word series itself.
 
         const synonymMap = this._potentialSynonymsStore.getSynonymMap(baseSubset.phoneticSeries);
-        const equivalents = synonymMap[baseWordSeries];
+        const equivalentSeriesPairs = synonymMap[baseWordSeries];
 
         // Collect all the synonyms of the word series, excluding the word series
         // itself, filing them away in a map that indexes the synonyms by word series.
 
-        if (equivalents) {
-          const equivalentsOfBasePhoneticSubsets: SeriesEquivalent[] = [];
-          for (const equivalent of equivalents) {
-            if (equivalent.wordSeries != baseWordSeries) {
-              equivalentsOfBasePhoneticSubsets.push(equivalent);
+        if (equivalentSeriesPairs) {
+          const synonymsOfBasePhoneticSubsets: SeriesPair[] = [];
+          for (const seriesPair of equivalentSeriesPairs) {
+            if (seriesPair.wordSeries != baseWordSeries) {
+              synonymsOfBasePhoneticSubsets.push(seriesPair);
             }
           }
-          baseWordSeriesEquivalentsMap[baseWordSeries] = {
+          baseWordSeriesPairsMap[baseWordSeries] = {
             baseSubset,
-            synonyms: equivalentsOfBasePhoneticSubsets
+            synonyms: synonymsOfBasePhoneticSubsets
           };
         }
 
@@ -420,10 +419,10 @@ export class RegionProcessor {
     // Return a structure mapping word series of the locality to their synonyms, or
     // return null if no word series of the locality were found to have any synonyms.
 
-    if (Object.keys(baseWordSeriesEquivalentsMap).length == 0) {
+    if (Object.keys(baseWordSeriesPairsMap).length == 0) {
       return null;
     }
-    return baseWordSeriesEquivalentsMap;
+    return baseWordSeriesPairsMap;
   }
 
   /**
