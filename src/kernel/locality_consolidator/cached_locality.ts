@@ -132,6 +132,15 @@ export class CachedLocality {
   }
 
   /**
+   * Returns phonetic subsets for all phonetic series found in both the
+   * locality and in the provided search series.
+   */
+  findPhoneticSubsets(searchSeries: string[]): PhoneticSubset[] {
+
+    //
+  }
+
+  /**
    * Returns the word series for the entire locality name. Assumes that
    * the locality has a name.
    */

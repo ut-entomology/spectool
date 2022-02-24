@@ -163,12 +163,10 @@ ExcludedMatchesStore provides all of these inequivalences.
 
 Stores words and phrases that the user has indicated are synonymous, but in a way that treats entities phonetically identical to synonymous entities as potentially synonymous.
 
-The key (K) is a sorted phonetic series. The value consists of the following:
+The key (K) is a sorted phonetic series. The value is a map that indexes arrays of equivalents by occurrence-ordered word series. Each word series has a sorted phonetic series equal to (K), and each equivalent consists of the following:
 
-(+) wordSeries: the sorted word series for the key
-(+) equivalents: a list of equivalents, each entry consisting of the following:
 	(+) wordSeries: an equivalent occurrence-ordered word series
-	(+) phoneticSeries: the sorted phonetic series for the equivalent word series. Each phonetic series also occurs in PotentialSynonymsStore as a key whose phoneticSeries contains (K).
+	(+) phoneticSeries: the sorted phonetic series for the equivalent word series. Each phonetic series also occurs in PotentialSynonymsStore as a key whose value contains an equivalent with phoneticSeries (K).
 
 The store preserves the word series associated with each phonetic series because these are the representations of the phonetic series that the user provides and subsequently sees.
 
@@ -297,7 +295,7 @@ Define a "found match" as a structure containing the following information:
 									(+) Add (L2) to (D).
 
 			(+) Let (H) be the set of synonym phonetic series associated with (P1) in PhoneticLocalityIndex and found in (L1). These are the phonetic series of (L1) that have synonyms.
-			(+) Let (I) be the set of synonyms in PotentialSynonymsStore for the phonetic series in (H), so that if there exists a synonym for a series in (H), then that synonym is in (I), except that (I) contains no series found in (H).
+			(+) Let (I) be the set of synonyms in PotentialSynonymsStore for all of the phonetic series in (H), so that if there exists a synonym for a series in (H), then that synonym is in (I), except that (I) contains no series found in (H).
 			(+) Let (J) be the set of phonetic codes found in (I).
 			(+) For each phonetic code (P2) found in (J):
 				(+) For each locality (L2) associated with (P2) in PhoneticLocalityIndex:

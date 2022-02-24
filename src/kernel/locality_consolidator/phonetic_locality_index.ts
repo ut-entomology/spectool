@@ -20,10 +20,9 @@ export interface PhoneticLocalityIndex {
 
   /**
    * Returns all of the phonetic series that contain the given phonetic code,
-   * representing each phonetic series as a list of phonetic codes. The
-   * order of phonetic codes in the phonetic series is not meaningful.
+   * representing each phonetic series in sorted form.
    */
-  getPhoneticSeriesSynonyms(phoneticCode: string): Promise<string[][]>;
+  getPhoneticSeriesSynonyms(phoneticCode: string): Promise<string[]>;
 
   /**
    * Removes the indicated locality from the index.
