@@ -7,8 +7,7 @@ export interface SeriesPair {
 }
 
 /**
- * Base class for storage that allows for looking up synonymies by the phonetic
- * series of any synonym participating in the synonymy.
+ * Base class for synonyms among locality word series.
  */
 export abstract class PotentialSynonymsStore{
   /**
@@ -23,7 +22,7 @@ export abstract class PotentialSynonymsStore{
   }
 
   /**
-   * Returns the synonymy in which the provided phonetic series participates, or
+   * Returns the synonyms in which the provided phonetic series participates, or
    * null if no synonyms are associated with the phonetic series. The return value
    * maps occurrence-ordered word series to their synonymously-equivalent series.
    */
@@ -41,7 +40,7 @@ export abstract class PotentialSynonymsStore{
   }
 
   /**
-   * Associates the provided synonymy with the provided phonetic series. This method
+   * Associates the provided synonym map with the provided phonetic series. This method
    * should NOT also provide the reverse association, as the caller will do that.
    */
   protected abstract _setSynonymMap(
