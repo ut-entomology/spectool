@@ -4,7 +4,7 @@ import { CachedLocality } from './cached_locality';
 import { LocalityCache } from './locality_cache';
 import { Geography } from '../specify/geography';
 import { PhoneticLocalityIndex } from './phonetic_locality_index';
-import { PotentialSynonymsStore, SeriesPair } from './potential_synonyms';
+import { PotentialSynonymsStore, StoredSynonym } from './potential_synonyms';
 import { TrackedRegionRoster } from './region_roster';
 import { TrackedRegion } from './tracked_region';
 import { ExcludedMatchesStore, containsCoords } from './excluded_matches';
@@ -13,11 +13,10 @@ import {
   PhoneticMatch,
   PhoneticSubset
 } from '../../shared/shared_locality';
-import { check } from 'prettier';
 
 interface SubsetCorrespondence {
   baseSubset: PhoneticSubset;
-  synonyms: SeriesPair[];
+  synonyms: StoredSynonym[];
 }
 
 export class RegionProcessor {
@@ -81,7 +80,7 @@ export class RegionProcessor {
         // Keeps algorithm from comparing the same localities more than once.
         const previouslyComparedLocalityIDs: Record<number, boolean> = {};
 
-        // Keeps algorithm from examining the same the same word series of the
+        // Keeps algorithm from examining the same word series of the
         // base locality for synonyms more than once.
         const previouslyExaminedBaseWordSeries: Record<string, boolean> = {};
 
@@ -188,15 +187,15 @@ export class RegionProcessor {
   }
 
   /**
-   * Returns a list of all phonetic codes found in the provided series pairs.
+   * Returns a list of all phonetic codes found in the provided stored synonyms.
    */
   private _collectPhoneticCodesFromCorrespondenceMap(
     correspondenceMap: Record<string, SubsetCorrespondence>
   ): string[] {
     const codes: string[] = [];
     for (const subsetEquivalance of Object.values(correspondenceMap)) {
-      for (const seriesPair of subsetEquivalance.synonyms) {
-        this._collectPhoneticCodes(codes, seriesPair.phoneticSeries.split(' '));
+      for (const synonym of subsetEquivalance.synonyms) {
+        this._collectPhoneticCodes(codes, synonym.phoneticSeries.split(' '));
       }
     }
     return codes;
@@ -321,6 +320,7 @@ export class RegionProcessor {
     };
   }
 
+  // TODO: revise this comment
   /**
    * Compares the phonetic synonyms of the provided base and test localities,
    * returning a description of the synonyms if they are in scope and not
@@ -353,27 +353,26 @@ export class RegionProcessor {
     // Collect all the synonymous phonetic series together in order to efficiently
     // search for all of them at once.
 
-    const synonymPhoneticSeriesToSearchFor: string[] = [];
+    const synonymousPhoneticSeriesToSearchFor: string[] = [];
     for (const subsetCorrespondence of Object.values(
       phoneticWordSeriesCorrespondenceMap
     )) {
-      for (const synonymPairToSearchFor of subsetCorrespondence.synonyms) {
-        synonymPhoneticSeriesToSearchFor.push(synonymPairToSearchFor.phoneticSeries);
+      for (const synonymToSearchFor of subsetCorrespondence.synonyms) {
+        synonymousPhoneticSeriesToSearchFor.push(synonymToSearchFor.phoneticSeries);
       }
     }
 
     // Retrieve all subsets from the test locality that match phonetic series of
     // `potentialSynonymPhoneticSeries`.
 
-    // TODO: Look into moving a section of this to CachedLocality
-    const foundSynonymTestSubsets = testLocality.findPhoneticSubsets(
-      synonymPhoneticSeriesToSearchFor
+    const foundSynonymousTestSubsets = testLocality.findPhoneticSubsets(
+      synonymousPhoneticSeriesToSearchFor
     );
 
     // Collect the phonetic matches between the base and test localities.
 
     const matchesByBasePhoneticSeries: Record<string, PhoneticMatch> = {};
-    for (const testSubset of foundSynonymTestSubsets) {
+    for (const testSubset of foundSynonymousTestSubsets) {
       const synonymCorrespondence =
         phoneticWordSeriesCorrespondenceMap[testSubset.phoneticSeries];
       const baseSubset = synonymCorrespondence.baseSubset;
@@ -464,7 +463,7 @@ export class RegionProcessor {
       // the examination of a series, so guard against that.
 
       if (!previouslyExaminedBaseWordSeries[baseWordSeries]) {
-        // Retrieve all series pair synonyms of the current. This
+        // Retrieve all stored synonyms of the current base subset. This
         // will not include series for the base subset itself.
 
         const synonymsOfBaseSubset = this._potentialSynonymsStore.getSynonyms(
