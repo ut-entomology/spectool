@@ -9,7 +9,7 @@ export interface SeriesPair {
 /**
  * Base class for synonyms among locality word series.
  */
-export abstract class PotentialSynonymsStore{
+export abstract class PotentialSynonymsStore {
   /**
    * Adds a synonym to the storage, where `seriesPair1` is equivalent to
    * `seriesPair2`. Argument order does not matter.
@@ -23,10 +23,10 @@ export abstract class PotentialSynonymsStore{
 
   /**
    * Returns the synonyms in which the provided phonetic series participates, or
-   * null if no synonyms are associated with the phonetic series. The return value
-   * maps occurrence-ordered word series to their synonymously-equivalent series.
+   * null if no synonyms are associated with the phonetic series. The returned
+   * value excludes the series pair for the provided phonetic series.
    */
-  abstract getSynonymMap(phoneticSeries: string): Record<string, SeriesPair[]>;
+  abstract getSynonyms(phoneticSeries: string): SeriesPair[] | null;
 
   /**
    * Removes a synonym from the storage, where `seriesPair1` is no longer to be
@@ -40,53 +40,43 @@ export abstract class PotentialSynonymsStore{
   }
 
   /**
-   * Associates the provided synonym map with the provided phonetic series. This method
-   * should NOT also provide the reverse association, as the caller will do that.
+   * Assigns the provided set of synonyms to a given phonetic series. This method
+   * should NOT also provide reverse associations, as the caller does that.
    */
-  protected abstract _setSynonymMap(
-     phoneticSeries: string, synonymMap: Record<string, SeriesPair[]>
-  ): void;
+  protected abstract _setSynonyms(phoneticSeries: string, synonyms: SeriesPair[]): void;
 
   /**
    * Indexes the provided `lookupPair` by the provided `indexPair`.
    */
   private _addHalfSynonym(indexPair: SeriesPair, lookupPair: SeriesPair) {
-    let synonymMap = this.getSynonymMap(indexPair.phoneticSeries);
-    if (synonymMap === null) {
-      synonymMap = {};
+    let synonyms = this.getSynonyms(indexPair.phoneticSeries);
+    if (synonyms === null) {
+      synonyms = [];
     }
-    let indexSeriesPairs = synonymMap[indexPair.wordSeries];
-    if (!indexSeriesPairs) {
-      indexSeriesPairs = [];
-      synonymMap[indexPair.wordSeries] = indexSeriesPairs;
-    }
-    for (const seriesPair of indexSeriesPairs) {
-      if (seriesPair.wordSeries == lookupPair.wordSeries) {
+    for (const synonym of synonyms) {
+      if (synonym.wordSeries == lookupPair.wordSeries) {
         return; // this half of the synonym is already present
       }
     }
-    indexSeriesPairs.push(lookupPair);
-    this._setSynonymMap(indexPair.phoneticSeries, synonymMap);
+    synonyms.push(lookupPair);
+    this._setSynonyms(indexPair.phoneticSeries, synonyms);
   }
 
   /**
    * Removes the provided `lookupPair` from its index at the provided `indexPair`.
    */
   private _removeHalfSynonym(indexPair: SeriesPair, lookupPair: SeriesPair) {
-    const synonymMap = this.getSynonymMap(indexPair.phoneticSeries);
-    if (synonymMap === null) {
+    const synonyms = this.getSynonyms(indexPair.phoneticSeries);
+    if (synonyms === null) {
       return; // this half of the synonym is not present
     }
-    const indexSeriesPairs = synonymMap[indexPair.wordSeries];
-    if (!indexSeriesPairs) {
-      return; // this half of the synonym is not present
-    }
-    for (let i = 0; i < indexSeriesPairs.length; ++i) {
-      if (indexSeriesPairs[i].wordSeries == lookupPair.wordSeries) {
-        indexSeriesPairs.splice(i, 1);
-        this._setSynonymMap(indexPair.phoneticSeries, synonymMap);
+    for (let i = 0; i < synonyms.length; ++i) {
+      if (synonyms[i].wordSeries == lookupPair.wordSeries) {
+        synonyms.splice(i, 1);
+        this._setSynonyms(indexPair.phoneticSeries, synonyms);
         return; // removed this half of synonym
       }
     }
+    // if reaches here, this half of the synonym was not present
   }
 }

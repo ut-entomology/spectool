@@ -44,6 +44,11 @@ export class CachedLocality {
     this.phonetics = this._toPhoneticSeries(this.words);
   }
 
+  // Returns a list of all subsets that match by sorted phonetic series,
+  // including all of the subsets of the present locality having that
+  // phonetic series and all of the subsets of the test locality also
+  // having that phonetic series.
+
   findPhoneticMatches(testLocality: CachedLocality): PhoneticMatch[] {
     if (this.phonetics == null || testLocality.phonetics == null) return [];
 
@@ -132,12 +137,34 @@ export class CachedLocality {
   }
 
   /**
-   * Returns phonetic subsets for all phonetic series found in both the
-   * locality and in the provided search series.
+   * Returns phonetic subsets for all phonetic series simultaneously found in
+   * the locality and in the provided list of sorted phonetic series.
    */
-  findPhoneticSubsets(searchSeries: string[]): PhoneticSubset[] {
+  findPhoneticSubsets(searchPhoneticSeries: string[]): PhoneticSubset[] {
+    // Collect the phonetic codes found among searchPhoneticSeries.
 
-    //
+    const searchCodes: Record<string, boolean> = {};
+    for (const phoneticSeries of searchPhoneticSeries) {
+      for (const code of phoneticSeries.split(' ')) {
+        searchCodes[code] = true;
+      }
+    }
+
+    // Collect the subsets of the locality that use only these search codes.
+
+    const phoneticSubsetMap = this._getPhoneticSubsetsMap(searchCodes, this);
+
+    // Filter for just the subsets of the locality found in searchPhoneticSeries.
+
+    const commonSubsets: PhoneticSubset[] = [];
+    for (const foundPhoneticSeries of Object.keys(phoneticSubsetMap)) {
+      if (searchPhoneticSeries.includes(foundPhoneticSeries)) {
+        for (const subset of phoneticSubsetMap[foundPhoneticSeries]) {
+          commonSubsets.push(subset);
+        }
+      }
+    }
+    return commonSubsets;
   }
 
   /**
@@ -161,48 +188,6 @@ export class CachedLocality {
       ).join(' ');
     }
     return phoneticSubset.cachedWordSeries;
-  }
-
-  /**
-   * Indicates whether the locality name includes a sequence of phonetic codes
-   * equal to the sequence of codes in the provided phonetic series, irrespective
-   * of the order in which the phonetic codes occur.
-   */
-  hasPhoneticSeries(phoneticSeries: string[]): boolean {
-    // It's an option to improve performance here by first making sure that all
-    // the required phonetic codes are present, but this comes at the cost of
-    // caching a sort of phonetics, increasing memory use. Holding off for now.
-
-    if (!this.phonetics) return false;
-
-    const foundCodes: Record<string, boolean> = {};
-    let foundCodeCount = 0;
-    const resetFoundCodes = () => {
-      foundCodeCount = 0;
-      phoneticSeries.forEach((code) => (foundCodes[code] = false));
-    };
-
-    resetFoundCodes();
-    for (let i = 0; i < this.phonetics.length; ++i) {
-      for (let j = i; j < this.phonetics.length; ++j) {
-        const code = this.phonetics[j];
-        if (!phoneticSeries.includes(code)) {
-          break; // move on to locality's next phonetic encoding
-        }
-        // Ignore duplicate phonetic codes, heed newly encountered ones
-        if (!foundCodes[code]) {
-          if (++foundCodeCount == phoneticSeries.length) {
-            return true; // all codes found in sequence
-          }
-          foundCodes[code] = true;
-        }
-      }
-      // Condition not necessary but reduces wasteful processing time
-      if (foundCodeCount > 0) {
-        resetFoundCodes();
-      }
-    }
-    return false;
   }
 
   /**

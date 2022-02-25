@@ -22,8 +22,9 @@ export interface MatchedLocality {
 }
 
 /**
- * Interface describing the portions of two localities that matche a particular
- * phonetic series.
+ * Interface describing the portions of two localities that match a particular
+ * phonetic series. When representing matches of synonyms, `phoneticSeries`
+ * is that of the base locality subset.
  */
 export interface PhoneticMatch {
   phoneticSeries: string; // sorted spaced-delimited phonetic codes

@@ -163,10 +163,10 @@ ExcludedMatchesStore provides all of these inequivalences.
 
 Stores words and phrases that the user has indicated are synonymous, but in a way that treats entities phonetically identical to synonymous entities as potentially synonymous.
 
-The key (K) is a sorted phonetic series. The value is a map that indexes arrays of equivalents by occurrence-ordered word series. Each word series has a sorted phonetic series equal to (K), and each equivalent consists of the following:
+The key (K) is a sorted phonetic series. The value is a map that indexes arrays of word/phonetic series pairs by occurrence-ordered word series. Each word series of the index has a sorted phonetic series equal to (K), and each series pair consists of the following:
 
-	(+) wordSeries: an equivalent occurrence-ordered word series
-	(+) phoneticSeries: the sorted phonetic series for the equivalent word series. Each phonetic series also occurs in PotentialSynonymsStore as a key whose value contains an equivalent with phoneticSeries (K).
+	(+) wordSeries: an occurrence-ordered word series that is synonymous with the index
+	(+) phoneticSeries: the sorted phonetic series for the synonymous word series. Each phonetic series also occurs in PotentialSynonymsStore as a key whose value contains a series pair with phoneticSeries (K).
 
 The store preserves the word series associated with each phonetic series because these are the representations of the phonetic series that the user provides and subsequently sees.
 
