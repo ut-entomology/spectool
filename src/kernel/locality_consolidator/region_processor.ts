@@ -275,40 +275,15 @@ export class RegionProcessor {
       }
     }
 
-    // Before presenting the possible duplicate to the user, make sure that the
-    // word matches actually aren't all excluded. Keep track of subsets rejected
-    // for having excluded word series, so that they can be presented to the user
-    // as such, in case it confuses the user to see matching words not highlighted.
+    // Collect the excluded subset matches, and return null if the exclusions
+    // have eliminated all of the matches.
 
-    const excludedSubsetPairs: PhoneticSubset[][] = [];
-    let isPossibleDuplicate = false;
-    for (let i = 0; i < matches.length; ++i) {
-      const match = matches[i];
-      const baseSubsets = match.baseSubsets;
-      for (let j = 0; j < baseSubsets.length; ++j) {
-        const baseSubset = baseSubsets[j];
-        const baseWordSeries = baseLocality.getWordSeries(baseSubset);
-        const exclusions =
-          this._excludedMatchesStore.getExcludedMatches(baseWordSeries);
-        if (exclusions) {
-          const testSubsets = match.testSubsets;
-          for (let k = 0; k < testSubsets.length; ++k) {
-            const testSubset = testSubsets[k];
-            const testWordSeries = testLocality.getWordSeries(testSubset);
-            if (exclusions.nonmatchingWords.includes(testWordSeries)) {
-              excludedSubsetPairs.push([baseSubset, testSubset]);
-            } else {
-              // Allow excludedSubsetPairs to finish collecting for the presentation.
-              // No need to short-circuit; about to require user interaction.
-              isPossibleDuplicate = true;
-            }
-          }
-        }
-        // Note: There's no need to also test all test word series against base
-        // word series because ExcludedMatchesStore is symmetric on word series.
-      }
-    }
-    if (!isPossibleDuplicate) return null;
+    const excludedSubsetPairs = this._getExcludedSubsetPairs(
+      matches,
+      baseLocality,
+      testLocality
+    );
+    if (!excludedSubsetPairs) return null;
 
     // The localities meet all the matching requirements, so return the match.
 
@@ -323,8 +298,8 @@ export class RegionProcessor {
   // TODO: revise this comment
   /**
    * Compares the phonetic synonyms of the provided base and test localities,
-   * returning a description of the synonyms if they are in scope and not
-   * precluded from matching by the `ExcludedMatchesStore`, and null otherwise.
+   * returning the matching synonyms if they are in scope and not precluded
+   * from matching by the `ExcludedMatchesStore`, and returning null otherwise.
    */
   private _compareSynonymouslyRelatedLocalities(
     adjoiningRegionIDs: number[],
@@ -407,7 +382,17 @@ export class RegionProcessor {
     }
     const matches = Object.values(matchesByBasePhoneticSeries);
 
-    // TODO
+    // Collect the excluded subset matches, and return null if the exclusions
+    // have eliminated all of the matches.
+
+    const excludedSubsetPairs = this._getExcludedSubsetPairs(
+      matches,
+      baseLocality,
+      testLocality
+    );
+    if (!excludedSubsetPairs) return null;
+
+    // The localities meet all the matching requirements, so return the match.
 
     return {
       baseLocality,
@@ -492,6 +477,48 @@ export class RegionProcessor {
     return Object.keys(basePhoneticSeriesCorrespondenceMap).length > 0
       ? basePhoneticSeriesCorrespondenceMap
       : null;
+  }
+
+  /**
+   * Examine the provided matches for exclusions that the user provided, and return
+   * a list of all those exclusions, unless the exclusions have completely ruled
+   * out all matches, in which case return null. The list of exclusions can be used
+   * to reduce user confusion as seeing apparent matches not marked as matching.
+   */
+  private _getExcludedSubsetPairs(
+    matches: PhoneticMatch[],
+    baseLocality: CachedLocality,
+    testLocality: CachedLocality
+  ): PhoneticSubset[][] | null {
+    const excludedSubsetPairs: PhoneticSubset[][] = [];
+    let isPossibleDuplicate = false;
+    for (let i = 0; i < matches.length; ++i) {
+      const match = matches[i];
+      const baseSubsets = match.baseSubsets;
+      for (let j = 0; j < baseSubsets.length; ++j) {
+        const baseSubset = baseSubsets[j];
+        const baseWordSeries = baseLocality.getWordSeries(baseSubset);
+        const exclusions =
+          this._excludedMatchesStore.getExcludedMatches(baseWordSeries);
+        if (exclusions) {
+          const testSubsets = match.testSubsets;
+          for (let k = 0; k < testSubsets.length; ++k) {
+            const testSubset = testSubsets[k];
+            const testWordSeries = testLocality.getWordSeries(testSubset);
+            if (exclusions.nonmatchingWords.includes(testWordSeries)) {
+              excludedSubsetPairs.push([baseSubset, testSubset]);
+            } else {
+              // Allow excludedSubsetPairs to finish collecting for the presentation.
+              // No need to short-circuit; about to require slow user interaction.
+              isPossibleDuplicate = true;
+            }
+          }
+        }
+        // Note: There's no need to also test all test word series against base
+        // word series because ExcludedMatchesStore is symmetric on word series.
+      }
+    }
+    return isPossibleDuplicate ? excludedSubsetPairs : null;
   }
 
   /**

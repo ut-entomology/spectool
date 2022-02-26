@@ -1,4 +1,8 @@
 /**
+ * Structures describing similarities found between matching localities.
+ */
+
+/**
  * Interface describing two localities that may be duplicates and their similarities.
  */
 export interface LocalityMatch {
