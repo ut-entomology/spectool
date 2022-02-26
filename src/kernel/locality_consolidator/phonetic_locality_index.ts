@@ -1,4 +1,4 @@
-import { CachedLocality } from './cached_locality';
+import type { CachedLocality } from './cached_locality';
 
 export interface PhoneticLocalityIndex {
   /**

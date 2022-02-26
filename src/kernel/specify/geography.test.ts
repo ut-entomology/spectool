@@ -1,5 +1,5 @@
 import { createTestKernel } from '../../test_util';
-import { AppKernel } from '../app_kernel';
+import type { AppKernel } from '../app_kernel';
 import { Geography } from './geography';
 import { RegionRank, Region, SPECIFY_USA } from '../../shared/shared_geography';
 

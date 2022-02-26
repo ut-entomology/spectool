@@ -1,5 +1,5 @@
 import { IpcHandler, AsyncIpcHandler } from '../util/ipc_handler';
-import { AppKernel } from '../../kernel/app_kernel';
+import type { AppKernel } from '../../kernel/app_kernel';
 
 class LoadGeographyIpc extends AsyncIpcHandler {
   private kernel: AppKernel;

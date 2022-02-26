@@ -1,4 +1,4 @@
-import { TrackedRegion } from './tracked_region';
+import type { TrackedRegion } from './tracked_region';
 
 export class TrackedRegionRoster {
   private _regions: TrackedRegion[] = [];

@@ -1,14 +1,14 @@
-import { Adjacencies } from '../util/adjacencies';
-import { AdjoiningRegions } from './adjoining_regions';
-import { CachedLocality } from './cached_locality';
-import { LocalityCache } from './locality_cache';
-import { Geography } from '../specify/geography';
-import { PhoneticLocalityIndex } from './phonetic_locality_index';
-import { PotentialSynonymsStore, StoredSynonym } from './potential_synonyms';
-import { TrackedRegionRoster } from './region_roster';
+import type { Adjacencies } from '../util/adjacencies';
+import type { AdjoiningRegions } from './adjoining_regions';
+import type { CachedLocality } from './cached_locality';
+import type { LocalityCache } from './locality_cache';
+import type { Geography } from '../specify/geography';
+import type { PhoneticLocalityIndex } from './phonetic_locality_index';
+import type { PotentialSynonymsStore, StoredSynonym } from './potential_synonyms';
+import type { TrackedRegionRoster } from './region_roster';
 import { TrackedRegion } from './tracked_region';
 import { ExcludedMatchesStore, containsCoords } from './excluded_matches';
-import {
+import type {
   LocalityMatch,
   PhoneticMatch,
   PhoneticSubset

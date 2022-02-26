@@ -1,11 +1,14 @@
 <script lang="ts">
-  import { bindMainApis } from './lib/main_client';
+  import { exposeWindowApi } from 'electron-affinity/window';
 
+  import { AppEventApi } from './api/app_event_api.svelte';
+  import { bindMainApis } from './lib/main_client';
   import PageLayout from './components/PageLayout.svelte';
   import { currentConnection } from './stores/currentConnection';
-  import './clients/event_client.svelte';
 
   async function init() {
+    exposeWindowApi(new AppEventApi());
+
     // Wait for app mode before building any components.
     const waitForAppMode = (resolve: () => {}) => {
       if (localStorage.getItem('app_mode') === null) {

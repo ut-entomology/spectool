@@ -7,11 +7,11 @@
  * to just adjacent localities and relevant containing or contained localities.
  */
 
-import { AdjoiningRegions } from './adjoining_regions';
+import type { AdjoiningRegions } from './adjoining_regions';
 import { Region, RegionRank } from '../../shared/shared_geography';
 import { TrackedRegionStatus, TrackedRegion } from './tracked_region';
 import { TrackedRegionRoster } from './region_roster';
-import { LocalityCache } from './locality_cache';
+import type { LocalityCache } from './locality_cache';
 import { IntervalTicker } from './interval_ticker';
 
 export interface Diagnostics {

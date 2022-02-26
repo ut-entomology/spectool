@@ -5,6 +5,7 @@ import 'source-map-support/register';
 
 import { APP_NAME } from './app/app_name';
 import { Platform } from './app-util/platform';
+import { MainWindow, bindMainWindowApis } from './backend/api/window_apis';
 import { createAppMenu } from './app/app_menu';
 import { installMainApis, exposeMainApis } from './backend/api/main_apis';
 import databaseConfigApi from './backend/api/db_config_api';
@@ -22,7 +23,7 @@ process.on('uncaughtException', function (error) {
   app.exit(1);
 });
 
-let mainWindow: BrowserWindow | null;
+let mainWindow: MainWindow | null;
 
 function createMainWindow() {
   // Can be called from a menu item event, so assign global window here.
@@ -37,7 +38,7 @@ function createMainWindow() {
       contextIsolation: true,
       preload: path.join(__dirname, './app/preload.js')
     }
-  });
+  }) as MainWindow;
 
   devMode(process.env.NODE_ENV === 'development');
   const url = devMode()
@@ -48,8 +49,9 @@ function createMainWindow() {
 
   mainWindow
     .loadURL(url)
-    .then(() => {
-      mainWindow!.webContents.send('set_app_mode', process.env.NODE_ENV);
+    .then(async () => {
+      await bindMainWindowApis(mainWindow!);
+      mainWindow!.apis.appEventApi.setAppMode(process.env.NODE_ENV);
       log.info('started application');
     })
     .catch((err) => {

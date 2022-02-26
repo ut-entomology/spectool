@@ -1,4 +1,4 @@
-import { IpcMain } from 'electron';
+import type { IpcMain } from 'electron';
 
 export abstract class IpcHandler {
   channel: string;

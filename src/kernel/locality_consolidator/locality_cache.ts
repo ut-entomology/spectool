@@ -1,5 +1,5 @@
-import { CachedLocality } from './cached_locality';
-import { TrackedRegion } from './tracked_region';
+import type { CachedLocality } from './cached_locality';
+import type { TrackedRegion } from './tracked_region';
 
 export interface LocalityCache {
   cacheRegionLocalities(region: TrackedRegion): void;

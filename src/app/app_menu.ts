@@ -1,8 +1,9 @@
-import { app, BrowserWindow, Menu, MenuItemConstructorOptions } from 'electron';
+import { app, Menu, MenuItemConstructorOptions } from 'electron';
 
 import { APP_NAME } from './app_name';
 import { connectionPub } from './connectionPub';
 import { devMode } from './dev_mode';
+import type { MainWindow } from '../backend/api/window_apis';
 
 connectionPub.subscribe((connection) => {
   const menu = Menu.getApplicationMenu();
@@ -29,7 +30,7 @@ connectionPub.subscribe((connection) => {
   }
 });
 
-export function createAppMenu(mainWindow: BrowserWindow) {
+export function createAppMenu(mainWindow: MainWindow) {
   // Electron automatically adds the associated labels and key shortcuts.
 
   const menuTemplate: MenuItemConstructorOptions[] = [
@@ -95,7 +96,7 @@ export function createAppMenu(mainWindow: BrowserWindow) {
         {
           label: 'Configure',
           click: (_item, _focusedWindow, _event) => {
-            mainWindow.webContents.send('configure_database');
+            mainWindow.apis.appEventApi.configureDatabase();
           }
         },
         {
@@ -106,7 +107,7 @@ export function createAppMenu(mainWindow: BrowserWindow) {
           id: 'connect_database',
           enabled: false,
           click: (_item, _focusedWindow, _event) => {
-            mainWindow.webContents.send('connect_database');
+            mainWindow.apis.appEventApi.connectDatabase();
           }
         },
         {
@@ -114,7 +115,7 @@ export function createAppMenu(mainWindow: BrowserWindow) {
           id: 'disconnect_database',
           visible: false,
           click: (_item, _focusedWindow, _event) => {
-            mainWindow.webContents.send('disconnect_database');
+            mainWindow.apis.appEventApi.disconnectDatabase();
           }
         }
       ]
@@ -151,7 +152,7 @@ export function createAppMenu(mainWindow: BrowserWindow) {
         label: 'Preferences...',
         accelerator: 'CommandOrControl+,',
         click: (_item, _focusedWindow, _event) => {
-          mainWindow.webContents.send('set_preferences');
+          mainWindow.apis.appEventApi.setPreferences();
         }
       }
     ];
@@ -159,7 +160,7 @@ export function createAppMenu(mainWindow: BrowserWindow) {
       submenu.push({
         label: 'Clear Local Storage',
         click: (_item, _focusedWindow, _event) => {
-          mainWindow.webContents.send('clear_local_storage');
+          mainWindow.apis.appEventApi.clearLocalStorage();
         }
       });
     }
@@ -204,7 +205,7 @@ export function createAppMenu(mainWindow: BrowserWindow) {
         label: 'Preferences',
         accelerator: 'CommandOrControl+,',
         click: (_item, _focusedWindow, _event) => {
-          mainWindow.webContents.send('set_preferences');
+          mainWindow.apis.appEventApi.setPreferences();
         }
       }
     ];
@@ -212,7 +213,7 @@ export function createAppMenu(mainWindow: BrowserWindow) {
       submenu.push({
         label: 'Clear Local Storage',
         click: (_item, _focusedWindow, _event) => {
-          mainWindow.webContents.send('clear_local_storage');
+          mainWindow.apis.appEventApi.clearLocalStorage();
         }
       });
     }

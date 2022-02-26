@@ -1,8 +1,8 @@
 import fuzzySoundex from 'talisman/phonetics/fuzzy-soundex';
 
 import { Geography } from '../specify/geography';
-import { TrackedRegion } from './tracked_region';
-import {
+import type { TrackedRegion } from './tracked_region';
+import type {
   MatchedLocality,
   PhoneticSubset,
   PhoneticMatch

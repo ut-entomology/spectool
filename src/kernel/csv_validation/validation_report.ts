@@ -1,4 +1,4 @@
-import * as queries from '../specify/queries';
+import type * as queries from '../specify/queries';
 
 export interface ReportState {
   status: string;

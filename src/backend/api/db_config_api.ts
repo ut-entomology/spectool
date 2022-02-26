@@ -1,6 +1,6 @@
 import { IpcHandler, AsyncIpcHandler, SyncIpcHandler } from '../util/ipc_handler';
-import { DatabaseConfig } from '../../shared/shared_db_config';
-import { AppKernel } from '../../kernel/app_kernel';
+import type { DatabaseConfig } from '../../shared/shared_db_config';
+import type { AppKernel } from '../../kernel/app_kernel';
 
 class GetDatabaseConfigIpc extends SyncIpcHandler {
   private kernel: AppKernel;
