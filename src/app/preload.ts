@@ -1,6 +1,6 @@
 import { contextBridge } from 'electron';
 import { ipcRenderer } from 'electron';
-import 'electron-ipc-methods/preload';
+import 'electron-affinity/preload';
 
 contextBridge.exposeInMainWorld('ipc', {
   invoke: (channel: string, data: any) => {

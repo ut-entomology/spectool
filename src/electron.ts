@@ -49,7 +49,6 @@ function createMainWindow() {
   mainWindow
     .loadURL(url)
     .then(() => {
-      exposeMainApis(mainWindow!);
       mainWindow!.webContents.send('set_app_mode', process.env.NODE_ENV);
       log.info('started application');
     })
@@ -68,6 +67,7 @@ app
     const platform = new Platform(APP_NAME, APP_NAME);
     const kernel = new AppKernel(platform, new DatabaseConfig());
     installMainApis(kernel);
+    exposeMainApis();
     const ipcHandlerSets = [databaseConfigApi(kernel), geographyApi(kernel)];
     ipcHandlerSets.forEach((handlerSet) => {
       handlerSet.forEach((handler) => {

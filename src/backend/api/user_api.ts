@@ -1,4 +1,4 @@
-import { RelayedError } from 'electron-ipc-methods';
+import { RelayedError } from 'electron-affinity/main';
 
 import type { AppKernel } from '../../kernel/app_kernel';
 import type { Credentials } from '../../shared/shared_user';

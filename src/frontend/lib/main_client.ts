@@ -1,8 +1,4 @@
-import {
-  bindMainApi,
-  AwaitedType,
-  setIpcBindingTimeout
-} from 'electron-ipc-methods/window';
+import { bindMainApi, AwaitedType } from 'electron-affinity/window';
 
 import { restorer } from '../../shared/shared_restorer';
 import type { AgentApi } from '../../backend/api/agent_api';
@@ -15,8 +11,6 @@ import type { SpecimenSetApi } from '../../backend/api/specimen_set_api';
 import type { TaxaApi } from '../../backend/api/taxa_api';
 
 export async function bindMainApis() {
-  console.log('*** long timeout waiting to bind');
-  setIpcBindingTimeout(10000);
   return {
     agentApi: await bindMainApi<AgentApi>('AgentApi', restorer),
     appPrefsApi: await bindMainApi<AppPrefsApi>('AppPrefsApi', restorer),

@@ -1,4 +1,4 @@
-import { RelayedError } from 'electron-ipc-methods';
+import { RelayedError } from 'electron-affinity/main';
 
 export async function runQuery<T>(query: () => Promise<T>) {
   try {

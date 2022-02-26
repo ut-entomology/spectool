@@ -1,4 +1,4 @@
-import type { RestorableClass } from 'electron-ipc-methods/window';
+import type { RestorableClass } from 'electron-affinity/window';
 
 import { Connection } from '../shared/shared_connection';
 

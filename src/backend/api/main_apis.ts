@@ -1,5 +1,4 @@
-import { BrowserWindow } from 'electron';
-import { exposeMainApi, setIpcBindingTimeout } from 'electron-ipc-methods/main';
+import { exposeMainApi } from 'electron-affinity/main';
 
 import { AppKernel } from '../../kernel/app_kernel';
 import { AgentApi } from './agent_api';
@@ -26,12 +25,10 @@ export function installMainApis(kernel: AppKernel) {
   return apis;
 }
 
-export function exposeMainApis(toWindow: BrowserWindow) {
-  console.log('*** long timeout waiting to be bound');
-  setIpcBindingTimeout(10000);
+export function exposeMainApis() {
   for (const apiName in global.localApis) {
     const api = (global.localApis as any)[apiName];
-    exposeMainApi(toWindow, api);
+    exposeMainApi(api);
   }
 }
 
