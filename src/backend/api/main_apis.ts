@@ -1,4 +1,4 @@
-import { exposeMainApi } from 'electron-affinity/main';
+import { exposeMainApi, checkMainApi } from 'electron-affinity/main';
 
 import type { AppKernel } from '../../kernel/app_kernel';
 import { AgentApi } from './agent_api';
@@ -10,26 +10,21 @@ import { UserApi } from './user_api';
 import { SpecimenSetApi } from './specimen_set_api';
 import { TaxaApi } from './taxa_api';
 
+export type MainApis = ReturnType<typeof installMainApis>;
+
 export function installMainApis(kernel: AppKernel) {
   const apis = {
-    agentApi: new AgentApi(kernel),
-    appPrefsApi: new AppPrefsApi(kernel),
-    databaseApi: new DatabaseApi(kernel),
-    dialogApi: new DialogApi(),
-    logApi: new LogApi(),
-    userApi: new UserApi(kernel),
-    specimenSetApi: new SpecimenSetApi(kernel),
-    taxaApi: new TaxaApi(kernel)
+    agentApi: checkMainApi(new AgentApi(kernel)),
+    appPrefsApi: checkMainApi(new AppPrefsApi(kernel)),
+    databaseApi: checkMainApi(new DatabaseApi(kernel)),
+    dialogApi: checkMainApi(new DialogApi()),
+    logApi: checkMainApi(new LogApi()),
+    userApi: checkMainApi(new UserApi(kernel)),
+    specimenSetApi: checkMainApi(new SpecimenSetApi(kernel)),
+    taxaApi: checkMainApi(new TaxaApi(kernel))
   };
-  global.localApis = apis;
-  return apis;
-}
-
-export function exposeMainApis() {
-  for (const apiName in global.localApis) {
-    const api = (global.localApis as any)[apiName];
-    exposeMainApi(api);
+  for (const api of Object.values(apis)) {
+    exposeMainApi(api as any);
   }
+  global.mainApis = apis as any;
 }
-
-export type LocalApis = ReturnType<typeof installMainApis>;

@@ -10,6 +10,8 @@ import type { UserApi } from '../../backend/api/user_api';
 import type { SpecimenSetApi } from '../../backend/api/specimen_set_api';
 import type { TaxaApi } from '../../backend/api/taxa_api';
 
+export type MainApis = AwaitedType<typeof bindMainApis>;
+
 export async function bindMainApis() {
   return {
     agentApi: await bindMainApi<AgentApi>('AgentApi', restorer),
@@ -22,5 +24,3 @@ export async function bindMainApis() {
     taxaApi: await bindMainApi<TaxaApi>('TaxaApi', restorer)
   };
 }
-
-export type MainApis = AwaitedType<typeof bindMainApis>;

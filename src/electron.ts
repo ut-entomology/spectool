@@ -7,7 +7,7 @@ import { APP_NAME } from './app/app_name';
 import { Platform } from './app-util/platform';
 import { MainWindow, bindMainWindowApis } from './backend/api/window_apis';
 import { createAppMenu } from './app/app_menu';
-import { installMainApis, exposeMainApis } from './backend/api/main_apis';
+import { installMainApis } from './backend/api/main_apis';
 import databaseConfigApi from './backend/api/db_config_api';
 import geographyApi from './backend/api/geography_api';
 import { AppKernel } from './kernel/app_kernel';
@@ -69,7 +69,6 @@ app
     const platform = new Platform(APP_NAME, APP_NAME);
     const kernel = new AppKernel(platform, new DatabaseConfig());
     installMainApis(kernel);
-    exposeMainApis();
     const ipcHandlerSets = [databaseConfigApi(kernel), geographyApi(kernel)];
     ipcHandlerSets.forEach((handlerSet) => {
       handlerSet.forEach((handler) => {
