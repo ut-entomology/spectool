@@ -1,8 +1,8 @@
 import { RelayedError } from 'electron-affinity/main';
 
-import type { AppKernel } from '../../kernel/app_kernel';
+import type { AppKernel } from '../../backend/app_kernel';
 import type { Credentials } from '../../shared/shared_user';
-import * as query from '../../kernel/specify/queries';
+import * as query from '../../backend/specify/queries';
 
 export type UserInfo = query.RowType<typeof query.getAllUsers>;
 

@@ -3,7 +3,7 @@ import * as fsp from 'fs/promises';
 import * as path from 'path';
 import { parse as parseCSV } from '@fast-csv/parse';
 
-import type { AppKernel } from '../../kernel/app_kernel';
+import type { AppKernel } from '../../backend/app_kernel';
 import { Specimen, HEADER_REGEX } from './specimen';
 
 const INSTRUCTIONS_HEADER = 'INSTRUCTIONS';

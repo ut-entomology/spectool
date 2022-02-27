@@ -8,7 +8,7 @@ import { Platform } from './app-util/platform';
 import { MainWindow, bindMainWindowApis } from './backend/api/window_apis';
 import { createAppMenu } from './app/app_menu';
 import { installMainApis } from './backend/api/main_apis';
-import { AppKernel } from './kernel/app_kernel';
+import { AppKernel } from './backend/app_kernel';
 import { Connection } from './shared/shared_connection';
 import { DatabaseConfig } from './shared/shared_db_config';
 import { connectionPub } from './app/connectionPub';

@@ -10,7 +10,7 @@ import {
   TextCountyAdjacencyFile,
   BinaryCountyAdjacencyFile,
   CountyAdjacenciesVerifier
-} from '../kernel/util/county_adjacency';
+} from '../backend/util/county_adjacency';
 
 async function convert(
   sourceTextPath: string,

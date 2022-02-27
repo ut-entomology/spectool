@@ -1,5 +1,5 @@
-import type { AppKernel } from '../../kernel/app_kernel';
-import * as query from '../../kernel/specify/queries';
+import type { AppKernel } from '../../backend/app_kernel';
+import * as query from '../../backend/specify/queries';
 import { runQuery } from '../util/api_util';
 
 const TAXON_BATCH_SIZE = 10000;

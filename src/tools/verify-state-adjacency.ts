@@ -5,7 +5,7 @@
 
 import 'source-map-support/register';
 
-import { stateAdjacencies } from '../kernel/util/adjacency_data';
+import { stateAdjacencies } from '../backend/util/adjacency_data';
 
 for (const state in stateAdjacencies) {
   const adjacentStates = stateAdjacencies[state];

@@ -1,11 +1,11 @@
-import type { AppKernel } from '../../kernel/app_kernel';
-import type { PersonName } from '../../kernel/csv_validation/specimen';
+import type { AppKernel } from '../../backend/app_kernel';
+import type { PersonName } from '../../backend/csv_validation/specimen';
 import {
   getHeaderJSONPath,
   openSpecimenSet,
   getSpecimenSet,
   closeSpecimenSet
-} from '../../kernel/csv_validation/specimen_set';
+} from '../../backend/csv_validation/specimen_set';
 import { WILDCARD_NAME, addAgentName, addAgentEntries } from './agent_api';
 
 export class SpecimenSetApi {
