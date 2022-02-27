@@ -5,12 +5,6 @@ import type { MainApis } from './lib/main_client';
 
 declare global {
   interface Window {
-    ipc: {
-      invoke: (channel: string, data?: any) => Promise<any>;
-      sendSync: (channel: string, data?: any) => any;
-      send: (channel: string, data: any) => void;
-      on: (channel: string, func: (data: any) => void) => void;
-    };
     apis: MainApis;
   }
 }

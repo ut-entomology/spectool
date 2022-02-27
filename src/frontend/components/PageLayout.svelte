@@ -7,7 +7,7 @@
   import { currentConnection } from '../stores/currentConnection';
   import { screenStack } from '../stores/screenStack';
   import type { Connection } from '../shared/shared_connection';
-  import { DatabaseConfigClient } from '../clients/db_config_client';
+  import type { DatabaseConfig } from '../shared/shared_db_config';
   import { recordUserLogin } from '../dialogs/UserLoginDialog.svelte';
   import { toSvelteTarget } from '../util/svelte_targets.svelte';
   import VariableFlash from '../layout/VariableFlash.svelte';
@@ -17,9 +17,11 @@
   import ActivityBar from './ActivityBar.svelte';
   import BigSpinner from './BigSpinner.svelte';
 
-  let connection: Connection;
-  const initialDatabaseConfig = DatabaseConfigClient.getConfig();
+  export let initialDatabaseConfig: DatabaseConfig;
+
   setContext(Context.DatabaseConfig, initialDatabaseConfig);
+
+  let connection: Connection;
   currentConnection.subscribe((conn) => {
     connection = conn;
   });

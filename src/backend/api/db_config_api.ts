@@ -1,36 +1,18 @@
-import { IpcHandler, AsyncIpcHandler, SyncIpcHandler } from '../util/ipc_handler';
 import type { DatabaseConfig } from '../../shared/shared_db_config';
 import type { AppKernel } from '../../kernel/app_kernel';
 
-class GetDatabaseConfigIpc extends SyncIpcHandler {
-  private kernel: AppKernel;
+export class DatabaseConfigApi {
+  private _kernel: AppKernel;
 
   constructor(kernel: AppKernel) {
-    super('get_database_config');
-    this.kernel = kernel;
+    this._kernel = kernel;
   }
 
-  handler(_data: any) {
-    return this.kernel.databaseConfig;
-  }
-}
-
-class SetDatabaseConfigIpc extends AsyncIpcHandler {
-  private kernel: AppKernel;
-
-  constructor(kernel: AppKernel) {
-    super('set_database_config');
-    this.kernel = kernel;
+  async getConfig() {
+    return this._kernel.databaseConfig;
   }
 
-  async handler(config: DatabaseConfig) {
-    return await this.kernel.saveDatabaseConfig(config);
+  async setConfig(config: DatabaseConfig) {
+    return await this._kernel.saveDatabaseConfig(config);
   }
-}
-
-export default function (kernel: AppKernel): IpcHandler[] {
-  return [
-    new GetDatabaseConfigIpc(kernel), // multiline
-    new SetDatabaseConfigIpc(kernel)
-  ];
 }

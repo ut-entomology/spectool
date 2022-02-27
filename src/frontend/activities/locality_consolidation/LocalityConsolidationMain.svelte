@@ -7,7 +7,6 @@
 
 <script lang="ts">
   import { SPECIFY_USA, Region } from '../../shared/shared_geography';
-  import { GeographyClient } from '../../clients/geography_client';
   import { currentCollectionID } from '../../stores/currentCollectionID';
   import { closeActivity } from '../../components/ActivityBar.svelte';
   import ActivityInstructions from '../../components/ActivityInstructions.svelte';
@@ -24,14 +23,17 @@
     if (countryID == 0) {
       states = [];
     } else {
-      states = await GeographyClient.getStatesOf($currentCollectionID, countryID);
+      states = await window.apis.geographyApi.getStatesOf(
+        $currentCollectionID,
+        countryID
+      );
     }
     stateID = 0;
   }
 
   async function prepare() {
-    await GeographyClient.loadGeography();
-    countries = await GeographyClient.getCountriesOf($currentCollectionID);
+    await window.apis.geographyApi.loadGeography();
+    countries = await window.apis.geographyApi.getCountriesOf($currentCollectionID);
     for (let i = 0; i < countries.length; ++i) {
       const country = countries[i];
       if (country.name == SPECIFY_USA) {

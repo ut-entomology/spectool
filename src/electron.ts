@@ -1,4 +1,4 @@
-import { app, BrowserWindow, Menu, ipcMain } from 'electron';
+import { app, BrowserWindow, Menu } from 'electron';
 import * as path from 'path';
 import * as log from 'electron-log';
 import 'source-map-support/register';
@@ -8,8 +8,6 @@ import { Platform } from './app-util/platform';
 import { MainWindow, bindMainWindowApis } from './backend/api/window_apis';
 import { createAppMenu } from './app/app_menu';
 import { installMainApis } from './backend/api/main_apis';
-import databaseConfigApi from './backend/api/db_config_api';
-import geographyApi from './backend/api/geography_api';
 import { AppKernel } from './kernel/app_kernel';
 import { Connection } from './shared/shared_connection';
 import { DatabaseConfig } from './shared/shared_db_config';
@@ -69,15 +67,8 @@ app
     const platform = new Platform(APP_NAME, APP_NAME);
     const kernel = new AppKernel(platform, new DatabaseConfig());
     installMainApis(kernel);
-    const ipcHandlerSets = [databaseConfigApi(kernel), geographyApi(kernel)];
-    ipcHandlerSets.forEach((handlerSet) => {
-      handlerSet.forEach((handler) => {
-        handler.register(ipcMain);
-      });
-    });
     await kernel.init();
 
-    // Must follow initializing IPC handlers.
     createMainWindow();
     Menu.setApplicationMenu(createAppMenu(mainWindow!));
 

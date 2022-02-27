@@ -6,7 +6,6 @@
   import { createForm, ContextForm, Input } from '../layout/forms';
   import type { DatabaseConfig } from '../shared/shared_db_config';
   import { Connection } from '../shared/shared_connection';
-  import { DatabaseConfigClient } from '../clients/db_config_client';
   import { currentConnection } from '../stores/currentConnection';
   import { currentDialog } from '../stores/currentDialog';
   import ModalDialog from '../layout/ModalDialog.svelte';
@@ -53,7 +52,7 @@
           databasePort: parseInt(values.databasePortStr),
           databaseName: values.databaseName
         });
-        await DatabaseConfigClient.setConfig(databaseConfig);
+        await window.apis.dbConfigApi.setConfig(databaseConfig);
         currentConnection.set(
           new Connection(databaseConfig.isReady(), values.databaseName)
         );
