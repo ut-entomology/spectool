@@ -34,7 +34,7 @@ function createMainWindow() {
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
-      preload: path.join(__dirname, './app/preload.js')
+      preload: path.join(__dirname, '../node_modules/electron-affinity/preload.js')
     }
   }) as MainWindow;
 
