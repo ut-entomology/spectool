@@ -1,7 +1,7 @@
 {
   "name": "spectool",
   "version": "0.1.0",
-  "main": "./build/electron.js",
+  "main": "./build/app_main.js",
   "license": "Apache-2.0",
   "author": "Joseph T. Lapp",
   "scripts": {
