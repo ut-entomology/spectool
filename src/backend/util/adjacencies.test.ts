@@ -1,4 +1,4 @@
-import { createTestKernel } from '../../test_util';
+import { createTestKernel } from '../../backend/app/test_util';
 import type { AppKernel } from '../app/app_kernel';
 import { Adjacencies } from './adjacencies';
 import { Geography } from '../specify/geography';

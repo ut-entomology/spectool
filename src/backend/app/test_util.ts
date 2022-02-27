@@ -1,7 +1,7 @@
-import { APP_NAME } from './backend/app/app_name';
-import { Platform } from './util/platform';
+import { APP_NAME } from './app_name';
+import { Platform } from '../../util/platform';
 import { TestPrefsFile, TestCredentials } from './test_config';
-import { AppKernel } from './backend/app/app_kernel';
+import { AppKernel } from './app_kernel';
 
 export async function createTestKernel(): Promise<AppKernel> {
   const testCreds = new TestCredentials(APP_NAME);

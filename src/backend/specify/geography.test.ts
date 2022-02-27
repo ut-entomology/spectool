@@ -1,4 +1,4 @@
-import { createTestKernel } from '../../test_util';
+import { createTestKernel } from '../../backend/app/test_util';
 import type { AppKernel } from '../app/app_kernel';
 import { Geography } from './geography';
 import { RegionRank, Region, SPECIFY_USA } from '../../shared/shared_geography';

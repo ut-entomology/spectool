@@ -2,7 +2,7 @@ import readlineSync from 'readline-sync';
 
 import { APP_NAME } from '../backend/app/app_name';
 import { Platform } from '../util/platform';
-import { TestPrefsFile, TestCredentials } from '../test_config';
+import { TestPrefsFile, TestCredentials } from '../backend/app/test_config';
 
 /**
  * Sets up the app preferences and credentials for testing against
