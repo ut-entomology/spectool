@@ -1,4 +1,4 @@
-import type { AppKernel } from './app_kernel';
+import type { AppKernel } from './app/app_kernel';
 import { SavableCredentials } from '../app-util/savable_creds';
 import { toAccessLevel, SpecifyUser } from '../shared/shared_user';
 import * as crypto from './specify/crypto';

@@ -1,12 +1,12 @@
-import type { Platform } from '../app-util/platform';
-import { AppPrefs } from '../shared/shared_app_prefs';
-import { DatabaseConfig, DatabaseValues } from '../shared/shared_db_config';
-import type { SpecifyUser, Credentials } from '../shared/shared_user';
-import { PreferencesFile } from '../app-util/prefs_file';
-import type * as query from './specify/queries';
-import { DatabaseCredentials } from './db_creds';
-import { UserCredentials } from './user_creds';
-import { SpecifyApi } from './specify_api';
+import type { Platform } from '../../app-util/platform';
+import { AppPrefs } from '../../shared/shared_app_prefs';
+import { DatabaseConfig, DatabaseValues } from '../../shared/shared_db_config';
+import type { SpecifyUser, Credentials } from '../../shared/shared_user';
+import { PreferencesFile } from '../../app-util/prefs_file';
+import type * as query from '../specify/queries';
+import { DatabaseCredentials } from '../db_creds';
+import { UserCredentials } from '../user_creds';
+import { SpecifyApi } from '../specify_api';
 
 // TODO: Can I move some of these globals to their own modules (and still test)?
 // TODO: Can I move the kernel to a global (and still test)?

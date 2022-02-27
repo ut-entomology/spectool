@@ -1,6 +1,6 @@
 import { exposeMainApi, checkMainApi } from 'electron-affinity/main';
 
-import type { AppKernel } from '../../backend/app_kernel';
+import type { AppKernel } from '../../backend/app/app_kernel';
 import { AgentApi } from './agent_api';
 import { AppPrefsApi } from './app_prefs_api';
 import { DatabaseApi } from './database_api';

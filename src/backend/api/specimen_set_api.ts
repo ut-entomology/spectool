@@ -1,4 +1,4 @@
-import type { AppKernel } from '../../backend/app_kernel';
+import type { AppKernel } from '../../backend/app/app_kernel';
 import type { PersonName } from '../../backend/csv_validation/specimen';
 import {
   getHeaderJSONPath,

@@ -1,4 +1,4 @@
-import type { AppKernel } from '../../backend/app_kernel';
+import type { AppKernel } from '../../backend/app/app_kernel';
 
 export class GeographyApi {
   private _kernel: AppKernel;

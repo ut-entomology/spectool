@@ -1,4 +1,4 @@
-import type { AppKernel } from '../../backend/app_kernel';
+import type { AppKernel } from '../../backend/app/app_kernel';
 import * as query from '../../backend/specify/queries';
 import { runQuery } from '../util/api_util';
 
