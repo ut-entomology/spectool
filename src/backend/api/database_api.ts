@@ -3,7 +3,7 @@ import { RelayedError } from 'electron-affinity/main';
 import type { AppKernel } from '../../backend/app_kernel';
 import { Connection } from '../../shared/shared_connection';
 import type { Credentials } from '../../shared/shared_user';
-import { connectionPub } from '../../app/connectionPub';
+import { connectionPub } from '../../backend/app/connectionPub';
 
 let connection: Connection;
 connectionPub.subscribe((conn) => {

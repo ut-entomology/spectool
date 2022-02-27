@@ -3,16 +3,16 @@ import * as path from 'path';
 import * as log from 'electron-log';
 import 'source-map-support/register';
 
-import { APP_NAME } from './app/app_name';
+import { APP_NAME } from './backend/app/app_name';
 import { Platform } from './app-util/platform';
 import { MainWindow, bindMainWindowApis } from './backend/api/window_apis';
-import { createAppMenu } from './app/app_menu';
+import { createAppMenu } from './backend/app/app_menu';
 import { installMainApis } from './backend/api/main_apis';
 import { AppKernel } from './backend/app_kernel';
 import { Connection } from './shared/shared_connection';
 import { DatabaseConfig } from './shared/shared_db_config';
-import { connectionPub } from './app/connectionPub';
-import { devMode } from './app/dev_mode';
+import { connectionPub } from './backend/app/connectionPub';
+import { devMode } from './backend/app/dev_mode';
 
 // Without this handler, electron was not reporting all exceptions.
 process.on('uncaughtException', function (error) {

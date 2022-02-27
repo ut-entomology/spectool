@@ -3,7 +3,7 @@ import { app, Menu, MenuItemConstructorOptions } from 'electron';
 import { APP_NAME } from './app_name';
 import { connectionPub } from './connectionPub';
 import { devMode } from './dev_mode';
-import type { MainWindow } from '../backend/api/window_apis';
+import type { MainWindow } from '../../backend/api/window_apis';
 
 connectionPub.subscribe((connection) => {
   const menu = Menu.getApplicationMenu();
