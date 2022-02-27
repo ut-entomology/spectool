@@ -1,5 +1,5 @@
 import type { AppKernel } from './app/app_kernel';
-import { SavableCredentials } from '../app-util/savable_creds';
+import { SavableCredentials } from '../util/savable_creds';
 import { toAccessLevel, SpecifyUser } from '../shared/shared_user';
 import * as crypto from './specify/crypto';
 import * as query from './specify/queries';

@@ -1,6 +1,6 @@
-import type { Platform } from './app-util/platform';
-import { PreferencesFile } from './app-util/prefs_file';
-import { SavableCredentials } from './app-util/savable_creds';
+import type { Platform } from './util/platform';
+import { PreferencesFile } from './util/prefs_file';
+import { SavableCredentials } from './util/savable_creds';
 import type { DatabaseValues } from './shared/shared_db_config';
 
 // Testing and debugging is set up for Jest Runner with VS Code.

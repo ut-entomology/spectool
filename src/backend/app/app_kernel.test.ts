@@ -1,5 +1,5 @@
 import { APP_NAME } from './app_name';
-import { Platform } from '../../app-util/platform';
+import { Platform } from '../../util/platform';
 import { TestPrefs, TestPrefsFile, TestCredentials } from '../../test_config';
 import { AppKernel } from './app_kernel';
 

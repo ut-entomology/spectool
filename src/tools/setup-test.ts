@@ -1,7 +1,7 @@
 import readlineSync from 'readline-sync';
 
 import { APP_NAME } from '../backend/app/app_name';
-import { Platform } from '../app-util/platform';
+import { Platform } from '../util/platform';
 import { TestPrefsFile, TestCredentials } from '../test_config';
 
 /**

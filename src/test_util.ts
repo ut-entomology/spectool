@@ -1,5 +1,5 @@
 import { APP_NAME } from './backend/app/app_name';
-import { Platform } from './app-util/platform';
+import { Platform } from './util/platform';
 import { TestPrefsFile, TestCredentials } from './test_config';
 import { AppKernel } from './backend/app/app_kernel';
 

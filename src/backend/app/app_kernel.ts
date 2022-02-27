@@ -1,8 +1,8 @@
-import type { Platform } from '../../app-util/platform';
+import type { Platform } from '../../util/platform';
 import { AppPrefs } from '../../shared/shared_app_prefs';
 import { DatabaseConfig, DatabaseValues } from '../../shared/shared_db_config';
 import type { SpecifyUser, Credentials } from '../../shared/shared_user';
-import { PreferencesFile } from '../../app-util/prefs_file';
+import { PreferencesFile } from '../../util/prefs_file';
 import type * as query from '../specify/queries';
 import { DatabaseCredentials } from '../db_creds';
 import { UserCredentials } from '../user_creds';

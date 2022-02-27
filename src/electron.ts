@@ -4,7 +4,7 @@ import * as log from 'electron-log';
 import 'source-map-support/register';
 
 import { APP_NAME } from './backend/app/app_name';
-import { Platform } from './app-util/platform';
+import { Platform } from './util/platform';
 import { MainWindow, bindMainWindowApis } from './backend/api/window_apis';
 import { createAppMenu } from './backend/app/app_menu';
 import { installMainApis } from './backend/api/main_apis';

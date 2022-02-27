@@ -2,7 +2,7 @@ import * as mysql from 'mysql2/promise';
 import { addTimeoutToPromisePool } from 'mysql2-timeout-additions';
 
 import type { AppKernel } from './app/app_kernel';
-import { SavableCredentials } from '../app-util/savable_creds';
+import { SavableCredentials } from '../util/savable_creds';
 import type { Collection } from '../shared/shared_connection';
 import { UserError } from '../shared/shared_user';
 import * as query from './specify/queries';
