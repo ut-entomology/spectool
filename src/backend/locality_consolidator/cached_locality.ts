@@ -8,18 +8,25 @@ import type {
   PhoneticMatch
 } from '../../shared/shared_locality';
 
+// Words ignored when comparing localities, in addition to all words
+// of one or two characteres.
 const EXCLUDED_WORDS = ['and', 'for', 'from', 'the', 'with'];
 
-export const EXTRA_MATCHES = ''; // phonetic series representing partial matches
+// phonetic series representing partial matches
+const EXTRA_MATCHES = '';
 
+/**
+ * Class representing cached information about a locality and providing
+ * operations that assist with comparing localities for similarity.
+ */
 export class CachedLocality {
   regionID: number;
   localityID: number;
   latitude: number | null;
   longitude: number | null;
   name: string;
-  words: string[] | null; // occurrence-ordered
-  phonetics: string[] | null; // occurrence-ordered
+  words: string[] | null; // occurrence-ordered, excluding EXCLUDED_WORDS
+  phonetics: string[] | null; // occurrence-ordered, excluding EXCLUDED_WORDS
   remarks: string;
   lastModified: number; // UNIX time
 
