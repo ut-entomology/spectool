@@ -3,7 +3,7 @@
     "compilerOptions": {
         "types": ["node", "jest"],
         "sourceMap": true,
-        "target": "ESNext",
+        "target": "ES2021",
         "stripInternal": true,
         "strict": true,
         "pretty": true,
