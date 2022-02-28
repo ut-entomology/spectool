@@ -19,6 +19,13 @@ interface SubsetCorrespondence {
   synonyms: StoredSynonym[];
 }
 
+/**
+ * Class for processing regions, one region at a time, comparing its localities
+ * to other localities within the region and to the localities of other regions
+ * that have been cached for possible comparison with those of the region.
+ * Reports similar regions for the user to determine whether they're duplicates.
+ */
+
 export class RegionProcessor {
   private _geography: Geography;
   private _adjacencies: Adjacencies;
@@ -48,6 +55,13 @@ export class RegionProcessor {
     this._regionRoster = regionRoster;
     this._excludedMatchesStore = excludedMatchesStore;
   }
+
+  /**
+   * Compares the localities of the provided region with all existing cached
+   * localities for similarity, yielding a description of found similarities
+   * for each pair of similar regions. Restricts the comparison to localities
+   * that have been modified on or since the provided baseline date.
+   */
 
   async *run(
     baselineDate: Date | null,
