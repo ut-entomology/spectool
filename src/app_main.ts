@@ -14,16 +14,65 @@ import { DatabaseConfig } from './shared/shared_db_config';
 import { connectionPub } from './backend/app/connectionPub';
 import { devMode } from './backend/app/dev_mode';
 
+let mainWindow: MainWindow | null = null;
+
 // Without this handler, electron was not reporting all exceptions.
+
 process.on('uncaughtException', function (error) {
   // TODO: gracefully handle mysql2-timeout-additions.TimeoutError
   log.error(error);
   app.exit(1);
 });
 
-let mainWindow: MainWindow | null;
+// Select the source of initial page as a function of dev mode.
 
-function createMainWindow() {
+devMode(process.env.NODE_ENV === 'development');
+const initialPageURL = devMode()
+  ? // in dev, target the host and port of the local rollup web server
+    'http://localhost:5000'
+  : // in production, use the statically build version of the application
+    `file://${path.join(__dirname, '../public/index.html')}`;
+
+// Start the application.
+
+app
+  .whenReady()
+  .then(async () => {
+    // Initialize application.
+
+    const platform = new Platform(APP_NAME, APP_NAME);
+    const kernel = new AppKernel(platform, new DatabaseConfig());
+    installMainApis(kernel);
+    await kernel.init();
+
+    connectionPub.set(
+      new Connection(
+        kernel.databaseConfig.isReady(),
+        kernel.databaseCreds.get()?.username
+      )
+    );
+
+    // Open the main window.
+
+    openMainWindow();
+    app.on('window-all-closed', () => {
+      // Closing windows doesn't close the app on Mac.
+      if (process.platform !== 'darwin') {
+        app.quit();
+      }
+    });
+    app.on('activate', () => {
+      if (mainWindow === null) {
+        openMainWindow();
+      }
+    });
+  })
+  .catch((err) => {
+    log.error(err.message);
+    app.quit();
+  });
+
+function openMainWindow() {
   // Can be called from a menu item event, so assign global window here.
 
   mainWindow = new BrowserWindow({
@@ -38,15 +87,8 @@ function createMainWindow() {
     }
   }) as MainWindow;
 
-  devMode(process.env.NODE_ENV === 'development');
-  const url = devMode()
-    ? // in dev, target the host and port of the local rollup web server
-      'http://localhost:5000'
-    : // in production, use the statically build version of our application
-      `file://${path.join(__dirname, '../public/index.html')}`;
-
   mainWindow
-    .loadURL(url)
+    .loadURL(initialPageURL)
     .then(async () => {
       await bindMainWindowApis(mainWindow!);
       mainWindow!.apis.appEventApi.setAppMode(process.env.NODE_ENV);
@@ -59,40 +101,6 @@ function createMainWindow() {
   mainWindow.on('closed', () => {
     mainWindow = null;
   });
+
+  Menu.setApplicationMenu(createAppMenu(mainWindow));
 }
-
-app
-  .whenReady()
-  .then(async () => {
-    const platform = new Platform(APP_NAME, APP_NAME);
-    const kernel = new AppKernel(platform, new DatabaseConfig());
-    installMainApis(kernel);
-    await kernel.init();
-
-    createMainWindow();
-    Menu.setApplicationMenu(createAppMenu(mainWindow!));
-
-    // Must follow setting application menu.
-    connectionPub.set(
-      new Connection(
-        kernel.databaseConfig.isReady(),
-        kernel.databaseCreds.get()?.username
-      )
-    );
-
-    // Implement expected Mac OS behavior.
-    app.on('window-all-closed', () => {
-      if (process.platform !== 'darwin') {
-        app.quit();
-      }
-    });
-    app.on('activate', () => {
-      if (mainWindow === null) {
-        createMainWindow();
-      }
-    });
-  })
-  .catch((err) => {
-    log.error(err.message);
-    app.quit();
-  });
