@@ -30,7 +30,7 @@ devMode(process.env.NODE_ENV === 'development');
 const initialPageURL = devMode()
   ? // in dev, target the host and port of the local rollup web server
     'http://localhost:5000'
-  : // in production, use the statically build version of the application
+  : // in production, use the statically built version of the application
     `file://${path.join(__dirname, '../public/index.html')}`;
 
 // Start the application.
