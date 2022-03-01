@@ -7,7 +7,11 @@ import type { PhoneticLocalityIndex } from './phonetic_locality_index';
 import type { PotentialSynonymsStore, StoredSynonym } from './potential_synonyms';
 import type { TrackedRegionRoster } from './region_roster';
 import { TrackedRegion } from './tracked_region';
-import { ExcludedMatchesStore, containsCoords } from './excluded_matches';
+import {
+  ExcludedMatchesStore,
+  containsCoordinatePairing,
+  containsRegionIDPairing
+} from './excluded_matches';
 import type {
   LocalityMatch,
   PhoneticMatch,
@@ -264,24 +268,22 @@ export class RegionProcessor {
         if (currentRegion.id == testRegion.id) {
           // Skip localities expected to have identical names at different coordinates.
           if (
-            containsCoords(exclusions.nonmatchingCoordinates, [
-              baseLocality.latitude,
-              baseLocality.longitude
-            ]) &&
-            containsCoords(exclusions.nonmatchingCoordinates, [
-              testLocality.latitude,
-              testLocality.longitude
-            ])
+            containsCoordinatePairing(
+              exclusions.nonmatchingCoordinatePairings,
+              [baseLocality.latitude, baseLocality.longitude],
+              [testLocality.latitude, testLocality.longitude]
+            )
           ) {
             return null;
           }
         } else {
           // Skip localities expected to have identical names in different regions.
           if (
-            exclusions &&
-            exclusions.nonmatchingRegionIDs.length != 0 /*short-circuits*/ &&
-            exclusions.nonmatchingRegionIDs.includes(currentRegion.id) &&
-            exclusions.nonmatchingRegionIDs.includes(testRegion.id)
+            containsRegionIDPairing(
+              exclusions.nonmatchingRegionIDPairings,
+              currentRegion.id,
+              testRegion.id
+            )
           ) {
             return null;
           }
