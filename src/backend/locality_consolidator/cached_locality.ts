@@ -12,9 +12,6 @@ import type {
 // of one or two characteres.
 const EXCLUDED_WORDS = ['and', 'for', 'from', 'the', 'with'];
 
-// phonetic series representing partial matches
-const EXTRA_MATCHES = '';
-
 /**
  * Class representing cached information about a locality and providing
  * operations that assist with comparing localities for similarity.
@@ -111,15 +108,15 @@ export class CachedLocality {
     // Assemble and return the corresponding phonetic series matches. Phonetic
     // subsets of each locality that are identical to those of the other
     // locality but subsumed by other subsets in the other locality are collected
-    // as "extras" for inclusion as the last entry in `matches`.
+    // as "extras" for inclusion as the last entry in `matches` (commented out).
 
     const matches: PhoneticMatch[] = [];
-    const extraBaseSubsets: PhoneticSubset[] = [];
-    const extraTestSubsets: PhoneticSubset[] = [];
+    // const extraBaseSubsets: PhoneticSubset[] = [];
+    // const extraTestSubsets: PhoneticSubset[] = [];
     for (const phoneticSeries of Object.keys(baseCapturesBySeries)) {
       const testCaptures = testCapturesBySeries[phoneticSeries];
       if (testCaptures === undefined) {
-        extraBaseSubsets.push(...baseCapturesBySeries[phoneticSeries]);
+        // extraBaseSubsets.push(...baseCapturesBySeries[phoneticSeries]);
       } else {
         // phoneticSeries now known to be common to both sets of captures
         matches.push({
@@ -129,17 +126,12 @@ export class CachedLocality {
         });
       }
     }
-    for (const phoneticSeries of Object.keys(testCapturesBySeries)) {
-      const baseCaptures = baseCapturesBySeries[phoneticSeries];
-      if (baseCaptures === undefined) {
-        extraTestSubsets.push(...testCapturesBySeries[phoneticSeries]);
-      }
-    }
-    matches.push({
-      phoneticSeries: EXTRA_MATCHES,
-      baseSubsets: extraBaseSubsets,
-      testSubsets: extraTestSubsets
-    });
+    // for (const phoneticSeries of Object.keys(testCapturesBySeries)) {
+    //   const baseCaptures = baseCapturesBySeries[phoneticSeries];
+    //   if (baseCaptures === undefined) {
+    //     extraTestSubsets.push(...testCapturesBySeries[phoneticSeries]);
+    //   }
+    // }
     return matches;
   }
 
@@ -284,8 +276,8 @@ export class CachedLocality {
   /**
    * Given all found phonetic subsets of a locality, determines the minimal set
    * of subsets that includes all subsets, which is the set of subsets providing
-   * maximal coverage over the set of words. Any subsets that fully contain
-   * other subsets are dropped. Returns subsets indexed by phonetic series and
+   * maximal coverage over the set of words. Any subsets that are fully contained
+   * in other subsets are dropped. Returns subsets indexed by phonetic series and
    * marked for the locations of their associated words.
    */
   private _getSubsetCapturesBySeries(
@@ -299,7 +291,7 @@ export class CachedLocality {
     subsets.sort((s1, s2) => {
       const s1WordLength = s1.lastWordIndex - s1.firstWordIndex;
       const s2WordLength = s2.lastWordIndex - s2.firstWordIndex;
-      return s1WordLength - s2WordLength;
+      return s2WordLength - s1WordLength;
     });
     for (const subset of subsets) {
       let i = 0;
@@ -340,7 +332,7 @@ export class CachedLocality {
     const capturesBySeries: Record<string, PhoneticSubset[]> = {};
     for (const capture of orderedCaptures) {
       let capturedSubsets = capturesBySeries[capture.phoneticSeries];
-      if (!capturedSubsets === undefined) {
+      if (capturedSubsets === undefined) {
         capturedSubsets = [];
         capturesBySeries[capture.phoneticSeries] = capturedSubsets;
       }
