@@ -1,4 +1,6 @@
 <script lang="ts" context="module">
+  import { checkWindowApiClass } from 'electron-affinity/window';
+
   import { currentConnection } from '../stores/currentConnection';
   import { currentDialog } from '../stores/currentDialog';
   import { DialogSpec } from '../lib/dialog_spec';
@@ -60,4 +62,5 @@
       currentDialog.set(new DialogSpec('DataFolderDialog'));
     }
   }
+  checkWindowApiClass(AppEventApi);
 </script>
