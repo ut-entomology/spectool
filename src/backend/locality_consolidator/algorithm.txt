@@ -26,6 +26,8 @@ At this time, I have no idea how long this process takes or how long the user mi
 
 (+) [ON HOLD] It is possible for two localities to match on phonetic series that are subsets of other series that are themselves excluded matches. When this happens, no matches are registered and the localities are not presented to the user as possible duplicates. Because this is a low-probability edge case that seems to require a lot of coding, I'm not handling it.
 
+(+) [ON HOLD] I've not provided a mechanism for editing the excluded matches store. Once decisions are made about the relevance of computer-suggested matches, they are permanent until the file underlying the store is deleted, at which point all excluded matches are lost.
+
 ## Important Notes
 
 (+) Because multiple users on the same computer or across multiple computers could be simultaneously doing consolidations, possibly intermittently, I'll need to verify that associated data in Specify has not changed since caching prior to modifying the database. I should probably do this anyway, in case someone concurrently changes the data by means other than consolidation.
@@ -172,9 +174,11 @@ The key (K) is a sorted phonetic series. The value is a set of series pairs desc
 
 The store preserves the word series associated with each phonetic series because these are the representations of the phonetic series that the user provides and subsequently sees.
 
-If a locality being examined for potential duplication contains a phonetic series found in PotentialSynonymsStore, it is offered for comparison with all adjoined localities containing any of the associated equivalent phonetic series, unless their associated word series are paired in ExcludedMatchesStore.
+In order to allow for the removal of synonym declarations, this structure only reflects explicitly declared synonyms and not the transitive nature of synonyms. To determine all the synonyms of any phonetic series, the each synonym found must itself be looked up for its synonyms, stopping only upon reaching previously-found synonyms.
 
-Whenever the UI presents a locality to the user, all synonyms associated with that locality are also displayed, and the user is given the opportunity add, remove, or modify these synonyms. The UI only allows the user to establish synonyms for phonetic series found in the localities currently under consideration.
+If a locality being examined for potential duplication contains a phonetic series found in PotentialSynonymsStore, it is offered for comparison with all adjoined localities containing any of the synonymous phonetic series, unless their associated word series are paired in ExcludedMatchesStore.
+
+Whenever the UI presents a locality to the user, all synonym declarations associated with that locality are also displayed, and the user is given the opportunity add, remove, or modify these synonyms. The UI only allows the user to establish synonyms for phonetic series found in the localities currently under consideration.
 
 Potential synonyms can change over the course of consolidation, and after each change, subsequent consolidation should use the new synonyms.
 

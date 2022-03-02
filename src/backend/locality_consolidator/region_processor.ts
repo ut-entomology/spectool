@@ -4,7 +4,7 @@ import type { CachedLocality } from './cached_locality';
 import type { LocalityCache } from './locality_cache';
 import type { Geography } from '../specify/geography';
 import type { PhoneticLocalityIndex } from './phonetic_locality_index';
-import type { PotentialSynonymsStore, StoredSynonym } from './potential_synonyms';
+import type { PotentialSynonymsStore } from './potential_synonyms';
 import type { TrackedRegionRoster } from './region_roster';
 import { TrackedRegion } from './tracked_region';
 import {
@@ -20,7 +20,7 @@ import type {
 
 interface SubsetCorrespondence {
   baseSubset: PhoneticSubset;
-  synonyms: StoredSynonym[];
+  synonymousSeries: string[];
 }
 
 /**
@@ -212,8 +212,8 @@ export class RegionProcessor {
   ): string[] {
     const codes: string[] = [];
     for (const subsetEquivalance of Object.values(correspondenceMap)) {
-      for (const synonym of subsetEquivalance.synonyms) {
-        this._collectPhoneticCodes(codes, synonym.phoneticSeries.split(' '));
+      for (const phoneticSeries of subsetEquivalance.synonymousSeries) {
+        this._collectPhoneticCodes(codes, phoneticSeries.split(' '));
       }
     }
     return codes;
@@ -348,8 +348,8 @@ export class RegionProcessor {
     for (const subsetCorrespondence of Object.values(
       phoneticWordSeriesCorrespondenceMap
     )) {
-      for (const synonymToSearchFor of subsetCorrespondence.synonyms) {
-        synonymousPhoneticSeriesToSearchFor.push(synonymToSearchFor.phoneticSeries);
+      for (const phoneticSeries of subsetCorrespondence.synonymousSeries) {
+        synonymousPhoneticSeriesToSearchFor.push(phoneticSeries);
       }
     }
 
@@ -467,16 +467,15 @@ export class RegionProcessor {
         // Retrieve all stored synonyms of the current base subset. This
         // will not include series for the base subset itself.
 
-        const synonymsOfBaseSubset = this._potentialSynonymsStore.getSynonyms(
-          baseSubset.phoneticSeries
-        );
+        const synonymousSeriesOfBaseSubset =
+          this._potentialSynonymsStore.getSynonymousSeries(baseSubset.phoneticSeries);
 
         // Collect the synonyms of the base subset, indexing them by phonetic series.
 
-        if (synonymsOfBaseSubset) {
+        if (synonymousSeriesOfBaseSubset) {
           basePhoneticSeriesCorrespondenceMap[baseSubset.phoneticSeries] = {
             baseSubset,
-            synonyms: synonymsOfBaseSubset
+            synonymousSeries: synonymousSeriesOfBaseSubset
           };
         }
 
