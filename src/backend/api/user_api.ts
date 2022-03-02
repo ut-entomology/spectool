@@ -1,4 +1,4 @@
-import { RelayedError } from 'electron-affinity/main';
+import { ElectronMainApi, RelayedError } from 'electron-affinity/main';
 
 import type { AppKernel } from '../../backend/app/app_kernel';
 import type { Credentials } from '../../shared/shared_user';
@@ -6,7 +6,7 @@ import * as query from '../../backend/specify/queries';
 
 export type UserInfo = query.RowType<typeof query.getAllUsers>;
 
-export class UserApi {
+export class UserApi implements ElectronMainApi<UserApi> {
   private _kernel: AppKernel;
 
   constructor(kernel: AppKernel) {

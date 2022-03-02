@@ -1,6 +1,8 @@
+import type { ElectronMainApi } from 'electron-affinity/main';
+
 import { dialog } from 'electron';
 
-export class DialogApi {
+export class DialogApi implements ElectronMainApi<DialogApi> {
   async openDirectoryDialog(dialogTitle: string) {
     const selections = dialog.showOpenDialogSync({
       title: dialogTitle,

@@ -1,3 +1,5 @@
+import type { ElectronMainApi } from 'electron-affinity/main';
+
 import type { AppKernel } from '../../backend/app/app_kernel';
 import type { PersonName } from '../../backend/csv_validation/specimen';
 import {
@@ -8,7 +10,7 @@ import {
 } from '../../backend/csv_validation/specimen_set';
 import { WILDCARD_NAME, addAgentName, addAgentEntries } from './agent_api';
 
-export class SpecimenSetApi {
+export class SpecimenSetApi implements ElectronMainApi<SpecimenSetApi> {
   _kernel: AppKernel;
 
   constructor(kernel: AppKernel) {

@@ -1,7 +1,9 @@
+import type { ElectronMainApi } from 'electron-affinity/main';
+
 import type { DatabaseConfig } from '../../shared/shared_db_config';
 import type { AppKernel } from '../../backend/app/app_kernel';
 
-export class DatabaseConfigApi {
+export class DatabaseConfigApi implements ElectronMainApi<DatabaseConfigApi> {
   private _kernel: AppKernel;
 
   constructor(kernel: AppKernel) {

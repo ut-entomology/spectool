@@ -1,6 +1,8 @@
+import type { ElectronMainApi } from 'electron-affinity/main';
+
 import type { AppKernel } from '../../backend/app/app_kernel';
 
-export class GeographyApi {
+export class GeographyApi implements ElectronMainApi<GeographyApi> {
   private _kernel: AppKernel;
 
   constructor(kernel: AppKernel) {

@@ -1,3 +1,5 @@
+import type { ElectronMainApi } from 'electron-affinity/main';
+
 import type { AppKernel } from '../../backend/app/app_kernel';
 import * as query from '../../backend/specify/queries';
 import { runQuery } from '../util/api_util';
@@ -8,7 +10,7 @@ export type BaseTaxon = query.RowType<typeof query.getAncestorsOfUnusedTaxa>;
 export type Taxon = query.RowType<typeof query.getUnusedTaxa>;
 export type TaxonomicRank = query.RowType<typeof query.getTaxonomicRanks>;
 
-export class TaxaApi {
+export class TaxaApi implements ElectronMainApi<TaxaApi> {
   private _kernel: AppKernel;
 
   constructor(kernel: AppKernel) {

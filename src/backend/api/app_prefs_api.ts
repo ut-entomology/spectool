@@ -1,7 +1,9 @@
+import type { ElectronMainApi } from 'electron-affinity/main';
+
 import type { AppKernel } from '../../backend/app/app_kernel';
 import type { AppPrefs } from '../../shared/shared_app_prefs';
 
-export class AppPrefsApi {
+export class AppPrefsApi implements ElectronMainApi<AppPrefsApi> {
   _kernel: AppKernel;
 
   constructor(kernel: AppKernel) {

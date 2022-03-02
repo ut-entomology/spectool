@@ -1,4 +1,4 @@
-import { RelayedError } from 'electron-affinity/main';
+import { ElectronMainApi, RelayedError } from 'electron-affinity/main';
 
 import type { AppKernel } from '../../backend/app/app_kernel';
 import { Connection } from '../../shared/shared_connection';
@@ -10,7 +10,7 @@ connectionPub.subscribe((conn) => {
   connection = conn;
 });
 
-export class DatabaseApi {
+export class DatabaseApi implements ElectronMainApi<DatabaseApi> {
   private _kernel: AppKernel;
 
   constructor(kernel: AppKernel) {

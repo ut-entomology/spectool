@@ -1,5 +1,5 @@
 <script lang="ts" context="module">
-  import { checkWindowApiClass } from 'electron-affinity/window';
+  import type { ElectronWindowApi } from 'electron-affinity/window';
 
   import { currentConnection } from '../stores/currentConnection';
   import { currentDialog } from '../stores/currentDialog';
@@ -9,7 +9,7 @@
   import { flashMessage } from '../layout/VariableFlash.svelte';
   import { showNotice } from '../layout/VariableNotice.svelte';
 
-  export class AppEventApi {
+  export class AppEventApi implements ElectronWindowApi<AppEventApi> {
     private _connection?: Connection;
 
     constructor() {
@@ -62,5 +62,4 @@
       currentDialog.set(new DialogSpec('DataFolderDialog'));
     }
   }
-  checkWindowApiClass(AppEventApi);
 </script>

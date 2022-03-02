@@ -1,3 +1,5 @@
+import type { ElectronMainApi } from 'electron-affinity/main';
+
 import type { AppKernel } from '../../backend/app/app_kernel';
 import * as query from '../../backend/specify/queries';
 import { runQuery } from '../util/api_util';
@@ -6,7 +8,7 @@ import fuzzySoundex from 'talisman/phonetics/fuzzy-soundex';
 export const WILDCARD_NAME = '*';
 export const PRESERVED_SPACE = '^';
 
-export class AgentApi {
+export class AgentApi implements ElectronMainApi<AgentApi> {
   private _kernel: AppKernel;
 
   constructor(kernel: AppKernel) {

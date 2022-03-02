@@ -1,4 +1,5 @@
 import type { BrowserWindow } from 'electron';
+
 import { AwaitedType, bindWindowApi } from 'electron-affinity/main';
 
 import type { AppEventApi } from '../../frontend/api/app_event_api.svelte';
