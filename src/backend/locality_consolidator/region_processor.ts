@@ -3,7 +3,7 @@ import type { AdjoiningRegions } from './adjoining_regions';
 import type { CachedLocality } from './cached_locality';
 import type { LocalityCache } from './locality_cache';
 import type { Geography } from '../specify/geography';
-import type { PhoneticLocalityIndex } from './phonetic_locality_index';
+import type { PhoneticCodeIndex } from './phonetic_code_index';
 import type { PotentialSynonymsStore } from './potential_synonyms';
 import type { TrackedRegionRoster } from './region_roster';
 import { TrackedRegion } from './tracked_region';
@@ -36,7 +36,7 @@ export class RegionProcessor {
   private _adjoiningRegions: AdjoiningRegions;
   private _localityCache: LocalityCache;
   private _potentialSynonymsStore: PotentialSynonymsStore;
-  private _phoneticLocalityIndex: PhoneticLocalityIndex;
+  private _phoneticCodeIndex: PhoneticCodeIndex;
   private _regionRoster: TrackedRegionRoster;
   private _excludedMatchesStore: ExcludedMatchesStore;
 
@@ -46,7 +46,7 @@ export class RegionProcessor {
     adjoiningRegions: AdjoiningRegions,
     localityCache: LocalityCache,
     potentialSynonymsStore: PotentialSynonymsStore,
-    phoneticLocalityIndex: PhoneticLocalityIndex,
+    phoneticCodeIndex: PhoneticCodeIndex,
     regionRoster: TrackedRegionRoster,
     excludedMatchesStore: ExcludedMatchesStore
   ) {
@@ -55,7 +55,7 @@ export class RegionProcessor {
     this._adjoiningRegions = adjoiningRegions;
     this._localityCache = localityCache;
     this._potentialSynonymsStore = potentialSynonymsStore;
-    this._phoneticLocalityIndex = phoneticLocalityIndex;
+    this._phoneticCodeIndex = phoneticCodeIndex;
     this._regionRoster = regionRoster;
     this._excludedMatchesStore = excludedMatchesStore;
   }
@@ -108,21 +108,24 @@ export class RegionProcessor {
           // Examine the localities having at least one phonetic code in common
           // with baseLocality for possible duplication of baseLocality.
 
-          for (const testLocalityID of await this._phoneticLocalityIndex.getLocalityIDs(
+          const testLocalityIDs = await this._phoneticCodeIndex.getLocalityIDs(
             basePhoneticCode
-          )) {
-            if (!previouslyComparedLocalityIDs[testLocalityID]) {
-              const localityMatch = this._comparePhoneticallyRelatedLocalities(
-                adjoiningRegionIDs,
-                baselineDate,
-                overallRegion,
-                currentRegion,
-                baseLocality,
-                this._localityCache.getLocality(testLocalityID)
-              );
-              if (localityMatch) {
-                yield localityMatch;
-                previouslyComparedLocalityIDs[testLocalityID] = true;
+          );
+          if (testLocalityIDs) {
+            for (const testLocalityID of testLocalityIDs) {
+              if (!previouslyComparedLocalityIDs[testLocalityID]) {
+                const localityMatch = this._comparePhoneticallyRelatedLocalities(
+                  adjoiningRegionIDs,
+                  baselineDate,
+                  overallRegion,
+                  currentRegion,
+                  baseLocality,
+                  this._localityCache.getLocality(testLocalityID)
+                );
+                if (localityMatch) {
+                  yield localityMatch;
+                  previouslyComparedLocalityIDs[testLocalityID] = true;
+                }
               }
             }
           }
@@ -141,22 +144,25 @@ export class RegionProcessor {
             for (const synonymPhoneticCode of this._collectPhoneticCodesFromCorrespondenceMap(
               basePhoneticSeriesCorrespondenceMap
             )) {
-              for (const testLocalityID of await this._phoneticLocalityIndex.getLocalityIDs(
+              const testLocalityIDs = await this._phoneticCodeIndex.getLocalityIDs(
                 synonymPhoneticCode
-              )) {
-                if (!previouslyComparedLocalityIDs[testLocalityID]) {
-                  const localityMatch = this._compareSynonymouslyRelatedLocalities(
-                    adjoiningRegionIDs,
-                    baselineDate,
-                    overallRegion,
-                    currentRegion,
-                    baseLocality,
-                    this._localityCache.getLocality(testLocalityID),
-                    basePhoneticSeriesCorrespondenceMap
-                  );
-                  if (localityMatch) {
-                    yield localityMatch;
-                    previouslyComparedLocalityIDs[testLocalityID] = true;
+              );
+              if (testLocalityIDs) {
+                for (const testLocalityID of testLocalityIDs) {
+                  if (!previouslyComparedLocalityIDs[testLocalityID]) {
+                    const localityMatch = this._compareSynonymouslyRelatedLocalities(
+                      adjoiningRegionIDs,
+                      baselineDate,
+                      overallRegion,
+                      currentRegion,
+                      baseLocality,
+                      this._localityCache.getLocality(testLocalityID),
+                      basePhoneticSeriesCorrespondenceMap
+                    );
+                    if (localityMatch) {
+                      yield localityMatch;
+                      previouslyComparedLocalityIDs[testLocalityID] = true;
+                    }
                   }
                 }
               }
@@ -167,7 +173,7 @@ export class RegionProcessor {
         // There are no more comparisons to do with the base locality, so remove it
         // from the cache and the necessary indexes.
 
-        this._phoneticLocalityIndex.removeLocality(baseLocality);
+        this._phoneticCodeIndex.removeLocality(baseLocality);
         this._localityCache.uncacheLocality(baseLocality.localityID);
       }
     }
@@ -436,8 +442,8 @@ export class RegionProcessor {
     // include series that are found in the locality and those that are not.
 
     const allPhoneticSeriesSynonymsUsingBasePhoneticCode =
-      await this._phoneticLocalityIndex.getPhoneticSeriesSynonyms(basePhoneticCode);
-    if (allPhoneticSeriesSynonymsUsingBasePhoneticCode.length == 0) {
+      await this._phoneticCodeIndex.getPhoneticSeriesSynonyms(basePhoneticCode);
+    if (!allPhoneticSeriesSynonymsUsingBasePhoneticCode) {
       return null;
     }
 

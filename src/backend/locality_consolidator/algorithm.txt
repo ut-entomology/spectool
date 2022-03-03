@@ -88,7 +88,7 @@ RegionRoster is initialized to the regions of the domain, including all regions 
 Define function cacheRegion(region to cache (C)):
 	(+) For each locality (L1) in localitiesOfRegion(C, C.includesLowerRanks):
 		(+) Cache (L1) in LocalityCache.
-		(+) Update PhoneticLocalityIndex for (L1)'s phonetic codes.
+		(+) Update PhoneticCodeIndex for (L1)'s phonetic codes.
 	(+) Mark (C) as cached in RegionRoster.
 	(+) If (C) is in the domain:
 		(+) For each region (A) in the set containing regions strictly adjacent to (C), regions containing (C), and regions contained in (C):
@@ -122,7 +122,7 @@ The key is a locality key, allowing localities to be looked up or deleted as a g
 (+) occurrence-ordered phonetic series encoding of locality name
 (+) remarks
 
-### PhoneticLocalityIndex
+### PhoneticCodeIndex
 
 Indexes cached localities and synonymous phonetic series by the phonetic codes they contain, so that cached localities and phonetic series synonyms can be looked up by containing phonetic codes.
 
@@ -131,7 +131,7 @@ They key is a phonetic code. The value is the following structure:
 (+) localityKeys: a list of the keys for localities containing a word with the phonetic code given by the key.
 (+) synonyms: a list of the phonetic series found in PotentialSynonymsStore that contain the phonetic code given by the key. The order of phonetic codes in each series does not matter.
 
-When a cached locality is removed from the LocalityCache, its locality keys are removed from all of its phonetic codes in PhoneticLocalityIndex. When a phonetic key loses all of its associated locality keys, the record is removed from PhoneticLocalityIndex if there are no synonyms, thus keeping the size of PhoneticLocalityIndex to the minimum needed, improving performance.
+When a cached locality is removed from the LocalityCache, its locality keys are removed from all of its phonetic codes in PhoneticCodeIndex. When a phonetic key loses all of its associated locality keys, the record is removed from PhoneticCodeIndex if there are no synonyms, thus keeping the size of PhoneticCodeIndex to the minimum needed, improving performance.
 
 For now, the number of synonyms is expected to be small, so it's okay to keep entries around for the phonetic codes with synonyms, even if none of the cached localities use them.
 
@@ -198,7 +198,7 @@ All users share this file.
 This is a data storage file having a separate version stored in each user's directory and containing the following structures:
 
 (+) RegionRoster
-(+) PhoneticLocalityIndex
+(+) PhoneticCodeIndex
 (+) LocalityCache
 
 The file also indicates the domain selected for consolidation.
@@ -286,7 +286,7 @@ Define a "found match" as a structure containing the following information:
 		(+) Let (D) be the set of the IDs of the localities that have been compared with (L1), initially empty.
 		(+) For each phonetic code (P1) in (L1):
 
-			(+) For each locality (L2) associated with (P1) in PhoneticLocalityIndex:
+			(+) For each locality (L2) associated with (P1) in PhoneticCodeIndex:
 				[BEGIN COMMON LOGIC]
 				(+) If (L2) is not in (D):
 					(+) If there is no baseline date, or if (R) is in the domain and (L1) is marked on or after the baseline date, or if (R) is not in the domain and (L2) is marked on or after the baseline date:
@@ -300,11 +300,11 @@ Define a "found match" as a structure containing the following information:
 									(+) Call processMatchingLocalities(L1, L2, M)
 									(+) Add (L2) to (D).
 
-			(+) Let (H) be the set of synonym phonetic series associated with (P1) in PhoneticLocalityIndex and found in (L1). These are the phonetic series of (L1) that have synonyms.
+			(+) Let (H) be the set of synonym phonetic series associated with (P1) in PhoneticCodeIndex and found in (L1). These are the phonetic series of (L1) that have synonyms.
 			(+) Let (I) be the set of synonyms in PotentialSynonymsStore for all of the phonetic series in (H), so that if there exists a synonym for a series in (H), then that synonym is in (I), except that (I) contains no series found in (H).
 			(+) Let (J) be the set of phonetic codes found in (I).
 			(+) For each phonetic code (P2) found in (J):
-				(+) For each locality (L2) associated with (P2) in PhoneticLocalityIndex:
+				(+) For each locality (L2) associated with (P2) in PhoneticCodeIndex:
 					[BEGIN COMMON LOGIC]
 					(+) If (L2) is not in (D):
 						(+) If there is no baseline date, or if (R) is in the domain and (L1) is marked on or after the baseline date, or if (R) is not in the domain and (L2) is marked on or after the baseline date:
@@ -318,10 +318,10 @@ Define a "found match" as a structure containing the following information:
 									(+) Add (L2) to (D).
 									[END COMMON LOGIC]
 
-	(+) Remove (L1)'s contribution to PhoneticLocalityIndex.
+	(+) Remove (L1)'s contribution to PhoneticCodeIndex.
 	(+) Remove (L1) from LocalityCache.
 
-* This could probably be made efficient by keeping a list of string representations of the geographic IDs adjacent to (R) and first looking up the geographic ID in PhoneticLocalityIndex's lookup key for (L2) in this list.
+* This could probably be made efficient by keeping a list of string representations of the geographic IDs adjacent to (R) and first looking up the geographic ID in PhoneticCodeIndex's lookup key for (L2) in this list.
 
 Define function includedRegions(region R, includesLowerRanks):
 	(+) Let S be the set containing (R).
@@ -340,8 +340,8 @@ Define function localitiesOfRegion(cached region R, includesLowerRanks):
 Define function processMatchingLocalities(locality L1, locality L2, found matches M):
 	(+) Present the two matching localities to the user, clearly labeling (L1) as 'A' and (L2) as 'B'. ('A' remains constant until all similar localities are exhausted.) Display region, coordinates, remarks, and anything else that might be relevant to distinguishing localities. Possibly highlight each matching word series in M. Maybe highlight all matching terms in the same color but use a slider to put emphasis on corresponding matching terms. Hovering over matching word series might provide the reason for the match, as found in (M).
 	(+) Present buttons labeled, "Replace A with B", "Replace B with A", and "Keep Both".
-	(+) Give the user a chance to edit either locality, and for each, update LocalityCache and PhoneticLocalityIndex as needed. If the user edits 'A', disable the button "Replace A with B", and if the user edits 'B', disable the button "Replace B with A". Both buttons can be simultaneously disabled. Each locality also has an "Undo Edits" button that re-enables the associated "replace" button. The user can update locality text, geographic region, and coordinates. Update LocalityCache and PhoneticLocalityIndex as needed.
-	(+) Give the user a chance to update synonymous phonetic series associated with either locality. These edits do not affect the "replace" buttons, because the user may be clarifying for other circumstances. Update PotentialSynonymsStore and PhoneticLocalityIndex as needed.
+	(+) Give the user a chance to edit either locality, and for each, update LocalityCache and PhoneticCodeIndex as needed. If the user edits 'A', disable the button "Replace A with B", and if the user edits 'B', disable the button "Replace B with A". Both buttons can be simultaneously disabled. Each locality also has an "Undo Edits" button that re-enables the associated "replace" button. The user can update locality text, geographic region, and coordinates. Update LocalityCache and PhoneticCodeIndex as needed.
+	(+) Give the user a chance to update synonymous phonetic series associated with either locality. These edits do not affect the "replace" buttons, because the user may be clarifying for other circumstances. Update PotentialSynonymsStore and PhoneticCodeIndex as needed.
 	(+) If the user selects "Replace A with B":
 		(+) If (L1) is marked as a newly provided James locality, warn the user and ask the user to confirm the selection.
 		(+) In Specify, point the records associated with (L1) to (L2).
