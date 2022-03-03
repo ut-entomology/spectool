@@ -1,4 +1,3 @@
-import type { Adjacencies } from '../util/adjacencies';
 import type { RegionAccess } from './region_access';
 import type { CachedLocality } from './cached_locality';
 import type { LocalityCache } from './locality_cache';
@@ -30,7 +29,6 @@ interface SubsetCorrespondence {
  */
 
 export class RegionProcessor {
-  private _adjacencies: Adjacencies;
   private _regionAccess: RegionAccess;
   private _localityCache: LocalityCache;
   private _potentialSynonymsStore: PotentialSynonymsStore;
@@ -39,7 +37,6 @@ export class RegionProcessor {
   private _excludedMatchesStore: ExcludedMatchesStore;
 
   constructor(
-    adjacencies: Adjacencies,
     regionAccess: RegionAccess,
     localityCache: LocalityCache,
     potentialSynonymsStore: PotentialSynonymsStore,
@@ -47,7 +44,6 @@ export class RegionProcessor {
     regionRoster: TrackedRegionRoster,
     excludedMatchesStore: ExcludedMatchesStore
   ) {
-    this._adjacencies = adjacencies;
     this._regionAccess = regionAccess;
     this._localityCache = localityCache;
     this._potentialSynonymsStore = potentialSynonymsStore;
@@ -74,7 +70,7 @@ export class RegionProcessor {
       .getContainingRegions(overallRegionID)
       .slice()
       .concat(this._regionAccess.getContainedRegions(overallRegionID))
-      .concat(this._adjacencies.forID(overallRegionID))
+      .concat(this._regionAccess.getAdjacentRegions(overallRegionID))
       .map((region) => region.id);
 
     // Process the localities of all regions implied by overallRegion. If the
