@@ -27,11 +27,11 @@ export interface MatchedLocality {
 
 /**
  * Interface describing the portions of two localities that match a particular
- * phonetic series. When representing matches of synonyms, `phoneticSeries`
+ * phonetic series. When representing matches of synonyms, `sortedPhoneticSeries`
  * is that of the base locality subset.
  */
 export interface PhoneticMatch {
-  phoneticSeries: string; // sorted spaced-delimited phonetic codes
+  sortedPhoneticSeries: string; // sorted and spaced-delimited codes, no dups
   baseSubsets: PhoneticSubset[];
   testSubsets: PhoneticSubset[];
 }
@@ -40,7 +40,7 @@ export interface PhoneticMatch {
  * Interface describing a phonetically-matched portion of a locality.
  */
 export interface PhoneticSubset {
-  phoneticSeries: string; // sorted spaced-delimited phonetic codes
+  sortedPhoneticSeries: string; // sorted and spaced-delimited codes, no dups
   firstWordIndex: number;
   lastWordIndex: number;
   firstCharIndex?: number;

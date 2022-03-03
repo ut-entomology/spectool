@@ -91,7 +91,7 @@ export class RegionProcessor {
         currentRegion
       )) {
         // Skip localities that lack names.
-        if (!baseLocality.words || !baseLocality.phonetics) {
+        if (!baseLocality.words || !baseLocality.phoneticCodes) {
           continue;
         }
 
@@ -104,7 +104,7 @@ export class RegionProcessor {
 
         // Look for other localities according to their related phonetic codes.
 
-        for (const basePhoneticCode of baseLocality.phonetics) {
+        for (const basePhoneticCode of baseLocality.phoneticCodes) {
           // Examine the localities having at least one phonetic code in common
           // with baseLocality for possible duplication of baseLocality.
 
@@ -365,14 +365,14 @@ export class RegionProcessor {
     const matchesByBasePhoneticSeries: Record<string, PhoneticMatch> = {};
     for (const testSubset of foundSynonymousTestSubsets) {
       const synonymCorrespondence =
-        phoneticWordSeriesCorrespondenceMap[testSubset.phoneticSeries];
+        phoneticWordSeriesCorrespondenceMap[testSubset.sortedPhoneticSeries];
       const baseSubset = synonymCorrespondence.baseSubset;
 
       // Add each test subset to the match for its base phonetic series,
       // accumulating the corresponding base subsets, because more than
       // one base subset may have the (sorted) phonetic series.
 
-      let match = matchesByBasePhoneticSeries[baseSubset.phoneticSeries];
+      let match = matchesByBasePhoneticSeries[baseSubset.sortedPhoneticSeries];
       if (match) {
         let foundBaseSubset = false;
         for (const checkBaseSubset of match.baseSubsets) {
@@ -389,8 +389,8 @@ export class RegionProcessor {
         }
         match.testSubsets.push(testSubset);
       } else {
-        matchesByBasePhoneticSeries[baseSubset.phoneticSeries] = {
-          phoneticSeries: baseSubset.phoneticSeries,
+        matchesByBasePhoneticSeries[baseSubset.sortedPhoneticSeries] = {
+          sortedPhoneticSeries: baseSubset.sortedPhoneticSeries,
           baseSubsets: [baseSubset],
           testSubsets: [testSubset]
         };
@@ -468,12 +468,14 @@ export class RegionProcessor {
         // will not include series for the base subset itself.
 
         const synonymousSeriesOfBaseSubset =
-          this._potentialSynonymsStore.getSynonymousSeries(baseSubset.phoneticSeries);
+          this._potentialSynonymsStore.getSynonymousSeries(
+            baseSubset.sortedPhoneticSeries
+          );
 
         // Collect the synonyms of the base subset, indexing them by phonetic series.
 
         if (synonymousSeriesOfBaseSubset) {
-          basePhoneticSeriesCorrespondenceMap[baseSubset.phoneticSeries] = {
+          basePhoneticSeriesCorrespondenceMap[baseSubset.sortedPhoneticSeries] = {
             baseSubset,
             synonymousSeries: synonymousSeriesOfBaseSubset
           };

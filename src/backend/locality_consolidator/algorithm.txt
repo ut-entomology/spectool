@@ -52,7 +52,7 @@ At this time, I have no idea how long this process takes or how long the user mi
 
 (+) Phonetic code: The phonetic code of a word containing no digits is the phonetic encoding of the word, according to some phonetic encoding algorithm. The phonetic code of a word containing at least one digit is the exact word itself, preceded by a pound ('#'), assuming that the pound does not appear in any phonetic encoding. The phonetic code for any other word that the phonetic encoding algorithm cannot code is also the exact word preceded by a pound. Phonetic codes are used to catch misspellings, but they can only catch misspellings that sound similar to the intended word.
 
-(+) Phonetic series: A set of one or more phonetic codes together corresponding to a word series, with each phonetic code being the phonetic code for its corresponding (normalized) word in the word series. An "occurrence-ordered" phonetic series orders the words in their order of occurrence, while a "sorted" phonetic series orders the codes alphanumerically.
+(+) Phonetic series: A set of one or more phonetic codes together corresponding to a word series, with each phonetic code being the phonetic code for its corresponding (normalized) word in the word series. An "occurrence-ordered" phonetic series orders the words in their order of occurrence, while a "sorted" phonetic series orders the codes alphanumerically with duplicates removed.
 
 (+) Locality key: A storage key that is a hybrid of the ID for the most-specific geographic region associated with the locality and the locality ID.
 

@@ -23,7 +23,7 @@ export class CachedLocality {
   longitude: number | null;
   name: string;
   words: string[] | null; // occurrence-ordered, excluding EXCLUDED_WORDS
-  phonetics: string[] | null; // occurrence-ordered, excluding EXCLUDED_WORDS
+  phoneticCodes: string[] | null; // occurrence-ordered, excluding EXCLUDED_WORDS
   remarks: string;
   lastModified: number; // UNIX time
 
@@ -45,7 +45,7 @@ export class CachedLocality {
     this.lastModified = lastModified;
 
     this.words = this._toWordSeries(name);
-    this.phonetics = this._toPhoneticSeries(this.words);
+    this.phoneticCodes = this._toPhoneticCodes(this.words);
   }
 
   // Returns a list of all subsets that match by sorted phonetic series,
@@ -54,13 +54,13 @@ export class CachedLocality {
   // having that phonetic series.
 
   findPhoneticMatches(testLocality: CachedLocality): PhoneticMatch[] {
-    if (this.phonetics == null || testLocality.phonetics == null) return [];
+    if (this.phoneticCodes == null || testLocality.phoneticCodes == null) return [];
 
     // Find all phonetic codes the two localities have in common.
 
     const commonCodesMap: Record<string, boolean> = {};
-    this.phonetics.forEach((code) => (commonCodesMap[code] = false));
-    for (const code of testLocality.phonetics) {
+    this.phoneticCodes.forEach((code) => (commonCodesMap[code] = false));
+    for (const code of testLocality.phoneticCodes) {
       if (commonCodesMap[code] !== undefined) {
         commonCodesMap[code] = true;
       }
@@ -73,12 +73,12 @@ export class CachedLocality {
       commonCodesMap,
       testLocality
     );
-    const commonPhoneticSeries: string[] = [];
-    for (const phoneticSeries of Object.keys(baseSubsetsBySeries)) {
-      const testSubsets = testSubsetsBySeries[phoneticSeries];
+    const commonSortedPhoneticSeries: string[] = [];
+    for (const sortedPhoneticSeries of Object.keys(baseSubsetsBySeries)) {
+      const testSubsets = testSubsetsBySeries[sortedPhoneticSeries];
       if (testSubsets !== undefined) {
         // phoneticSeries now known to be common to both base and test localities
-        commonPhoneticSeries.push(phoneticSeries);
+        commonSortedPhoneticSeries.push(sortedPhoneticSeries);
       }
     }
 
@@ -86,9 +86,9 @@ export class CachedLocality {
 
     const commonBaseSubsets: PhoneticSubset[] = [];
     const commonTestSubsets: PhoneticSubset[] = [];
-    for (const phoneticSeries of commonPhoneticSeries) {
-      commonBaseSubsets.push(...baseSubsetsBySeries[phoneticSeries]);
-      commonTestSubsets.push(...testSubsetsBySeries[phoneticSeries]);
+    for (const sortedPhoneticSeries of commonSortedPhoneticSeries) {
+      commonBaseSubsets.push(...baseSubsetsBySeries[sortedPhoneticSeries]);
+      commonTestSubsets.push(...testSubsetsBySeries[sortedPhoneticSeries]);
     }
 
     // Determine the longest-spanning of these subsets for each locality,
@@ -96,11 +96,11 @@ export class CachedLocality {
     // of longer subsets, but because the longer subsets were known to exist
     // in both localities, there will still be subsets in common.
 
-    const baseCapturesBySeries = this._getSubsetCapturesBySeries(
+    const baseCapturesBySortedSeries = this._getSubsetCapturesBySortedSeries(
       this,
       commonBaseSubsets
     );
-    const testCapturesBySeries = this._getSubsetCapturesBySeries(
+    const testCapturesBySortedSeries = this._getSubsetCapturesBySortedSeries(
       testLocality,
       commonTestSubsets
     );
@@ -113,15 +113,15 @@ export class CachedLocality {
     const matches: PhoneticMatch[] = [];
     // const extraBaseSubsets: PhoneticSubset[] = [];
     // const extraTestSubsets: PhoneticSubset[] = [];
-    for (const phoneticSeries of Object.keys(baseCapturesBySeries)) {
-      const testCaptures = testCapturesBySeries[phoneticSeries];
+    for (const sortedPhoneticSeries of Object.keys(baseCapturesBySortedSeries)) {
+      const testCaptures = testCapturesBySortedSeries[sortedPhoneticSeries];
       if (testCaptures === undefined) {
         // extraBaseSubsets.push(...baseCapturesBySeries[phoneticSeries]);
       } else {
         // phoneticSeries now known to be common to both sets of captures
         matches.push({
-          phoneticSeries,
-          baseSubsets: baseCapturesBySeries[phoneticSeries],
+          sortedPhoneticSeries,
+          baseSubsets: baseCapturesBySortedSeries[sortedPhoneticSeries],
           testSubsets: testCaptures
         });
       }
@@ -150,15 +150,16 @@ export class CachedLocality {
     }
 
     // Collect the subsets of the locality that use only these search codes.
+    // Indexed by sorted phonetic series.
 
     const phoneticSubsetMap = this._getPhoneticSubsetsMap(searchCodes, this);
 
     // Filter for just the subsets of the locality found in searchPhoneticSeries.
 
     const commonSubsets: PhoneticSubset[] = [];
-    for (const foundPhoneticSeries of Object.keys(phoneticSubsetMap)) {
-      if (searchPhoneticSeries.includes(foundPhoneticSeries)) {
-        for (const subset of phoneticSubsetMap[foundPhoneticSeries]) {
+    for (const foundSortedPhoneticSeries of Object.keys(phoneticSubsetMap)) {
+      if (searchPhoneticSeries.includes(foundSortedPhoneticSeries)) {
+        for (const subset of phoneticSubsetMap[foundSortedPhoneticSeries]) {
           commonSubsets.push(subset);
         }
       }
@@ -216,21 +217,27 @@ export class CachedLocality {
     locality: CachedLocality
   ): Record<string, PhoneticSubset[]> {
     const subsetsMap: Record<string, PhoneticSubset[]> = {};
-    const phonetics = locality.phonetics!;
-    for (let i = 0; i < phonetics.length; ++i) {
+    const phoneticCodes = locality.phoneticCodes!;
+    for (let i = 0; i < phoneticCodes.length; ++i) {
       let j = i;
-      while (j < phonetics.length && codesMap[phonetics[j]]) {
-        const phoneticSeries = phonetics
+      while (j < phoneticCodes.length && codesMap[phoneticCodes[j]]) {
+        let previousCode: string | null = null;
+        const sortedPhoneticSeries = phoneticCodes
           .slice(i, j + 1)
           .sort()
+          .filter((code) => {
+            const keep = code != previousCode;
+            previousCode = code;
+            return keep;
+          })
           .join(' ');
-        let subsets = subsetsMap[phoneticSeries];
+        let subsets = subsetsMap[sortedPhoneticSeries];
         if (subsets === undefined) {
           subsets = [];
-          subsetsMap[phoneticSeries] = subsets;
+          subsetsMap[sortedPhoneticSeries] = subsets;
         }
         subsets.push({
-          phoneticSeries,
+          sortedPhoneticSeries,
           firstWordIndex: i,
           lastWordIndex: j
         });
@@ -280,7 +287,7 @@ export class CachedLocality {
    * in other subsets are dropped. Returns subsets indexed by phonetic series and
    * marked for the locations of their associated words.
    */
-  private _getSubsetCapturesBySeries(
+  private _getSubsetCapturesBySortedSeries(
     locality: CachedLocality,
     subsets: PhoneticSubset[]
   ): Record<string, PhoneticSubset[]> {
@@ -329,16 +336,16 @@ export class CachedLocality {
     this._markWordLocations(locality, orderedCaptures);
 
     // Return a map of all subsets indexed by phonetic series.
-    const capturesBySeries: Record<string, PhoneticSubset[]> = {};
+    const capturesBySortedSeries: Record<string, PhoneticSubset[]> = {};
     for (const capture of orderedCaptures) {
-      let capturedSubsets = capturesBySeries[capture.phoneticSeries];
+      let capturedSubsets = capturesBySortedSeries[capture.sortedPhoneticSeries];
       if (capturedSubsets === undefined) {
         capturedSubsets = [];
-        capturesBySeries[capture.phoneticSeries] = capturedSubsets;
+        capturesBySortedSeries[capture.sortedPhoneticSeries] = capturedSubsets;
       }
       capturedSubsets.push(capture);
     }
-    return capturesBySeries;
+    return capturesBySortedSeries;
   }
 
   /**
@@ -346,7 +353,7 @@ export class CachedLocality {
    * correspondence with their associated words. Any word containing a number
    * returns with a code equal to that word but prefixed with '#'.
    */
-  private _toPhoneticSeries(words: string[] | null): string[] | null {
+  private _toPhoneticCodes(words: string[] | null): string[] | null {
     if (words == null) return null;
     return words.map((word) => (/[0-9]/.test(word) ? '#' + word : fuzzySoundex(word)));
   }

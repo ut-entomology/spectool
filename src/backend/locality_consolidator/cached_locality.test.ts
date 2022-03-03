@@ -19,7 +19,7 @@ describe('word series utilities', () => {
 
   test('produces word series for a phonetic subset', () => {
     let subset: PhoneticSubset = {
-      phoneticSeries: 'FO BR PK',
+      sortedPhoneticSeries: 'BR FO PK',
       firstWordIndex: 0,
       lastWordIndex: 2
     };
@@ -27,7 +27,7 @@ describe('word series utilities', () => {
     expect(subset.cachedWordSeries).toEqual('foo bar park');
 
     subset = {
-      phoneticSeries: 'FO',
+      sortedPhoneticSeries: 'FO',
       firstWordIndex: 0,
       lastWordIndex: 0
     };
@@ -35,7 +35,7 @@ describe('word series utilities', () => {
     expect(subset.cachedWordSeries).toEqual('foo');
 
     subset = {
-      phoneticSeries: 'BR PK',
+      sortedPhoneticSeries: 'BR PK',
       firstWordIndex: 1,
       lastWordIndex: 2
     };
@@ -56,11 +56,15 @@ describe('finding phonetic subsets of a locality', () => {
     const fooBarParkWordSeries = fooBarPark.words!.join(' ');
     for (let i = 0; i < fooBarPark.words!.length; ++i) {
       for (let j = i; j < fooBarPark.words!.length; ++j) {
-        const phoneticSeries = toPartialPhoneticSeries(fooBarParkWordSeries, i, j);
-        const subsets = fooBarPark.findPhoneticSubsets([phoneticSeries]);
+        const sortedPhoneticSeries = toPartialSortedPhoneticSeries(
+          fooBarParkWordSeries,
+          i,
+          j
+        );
+        const subsets = fooBarPark.findPhoneticSubsets([sortedPhoneticSeries]);
         expect(subsets).toEqual([
           {
-            phoneticSeries,
+            sortedPhoneticSeries,
             firstWordIndex: i,
             lastWordIndex: j
           }
@@ -73,41 +77,56 @@ describe('finding phonetic subsets of a locality', () => {
     const phoneticDupLocality = createCachedLocality('Ruff Roof Place');
     const wordSeries = phoneticDupLocality.words!.join(' ');
 
-    let phoneticSeries = toPartialPhoneticSeries(wordSeries, 0, 0);
-    let subsets = phoneticDupLocality.findPhoneticSubsets([phoneticSeries]);
+    let sortedPhoneticSeries = toPartialSortedPhoneticSeries(wordSeries, 0, 0);
+    let subsets = phoneticDupLocality.findPhoneticSubsets([sortedPhoneticSeries]);
     expect(subsets).toEqual([
       {
-        phoneticSeries,
+        sortedPhoneticSeries,
         firstWordIndex: 0,
         lastWordIndex: 0
       },
       {
-        phoneticSeries,
+        sortedPhoneticSeries,
+        firstWordIndex: 0,
+        lastWordIndex: 1
+      },
+      {
+        sortedPhoneticSeries,
         firstWordIndex: 1,
         lastWordIndex: 1
       }
     ]);
 
-    phoneticSeries = toPartialPhoneticSeries(wordSeries, 1, 1);
-    subsets = phoneticDupLocality.findPhoneticSubsets([phoneticSeries]);
+    sortedPhoneticSeries = toPartialSortedPhoneticSeries(wordSeries, 1, 1);
+    subsets = phoneticDupLocality.findPhoneticSubsets([sortedPhoneticSeries]);
     expect(subsets).toEqual([
       {
-        phoneticSeries,
+        sortedPhoneticSeries,
         firstWordIndex: 0,
         lastWordIndex: 0
       },
       {
-        phoneticSeries,
+        sortedPhoneticSeries,
+        firstWordIndex: 0,
+        lastWordIndex: 1
+      },
+      {
+        sortedPhoneticSeries,
         firstWordIndex: 1,
         lastWordIndex: 1
       }
     ]);
 
-    phoneticSeries = toPartialPhoneticSeries(wordSeries, 1, 2);
-    subsets = phoneticDupLocality.findPhoneticSubsets([phoneticSeries]);
+    sortedPhoneticSeries = toPartialSortedPhoneticSeries(wordSeries, 1, 2);
+    subsets = phoneticDupLocality.findPhoneticSubsets([sortedPhoneticSeries]);
     expect(subsets).toEqual([
       {
-        phoneticSeries,
+        sortedPhoneticSeries,
+        firstWordIndex: 0,
+        lastWordIndex: 2
+      },
+      {
+        sortedPhoneticSeries,
         firstWordIndex: 1,
         lastWordIndex: 2
       }
@@ -118,41 +137,56 @@ describe('finding phonetic subsets of a locality', () => {
     const phoneticDupLocality = createCachedLocality('Ruff Ruff Place');
     const wordSeries = phoneticDupLocality.words!.join(' ');
 
-    let phoneticSeries = toPartialPhoneticSeries(wordSeries, 0, 0);
-    let subsets = phoneticDupLocality.findPhoneticSubsets([phoneticSeries]);
+    let sortedPhoneticSeries = toPartialSortedPhoneticSeries(wordSeries, 0, 0);
+    let subsets = phoneticDupLocality.findPhoneticSubsets([sortedPhoneticSeries]);
     expect(subsets).toEqual([
       {
-        phoneticSeries,
+        sortedPhoneticSeries,
         firstWordIndex: 0,
         lastWordIndex: 0
       },
       {
-        phoneticSeries,
+        sortedPhoneticSeries,
+        firstWordIndex: 0,
+        lastWordIndex: 1
+      },
+      {
+        sortedPhoneticSeries,
         firstWordIndex: 1,
         lastWordIndex: 1
       }
     ]);
 
-    phoneticSeries = toPartialPhoneticSeries(wordSeries, 1, 1);
-    subsets = phoneticDupLocality.findPhoneticSubsets([phoneticSeries]);
+    sortedPhoneticSeries = toPartialSortedPhoneticSeries(wordSeries, 1, 1);
+    subsets = phoneticDupLocality.findPhoneticSubsets([sortedPhoneticSeries]);
     expect(subsets).toEqual([
       {
-        phoneticSeries,
+        sortedPhoneticSeries,
         firstWordIndex: 0,
         lastWordIndex: 0
       },
       {
-        phoneticSeries,
+        sortedPhoneticSeries,
+        firstWordIndex: 0,
+        lastWordIndex: 1
+      },
+      {
+        sortedPhoneticSeries,
         firstWordIndex: 1,
         lastWordIndex: 1
       }
     ]);
 
-    phoneticSeries = toPartialPhoneticSeries(wordSeries, 1, 2);
-    subsets = phoneticDupLocality.findPhoneticSubsets([phoneticSeries]);
+    sortedPhoneticSeries = toPartialSortedPhoneticSeries(wordSeries, 1, 2);
+    subsets = phoneticDupLocality.findPhoneticSubsets([sortedPhoneticSeries]);
     expect(subsets).toEqual([
       {
-        phoneticSeries,
+        sortedPhoneticSeries,
+        firstWordIndex: 0,
+        lastWordIndex: 2
+      },
+      {
+        sortedPhoneticSeries,
         firstWordIndex: 1,
         lastWordIndex: 2
       }
@@ -163,47 +197,57 @@ describe('finding phonetic subsets of a locality', () => {
     const phoneticDupLocality = createCachedLocality('From Ruff Roof and Roof Ruff');
     const wordSeries = phoneticDupLocality.words!.join(' ');
 
-    let phoneticSeries = toPartialPhoneticSeries(wordSeries, 0, 0);
-    let subsets = phoneticDupLocality.findPhoneticSubsets([phoneticSeries]);
+    let sortedPhoneticSeries = toPartialSortedPhoneticSeries(wordSeries, 0, 0);
+    let subsets = phoneticDupLocality.findPhoneticSubsets([sortedPhoneticSeries]);
     expect(subsets).toEqual([
       {
-        phoneticSeries,
+        sortedPhoneticSeries,
         firstWordIndex: 0,
         lastWordIndex: 0
       },
       {
-        phoneticSeries,
-        firstWordIndex: 1,
-        lastWordIndex: 1
-      },
-      {
-        phoneticSeries,
-        firstWordIndex: 2,
-        lastWordIndex: 2
-      },
-      {
-        phoneticSeries,
-        firstWordIndex: 3,
-        lastWordIndex: 3
-      }
-    ]);
-
-    phoneticSeries = toPartialPhoneticSeries(wordSeries, 0, 1);
-    subsets = phoneticDupLocality.findPhoneticSubsets([phoneticSeries]);
-    expect(subsets).toEqual([
-      {
-        phoneticSeries, // "ruff roof"
+        sortedPhoneticSeries,
         firstWordIndex: 0,
         lastWordIndex: 1
       },
       {
-        phoneticSeries, // "roof roof"
+        sortedPhoneticSeries,
+        firstWordIndex: 0,
+        lastWordIndex: 2
+      },
+      {
+        sortedPhoneticSeries,
+        firstWordIndex: 0,
+        lastWordIndex: 3
+      },
+      {
+        sortedPhoneticSeries,
+        firstWordIndex: 1,
+        lastWordIndex: 1
+      },
+      {
+        sortedPhoneticSeries,
         firstWordIndex: 1,
         lastWordIndex: 2
       },
       {
-        phoneticSeries, // "roof ruff"
+        sortedPhoneticSeries,
+        firstWordIndex: 1,
+        lastWordIndex: 3
+      },
+      {
+        sortedPhoneticSeries,
         firstWordIndex: 2,
+        lastWordIndex: 2
+      },
+      {
+        sortedPhoneticSeries,
+        firstWordIndex: 2,
+        lastWordIndex: 3
+      },
+      {
+        sortedPhoneticSeries,
+        firstWordIndex: 3,
         lastWordIndex: 3
       }
     ]);
@@ -212,9 +256,9 @@ describe('finding phonetic subsets of a locality', () => {
   test('find multiple phonetic series, no duplicate phonetics', () => {
     const locality1 = createCachedLocality('Piney Green Forest');
     const wordSeries = locality1.words!.join(' ');
-    const phoneticSeries0_1 = toPartialPhoneticSeries(wordSeries, 0, 1);
-    const phoneticSeries1_1 = toPartialPhoneticSeries(wordSeries, 1, 1);
-    const phoneticSeries1_2 = toPartialPhoneticSeries(wordSeries, 1, 2);
+    const phoneticSeries0_1 = toPartialSortedPhoneticSeries(wordSeries, 0, 1);
+    const phoneticSeries1_1 = toPartialSortedPhoneticSeries(wordSeries, 1, 1);
+    const phoneticSeries1_2 = toPartialSortedPhoneticSeries(wordSeries, 1, 2);
     const subsets = locality1.findPhoneticSubsets([
       phoneticSeries1_2,
       phoneticSeries1_1,
@@ -222,17 +266,17 @@ describe('finding phonetic subsets of a locality', () => {
     ]);
     expect(subsets).toEqual([
       {
-        phoneticSeries: phoneticSeries0_1,
+        sortedPhoneticSeries: phoneticSeries0_1,
         firstWordIndex: 0,
         lastWordIndex: 1
       },
       {
-        phoneticSeries: phoneticSeries1_1,
+        sortedPhoneticSeries: phoneticSeries1_1,
         firstWordIndex: 1,
         lastWordIndex: 1
       },
       {
-        phoneticSeries: phoneticSeries1_2,
+        sortedPhoneticSeries: phoneticSeries1_2,
         firstWordIndex: 1,
         lastWordIndex: 2
       }
@@ -242,9 +286,9 @@ describe('finding phonetic subsets of a locality', () => {
   test('find multiple phonetic series, with duplicate phonetics', () => {
     const locality1 = createCachedLocality('Green Piney Greene Forest');
     const wordSeries = locality1.words!.join(' ');
-    const phoneticSeries0_0 = toPartialPhoneticSeries(wordSeries, 0, 0);
-    const phoneticSeries1_2 = toPartialPhoneticSeries(wordSeries, 1, 2);
-    const phoneticSeries2_3 = toPartialPhoneticSeries(wordSeries, 2, 3);
+    const phoneticSeries0_0 = toPartialSortedPhoneticSeries(wordSeries, 0, 0);
+    const phoneticSeries1_2 = toPartialSortedPhoneticSeries(wordSeries, 1, 2);
+    const phoneticSeries2_3 = toPartialSortedPhoneticSeries(wordSeries, 2, 3);
     const subsets = locality1.findPhoneticSubsets([
       phoneticSeries2_3,
       phoneticSeries1_2,
@@ -252,27 +296,32 @@ describe('finding phonetic subsets of a locality', () => {
     ]);
     expect(subsets).toEqual([
       {
-        phoneticSeries: phoneticSeries0_0,
+        sortedPhoneticSeries: phoneticSeries0_0,
         firstWordIndex: 0,
         lastWordIndex: 0
       },
       {
-        phoneticSeries: phoneticSeries0_0,
+        sortedPhoneticSeries: phoneticSeries0_0,
         firstWordIndex: 2,
         lastWordIndex: 2
       },
       {
-        phoneticSeries: phoneticSeries1_2, // "Green Piney" ~ "Piney Greene"
+        sortedPhoneticSeries: phoneticSeries1_2, // "Green Piney" ~ "Piney Greene"
         firstWordIndex: 0,
         lastWordIndex: 1
       },
       {
-        phoneticSeries: phoneticSeries1_2, // "Piney Greene" ~ "Piney Greene"
+        sortedPhoneticSeries: phoneticSeries1_2, // "Green Piney" ~ "Green Piney Greene"
+        firstWordIndex: 0,
+        lastWordIndex: 2
+      },
+      {
+        sortedPhoneticSeries: phoneticSeries1_2, // "Piney Greene" ~ "Piney Greene"
         firstWordIndex: 1,
         lastWordIndex: 2
       },
       {
-        phoneticSeries: phoneticSeries2_3,
+        sortedPhoneticSeries: phoneticSeries2_3,
         firstWordIndex: 2,
         lastWordIndex: 3
       }
@@ -292,13 +341,13 @@ describe('find similarities between two localities', () => {
     const locality1 = createCachedLocality('Park');
     const locality2 = createCachedLocality('Park');
     const matches = locality1.findPhoneticMatches(locality2);
-    const phoneticSeries = toPhoneticSeries('park');
+    const sortedPhoneticSeries = toSortedPhoneticSeries('park');
     expect(matches).toEqual([
       {
-        phoneticSeries: phoneticSeries,
+        sortedPhoneticSeries: sortedPhoneticSeries,
         baseSubsets: [
           {
-            phoneticSeries,
+            sortedPhoneticSeries,
             firstWordIndex: 0,
             lastWordIndex: 0,
             firstCharIndex: 0,
@@ -307,7 +356,7 @@ describe('find similarities between two localities', () => {
         ],
         testSubsets: [
           {
-            phoneticSeries,
+            sortedPhoneticSeries,
             firstWordIndex: 0,
             lastWordIndex: 0,
             firstCharIndex: 0,
@@ -323,14 +372,15 @@ describe('find similarities between two localities', () => {
     const locality2 = createCachedLocality('Woodland Park');
     const locality3 = createCachedLocality('Park of Canyons');
 
+    // 'Ruff Roof Park' / 'Woodland Park'
     let matches = locality1.findPhoneticMatches(locality2);
-    let phoneticSeries = toPhoneticSeries('park');
+    let sortedPhoneticSeries = toSortedPhoneticSeries('park');
     expect(matches).toEqual([
       {
-        phoneticSeries: phoneticSeries,
+        sortedPhoneticSeries: sortedPhoneticSeries,
         baseSubsets: [
           {
-            phoneticSeries,
+            sortedPhoneticSeries,
             firstWordIndex: 2,
             lastWordIndex: 2,
             firstCharIndex: locality1.name.indexOf('Park'),
@@ -339,7 +389,7 @@ describe('find similarities between two localities', () => {
         ],
         testSubsets: [
           {
-            phoneticSeries,
+            sortedPhoneticSeries,
             firstWordIndex: 1,
             lastWordIndex: 1,
             firstCharIndex: locality2.name.indexOf('Park'),
@@ -349,13 +399,14 @@ describe('find similarities between two localities', () => {
       }
     ]);
 
+    // 'Park of Canyons' / 'Ruff Roof Park'
     matches = locality3.findPhoneticMatches(locality1);
     expect(matches).toEqual([
       {
-        phoneticSeries: phoneticSeries,
+        sortedPhoneticSeries: sortedPhoneticSeries,
         baseSubsets: [
           {
-            phoneticSeries,
+            sortedPhoneticSeries,
             firstWordIndex: 0,
             lastWordIndex: 0,
             firstCharIndex: 0,
@@ -364,7 +415,7 @@ describe('find similarities between two localities', () => {
         ],
         testSubsets: [
           {
-            phoneticSeries,
+            sortedPhoneticSeries,
             firstWordIndex: 2,
             lastWordIndex: 2,
             firstCharIndex: locality1.name.indexOf('Park'),
@@ -383,13 +434,14 @@ describe('find similarities between two localities', () => {
     const locality4 = createCachedLocality('Woods Park');
     const locality5 = createCachedLocality('Park of Green');
 
+    // 'Greeen Park' / 'Green Park'
     let matches = locality0.findPhoneticMatches(locality1);
     expect(matches).toEqual([
       {
-        phoneticSeries: toPhoneticSeries(locality0.name),
+        sortedPhoneticSeries: toSortedPhoneticSeries(locality0.name),
         baseSubsets: [
           {
-            phoneticSeries: toPhoneticSeries(locality0.name),
+            sortedPhoneticSeries: toSortedPhoneticSeries(locality0.name),
             firstWordIndex: 0,
             lastWordIndex: 1,
             firstCharIndex: 0,
@@ -398,7 +450,7 @@ describe('find similarities between two localities', () => {
         ],
         testSubsets: [
           {
-            phoneticSeries: toPhoneticSeries(locality1.name),
+            sortedPhoneticSeries: toSortedPhoneticSeries(locality1.name),
             firstWordIndex: 0,
             lastWordIndex: 1,
             firstCharIndex: 0,
@@ -408,13 +460,14 @@ describe('find similarities between two localities', () => {
       }
     ]);
 
+    // 'Green Park' / 'Green Woodz Park'
     matches = locality1.findPhoneticMatches(locality3);
     expect(matches).toEqual([
       {
-        phoneticSeries: toPhoneticSeries('green'),
+        sortedPhoneticSeries: toSortedPhoneticSeries('green'),
         baseSubsets: [
           {
-            phoneticSeries: toPhoneticSeries('green'),
+            sortedPhoneticSeries: toSortedPhoneticSeries('green'),
             firstWordIndex: 0,
             lastWordIndex: 0,
             firstCharIndex: 0,
@@ -423,7 +476,7 @@ describe('find similarities between two localities', () => {
         ],
         testSubsets: [
           {
-            phoneticSeries: toPhoneticSeries('green'),
+            sortedPhoneticSeries: toSortedPhoneticSeries('green'),
             firstWordIndex: 0,
             lastWordIndex: 0,
             firstCharIndex: 0,
@@ -432,10 +485,10 @@ describe('find similarities between two localities', () => {
         ]
       },
       {
-        phoneticSeries: toPhoneticSeries('park'),
+        sortedPhoneticSeries: toSortedPhoneticSeries('park'),
         baseSubsets: [
           {
-            phoneticSeries: toPhoneticSeries('park'),
+            sortedPhoneticSeries: toSortedPhoneticSeries('park'),
             firstWordIndex: 1,
             lastWordIndex: 1,
             firstCharIndex: locality1.name.indexOf('Park'),
@@ -444,7 +497,7 @@ describe('find similarities between two localities', () => {
         ],
         testSubsets: [
           {
-            phoneticSeries: toPhoneticSeries('park'),
+            sortedPhoneticSeries: toSortedPhoneticSeries('park'),
             firstWordIndex: 2,
             lastWordIndex: 2,
             firstCharIndex: locality3.name.indexOf('Park'),
@@ -454,13 +507,14 @@ describe('find similarities between two localities', () => {
       }
     ]);
 
+    // 'Green Woods' / 'Green Woodz Park'
     matches = locality2.findPhoneticMatches(locality3);
     expect(matches).toEqual([
       {
-        phoneticSeries: toPhoneticSeries(locality2.name),
+        sortedPhoneticSeries: toSortedPhoneticSeries(locality2.name),
         baseSubsets: [
           {
-            phoneticSeries: toPhoneticSeries(locality2.name),
+            sortedPhoneticSeries: toSortedPhoneticSeries(locality2.name),
             firstWordIndex: 0,
             lastWordIndex: 1,
             firstCharIndex: 0,
@@ -469,7 +523,7 @@ describe('find similarities between two localities', () => {
         ],
         testSubsets: [
           {
-            phoneticSeries: toPhoneticSeries(locality2.name),
+            sortedPhoneticSeries: toSortedPhoneticSeries(locality2.name),
             firstWordIndex: 0,
             lastWordIndex: 1,
             firstCharIndex: 0,
@@ -479,13 +533,14 @@ describe('find similarities between two localities', () => {
       }
     ]);
 
+    // 'Green Woodz Park' / 'Woods Park'
     matches = locality3.findPhoneticMatches(locality4);
     expect(matches).toEqual([
       {
-        phoneticSeries: toPhoneticSeries(locality4.name),
+        sortedPhoneticSeries: toSortedPhoneticSeries(locality4.name),
         baseSubsets: [
           {
-            phoneticSeries: toPhoneticSeries(locality4.name),
+            sortedPhoneticSeries: toSortedPhoneticSeries(locality4.name),
             firstWordIndex: 1,
             lastWordIndex: 2,
             firstCharIndex: locality3.name.indexOf('Woodz'),
@@ -494,7 +549,7 @@ describe('find similarities between two localities', () => {
         ],
         testSubsets: [
           {
-            phoneticSeries: toPhoneticSeries(locality4.name),
+            sortedPhoneticSeries: toSortedPhoneticSeries(locality4.name),
             firstWordIndex: 0,
             lastWordIndex: 1,
             firstCharIndex: 0,
@@ -504,13 +559,14 @@ describe('find similarities between two localities', () => {
       }
     ]);
 
+    // 'Green Woodz Park' / 'Park of Green'
     matches = locality3.findPhoneticMatches(locality5);
     expect(matches).toEqual([
       {
-        phoneticSeries: toPhoneticSeries('green'),
+        sortedPhoneticSeries: toSortedPhoneticSeries('green'),
         baseSubsets: [
           {
-            phoneticSeries: toPhoneticSeries('green'),
+            sortedPhoneticSeries: toSortedPhoneticSeries('green'),
             firstWordIndex: 0,
             lastWordIndex: 0,
             firstCharIndex: 0,
@@ -519,7 +575,7 @@ describe('find similarities between two localities', () => {
         ],
         testSubsets: [
           {
-            phoneticSeries: toPhoneticSeries('green'),
+            sortedPhoneticSeries: toSortedPhoneticSeries('green'),
             firstWordIndex: 1,
             lastWordIndex: 1,
             firstCharIndex: locality5.name.indexOf('Green'),
@@ -528,10 +584,10 @@ describe('find similarities between two localities', () => {
         ]
       },
       {
-        phoneticSeries: toPhoneticSeries('park'),
+        sortedPhoneticSeries: toSortedPhoneticSeries('park'),
         baseSubsets: [
           {
-            phoneticSeries: toPhoneticSeries('park'),
+            sortedPhoneticSeries: toSortedPhoneticSeries('park'),
             firstWordIndex: 2,
             lastWordIndex: 2,
             firstCharIndex: locality3.name.indexOf('Park'),
@@ -540,7 +596,7 @@ describe('find similarities between two localities', () => {
         ],
         testSubsets: [
           {
-            phoneticSeries: toPhoneticSeries('park'),
+            sortedPhoneticSeries: toSortedPhoneticSeries('park'),
             firstWordIndex: 0,
             lastWordIndex: 0,
             firstCharIndex: 0,
@@ -551,35 +607,29 @@ describe('find similarities between two localities', () => {
     ]);
   });
 
-  test('duplicate base word matches', () => {
+  test('duplicate word matches', () => {
     const locality1 = createCachedLocality('Foo Foo Forest');
     const locality2 = createCachedLocality('Foo Woods');
     const locality3 = createCachedLocality('Foo Bar Foo');
     const locality4 = createCachedLocality('Foo Forest');
 
+    // 'Foo Foo Forest' / 'Foo Woods'
     let matches = locality1.findPhoneticMatches(locality2);
     expect(matches).toEqual([
       {
-        phoneticSeries: toPhoneticSeries('foo'),
+        sortedPhoneticSeries: toSortedPhoneticSeries('foo'),
         baseSubsets: [
           {
-            phoneticSeries: toPhoneticSeries('foo'),
+            sortedPhoneticSeries: toSortedPhoneticSeries('foo'),
             firstWordIndex: 0,
-            lastWordIndex: 0,
-            firstCharIndex: 0,
-            lastCharIndexPlusOne: 'foo'.length
-          },
-          {
-            phoneticSeries: toPhoneticSeries('foo'),
-            firstWordIndex: 1,
             lastWordIndex: 1,
-            firstCharIndex: 'foo '.length,
+            firstCharIndex: 0,
             lastCharIndexPlusOne: 'foo foo'.length
           }
         ],
         testSubsets: [
           {
-            phoneticSeries: toPhoneticSeries('foo'),
+            sortedPhoneticSeries: toSortedPhoneticSeries('foo'),
             firstWordIndex: 0,
             lastWordIndex: 0,
             firstCharIndex: 0,
@@ -589,13 +639,14 @@ describe('find similarities between two localities', () => {
       }
     ]);
 
+    // 'Foo Woods' / 'Foo Foo Forest'
     matches = locality2.findPhoneticMatches(locality1);
     expect(matches).toEqual([
       {
-        phoneticSeries: toPhoneticSeries('foo'),
+        sortedPhoneticSeries: toSortedPhoneticSeries('foo'),
         baseSubsets: [
           {
-            phoneticSeries: toPhoneticSeries('foo'),
+            sortedPhoneticSeries: toSortedPhoneticSeries('foo'),
             firstWordIndex: 0,
             lastWordIndex: 0,
             firstCharIndex: 0,
@@ -604,53 +655,40 @@ describe('find similarities between two localities', () => {
         ],
         testSubsets: [
           {
-            phoneticSeries: toPhoneticSeries('foo'),
+            sortedPhoneticSeries: toSortedPhoneticSeries('foo'),
             firstWordIndex: 0,
-            lastWordIndex: 0,
-            firstCharIndex: 0,
-            lastCharIndexPlusOne: 'foo'.length
-          },
-          {
-            phoneticSeries: toPhoneticSeries('foo'),
-            firstWordIndex: 1,
             lastWordIndex: 1,
-            firstCharIndex: 'foo '.length,
+            firstCharIndex: 0,
             lastCharIndexPlusOne: 'foo foo'.length
           }
         ]
       }
     ]);
 
+    // 'Foo Foo Forest' / 'Foo Bar Foo'
     matches = locality1.findPhoneticMatches(locality3);
     expect(matches).toEqual([
       {
-        phoneticSeries: toPhoneticSeries('foo'),
+        sortedPhoneticSeries: toSortedPhoneticSeries('foo'),
         baseSubsets: [
           {
-            phoneticSeries: toPhoneticSeries('foo'),
+            sortedPhoneticSeries: toSortedPhoneticSeries('foo'),
             firstWordIndex: 0,
-            lastWordIndex: 0,
-            firstCharIndex: 0,
-            lastCharIndexPlusOne: 'foo'.length
-          },
-          {
-            phoneticSeries: toPhoneticSeries('foo'),
-            firstWordIndex: 1,
             lastWordIndex: 1,
-            firstCharIndex: 'foo '.length,
+            firstCharIndex: 0,
             lastCharIndexPlusOne: 'foo foo'.length
           }
         ],
         testSubsets: [
           {
-            phoneticSeries: toPhoneticSeries('foo'),
+            sortedPhoneticSeries: toSortedPhoneticSeries('foo'),
             firstWordIndex: 0,
             lastWordIndex: 0,
             firstCharIndex: 0,
             lastCharIndexPlusOne: 'foo'.length
           },
           {
-            phoneticSeries: toPhoneticSeries('foo'),
+            sortedPhoneticSeries: toSortedPhoneticSeries('foo'),
             firstWordIndex: 2,
             lastWordIndex: 2,
             firstCharIndex: 'foo bar '.length,
@@ -660,22 +698,23 @@ describe('find similarities between two localities', () => {
       }
     ]);
 
+    // 'Foo Foo Forest' / 'Foo Forest'
     matches = locality1.findPhoneticMatches(locality4);
     expect(matches).toEqual([
       {
-        phoneticSeries: toPhoneticSeries('foo forest'),
+        sortedPhoneticSeries: toSortedPhoneticSeries('foo forest'),
         baseSubsets: [
           {
-            phoneticSeries: toPhoneticSeries('foo forest'),
-            firstWordIndex: 1,
+            sortedPhoneticSeries: toSortedPhoneticSeries('foo forest'),
+            firstWordIndex: 0,
             lastWordIndex: 2,
-            firstCharIndex: 'foo '.length,
+            firstCharIndex: 0,
             lastCharIndexPlusOne: locality1.name.length
           }
         ],
         testSubsets: [
           {
-            phoneticSeries: toPhoneticSeries('foo forest'),
+            sortedPhoneticSeries: toSortedPhoneticSeries('foo forest'),
             firstWordIndex: 0,
             lastWordIndex: 1,
             firstCharIndex: 0,
@@ -701,20 +740,26 @@ function createCachedLocality(wordSeries: string): CachedLocality {
   );
 }
 
-function toPartialPhoneticSeries(
+function toPartialSortedPhoneticSeries(
   wordSeries: string,
   startIndex: number,
   endIndex: number
 ): string {
   const words = wordSeries.split(' ');
   const partialWordSeries = words.slice(startIndex, endIndex + 1).join(' ');
-  return toPhoneticSeries(partialWordSeries);
+  return toSortedPhoneticSeries(partialWordSeries);
 }
 
-function toPhoneticSeries(wordSeries: string): string {
+function toSortedPhoneticSeries(wordSeries: string): string {
   const words = wordSeries.split(' ');
+  let previousCode: string | null = null;
   return words
     .map((word) => (/[0-9]/.test(word) ? '#' + word : fuzzySoundex(word)))
     .sort()
+    .filter((code) => {
+      const keep = code != previousCode;
+      previousCode = code;
+      return keep;
+    })
     .join(' ');
 }
