@@ -1,7 +1,7 @@
 import * as path from 'path';
 import * as fs from 'fs';
 
-import type { AdjoiningRegions } from './adjoining_regions';
+import type { RegionAccess } from './region_access';
 import { AdjoiningRegionDriver, Diagnostics } from './region_driver';
 import { CachedLocality } from './cached_locality';
 import type { LocalityCache } from './locality_cache';
@@ -125,7 +125,7 @@ async function runTest(testID: number, spec: TestSpec) {
   );
 }
 
-class RegionScenario implements AdjoiningRegions {
+class RegionScenario implements RegionAccess {
   private _withCornerAdjacency: boolean;
   private _regionMatrix: DummyRegion[][] = [];
 
@@ -257,7 +257,7 @@ class RegionScenario implements AdjoiningRegions {
     return [this.codeToRegion('US')];
   }
 
-  getDescendantRegions(underGeographyID: number): Region[] {
+  getContainedRegions(underGeographyID: number): Region[] {
     // can be simplified now that I'm using parentID, but this works
     const region = this.regionsByID[underGeographyID];
     if (region.code[0] == 'C' || (region.code != 'MX' && region.code[0] == 'M')) {
@@ -268,7 +268,7 @@ class RegionScenario implements AdjoiningRegions {
     for (const regionRow of this._regionMatrix) {
       for (const testRegion of regionRow) {
         if (region.code == 'MX') {
-          if (region.code[0] == 'M') {
+          if (testRegion.code[0] == 'M') {
             childRegionsWithDups.push(testRegion);
           }
         } else if (region.code == 'US') {

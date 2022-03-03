@@ -7,7 +7,7 @@
  * to just adjacent localities and relevant containing or contained localities.
  */
 
-import type { AdjoiningRegions } from './adjoining_regions';
+import type { RegionAccess } from './region_access';
 import { Region, RegionRank } from '../../shared/shared_geography';
 import { TrackedRegionStatus, TrackedRegion } from './tracked_region';
 import { TrackedRegionRoster } from './region_roster';
@@ -43,7 +43,7 @@ export class AdjoiningRegionDriver {
   private _initialGeographyID: number | null;
 
   _regionRoster: TrackedRegionRoster;
-  _adjoiningRegions: AdjoiningRegions;
+  _regionAccess: RegionAccess;
   _diagnostics: Diagnostics | null;
   _newlyCachedRegionNeighborVisitor: NewlyCachedRegionNeighborVisitor;
   _finishCachingAroundRegionVisitor: FinishCachingAroundRegionVisitor;
@@ -51,7 +51,7 @@ export class AdjoiningRegionDriver {
   _ticker = new IntervalTicker(400, 4, 10);
 
   constructor(
-    adjoiningRegions: AdjoiningRegions,
+    regionAccess: RegionAccess,
     domainRegions: Region[],
     localityCache: LocalityCache,
     diagnostics?: Diagnostics,
@@ -59,7 +59,7 @@ export class AdjoiningRegionDriver {
   ) {
     this._domainRegions = domainRegions;
     this._regionRoster = new TrackedRegionRoster();
-    this._adjoiningRegions = adjoiningRegions;
+    this._regionAccess = regionAccess;
     this._localityCache = localityCache;
     this._diagnostics = diagnostics || null;
     this._initialGeographyID = initialGeographyID || null;
@@ -229,7 +229,7 @@ abstract class RegionVisitor {
           'visiting child regions of a non-domain region',
           aroundRegion
         );
-        for (const childRegion of this._getDescendantRegions(aroundRegion)) {
+        for (const childRegion of this._getContainedRegions(aroundRegion)) {
           // Not every child of an over-domain region need be in the domain.
           if (childRegion.inDomain && this._visitationRestriction(childRegion)) {
             if (this._interval()) yield;
@@ -252,16 +252,15 @@ abstract class RegionVisitor {
 
   protected _computeLocalityCount(forExactRegion: TrackedRegion): number {
     if (forExactRegion.localityTotal === null) {
-      forExactRegion.localityTotal =
-        this._regionDriver._adjoiningRegions.getLocalityCount(forExactRegion.id);
+      forExactRegion.localityTotal = this._regionDriver._regionAccess.getLocalityCount(
+        forExactRegion.id
+      );
     }
     return forExactRegion.localityTotal;
   }
 
   protected _getAdjacentRegions(toRegion: TrackedRegion): TrackedRegion[] {
-    const regions = this._regionDriver._adjoiningRegions.getAdjacentRegions(
-      toRegion.id
-    );
+    const regions = this._regionDriver._regionAccess.getAdjacentRegions(toRegion.id);
     return regions.map((region) => this._getTrackedRegion(region));
   }
 
@@ -269,19 +268,19 @@ abstract class RegionVisitor {
     // TODO: Experiment with whether it's more efficient to process
     // parent or child regions first.
     let regions = this._getAdjacentRegions(aroundRegion);
-    regions = regions.concat(this._getDescendantRegions(aroundRegion));
+    regions = regions.concat(this._getContainedRegions(aroundRegion));
     return regions.concat(this._getContainingRegions(aroundRegion));
   }
 
   protected _getContainingRegions(aboveRegion: TrackedRegion): TrackedRegion[] {
-    const regions = this._regionDriver._adjoiningRegions.getContainingRegions(
+    const regions = this._regionDriver._regionAccess.getContainingRegions(
       aboveRegion.id
     );
     return regions.map((region) => this._getTrackedRegion(region));
   }
 
-  protected _getDescendantRegions(underRegion: TrackedRegion): TrackedRegion[] {
-    const regions = this._regionDriver._adjoiningRegions.getDescendantRegions(
+  protected _getContainedRegions(underRegion: TrackedRegion): TrackedRegion[] {
+    const regions = this._regionDriver._regionAccess.getContainedRegions(
       underRegion.id
     );
     return regions.map((region) => this._getTrackedRegion(region));

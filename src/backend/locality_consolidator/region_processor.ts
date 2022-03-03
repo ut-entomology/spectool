@@ -1,8 +1,7 @@
 import type { Adjacencies } from '../util/adjacencies';
-import type { AdjoiningRegions } from './adjoining_regions';
+import type { RegionAccess } from './region_access';
 import type { CachedLocality } from './cached_locality';
 import type { LocalityCache } from './locality_cache';
-import type { Geography } from '../specify/geography';
 import type { PhoneticCodeIndex } from './phonetic_code_index';
 import type { PotentialSynonymsStore } from './potential_synonyms';
 import type { TrackedRegionRoster } from './region_roster';
@@ -31,9 +30,8 @@ interface SubsetCorrespondence {
  */
 
 export class RegionProcessor {
-  private _geography: Geography;
   private _adjacencies: Adjacencies;
-  private _adjoiningRegions: AdjoiningRegions;
+  private _regionAccess: RegionAccess;
   private _localityCache: LocalityCache;
   private _potentialSynonymsStore: PotentialSynonymsStore;
   private _phoneticCodeIndex: PhoneticCodeIndex;
@@ -41,18 +39,16 @@ export class RegionProcessor {
   private _excludedMatchesStore: ExcludedMatchesStore;
 
   constructor(
-    geography: Geography,
     adjacencies: Adjacencies,
-    adjoiningRegions: AdjoiningRegions,
+    regionAccess: RegionAccess,
     localityCache: LocalityCache,
     potentialSynonymsStore: PotentialSynonymsStore,
     phoneticCodeIndex: PhoneticCodeIndex,
     regionRoster: TrackedRegionRoster,
     excludedMatchesStore: ExcludedMatchesStore
   ) {
-    this._geography = geography;
     this._adjacencies = adjacencies;
-    this._adjoiningRegions = adjoiningRegions;
+    this._regionAccess = regionAccess;
     this._localityCache = localityCache;
     this._potentialSynonymsStore = potentialSynonymsStore;
     this._phoneticCodeIndex = phoneticCodeIndex;
@@ -74,10 +70,10 @@ export class RegionProcessor {
     // Cache information needed about overallRegion.
 
     const overallRegionID = overallRegion.id;
-    const adjoiningRegionIDs = this._geography
+    const adjoiningRegionIDs = this._regionAccess
       .getContainingRegions(overallRegionID)
       .slice()
-      .concat(this._geography.getContainedRegions(overallRegionID))
+      .concat(this._regionAccess.getContainedRegions(overallRegionID))
       .concat(this._adjacencies.forID(overallRegionID))
       .map((region) => region.id);
 
@@ -591,10 +587,10 @@ export class RegionProcessor {
   ): Generator<TrackedRegion, void, void> {
     yield region;
     if (region.processSubregions) {
-      for (const descendant of this._adjoiningRegions.getDescendantRegions(region.id)) {
-        let subregion = this._regionRoster.getByID(descendant.id);
+      for (const containedRegion of this._regionAccess.getContainedRegions(region.id)) {
+        let subregion = this._regionRoster.getByID(containedRegion.id);
         if (subregion == null) {
-          subregion = new TrackedRegion(descendant, region.inDomain);
+          subregion = new TrackedRegion(containedRegion, region.inDomain);
           this._regionRoster.add(subregion);
         }
         yield subregion;
