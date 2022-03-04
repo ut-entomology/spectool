@@ -4,7 +4,7 @@ import type { TrackedRegion } from './tracked_region';
 import { RegionProcessor } from './region_processor';
 import { Region, RegionRank } from '../../shared/shared_geography';
 import { MockRegionAccess } from './mock/mock_region_access';
-import { MockTrackedRegionRoster } from './mock/mock_region_roster';
+import { MockTrackedRegionRoster } from './mock/mock_tracked_region_roster';
 import { MockPhoneticCodeIndex } from './mock/mock_phonetic_code_index';
 import { MockPotentialSynonymsStore } from './mock/mock_potential_synonyms';
 import { MockExcludedMatchesStore } from './mock/mock_excluded_matches';
@@ -45,6 +45,12 @@ class MockRegion {
     this.mame = name;
     this.flags = processSubregions ? PROCESS_SUBREGIONS_FLAG : 0;
   }
+}
+
+class TrackedRegionSource {
+  private _regionByID: Record<number, TrackedRegion> = {};
+
+  constructor(mockRegions: MockRegion[]) {}
 }
 
 class MockLocalityCache implements LocalityCache {

@@ -3,8 +3,8 @@ import type { CachedLocality } from './cached_locality';
 import type { LocalityCache } from './locality_cache';
 import type { PhoneticCodeIndex } from './phonetic_code_index';
 import type { PotentialSynonymsStore } from './potential_synonyms';
-import type { TrackedRegionRoster } from './region_roster';
-import { TrackedRegion } from './tracked_region';
+import type { TrackedRegionRoster } from './tracked_region_roster';
+import type { TrackedRegion } from './tracked_region';
 import {
   ExcludedMatchesStore,
   containsCoordinatePairing,
@@ -580,16 +580,19 @@ export class RegionProcessor {
    * Yield each region implied for processing by the provided region.
    */
   private async *_regionsToProcess(
-    region: TrackedRegion
+    containingRegion: TrackedRegion
   ): AsyncGenerator<TrackedRegion, void, void> {
-    yield region;
-    if (region.processSubregions) {
-      for (const containedRegion of this._regionAccess.getContainedRegions(region.id)) {
+    yield containingRegion;
+    if (containingRegion.processSubregions) {
+      for (const containedRegion of this._regionAccess.getContainedRegions(
+        containingRegion.id
+      )) {
         let subregion = await this._regionRoster.getByID(containedRegion.id);
         if (subregion == null) {
-          // TODO: Can this TrackedRegion already exist?
-          subregion = new TrackedRegion(containedRegion, region.inDomain);
-          this._regionRoster.add(subregion);
+          subregion = await this._regionRoster.getOrCreate(
+            containedRegion,
+            containingRegion.inDomain
+          );
         }
         yield subregion;
       }

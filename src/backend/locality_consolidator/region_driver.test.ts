@@ -6,8 +6,8 @@ import { AdjoiningRegionDriver, Diagnostics } from './region_driver';
 import { CachedLocality } from './cached_locality';
 import type { LocalityCache } from './locality_cache';
 import { Region, RegionRank } from '../../shared/shared_geography';
-import type { TrackedRegionRoster } from './region_roster';
-import { MockTrackedRegionRoster } from './mock/mock_region_roster';
+import type { TrackedRegionRoster } from './tracked_region_roster';
+import { MockTrackedRegionRoster } from './mock/mock_tracked_region_roster';
 import { TrackedRegion, TrackedRegionStatus } from './tracked_region';
 
 const TEST_LOG_DIR = path.join(__dirname, '../../../test_logs');

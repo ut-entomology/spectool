@@ -10,7 +10,7 @@
 import type { RegionAccess } from './region_access';
 import { Region, RegionRank } from '../../shared/shared_geography';
 import { TrackedRegionStatus, TrackedRegion } from './tracked_region';
-import type { TrackedRegionRoster } from './region_roster';
+import type { TrackedRegionRoster } from './tracked_region_roster';
 import type { LocalityCache } from './locality_cache';
 import { IntervalTicker } from './interval_ticker';
 
@@ -77,7 +77,7 @@ export class AdjoiningRegionDriver {
     for (const domainRegion of this._domainRegions!) {
       if (this._ticker.interval()) yield null;
       domainsByID[domainRegion.id] = domainRegion;
-      this._regionRoster.add(new TrackedRegion(domainRegion, true));
+      this._regionRoster.getOrCreate(domainRegion, true);
     }
 
     // Collect the over-domain geographic IDs for easy lookup. The over-domain consists
@@ -303,12 +303,7 @@ abstract class RegionVisitor {
   }
 
   protected async _getTrackedRegion(region: Region): Promise<TrackedRegion> {
-    let trackedRegion = await this._regionDriver._regionRoster.getByID(region.id);
-    if (!trackedRegion) {
-      trackedRegion = new TrackedRegion(region, false);
-      this._regionDriver._regionRoster.add(trackedRegion);
-    }
-    return trackedRegion;
+    return await this._regionDriver._regionRoster.getOrCreate(region, false);
   }
 
   protected _interval(): boolean {
@@ -377,10 +372,11 @@ class NewlyCachedRegionNeighborVisitor extends RegionVisitor {
     return nearRegion.status == TrackedRegionStatus.Pending;
   }
 
-  protected async _visitAroundDomainRegion(nearRegion: TrackedRegion) {
-    if (!this._regionDriver._regionRoster.includes(nearRegion)) {
-      this._regionDriver._regionRoster.add(nearRegion);
-    }
+  protected async _visitAroundDomainRegion(_nearRegion: TrackedRegion) {
+    // TODO: This doesn't make sense. RegionRoster has all tracked regions.
+    // if (!this._regionDriver._regionRoster.includes(nearRegion)) {
+    //   this._regionDriver._regionRoster.add(nearRegion);
+    // }
   }
 
   protected async *_visitSubsetAroundDomainRegion(

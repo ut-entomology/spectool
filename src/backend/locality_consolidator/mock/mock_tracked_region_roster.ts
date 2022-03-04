@@ -1,14 +1,10 @@
-import type { TrackedRegionRoster } from '../region_roster';
-import type { TrackedRegion } from '../tracked_region';
+import type { Region } from '../../../shared/shared_geography';
+import type { TrackedRegionRoster } from '../tracked_region_roster';
+import { TrackedRegion } from '../tracked_region';
 
 export class MockTrackedRegionRoster implements TrackedRegionRoster {
   private _regions: TrackedRegion[] = [];
   private _regionsByID: Record<number, TrackedRegion> = {};
-
-  async add(region: TrackedRegion): Promise<void> {
-    this._regions.push(region);
-    this._regionsByID[region.id] = region;
-  }
 
   async *allRegions() {
     for (const region of this._regions) {
@@ -22,6 +18,16 @@ export class MockTrackedRegionRoster implements TrackedRegionRoster {
 
   async getByID(geographyID: number): Promise<TrackedRegion | null> {
     return this._regionsByID[geographyID] || null;
+  }
+
+  async getOrCreate(region: Region, inDomain: boolean): Promise<TrackedRegion> {
+    let trackedRegion = await this.getByID(region.id);
+    if (!trackedRegion) {
+      trackedRegion = new TrackedRegion(region, inDomain);
+      this._regions.push(trackedRegion);
+      this._regionsByID[region.id] = trackedRegion;
+    }
+    return trackedRegion;
   }
 
   async includes(region: TrackedRegion): Promise<boolean> {

@@ -92,8 +92,6 @@ Define function cacheRegion(region to cache (C)):
 	(+) Mark (C) as cached in RegionRoster.
 	(+) If (C) is in the domain:
 		(+) For each region (A) in the set containing regions strictly adjacent to (C), regions containing (C), and regions contained in (C):
-			(+) If (A) is not in RegionRoster:
-				(+) Add (A) to RegionRoster with status "pending".
 			(+) If (A) has status "pending":
 				(+) Add (A)'s localityTotal to (C)'s adjoiningPendingCount.
 	(+) Else:
