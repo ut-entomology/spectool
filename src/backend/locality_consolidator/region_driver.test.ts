@@ -6,7 +6,8 @@ import { AdjoiningRegionDriver, Diagnostics } from './region_driver';
 import { CachedLocality } from './cached_locality';
 import type { LocalityCache } from './locality_cache';
 import { Region, RegionRank } from '../../shared/shared_geography';
-import { TrackedRegionRoster } from './region_roster';
+import type { TrackedRegionRoster } from './region_roster';
+import { MockTrackedRegionRoster } from './mock/mock_region_roster';
 import { TrackedRegion, TrackedRegionStatus } from './tracked_region';
 
 const TEST_LOG_DIR = path.join(__dirname, '../../../test_logs');
@@ -98,7 +99,7 @@ async function runTest(testID: number, spec: TestSpec) {
   );
 
   const processedRegionIDs: number[] = [];
-  const regionRoster = new TrackedRegionRoster();
+  const regionRoster = new MockTrackedRegionRoster();
   const localityCache = new MockLocalityCache(scenario);
   const diagnostics = new TestDiagnostics(
     scenario,
@@ -110,7 +111,7 @@ async function runTest(testID: number, spec: TestSpec) {
   const regionDriver = new AdjoiningRegionDriver(
     scenario,
     scenario.getDomainRegions(),
-    new TrackedRegionRoster(),
+    new MockTrackedRegionRoster(),
     localityCache,
     diagnostics,
     scenario.codeToRegion(spec.initialRegion).id
@@ -307,16 +308,16 @@ class RegionScenario implements RegionAccess {
     return domainRegions;
   }
 
-  getRegionMatrixString(regionRoster: TrackedRegionRoster): string {
+  async getRegionMatrixString(regionRoster: TrackedRegionRoster): Promise<string> {
     let s = '';
     for (const regionRow of this._regionMatrix) {
       s += '  ';
-      s += regionRow
-        .map((column) => {
-          const trackedRegion = regionRoster.getByID(column.actualRegion.id);
-          return column.toState(trackedRegion);
-        })
-        .join(' | ');
+      const columnStates: string[] = [];
+      for (const column of regionRow) {
+        const trackedRegion = await regionRoster.getByID(column.actualRegion.id);
+        columnStates.push(column.toState(trackedRegion));
+      }
+      s += columnStates.join(' | ');
       s += '\n';
     }
     return s;
@@ -550,7 +551,7 @@ class MockLocalityCache implements LocalityCache {
 
 class TestDiagnostics implements Diagnostics {
   private _scenario: RegionScenario;
-  private _regionRoster: TrackedRegionRoster;
+  private _regionRoster: MockTrackedRegionRoster;
   private _fileDesc: number;
   private _localityCache: MockLocalityCache;
   private _showSecondaryState: boolean;
@@ -558,7 +559,7 @@ class TestDiagnostics implements Diagnostics {
 
   constructor(
     scenario: RegionScenario,
-    regionRoster: TrackedRegionRoster,
+    regionRoster: MockTrackedRegionRoster,
     localityCache: MockLocalityCache,
     fileName: string,
     showSecondaryState: boolean = true
@@ -578,22 +579,22 @@ class TestDiagnostics implements Diagnostics {
     this._fileDesc = fs.openSync(filePath, 'w');
   }
 
-  reportPrimaryState(
+  async reportPrimaryState(
     primaryContext: string,
     newlyProcessedRegion?: TrackedRegion
-  ): void {
+  ): Promise<void> {
     if (newlyProcessedRegion) {
       this._scenario.regionsByID[newlyProcessedRegion.id].sequence = ++this
         ._lastSequenceNumber;
     }
-    this._writeState(this._regionRoster, '### ' + primaryContext);
+    await this._writeState(this._regionRoster, '### ' + primaryContext);
   }
 
-  reportSecondaryProcess(
+  async reportSecondaryProcess(
     primaryContext: string,
     secondaryContext: string,
     forRegion: TrackedRegion
-  ): void {
+  ): Promise<void> {
     fs.writeSync(
       this._fileDesc,
       `${primaryContext} - ${secondaryContext} (${
@@ -602,12 +603,12 @@ class TestDiagnostics implements Diagnostics {
     );
   }
 
-  reportSecondaryState(
+  async reportSecondaryState(
     primaryContext: string,
     secondaryContext: string,
     forRegion: TrackedRegion,
     aroundRegion: TrackedRegion
-  ): void {
+  ): Promise<void> {
     if (this._showSecondaryState) {
       const aroundText = aroundRegion
         ? `around ${this._scenario.regionsByID[aroundRegion.id].code}: `
@@ -615,7 +616,7 @@ class TestDiagnostics implements Diagnostics {
       const description = `${primaryContext} - ${secondaryContext} (${aroundText}${
         this._scenario.regionsByID[forRegion.id].code
       })`;
-      this._writeState(this._regionRoster, description);
+      await this._writeState(this._regionRoster, description);
     }
   }
 
@@ -623,25 +624,33 @@ class TestDiagnostics implements Diagnostics {
     fs.close(this._fileDesc);
   }
 
-  private _writeState(regionRoster: TrackedRegionRoster, description: string) {
+  private async _writeState(
+    regionRoster: MockTrackedRegionRoster,
+    description: string
+  ) {
+    const regions: TrackedRegion[] = [];
+    for await (const region of regionRoster.allRegions()) {
+      regions.push(region);
+    }
     let s = description + ':\n';
     s += '  Region roster: ';
-    s += [...regionRoster].map((r) => this._scenario.regionsByID[r.id].code).join(', ');
+    s += regions.map((r) => this._scenario.regionsByID[r.id].code).join(', ');
     s += '\n  Cached localities(*): ';
     s += this._localityCache.getCachedCodes().join(', ');
     s += '\n\n';
-    s += this._scenario.getRegionMatrixString(regionRoster);
+    s += await this._scenario.getRegionMatrixString(regionRoster);
     s += '\n  ';
-    s += [
+    const columnStates: string[] = [];
+    const ids = [
       this._scenario.codeToID('TX'),
       this._scenario.codeToID('US'),
       this._scenario.codeToID('MX')
-    ]
-      .map((id) => {
-        const trackedRegion = regionRoster.getByID(id);
-        return this._scenario.regionsByID[id].toState(trackedRegion);
-      })
-      .join(' | ');
+    ];
+    for (const id of ids) {
+      const trackedRegion = await regionRoster.getByID(id);
+      columnStates.push(this._scenario.regionsByID[id].toState(trackedRegion));
+    }
+    s += columnStates.join(' | ');
     s += '\n\n';
     fs.writeSync(this._fileDesc, s);
   }

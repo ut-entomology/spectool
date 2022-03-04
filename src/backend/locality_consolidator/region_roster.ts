@@ -1,41 +1,15 @@
 import type { TrackedRegion } from './tracked_region';
 
-export class TrackedRegionRoster {
-  private _regions: TrackedRegion[] = [];
-  private _regionsByID: Record<number, TrackedRegion> = {};
+export interface TrackedRegionRoster {
+  add(region: TrackedRegion): Promise<void>;
 
-  add(region: TrackedRegion): void {
-    this._regions.push(region);
-    this._regionsByID[region.id] = region;
-  }
+  allRegions(): AsyncGenerator<TrackedRegion, void, void>;
 
-  getArbitraryRegion(): TrackedRegion {
-    return this._regions[0];
-  }
+  getArbitraryRegion(): Promise<TrackedRegion>;
 
-  getByID(geographyID: number): TrackedRegion | null {
-    return this._regionsByID[geographyID] || null;
-  }
+  getByID(geographyID: number): Promise<TrackedRegion | null>;
 
-  includes(region: TrackedRegion): boolean {
-    return this._regions.includes(region);
-  }
+  includes(region: TrackedRegion): Promise<boolean>;
 
-  [Symbol.iterator]() {
-    const self = this;
-    let next_index = 0;
-    return {
-      next: () => {
-        return {
-          done: next_index == self._regions.length,
-          value: self._regions[next_index++]
-        };
-      }
-    };
-  }
-
-  remove(region: TrackedRegion): void {
-    const index = this._regions.indexOf(region);
-    this._regions.splice(index, 1);
-  }
+  remove(region: TrackedRegion): Promise<void>;
 }
