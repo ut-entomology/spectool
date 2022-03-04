@@ -148,7 +148,7 @@ export class AdjoiningRegionDriver {
   async *_cachePendingRegion(
     regionToCache: TrackedRegion
   ): AsyncGenerator<void, void, void> {
-    this._localityCache.cacheRegionLocalities(regionToCache);
+    await this._localityCache.cacheRegionLocalities(regionToCache);
     regionToCache.status = TrackedRegionStatus.Cached;
     const visits =
       this._newlyCachedRegionNeighborVisitor.visitAroundRegion(regionToCache);

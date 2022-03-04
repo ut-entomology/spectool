@@ -78,7 +78,7 @@ export class RegionProcessor {
     // additional regions will be processed. If the caller was not able to do
     // so, all of its subregions must also be processed.
 
-    for (const currentRegion of this._regionsToProcess(overallRegion)) {
+    for await (const currentRegion of this._regionsToProcess(overallRegion)) {
       for await (const baseLocality of this._localityCache.localitiesOfRegion(
         currentRegion
       )) {
@@ -106,13 +106,13 @@ export class RegionProcessor {
           if (testLocalityIDs) {
             for (const testLocalityID of testLocalityIDs) {
               if (!previouslyComparedLocalityIDs[testLocalityID]) {
-                const localityMatch = this._comparePhoneticallyRelatedLocalities(
+                const localityMatch = await this._comparePhoneticallyRelatedLocalities(
                   adjoiningRegionIDs,
                   baselineDate,
                   overallRegion,
                   currentRegion,
                   baseLocality,
-                  this._localityCache.getLocality(testLocalityID)
+                  await this._localityCache.getLocality(testLocalityID)
                 );
                 if (localityMatch) {
                   yield localityMatch;
@@ -142,15 +142,16 @@ export class RegionProcessor {
               if (testLocalityIDs) {
                 for (const testLocalityID of testLocalityIDs) {
                   if (!previouslyComparedLocalityIDs[testLocalityID]) {
-                    const localityMatch = this._compareSynonymouslyRelatedLocalities(
-                      adjoiningRegionIDs,
-                      baselineDate,
-                      overallRegion,
-                      currentRegion,
-                      baseLocality,
-                      this._localityCache.getLocality(testLocalityID),
-                      basePhoneticSeriesCorrespondenceMap
-                    );
+                    const localityMatch =
+                      await this._compareSynonymouslyRelatedLocalities(
+                        adjoiningRegionIDs,
+                        baselineDate,
+                        overallRegion,
+                        currentRegion,
+                        baseLocality,
+                        await this._localityCache.getLocality(testLocalityID),
+                        basePhoneticSeriesCorrespondenceMap
+                      );
                     if (localityMatch) {
                       yield localityMatch;
                       previouslyComparedLocalityIDs[testLocalityID] = true;
@@ -222,25 +223,25 @@ export class RegionProcessor {
    * returning a description of their similarities if they are in scope and not
    * precluded from matching by the `ExcludedMatchesStore`, and null otherwise.
    */
-  private _comparePhoneticallyRelatedLocalities(
+  private async _comparePhoneticallyRelatedLocalities(
     adjoiningRegionIDs: number[],
     baselineDate: Date | null,
     overallRegion: TrackedRegion,
     currentRegion: TrackedRegion,
     baseLocality: CachedLocality,
     testLocality: CachedLocality
-  ): LocalityMatch | null {
+  ): Promise<LocalityMatch | null> {
     // Make sure the localities are spatially and temporally in scope.
 
     if (
-      !this._localityIsInScope(
+      !(await this._localityIsInScope(
         adjoiningRegionIDs,
         baselineDate,
         overallRegion,
         currentRegion,
         baseLocality,
         testLocality
-      )
+      ))
     ) {
       return null;
     }
@@ -262,8 +263,8 @@ export class RegionProcessor {
     if (baseNameSeries == testNameSeries) {
       const exclusions = this._excludedMatchesStore.getExcludedMatches(baseNameSeries);
       if (exclusions) {
-        const testRegion = this._regionRoster.getByID(testLocality.regionID)!;
-        if (currentRegion.id == testRegion.id) {
+        const testRegion = await this._regionRoster.getByID(testLocality.regionID)!;
+        if (currentRegion.id == testRegion!.id) {
           // Skip localities expected to have identical names at different coordinates.
           if (
             containsCoordinatePairing(
@@ -280,7 +281,7 @@ export class RegionProcessor {
             containsRegionIDPairing(
               exclusions.nonmatchingRegionIDPairings,
               currentRegion.id,
-              testRegion.id
+              testRegion!.id
             )
           ) {
             return null;
@@ -315,7 +316,7 @@ export class RegionProcessor {
    * returning the matching synonyms if they are in scope and not precluded
    * from matching by the `ExcludedMatchesStore`, and returning null otherwise.
    */
-  private _compareSynonymouslyRelatedLocalities(
+  private async _compareSynonymouslyRelatedLocalities(
     adjoiningRegionIDs: number[],
     baselineDate: Date | null,
     overallRegion: TrackedRegion,
@@ -323,18 +324,18 @@ export class RegionProcessor {
     baseLocality: CachedLocality,
     testLocality: CachedLocality,
     phoneticWordSeriesCorrespondenceMap: Record<string, SubsetCorrespondence>
-  ): LocalityMatch | null {
+  ): Promise<LocalityMatch | null> {
     // Make sure the localities are spatially and temporally in scope.
 
     if (
-      !this._localityIsInScope(
+      !(await this._localityIsInScope(
         adjoiningRegionIDs,
         baselineDate,
         overallRegion,
         currentRegion,
         baseLocality,
         testLocality
-      )
+      ))
     ) {
       return null;
     }
@@ -539,14 +540,14 @@ export class RegionProcessor {
   /**
    * Determines whether the test locality is temporally and spatially in scope.
    */
-  private _localityIsInScope(
+  private async _localityIsInScope(
     adjoiningRegionIDs: number[],
     baselineDate: Date | null,
     overallRegion: TrackedRegion,
     currentRegion: TrackedRegion,
     baseLocality: CachedLocality,
     testLocality: CachedLocality
-  ): boolean {
+  ): Promise<boolean> {
     // Make sure at least one of the localities fits the baseline date requirement.
 
     if (
@@ -559,7 +560,7 @@ export class RegionProcessor {
     // is in the domain, so that we're only examining requested regions.
 
     if (!currentRegion.inDomain) {
-      const testRegion = this._regionRoster.getByID(testLocality.regionID)!;
+      const testRegion = (await this._regionRoster.getByID(testLocality.regionID))!;
       if (!testRegion.inDomain) {
         return false;
       }
@@ -578,13 +579,13 @@ export class RegionProcessor {
   /**
    * Yield each region implied for processing by the provided region.
    */
-  private *_regionsToProcess(
+  private async *_regionsToProcess(
     region: TrackedRegion
-  ): Generator<TrackedRegion, void, void> {
+  ): AsyncGenerator<TrackedRegion, void, void> {
     yield region;
     if (region.processSubregions) {
       for (const containedRegion of this._regionAccess.getContainedRegions(region.id)) {
-        let subregion = this._regionRoster.getByID(containedRegion.id);
+        let subregion = await this._regionRoster.getByID(containedRegion.id);
         if (subregion == null) {
           subregion = new TrackedRegion(containedRegion, region.inDomain);
           this._regionRoster.add(subregion);

@@ -119,7 +119,7 @@ async function runTest(testID: number, spec: TestSpec) {
   for await (const region of regionDriver.run()) {
     if (region != null) {
       processedRegionIDs.push(region.id);
-      localityCache.uncacheLocality(region.id);
+      await localityCache.uncacheLocality(region.id);
     }
   }
   diagnostics.close();
@@ -514,7 +514,7 @@ class MockLocalityCache implements LocalityCache {
     this._scenario = scenario;
   }
 
-  cacheRegionLocalities(region: TrackedRegion): void {
+  async cacheRegionLocalities(region: TrackedRegion): Promise<void> {
     this._cache[region.id] = new CachedLocality(
       region,
       region.id,
@@ -531,7 +531,7 @@ class MockLocalityCache implements LocalityCache {
     return this._cachedCodes;
   }
 
-  getLocality(localityID: number): CachedLocality {
+  async getLocality(localityID: number): Promise<CachedLocality> {
     return this._cache[localityID];
   }
 
@@ -541,7 +541,7 @@ class MockLocalityCache implements LocalityCache {
     // not needed for this test
   }
 
-  uncacheLocality(localityID: number): void {
+  async uncacheLocality(localityID: number): Promise<void> {
     delete this._cache[localityID];
     const code = this._scenario.regionsByID[localityID].code; // localityID == regionID
     const codeIndex = this._cachedCodes.indexOf(code);
