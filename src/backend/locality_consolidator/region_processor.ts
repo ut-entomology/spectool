@@ -263,8 +263,8 @@ export class RegionProcessor {
     if (baseNameSeries == testNameSeries) {
       const exclusions = this._excludedMatchesStore.getExcludedMatches(baseNameSeries);
       if (exclusions) {
-        const testRegion = await this._regionRoster.getByID(testLocality.regionID)!;
-        if (currentRegion.id == testRegion!.id) {
+        const testRegion = (await this._regionRoster.getByID(testLocality.regionID))!;
+        if (currentRegion.id == testRegion.id) {
           // Skip localities expected to have identical names at different coordinates.
           if (
             containsCoordinatePairing(
@@ -587,6 +587,7 @@ export class RegionProcessor {
       for (const containedRegion of this._regionAccess.getContainedRegions(region.id)) {
         let subregion = await this._regionRoster.getByID(containedRegion.id);
         if (subregion == null) {
+          // TODO: Can this TrackedRegion already exist?
           subregion = new TrackedRegion(containedRegion, region.inDomain);
           this._regionRoster.add(subregion);
         }

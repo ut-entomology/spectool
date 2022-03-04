@@ -514,6 +514,8 @@ class MockLocalityCache implements LocalityCache {
     this._scenario = scenario;
   }
 
+  //// INTERFACE LocalityCache ///////////////////////////////////////////////
+
   async cacheRegionLocalities(region: TrackedRegion): Promise<void> {
     this._cache[region.id] = new CachedLocality(
       region,
@@ -525,10 +527,6 @@ class MockLocalityCache implements LocalityCache {
       Date.now()
     );
     this._cachedCodes.push(this._scenario.regionsByID[region.id].code);
-  }
-
-  getCachedCodes(): string[] {
-    return this._cachedCodes;
   }
 
   async getLocality(localityID: number): Promise<CachedLocality> {
@@ -546,6 +544,12 @@ class MockLocalityCache implements LocalityCache {
     const code = this._scenario.regionsByID[localityID].code; // localityID == regionID
     const codeIndex = this._cachedCodes.indexOf(code);
     this._cachedCodes.splice(codeIndex, 1);
+  }
+
+  //// Mock Support //////////////////////////////////////////////////////////
+
+  getCachedCodes(): string[] {
+    return this._cachedCodes;
   }
 }
 

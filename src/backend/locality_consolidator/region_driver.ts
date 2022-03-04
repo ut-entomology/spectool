@@ -100,9 +100,9 @@ export class AdjoiningRegionDriver {
     let currentRegion: TrackedRegion | null =
       await this._regionRoster.getArbitraryRegion();
     if (this._initialGeographyID !== null) {
-      currentRegion = await this._regionRoster.getByID(this._initialGeographyID)!;
+      currentRegion = (await this._regionRoster.getByID(this._initialGeographyID))!;
     }
-    for await (const _ of this._cachePendingRegion(currentRegion!)) yield null;
+    for await (const _ of this._cachePendingRegion(currentRegion)) yield null;
 
     // Loop
     while (currentRegion != null) {

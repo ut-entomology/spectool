@@ -8,6 +8,7 @@ import { MockTrackedRegionRoster } from './mock/mock_region_roster';
 import { MockPhoneticCodeIndex } from './mock/mock_phonetic_code_index';
 import { MockPotentialSynonymsStore } from './mock/mock_potential_synonyms';
 import { MockExcludedMatchesStore } from './mock/mock_excluded_matches';
+import { PROCESS_SUBREGIONS_FLAG } from '../util/region_adjacencies';
 import type {
   LocalityMatch,
   PhoneticMatch,
@@ -23,23 +24,45 @@ test('process isolated region, isolated locality', () => {
     },
     {}
   );
+  const phoneticCodeIndex = new MockPhoneticCodeIndex();
   const processor = new RegionProcessor(
     regionAccess,
-    new MockLocalityCache(),
+    new MockLocalityCache(phoneticCodeIndex),
     new MockPotentialSynonymsStore(),
-    new MockPhoneticCodeIndex(),
+    phoneticCodeIndex,
     new MockTrackedRegionRoster(),
     new MockExcludedMatchesStore()
   );
 });
 
+class MockRegion {
+  id: number;
+  mame: string;
+  flags: number;
+
+  constructor(id: number, name: string, processSubregions: boolean) {
+    this.id = id;
+    this.mame = name;
+    this.flags = processSubregions ? PROCESS_SUBREGIONS_FLAG : 0;
+  }
+}
+
 class MockLocalityCache implements LocalityCache {
+  private _phoneticCodeIndex: MockPhoneticCodeIndex;
+  private _cachedLocalities: Record<number, CachedLocality> = {};
+
+  constructor(phoneticCodeIndex: MockPhoneticCodeIndex) {
+    this._phoneticCodeIndex = phoneticCodeIndex;
+  }
+
+  //// INTERFACE LocalityCache ///////////////////////////////////////////////
+
   async cacheRegionLocalities(region: TrackedRegion): Promise<void> {
     //
   }
 
   async getLocality(localityID: number): Promise<CachedLocality> {
-    //
+    return this._cachedLocalities[localityID];
   }
 
   async *localitiesOfRegion(
@@ -51,4 +74,6 @@ class MockLocalityCache implements LocalityCache {
   async uncacheLocality(localityID: number): Promise<void> {
     //
   }
+
+  //// Mock Support //////////////////////////////////////////////////////////
 }
