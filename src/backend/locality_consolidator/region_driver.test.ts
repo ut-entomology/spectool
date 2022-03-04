@@ -99,7 +99,7 @@ async function runTest(testID: number, spec: TestSpec) {
 
   const processedRegionIDs: number[] = [];
   const regionRoster = new TrackedRegionRoster();
-  const localityCache = new DummyLocalityCache(scenario);
+  const localityCache = new MockLocalityCache(scenario);
   const diagnostics = new TestDiagnostics(
     scenario,
     regionRoster,
@@ -130,10 +130,10 @@ async function runTest(testID: number, spec: TestSpec) {
 
 class RegionScenario implements RegionAccess {
   private _withCornerAdjacency: boolean;
-  private _regionMatrix: DummyRegion[][] = [];
+  private _regionMatrix: MockRegion[][] = [];
 
-  regionsByCode: Record<string, DummyRegion> = {};
-  regionsByID: Record<number, DummyRegion> = {};
+  regionsByCode: Record<string, MockRegion> = {};
+  regionsByID: Record<number, MockRegion> = {};
 
   constructor(
     regionGrid: string,
@@ -144,24 +144,24 @@ class RegionScenario implements RegionAccess {
 
     // Define regions not in the matrix.
 
-    this._indexDummyRegion(
-      new DummyRegion(
+    this._indexMockRegion(
+      new MockRegion(
         'US',
         false,
         containingLocalityTotals['US'],
         new Region(100, RegionRank.Country, 'US', 0)
       )
     );
-    this._indexDummyRegion(
-      new DummyRegion(
+    this._indexMockRegion(
+      new MockRegion(
         'TX',
         true,
         containingLocalityTotals['TX'],
         new Region(101, RegionRank.State, 'TX', 0)
       )
     );
-    this._indexDummyRegion(
-      new DummyRegion(
+    this._indexMockRegion(
+      new MockRegion(
         'MX',
         false,
         containingLocalityTotals['MX'],
@@ -178,7 +178,7 @@ class RegionScenario implements RegionAccess {
       if (row.trim() == '') {
         continue;
       }
-      const regionRow: DummyRegion[] = [];
+      const regionRow: MockRegion[] = [];
       let columnIndex = 0;
       const columns = row.split('|');
       for (const column of columns) {
@@ -218,9 +218,9 @@ class RegionScenario implements RegionAccess {
           // Contruct a region for the cell.
 
           const region = new Region(nextID++, rank, code, 0);
-          const dummyRegion = new DummyRegion(code, inDomain, localityTotal, region);
-          regionRow.push(dummyRegion);
-          this._indexDummyRegion(dummyRegion);
+          const mockRegion = new MockRegion(code, inDomain, localityTotal, region);
+          regionRow.push(mockRegion);
+          this._indexMockRegion(mockRegion);
 
           // Assign the region's parent ID.
 
@@ -267,7 +267,7 @@ class RegionScenario implements RegionAccess {
       return [];
     }
 
-    const childRegionsWithDups: DummyRegion[] = [];
+    const childRegionsWithDups: MockRegion[] = [];
     for (const regionRow of this._regionMatrix) {
       for (const testRegion of regionRow) {
         if (region.code == 'MX') {
@@ -299,9 +299,9 @@ class RegionScenario implements RegionAccess {
 
   getDomainRegions(): Region[] {
     const domainRegions: Region[] = [];
-    for (const dummyRegion of Object.values(this.regionsByID)) {
-      if (dummyRegion.inDomain) {
-        domainRegions.push(dummyRegion.actualRegion);
+    for (const mockRegion of Object.values(this.regionsByID)) {
+      if (mockRegion.inDomain) {
+        domainRegions.push(mockRegion.actualRegion);
       }
     }
     return domainRegions;
@@ -322,9 +322,9 @@ class RegionScenario implements RegionAccess {
     return s;
   }
 
-  private _getAdjacentRegions(toGeographyID: number): DummyRegion[] {
+  private _getAdjacentRegions(toGeographyID: number): MockRegion[] {
     const region = this.regionsByID[toGeographyID];
-    const adjacentRegionsWithDups: DummyRegion[] = [];
+    const adjacentRegionsWithDups: MockRegion[] = [];
 
     if (region.code == 'TX') {
       for (const regionRow of this._regionMatrix) {
@@ -400,7 +400,7 @@ class RegionScenario implements RegionAccess {
   // A single region may span multiple cells of the matrix.
   // Return the indexes of each of those cells.
 
-  _getRegionIndexPairs(region: DummyRegion): number[][] {
+  _getRegionIndexPairs(region: MockRegion): number[][] {
     const indexPairs: number[][] = [];
     for (let i = 0; i < this._regionMatrix.length; ++i) {
       const regionRow = this._regionMatrix[i];
@@ -417,8 +417,8 @@ class RegionScenario implements RegionAccess {
     rowIndex: number,
     columnIndex: number,
     withCornerTouching: boolean
-  ): DummyRegion[] {
-    const touchingRegions: DummyRegion[] = [];
+  ): MockRegion[] {
+    const touchingRegions: MockRegion[] = [];
     for (let deltaI = -1; deltaI <= 1; ++deltaI) {
       for (let deltaJ = -1; deltaJ <= 1; ++deltaJ) {
         const i = rowIndex + deltaI;
@@ -438,13 +438,13 @@ class RegionScenario implements RegionAccess {
     return touchingRegions;
   }
 
-  _indexDummyRegion(region: DummyRegion): void {
+  _indexMockRegion(region: MockRegion): void {
     this.regionsByCode[region.code] = region;
     this.regionsByID[region.actualRegion.id] = region;
   }
 
-  _removeDupRegions(regionsWithDups: DummyRegion[]): DummyRegion[] {
-    const _regionMatrix: DummyRegion[] = [];
+  _removeDupRegions(regionsWithDups: MockRegion[]): MockRegion[] {
+    const _regionMatrix: MockRegion[] = [];
     for (const region of regionsWithDups) {
       if (!_regionMatrix.includes(region)) {
         _regionMatrix.push(region);
@@ -454,7 +454,7 @@ class RegionScenario implements RegionAccess {
   }
 }
 
-class DummyRegion {
+class MockRegion {
   code: string;
   inDomain: boolean;
   sequence = 0;
@@ -504,7 +504,7 @@ class DummyRegion {
   }
 }
 
-class DummyLocalityCache implements LocalityCache {
+class MockLocalityCache implements LocalityCache {
   private _scenario: RegionScenario;
   private _cache: Record<number, CachedLocality> = {};
   private _cachedCodes: string[] = []; // in caching order
@@ -519,7 +519,7 @@ class DummyLocalityCache implements LocalityCache {
       region.id,
       0,
       0,
-      'Dummy Locality Name',
+      'Mock Locality Name',
       '',
       Date.now()
     );
@@ -552,14 +552,14 @@ class TestDiagnostics implements Diagnostics {
   private _scenario: RegionScenario;
   private _regionRoster: TrackedRegionRoster;
   private _fileDesc: number;
-  private _localityCache: DummyLocalityCache;
+  private _localityCache: MockLocalityCache;
   private _showSecondaryState: boolean;
   private _lastSequenceNumber = 0;
 
   constructor(
     scenario: RegionScenario,
     regionRoster: TrackedRegionRoster,
-    localityCache: DummyLocalityCache,
+    localityCache: MockLocalityCache,
     fileName: string,
     showSecondaryState: boolean = true
   ) {

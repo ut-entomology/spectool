@@ -2,11 +2,11 @@ import * as keytar from 'keytar';
 
 import { SavableCredentials } from './savable_creds';
 
-const DUMMY_APP_NAME = '__ Temp Dummy APP';
+const MOCK_APP_NAME = '__ Temp Mock APP';
 
 class TestCredentials extends SavableCredentials {
   constructor() {
-    super(DUMMY_APP_NAME, 'test');
+    super(MOCK_APP_NAME, 'test');
   }
 }
 

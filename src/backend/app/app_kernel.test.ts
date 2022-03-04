@@ -1,18 +1,22 @@
 import { APP_NAME } from './app_name';
 import { Platform } from '../../util/platform';
-import { TestPrefs, TestPrefsFile, TestCredentials } from '../../backend/app/test_config';
+import {
+  TestPrefs,
+  TestPrefsFile,
+  TestCredentials
+} from '../../backend/app/test_config';
 import { AppKernel } from './app_kernel';
 
-const DUMMY_APP_NAME = '__ Temp Dummy App';
-const dummyPlatform = new Platform(DUMMY_APP_NAME, DUMMY_APP_NAME);
+const MOCK_APP_NAME = '__ Temp Mock App';
+const mockPlatform = new Platform(MOCK_APP_NAME, MOCK_APP_NAME);
 
 describe('database configuration', () => {
   let testPrefs: TestPrefs;
   let kernel1: AppKernel;
 
   beforeAll(async () => {
-    testPrefs = await new TestPrefsFile(dummyPlatform).load();
-    kernel1 = new AppKernel(dummyPlatform, testPrefs);
+    testPrefs = await new TestPrefsFile(mockPlatform).load();
+    kernel1 = new AppKernel(mockPlatform, testPrefs);
     await kernel1.init();
   });
 
@@ -22,19 +26,19 @@ describe('database configuration', () => {
 
   test('should change when saved', async () => {
     const config = kernel1.databaseConfig;
-    config.databaseName = 'dummy';
+    config.databaseName = 'mock';
     await kernel1.saveDatabaseConfig(config);
-    const kernel2 = new AppKernel(dummyPlatform, testPrefs);
+    const kernel2 = new AppKernel(mockPlatform, testPrefs);
     await kernel2.init();
     expect(kernel2.databaseConfig).toEqual(config);
   });
 
   test('should return to defaults when dropped', async () => {
     const config = kernel1.databaseConfig;
-    config.databaseName = 'dummy';
+    config.databaseName = 'mock';
     await kernel1.saveDatabaseConfig(config);
     await kernel1.dropDatabaseConfig();
-    const kernel2 = new AppKernel(dummyPlatform, testPrefs);
+    const kernel2 = new AppKernel(mockPlatform, testPrefs);
     await kernel2.init();
     expect(kernel2.databaseConfig).toEqual(testPrefs);
   });
@@ -57,7 +61,7 @@ describe('the database', () => {
   beforeAll(async () => {
     const realPlatform = new Platform(APP_NAME, APP_NAME);
     testPrefs = await new TestPrefsFile(realPlatform).load();
-    kernel1 = new AppKernel(dummyPlatform, testPrefs);
+    kernel1 = new AppKernel(mockPlatform, testPrefs);
     await kernel1.init();
     await testCreds.init();
     const creds = testCreds.get();
@@ -129,5 +133,5 @@ describe('the database', () => {
 });
 
 async function dropUserDir(): Promise<void> {
-  await dummyPlatform.dropUserDir(dummyPlatform.userConfigDir);
+  await mockPlatform.dropUserDir(mockPlatform.userConfigDir);
 }

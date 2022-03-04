@@ -3,10 +3,10 @@ import { promises as fsp } from 'fs';
 import { Platform } from './platform';
 import { fileNotFound } from './errors';
 
-const DUMMY_APP_NAME = '__ Temp Dummy App';
+const MOCK_APP_NAME = '__ Temp Mock App';
 
 describe('the platform', () => {
-  const platform = new Platform(DUMMY_APP_NAME, DUMMY_APP_NAME);
+  const platform = new Platform(MOCK_APP_NAME, MOCK_APP_NAME);
 
   test('should set a home directory', () => {
     expect(platform.userHomeDir).toBeTruthy();
@@ -14,17 +14,17 @@ describe('the platform', () => {
 
   test('should set a config directory', () => {
     expect(platform.userConfigDir).toBeTruthy();
-    expect(platform.userConfigDir).toContain(DUMMY_APP_NAME);
+    expect(platform.userConfigDir).toContain(MOCK_APP_NAME);
   });
 
   test('should set a cache directory', () => {
     expect(platform.userCacheDir).toBeTruthy();
-    expect(platform.userCacheDir).toContain(DUMMY_APP_NAME);
+    expect(platform.userCacheDir).toContain(MOCK_APP_NAME);
   });
 });
 
 describe('user files (using user cache dir)', () => {
-  const platform = new Platform(DUMMY_APP_NAME, DUMMY_APP_NAME);
+  const platform = new Platform(MOCK_APP_NAME, MOCK_APP_NAME);
   const userDir = platform.userCacheDir;
   const cacheFile = 'test.txt';
   const textOut = 'cached data';
@@ -103,6 +103,6 @@ describe('user files (using user cache dir)', () => {
 });
 
 afterAll(async () => {
-  const platform = new Platform(DUMMY_APP_NAME, DUMMY_APP_NAME);
+  const platform = new Platform(MOCK_APP_NAME, MOCK_APP_NAME);
   await platform.dropUserDir(platform.userCacheDir);
 });
