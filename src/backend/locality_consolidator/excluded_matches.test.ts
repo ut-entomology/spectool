@@ -1,22 +1,5 @@
-import {
-  ExcludedMatchesStore,
-  ExcludedMatchEntry,
-  //containsCoordinatePairing,
-  containsRegionIDPairing,
-  containsCoordinatePairing
-} from './excluded_matches';
-
-class ExcludedMatchesTestStore extends ExcludedMatchesStore {
-  private _entries: Record<string, ExcludedMatchEntry> = {};
-
-  getExcludedMatches(wordSeries: string): ExcludedMatchEntry | null {
-    return this._entries[wordSeries] || null;
-  }
-
-  protected _setExcludedMatches(wordSeries: string, entry: ExcludedMatchEntry): void {
-    this._entries[wordSeries] = entry;
-  }
-}
+import { containsRegionIDPairing, containsCoordinatePairing } from './excluded_matches';
+import { MockExcludedMatchesStore } from './mock/mock_excluded_matches';
 
 describe('region and coordinate containment checks', () => {
   test('region containment', () => {
@@ -76,7 +59,7 @@ describe('region and coordinate containment checks', () => {
 });
 
 describe('starting with an empty excluded words store', () => {
-  const store = new ExcludedMatchesTestStore();
+  const store = new MockExcludedMatchesStore();
 
   test('request for non-existant word series', () => {
     const exclusion = store.getExcludedMatches('some words');
@@ -95,7 +78,7 @@ describe('starting with an empty excluded words store', () => {
 });
 
 describe('starting with a populated excluded words store', () => {
-  const store = new ExcludedMatchesTestStore();
+  const store = new MockExcludedMatchesStore();
   store.excludeRegionMatch('some words', 1, 2);
   store.excludeRegionMatch('some words', 3, 4);
   store.excludeRegionMatch('other words', 5, 6);

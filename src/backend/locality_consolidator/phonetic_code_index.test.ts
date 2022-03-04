@@ -1,26 +1,10 @@
-import { PhoneticCodeIndex, PhoneticCodeIndexEntry } from './phonetic_code_index';
 import { CachedLocality } from './cached_locality';
 import { TrackedRegion } from './tracked_region';
 import { Region, RegionRank } from '../../shared/shared_geography';
-
-class PhoneticCodeTestIndex extends PhoneticCodeIndex {
-  private _entries: Record<string, PhoneticCodeIndexEntry> = {};
-
-  protected _getIndexEntry(phoneticCode: string): PhoneticCodeIndexEntry | null {
-    return this._entries[phoneticCode] || null;
-  }
-
-  protected _setIndexEntry(phoneticCode: string, entry: PhoneticCodeIndexEntry): void {
-    if (entry.localityIDs.length == 0 && entry.sortedPhoneticSeries.length == 0) {
-      delete this._entries[phoneticCode];
-    } else {
-      this._entries[phoneticCode] = entry;
-    }
-  }
-}
+import { MockPhoneticCodeIndex } from './mock/mock_phonetic_code_index';
 
 describe('indexing localities by phonetic code', () => {
-  const codeIndex = new PhoneticCodeTestIndex();
+  const codeIndex = new MockPhoneticCodeIndex();
   const region = new Region(999, RegionRank.County, 'Travis County', 32);
   const trackedRegion = new TrackedRegion(region, true);
 
@@ -138,7 +122,7 @@ describe('indexing localities by phonetic code', () => {
 });
 
 describe('indexing phonetic series by phonetic code', () => {
-  const codeIndex = new PhoneticCodeTestIndex();
+  const codeIndex = new MockPhoneticCodeIndex();
 
   test('retrieving empty index', async () => {
     const series = await codeIndex.getPhoneticSeriesSynonyms('missing');

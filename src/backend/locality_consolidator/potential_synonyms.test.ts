@@ -1,16 +1,4 @@
-import { StoredSynonym, PotentialSynonymsStore } from './potential_synonyms';
-
-class PotentialSynonymsTestStore extends PotentialSynonymsStore {
-  private _synonymsByPhoneticSeries: Record<string, StoredSynonym[]> = {};
-
-  protected _getSynonymList(phoneticSeries: string): StoredSynonym[] | null {
-    return this._synonymsByPhoneticSeries[phoneticSeries] || null;
-  }
-
-  protected _setSynonymList(phoneticSeries: string, synonyms: StoredSynonym[]): void {
-    this._synonymsByPhoneticSeries[phoneticSeries] = synonyms;
-  }
-}
+import { MockPotentialSynonymsStore } from './mock/mock_potential_synonyms';
 
 const synFoo = {
   originalWordSeries: 'Foo',
@@ -34,7 +22,7 @@ const synGuppy = {
 };
 
 test("getting phonetic synonyms that aren't there", () => {
-  const store = new PotentialSynonymsTestStore();
+  const store = new MockPotentialSynonymsStore();
 
   expect(store.getSynonymousSeries('F')).toBeNull();
 
@@ -43,7 +31,7 @@ test("getting phonetic synonyms that aren't there", () => {
 });
 
 test('adding and removing phonetic synonyms', () => {
-  const store = new PotentialSynonymsTestStore();
+  const store = new MockPotentialSynonymsStore();
 
   // Gradually add synonyms.
 
