@@ -1,5 +1,5 @@
 import type { Region, RegionRank } from '../../shared/shared_geography';
-import { PROCESS_SUBREGIONS_FLAG } from '../util/adjacencies';
+import { PROCESS_SUBREGIONS_FLAG } from '../util/region_adjacencies';
 
 export enum TrackedRegionStatus {
   Pending,
