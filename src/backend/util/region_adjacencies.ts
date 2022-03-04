@@ -24,7 +24,7 @@ export const PROCESS_SUBREGIONS_FLAG = 0x01;
 
 type AdjacentRegionsByID = Record<number, Region[]>;
 
-export class Adjacencies {
+export class RegionAdjacencies {
   private _adjacenciesByID: AdjacentRegionsByID = {};
   private _geography: Geography;
   private _nameToID: Record<string, number> = {};

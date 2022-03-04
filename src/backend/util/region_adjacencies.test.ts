@@ -1,13 +1,13 @@
 import { createTestKernel } from '../../backend/app/test_util';
 import type { AppKernel } from '../app/app_kernel';
-import { Adjacencies } from './adjacencies';
+import { RegionAdjacencies } from './region_adjacencies';
 import { Geography } from '../specify/geography';
 import { Region, SPECIFY_USA } from '../../shared/shared_geography';
 
 describe('hardcoded region adjacencies', () => {
   let kernel: AppKernel;
   let geography: Geography;
-  let adjacencies: Adjacencies;
+  let adjacencies: RegionAdjacencies;
   let nameToID: Record<string, number> = {};
   let hidalgoCountyNM_ID: number;
   let hidalgoCountyTX_ID: number;
@@ -192,7 +192,7 @@ describe('hardcoded region adjacencies', () => {
     kernel = await createTestKernel();
     geography = kernel.specifyApi.geography;
     await geography.load(kernel.database);
-    adjacencies = new Adjacencies(geography);
+    adjacencies = new RegionAdjacencies(geography);
     await adjacencies.load();
   });
 
