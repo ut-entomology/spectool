@@ -194,7 +194,6 @@ abstract class RegionVisitor {
       );
       for (const nearRegion of await this._getAdjoiningRegions(aroundRegion)) {
         if (this._interval()) yield;
-        await this._visitAroundDomainRegion(nearRegion);
         if (this._visitationRestriction(nearRegion)) {
           if (this._interval()) yield;
           const visits = this._visitSubsetAroundDomainRegion(nearRegion, aroundRegion);
@@ -310,11 +309,6 @@ abstract class RegionVisitor {
     return this._regionDriver._ticker.interval();
   }
 
-  protected _visitAroundDomainRegion(_nearRegion: TrackedRegion): Promise<void> {
-    // do nothing by default
-    return Promise.resolve();
-  }
-
   protected abstract _visitationRestriction(nearRegion: TrackedRegion): boolean;
 
   protected abstract _visitSubsetAroundDomainRegion(
@@ -370,13 +364,6 @@ class NewlyCachedRegionNeighborVisitor extends RegionVisitor {
 
   protected _visitationRestriction(nearRegion: TrackedRegion) {
     return nearRegion.status == TrackedRegionStatus.Pending;
-  }
-
-  protected async _visitAroundDomainRegion(_nearRegion: TrackedRegion) {
-    // TODO: This doesn't make sense. RegionRoster has all tracked regions.
-    // if (!this._regionDriver._regionRoster.includes(nearRegion)) {
-    //   this._regionDriver._regionRoster.add(nearRegion);
-    // }
   }
 
   protected async *_visitSubsetAroundDomainRegion(
