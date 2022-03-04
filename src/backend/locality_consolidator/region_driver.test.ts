@@ -6,7 +6,7 @@ import { AdjoiningRegionDriver, Diagnostics } from './region_driver';
 import { CachedLocality } from './cached_locality';
 import type { LocalityCache } from './locality_cache';
 import { Region, RegionRank } from '../../shared/shared_geography';
-import type { TrackedRegionRoster } from './region_roster';
+import { TrackedRegionRoster } from './region_roster';
 import { TrackedRegion, TrackedRegionStatus } from './tracked_region';
 
 const TEST_LOG_DIR = path.join(__dirname, '../../../test_logs');
@@ -98,9 +98,11 @@ async function runTest(testID: number, spec: TestSpec) {
   );
 
   const processedRegionIDs: number[] = [];
+  const regionRoster = new TrackedRegionRoster();
   const localityCache = new DummyLocalityCache(scenario);
   const diagnostics = new TestDiagnostics(
     scenario,
+    regionRoster,
     localityCache,
     `region-driver-${testID}.txt`
   );
@@ -108,6 +110,7 @@ async function runTest(testID: number, spec: TestSpec) {
   const regionDriver = new AdjoiningRegionDriver(
     scenario,
     scenario.getDomainRegions(),
+    new TrackedRegionRoster(),
     localityCache,
     diagnostics,
     scenario.codeToRegion(spec.initialRegion).id
@@ -547,6 +550,7 @@ class DummyLocalityCache implements LocalityCache {
 
 class TestDiagnostics implements Diagnostics {
   private _scenario: RegionScenario;
+  private _regionRoster: TrackedRegionRoster;
   private _fileDesc: number;
   private _localityCache: DummyLocalityCache;
   private _showSecondaryState: boolean;
@@ -554,11 +558,13 @@ class TestDiagnostics implements Diagnostics {
 
   constructor(
     scenario: RegionScenario,
+    regionRoster: TrackedRegionRoster,
     localityCache: DummyLocalityCache,
     fileName: string,
     showSecondaryState: boolean = true
   ) {
     this._scenario = scenario;
+    this._regionRoster = regionRoster;
     this._localityCache = localityCache;
     const filePath = path.join(TEST_LOG_DIR, fileName);
     try {
@@ -573,7 +579,6 @@ class TestDiagnostics implements Diagnostics {
   }
 
   reportPrimaryState(
-    regionRoster: TrackedRegionRoster,
     primaryContext: string,
     newlyProcessedRegion?: TrackedRegion
   ): void {
@@ -581,7 +586,7 @@ class TestDiagnostics implements Diagnostics {
       this._scenario.regionsByID[newlyProcessedRegion.id].sequence = ++this
         ._lastSequenceNumber;
     }
-    this._writeState(regionRoster, '### ' + primaryContext);
+    this._writeState(this._regionRoster, '### ' + primaryContext);
   }
 
   reportSecondaryProcess(
@@ -598,7 +603,6 @@ class TestDiagnostics implements Diagnostics {
   }
 
   reportSecondaryState(
-    regionRoster: TrackedRegionRoster,
     primaryContext: string,
     secondaryContext: string,
     forRegion: TrackedRegion,
@@ -611,7 +615,7 @@ class TestDiagnostics implements Diagnostics {
       const description = `${primaryContext} - ${secondaryContext} (${aroundText}${
         this._scenario.regionsByID[forRegion.id].code
       })`;
-      this._writeState(regionRoster, description);
+      this._writeState(this._regionRoster, description);
     }
   }
 

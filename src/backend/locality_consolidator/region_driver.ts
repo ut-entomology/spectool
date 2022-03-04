@@ -10,13 +10,12 @@
 import type { RegionAccess } from './region_access';
 import { Region, RegionRank } from '../../shared/shared_geography';
 import { TrackedRegionStatus, TrackedRegion } from './tracked_region';
-import { TrackedRegionRoster } from './region_roster';
+import type { TrackedRegionRoster } from './region_roster';
 import type { LocalityCache } from './locality_cache';
 import { IntervalTicker } from './interval_ticker';
 
 export interface Diagnostics {
   reportPrimaryState(
-    regionRoster: TrackedRegionRoster,
     primaryContext: string,
     newlyProcessedRegion?: TrackedRegion
   ): void;
@@ -28,7 +27,6 @@ export interface Diagnostics {
   ): void;
 
   reportSecondaryState(
-    regionRoster: TrackedRegionRoster,
     primaryContext: string,
     secondaryContext: string,
     forRegion: TrackedRegion,
@@ -53,12 +51,13 @@ export class AdjoiningRegionDriver {
   constructor(
     regionAccess: RegionAccess,
     domainRegions: Region[],
+    regionRoster: TrackedRegionRoster,
     localityCache: LocalityCache,
     diagnostics?: Diagnostics,
     initialGeographyID?: number
   ) {
     this._domainRegions = domainRegions;
-    this._regionRoster = new TrackedRegionRoster();
+    this._regionRoster = regionRoster;
     this._regionAccess = regionAccess;
     this._localityCache = localityCache;
     this._diagnostics = diagnostics || null;
@@ -94,7 +93,7 @@ export class AdjoiningRegionDriver {
       }
     }
     if (this._diagnostics) {
-      this._diagnostics.reportPrimaryState(this._regionRoster, 'After initialization');
+      this._diagnostics.reportPrimaryState('After initialization');
     }
 
     // Select and cache the initial region.
@@ -108,11 +107,7 @@ export class AdjoiningRegionDriver {
     while (currentRegion != null) {
       if (this._ticker.interval()) yield null;
       if (this._diagnostics) {
-        this._diagnostics.reportPrimaryState(
-          this._regionRoster,
-          'Top of loop',
-          currentRegion
-        );
+        this._diagnostics.reportPrimaryState('Top of loop', currentRegion);
       }
 
       // Consolidate
@@ -141,7 +136,7 @@ export class AdjoiningRegionDriver {
       }
     }
     if (this._diagnostics) {
-      this._diagnostics.reportPrimaryState(this._regionRoster, 'Completed');
+      this._diagnostics.reportPrimaryState('Completed');
     }
   }
 
@@ -339,7 +334,6 @@ abstract class RegionVisitor {
   ): void {
     if (this._regionDriver._diagnostics) {
       this._regionDriver._diagnostics.reportSecondaryState(
-        this._regionDriver._regionRoster,
         this.visitorName,
         secondaryContext,
         forRegion,
