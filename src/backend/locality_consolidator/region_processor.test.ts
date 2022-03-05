@@ -47,69 +47,71 @@ test('process isolated region, isolated locality', async () => {
   expect(matches).toEqual([]);
 });
 
-test('process only two single-word matching localities', async () => {
-  const regions = [new TestRegion(1, 'Travis County', false)];
-  const localities = [
-    new CachedLocality(
-      Object.assign({}, localityDefaults, {
-        regionID: regions[0].id,
-        localityID: 10,
-        name: 'Zilker Preserve'
-      })
-    ),
-    new CachedLocality(
-      Object.assign({}, localityDefaults, {
-        regionID: regions[0].id,
-        localityID: 11,
-        name: 'Zilker Park'
-      })
-    )
-  ];
+describe('phonetic locality matching', () => {
+  test('process only two single-word matching localities', async () => {
+    const regions = [new TestRegion(1, 'Travis County', false)];
+    const localities = [
+      new CachedLocality(
+        Object.assign({}, localityDefaults, {
+          regionID: regions[0].id,
+          localityID: 10,
+          name: 'Zilker Preserve'
+        })
+      ),
+      new CachedLocality(
+        Object.assign({}, localityDefaults, {
+          regionID: regions[0].id,
+          localityID: 11,
+          name: 'Zilker Park'
+        })
+      )
+    ];
 
-  const matches = await runProcessor({
-    baselineDate: null,
-    regionToProcess: regions[0],
-    domainRegions: regions,
-    nondomainRegions: [],
-    regionTree: {
-      region: regions[0],
-      localityCount: localities.length
-    },
-    adjacencyMap: {},
-    localities
+    const matches = await runProcessor({
+      baselineDate: null,
+      regionToProcess: regions[0],
+      domainRegions: regions,
+      nondomainRegions: [],
+      regionTree: {
+        region: regions[0],
+        localityCount: localities.length
+      },
+      adjacencyMap: {},
+      localities
+    });
+
+    const phoneticSeries = toPartialSortedPhoneticSeries(localities[0].name, 0, 0);
+    expect(matches).toEqual([
+      {
+        baseLocality: localities[0],
+        testLocality: localities[1],
+        matches: [
+          {
+            sortedPhoneticSeries: phoneticSeries,
+            baseSubsets: [
+              {
+                sortedPhoneticSeries: phoneticSeries,
+                firstWordIndex: 0,
+                lastWordIndex: 0,
+                firstCharIndex: 0,
+                lastCharIndexPlusOne: 'Zilker'.length
+              }
+            ],
+            testSubsets: [
+              {
+                sortedPhoneticSeries: phoneticSeries,
+                firstWordIndex: 0,
+                lastWordIndex: 0,
+                firstCharIndex: 0,
+                lastCharIndexPlusOne: 'Zilker'.length
+              }
+            ]
+          }
+        ],
+        excludedSubsetPairs: []
+      }
+    ]);
   });
-
-  const phoneticSeries = toPartialSortedPhoneticSeries(localities[0].name, 0, 0);
-  expect(matches).toEqual([
-    {
-      baseLocality: localities[0],
-      testLocality: localities[1],
-      matches: [
-        {
-          sortedPhoneticSeries: phoneticSeries,
-          baseSubsets: [
-            {
-              sortedPhoneticSeries: phoneticSeries,
-              firstWordIndex: 0,
-              lastWordIndex: 0,
-              firstCharIndex: 0,
-              lastCharIndexPlusOne: 'Zilker'.length
-            }
-          ],
-          testSubsets: [
-            {
-              sortedPhoneticSeries: phoneticSeries,
-              firstWordIndex: 0,
-              lastWordIndex: 0,
-              firstCharIndex: 0,
-              lastCharIndexPlusOne: 'Zilker'.length
-            }
-          ]
-        }
-      ],
-      excludedSubsetPairs: []
-    }
-  ]);
 });
 
 //// TEST SUPPPORT ///////////////////////////////////////////////////////////
