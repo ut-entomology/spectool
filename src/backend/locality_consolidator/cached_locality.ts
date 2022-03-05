@@ -162,21 +162,6 @@ export class CachedLocality {
   }
 
   /**
-   * Returns a subset of the cached locality for transfer to the client.
-   */
-  getData(): LocalityData {
-    return {
-      regionID: this.regionID,
-      localityID: this.localityID,
-      latitude: this.latitude,
-      longitude: this.longitude,
-      name: this.name,
-      remarks: this.remarks,
-      lastModified: this.lastModified
-    };
-  }
-
-  /**
    * Returns the word series for the entire locality name. Assumes that
    * the locality has a name.
    */
@@ -197,6 +182,21 @@ export class CachedLocality {
       ).join(' ');
     }
     return phoneticSubset.cachedWordSeries;
+  }
+
+  /**
+   * Returns information about the cached locality for transfer to the client.
+   */
+  toData(): LocalityData {
+    return {
+      regionID: this.regionID,
+      localityID: this.localityID,
+      latitude: this.latitude,
+      longitude: this.longitude,
+      name: this.name,
+      remarks: this.remarks,
+      lastModified: this.lastModified
+    };
   }
 
   /**
