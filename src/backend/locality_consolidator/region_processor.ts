@@ -87,8 +87,10 @@ export class RegionProcessor {
           continue;
         }
 
-        // Keeps algorithm from comparing the same localities more than once.
+        // Keeps algorithm from comparing the same localities more than once, and
+        // don't compare a locality with itself.
         const previouslyComparedLocalityIDs: Record<number, boolean> = {};
+        previouslyComparedLocalityIDs[baseLocality.localityID] = true;
 
         // Keeps algorithm from examining the same word series of the
         // base locality for synonyms more than once.
@@ -497,9 +499,10 @@ export class RegionProcessor {
 
   /**
    * Examine the provided matches for exclusions that the user provided, and return
-   * a list of all those exclusions, unless the exclusions have completely ruled
-   * out all matches, in which case return null. The list of exclusions can be used
-   * to reduce user confusion as seeing apparent matches not marked as matching.
+   * a list of all those exclusions (possibly empty, unless the exclusions have
+   * completely ruled out all matches, in which case return null. The list of
+   * exclusions can be used to reduce user confusion as seeing apparent matches not
+   * marked as matching.
    */
   private _getExcludedSubsetPairs(
     matches: PhoneticMatch[],
@@ -507,7 +510,11 @@ export class RegionProcessor {
     testLocality: CachedLocality
   ): PhoneticSubset[][] | null {
     const excludedSubsetPairs: PhoneticSubset[][] = [];
-    let isPossibleDuplicate = false;
+
+    // These booleans allow all excludedSubsetPairs to collect for the presentation.
+    let foundExclusions = false;
+    let foundInapplicableExclusion = false;
+
     for (let i = 0; i < matches.length; ++i) {
       const match = matches[i];
       const baseSubsets = match.baseSubsets;
@@ -517,6 +524,7 @@ export class RegionProcessor {
         const exclusions =
           this._excludedMatchesStore.getExcludedMatches(baseWordSeries);
         if (exclusions) {
+          foundExclusions = true;
           const testSubsets = match.testSubsets;
           for (let k = 0; k < testSubsets.length; ++k) {
             const testSubset = testSubsets[k];
@@ -524,9 +532,7 @@ export class RegionProcessor {
             if (exclusions.nonmatchingWords.includes(testWordSeries)) {
               excludedSubsetPairs.push([baseSubset, testSubset]);
             } else {
-              // Allow excludedSubsetPairs to finish collecting for the presentation.
-              // No need to short-circuit; about to require slow user interaction.
-              isPossibleDuplicate = true;
+              foundInapplicableExclusion = true;
             }
           }
         }
@@ -534,7 +540,7 @@ export class RegionProcessor {
         // word series because ExcludedMatchesStore is symmetric on word series.
       }
     }
-    return isPossibleDuplicate ? excludedSubsetPairs : null;
+    return !foundExclusions || foundInapplicableExclusion ? excludedSubsetPairs : null;
   }
 
   /**
@@ -554,6 +560,12 @@ export class RegionProcessor {
       !this._checkBaselineDate(baselineDate, overallRegion, baseLocality, testLocality)
     ) {
       return false;
+    }
+
+    // If the test locality is in the same domain as the base locality, it is in scope.
+
+    if (testLocality.regionID == baseLocality.regionID) {
+      return true;
     }
 
     // Make sure at least one of the regions associated with the localities

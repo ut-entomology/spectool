@@ -1,13 +1,11 @@
-import fuzzySoundex from 'talisman/phonetics/fuzzy-soundex';
-
 import { Region, RegionRank } from '../../shared/shared_geography';
-import type {
-  //MatchedLocality,
-  PhoneticSubset
-  //PhoneticMatch
-} from '../../shared/shared_locality';
+import type { PhoneticSubset } from '../../shared/shared_locality';
 import { TrackedRegion } from './tracked_region';
 import { CachedLocality } from './cached_locality';
+import {
+  toPartialSortedPhoneticSeries,
+  toSortedPhoneticSeries
+} from './mock/phonetic_util';
 
 describe('word series utilities', () => {
   const fooBarPark = createCachedLocality('Foo Bar Park');
@@ -738,28 +736,4 @@ function createCachedLocality(wordSeries: string): CachedLocality {
     '',
     new Date('January 1, 2022').getTime()
   );
-}
-
-function toPartialSortedPhoneticSeries(
-  wordSeries: string,
-  startIndex: number,
-  endIndex: number
-): string {
-  const words = wordSeries.split(' ');
-  const partialWordSeries = words.slice(startIndex, endIndex + 1).join(' ');
-  return toSortedPhoneticSeries(partialWordSeries);
-}
-
-function toSortedPhoneticSeries(wordSeries: string): string {
-  const words = wordSeries.split(' ');
-  let previousCode: string | null = null;
-  return words
-    .map((word) => (/[0-9]/.test(word) ? '#' + word : fuzzySoundex(word)))
-    .sort()
-    .filter((code) => {
-      const keep = code != previousCode;
-      previousCode = code;
-      return keep;
-    })
-    .join(' ');
 }

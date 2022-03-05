@@ -10,13 +10,14 @@ import { MockPotentialSynonymsStore } from './mock/mock_potential_synonyms';
 import { MockExcludedMatchesStore } from './mock/mock_excluded_matches';
 import { PROCESS_SUBREGIONS_FLAG } from '../util/region_adjacencies';
 import type { LocalityMatch } from '../../shared/shared_locality';
+import { toPartialSortedPhoneticSeries } from './mock/phonetic_util';
 
 test('process isolated region, isolated locality', async () => {
   const region1 = new TestRegion(1, 'Travis County', false);
   const regionAccess = new MockRegionAccess(
     {
       region: region1,
-      localityCount: 1
+      localityCount: 2
     },
     {}
   );
@@ -27,10 +28,19 @@ test('process isolated region, isolated locality', async () => {
   const localities = [
     new CachedLocality(
       trackedRegion1,
-      1,
+      10,
       null,
       null,
       'Zilker Preserve',
+      '',
+      new Date('1-Jan-2022').getTime()
+    ),
+    new CachedLocality(
+      trackedRegion1,
+      11,
+      null,
+      null,
+      'Zilker Park',
       '',
       new Date('1-Jan-2022').getTime()
     )
@@ -47,10 +57,41 @@ test('process isolated region, isolated locality', async () => {
 
   const matches: LocalityMatch[] = [];
   for await (const match of processor.run(null, trackedRegion1)) {
+    purgeCachedWordSeries(match);
     matches.push(match);
   }
+  const phoneticSeries = toPartialSortedPhoneticSeries(localities[0].name, 0, 0);
 
-  expect(matches).toEqual([]);
+  expect(matches).toEqual([
+    {
+      baseLocality: localities[0],
+      testLocality: localities[1],
+      matches: [
+        {
+          sortedPhoneticSeries: phoneticSeries,
+          baseSubsets: [
+            {
+              sortedPhoneticSeries: phoneticSeries,
+              firstWordIndex: 0,
+              lastWordIndex: 0,
+              firstCharIndex: 0,
+              lastCharIndexPlusOne: 'Zilker'.length
+            }
+          ],
+          testSubsets: [
+            {
+              sortedPhoneticSeries: phoneticSeries,
+              firstWordIndex: 0,
+              lastWordIndex: 0,
+              firstCharIndex: 0,
+              lastCharIndexPlusOne: 'Zilker'.length
+            }
+          ]
+        }
+      ],
+      excludedSubsetPairs: []
+    }
+  ]);
 });
 
 class TestRegion extends Region {
@@ -103,6 +144,17 @@ class MockLocalityCache implements LocalityCache {
     if (locality) {
       delete this._cachedLocalities[localityID];
       await this._phoneticCodeIndex.removeLocality(locality);
+    }
+  }
+}
+
+function purgeCachedWordSeries(localityMatch: LocalityMatch): void {
+  for (const phoneticMatch of localityMatch.matches) {
+    for (const phoneticSubset of phoneticMatch.baseSubsets) {
+      delete phoneticSubset.cachedWordSeries;
+    }
+    for (const phoneticSubset of phoneticMatch.testSubsets) {
+      delete phoneticSubset.cachedWordSeries;
     }
   }
 }
