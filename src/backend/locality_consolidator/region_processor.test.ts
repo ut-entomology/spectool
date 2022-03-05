@@ -21,11 +21,34 @@ const localityDefaults = {
 
 test('process isolated region, isolated locality', async () => {
   const regions = [new TestRegion(1, 'Travis County', false)];
-  const regionTree: RegionNode = {
-    region: regions[0],
-    localityCount: 2
-  };
-  const adjacencyMap: Record<number, Region[]> = {};
+  const localities = [
+    new CachedLocality(
+      Object.assign({}, localityDefaults, {
+        regionID: regions[0].id,
+        localityID: 10,
+        name: 'Zilker Preserve'
+      })
+    )
+  ];
+
+  const matches = await runProcessor({
+    baselineDate: null,
+    regionToProcess: regions[0],
+    domainRegions: regions,
+    nondomainRegions: [],
+    regionTree: {
+      region: regions[0],
+      localityCount: localities.length
+    },
+    adjacencyMap: {},
+    localities
+  });
+
+  expect(matches).toEqual([]);
+});
+
+test('process only two single-word matching localities', async () => {
+  const regions = [new TestRegion(1, 'Travis County', false)];
   const localities = [
     new CachedLocality(
       Object.assign({}, localityDefaults, {
@@ -43,27 +66,20 @@ test('process isolated region, isolated locality', async () => {
     )
   ];
 
-  const regionAccess = new MockRegionAccess(regionTree, adjacencyMap);
-  const phoneticCodeIndex = new MockPhoneticCodeIndex();
-  const regionRoster = new MockTrackedRegionRoster();
-  const trackedRegion1 = await regionRoster.getOrCreate(regions[0], true);
+  const matches = await runProcessor({
+    baselineDate: null,
+    regionToProcess: regions[0],
+    domainRegions: regions,
+    nondomainRegions: [],
+    regionTree: {
+      region: regions[0],
+      localityCount: localities.length
+    },
+    adjacencyMap: {},
+    localities
+  });
 
-  const processor = new RegionProcessor(
-    regionAccess,
-    new MockLocalityCache(phoneticCodeIndex, localities),
-    new MockPotentialSynonymsStore(),
-    phoneticCodeIndex,
-    regionRoster,
-    new MockExcludedMatchesStore()
-  );
-
-  const matches: LocalityMatch[] = [];
-  for await (const match of processor.run(null, trackedRegion1)) {
-    purgeCachedWordSeries(match);
-    matches.push(match);
-  }
   const phoneticSeries = toPartialSortedPhoneticSeries(localities[0].name, 0, 0);
-
   expect(matches).toEqual([
     {
       baseLocality: localities[0],
@@ -95,6 +111,8 @@ test('process isolated region, isolated locality', async () => {
     }
   ]);
 });
+
+//// TEST SUPPPORT ///////////////////////////////////////////////////////////
 
 class TestRegion extends Region {
   constructor(id: number, name: string, processSubregions: boolean) {
