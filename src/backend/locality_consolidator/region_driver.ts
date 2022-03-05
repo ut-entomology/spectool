@@ -77,7 +77,7 @@ export class AdjoiningRegionDriver {
     for (const domainRegion of this._domainRegions!) {
       if (this._ticker.interval()) yield null;
       domainsByID[domainRegion.id] = domainRegion;
-      this._regionRoster.getOrCreate(domainRegion, true);
+      await this._regionRoster.getOrCreate(domainRegion, true);
     }
 
     // Collect the over-domain geographic IDs for easy lookup. The over-domain consists
