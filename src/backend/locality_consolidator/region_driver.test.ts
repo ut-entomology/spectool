@@ -517,15 +517,15 @@ class MockLocalityCache implements LocalityCache {
   //// INTERFACE LocalityCache ///////////////////////////////////////////////
 
   async cacheRegionLocalities(region: TrackedRegion): Promise<void> {
-    this._cache[region.id] = new CachedLocality(
-      region,
-      region.id,
-      0,
-      0,
-      'Mock Locality Name',
-      '',
-      Date.now()
-    );
+    this._cache[region.id] = new CachedLocality({
+      regionID: region.id,
+      localityID: region.id,
+      latitude: 0,
+      longitude: 0,
+      name: 'Mock Locality Name',
+      remarks: '',
+      lastModified: Date.now()
+    });
     this._cachedCodes.push(this._scenario.regionsByID[region.id].code);
   }
 

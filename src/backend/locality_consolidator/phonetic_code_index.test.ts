@@ -8,42 +8,42 @@ describe('indexing localities by phonetic code', () => {
   const region = new Region(999, RegionRank.County, 'Travis County', 32);
   const trackedRegion = new TrackedRegion(region, true);
 
-  const locality1 = new CachedLocality(
-    trackedRegion,
-    30,
-    null,
-    null,
-    'Austin',
-    '',
-    Date.now()
-  );
-  const locality2 = new CachedLocality(
-    trackedRegion,
-    40,
-    null,
-    null,
-    'Zilker Preserve',
-    '',
-    Date.now()
-  );
-  const locality3 = new CachedLocality(
-    trackedRegion,
-    50,
-    null,
-    null,
-    'Bright Leaf Preserve',
-    '',
-    Date.now()
-  );
-  const locality4 = new CachedLocality(
-    trackedRegion,
-    50,
-    null,
-    null,
-    'The Great Great Park',
-    '',
-    Date.now()
-  );
+  const locality1 = new CachedLocality({
+    regionID: trackedRegion.id,
+    localityID: 30,
+    latitude: null,
+    longitude: null,
+    name: 'Austin',
+    remarks: '',
+    lastModified: Date.now()
+  });
+  const locality2 = new CachedLocality({
+    regionID: trackedRegion.id,
+    localityID: 40,
+    latitude: null,
+    longitude: null,
+    name: 'Zilker Preserve',
+    remarks: '',
+    lastModified: Date.now()
+  });
+  const locality3 = new CachedLocality({
+    regionID: trackedRegion.id,
+    localityID: 50,
+    latitude: null,
+    longitude: null,
+    name: 'Bright Leaf Preserve',
+    remarks: '',
+    lastModified: Date.now()
+  });
+  const locality4 = new CachedLocality({
+    regionID: trackedRegion.id,
+    localityID: 50,
+    latitude: null,
+    longitude: null,
+    name: 'The Great Great Park',
+    remarks: '',
+    lastModified: Date.now()
+  });
 
   test('retrieving empty index', async () => {
     const ids = await codeIndex.getLocalityIDs('missing');

@@ -1,9 +1,8 @@
 import fuzzySoundex from 'talisman/phonetics/fuzzy-soundex';
 
 import { Geography } from '../specify/geography';
-import type { TrackedRegion } from './tracked_region';
 import type {
-  MatchedLocality,
+  LocalityData,
   PhoneticSubset,
   PhoneticMatch
 } from '../../shared/shared_locality';
@@ -27,24 +26,19 @@ export class CachedLocality {
   remarks: string;
   lastModified: number; // UNIX time
 
-  constructor(
-    region: TrackedRegion,
-    localityID: number,
-    latitude: number | null,
-    longitude: number | null,
-    name: string,
-    remarks: string,
-    lastModified: number
-  ) {
-    this.regionID = region.id;
-    this.localityID = localityID;
-    this.latitude = latitude;
-    this.longitude = longitude;
-    this.name = name;
-    this.remarks = remarks;
-    this.lastModified = lastModified;
+  // Source from an object to allow the data included in the locality to evolve
+  // without breaking existing code unnecessarily, particularly test code.
 
-    this.words = this._toWordSeries(name);
+  constructor(data: LocalityData) {
+    this.regionID = data.regionID;
+    this.localityID = data.localityID;
+    this.latitude = data.latitude;
+    this.longitude = data.longitude;
+    this.name = data.name;
+    this.remarks = data.remarks;
+    this.lastModified = data.lastModified;
+
+    this.words = this._toWordSeries(data.name);
     this.phoneticCodes = this._toPhoneticCodes(this.words);
   }
 
@@ -168,6 +162,21 @@ export class CachedLocality {
   }
 
   /**
+   * Returns a subset of the cached locality for transfer to the client.
+   */
+  getData(): LocalityData {
+    return {
+      regionID: this.regionID,
+      localityID: this.localityID,
+      latitude: this.latitude,
+      longitude: this.longitude,
+      name: this.name,
+      remarks: this.remarks,
+      lastModified: this.lastModified
+    };
+  }
+
+  /**
    * Returns the word series for the entire locality name. Assumes that
    * the locality has a name.
    */
@@ -188,21 +197,6 @@ export class CachedLocality {
       ).join(' ');
     }
     return phoneticSubset.cachedWordSeries;
-  }
-
-  /**
-   * Returns a subset of the cached locality for transfer to the client.
-   */
-  toMatchedLocality(): MatchedLocality {
-    return {
-      regionID: this.regionID,
-      localityID: this.localityID,
-      latitude: this.latitude,
-      longitude: this.longitude,
-      name: this.name,
-      remarks: this.remarks,
-      lastModified: this.lastModified
-    };
   }
 
   /**

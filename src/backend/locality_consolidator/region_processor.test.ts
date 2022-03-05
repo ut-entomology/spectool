@@ -26,24 +26,24 @@ test('process isolated region, isolated locality', async () => {
   regionRoster.getOrCreate(region1, true);
   const trackedRegion1 = await regionRoster.getOrCreate(region1, true);
   const localities = [
-    new CachedLocality(
-      trackedRegion1,
-      10,
-      null,
-      null,
-      'Zilker Preserve',
-      '',
-      new Date('1-Jan-2022').getTime()
-    ),
-    new CachedLocality(
-      trackedRegion1,
-      11,
-      null,
-      null,
-      'Zilker Park',
-      '',
-      new Date('1-Jan-2022').getTime()
-    )
+    new CachedLocality({
+      regionID: trackedRegion1.id,
+      localityID: 10,
+      latitude: null,
+      longitude: null,
+      name: 'Zilker Preserve',
+      remarks: '',
+      lastModified: new Date('1-Jan-2022').getTime()
+    }),
+    new CachedLocality({
+      regionID: trackedRegion1.id,
+      localityID: 11,
+      latitude: null,
+      longitude: null,
+      name: 'Zilker Park',
+      remarks: '',
+      lastModified: new Date('1-Jan-2022').getTime()
+    })
   ];
 
   const processor = new RegionProcessor(

@@ -6,16 +6,16 @@
  * Interface describing two localities that may be duplicates and their similarities.
  */
 export interface LocalityMatch {
-  baseLocality: MatchedLocality;
-  testLocality: MatchedLocality;
+  baseLocality: LocalityData;
+  testLocality: LocalityData;
   matches: PhoneticMatch[];
   excludedSubsetPairs: PhoneticSubset[][];
 }
 
 /**
- * Interface describing a locality that may be a duplicate of another locality.
+ * Interface describing a locality.
  */
-export interface MatchedLocality {
+export interface LocalityData {
   regionID: number;
   localityID: number;
   latitude: number | null;

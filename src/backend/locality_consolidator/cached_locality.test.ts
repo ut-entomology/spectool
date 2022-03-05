@@ -727,13 +727,13 @@ describe('find similarities between two localities', () => {
 function createCachedLocality(wordSeries: string): CachedLocality {
   const region = new Region(1, RegionRank.County, 'Travis County', 0);
   const trackedRegion = new TrackedRegion(region, true);
-  return new CachedLocality(
-    trackedRegion,
-    1,
-    23.1,
-    -97.1,
-    wordSeries,
-    '',
-    new Date('January 1, 2022').getTime()
-  );
+  return new CachedLocality({
+    regionID: trackedRegion.id,
+    localityID: 1,
+    latitude: 23.1,
+    longitude: -97.1,
+    name: wordSeries,
+    remarks: '',
+    lastModified: new Date('January 1, 2022').getTime()
+  });
 }
