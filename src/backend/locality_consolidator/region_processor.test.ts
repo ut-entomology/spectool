@@ -10,7 +10,12 @@ import { MockPotentialSynonymsStore } from './mock/mock_potential_synonyms';
 import { MockExcludedMatchesStore } from './mock/mock_excluded_matches';
 import { PROCESS_SUBREGIONS_FLAG } from '../util/region_adjacencies';
 import type { LocalityMatch, LocalityData } from '../../shared/shared_locality';
-import { toPartialSortedPhoneticSeries } from './mock/phonetic_util';
+import {
+  toPartialSortedPhoneticSeries,
+  toSortedPhoneticSeries
+} from './mock/phonetic_util';
+
+type AdjacencyMap = Record<number, Region[]>;
 
 const localityDefaults = {
   latitude: null,
@@ -19,29 +24,103 @@ const localityDefaults = {
   lastModified: new Date('1-Jan-2022').getTime()
 };
 
-test('process isolated region, isolated locality', async () => {
-  const regions = [region1];
-  const localities = [
-    createLocalityData(localityDefaults, {
-      regionID: regions[0].id,
-      name: 'Zilker Preserve'
-    })
-  ];
+describe('no matches', () => {
+  test('process isolated region, isolated locality', async () => {
+    const regions = [region1];
+    const localities = [
+      createLocalityData(localityDefaults, {
+        regionID: region1.id,
+        name: 'Zilker Preserve'
+      })
+    ];
 
-  const matches = await runProcessor({
-    baselineDate: null,
-    regionToProcess: regions[0],
-    domainRegions: regions,
-    nondomainRegions: [],
-    regionTree: {
-      region: regions[0],
-      localityCount: localities.length
-    },
-    adjacencyMap: {},
-    localities
+    const matches = await runProcessor({
+      baselineDate: null,
+      regionToProcess: region1,
+      domainRegions: regions,
+      nondomainRegions: [],
+      regionTree: {
+        region: region1,
+        localityCount: localities.length
+      },
+      adjacencyMap: {},
+      localities
+    });
+
+    expect(matches).toEqual([]);
   });
 
-  expect(matches).toEqual([]);
+  test('process three non-matching localities', async () => {
+    const regions = [region1];
+    const localities = [
+      createLocalityData(localityDefaults, {
+        regionID: region1.id,
+        name: 'Zilker Preserve'
+      }),
+      createLocalityData(localityDefaults, {
+        regionID: region1.id,
+        name: 'Austin Nature and Science Center'
+      }),
+      createLocalityData(localityDefaults, {
+        regionID: region1.id,
+        name: 'McKinney Roughs Park'
+      })
+    ];
+
+    const matches = await runProcessor({
+      baselineDate: null,
+      regionToProcess: region1,
+      domainRegions: regions,
+      nondomainRegions: [],
+      regionTree: {
+        region: region1,
+        localityCount: localities.length
+      },
+      adjacencyMap: {},
+      localities
+    });
+
+    expect(matches).toEqual([]);
+  });
+
+  test('no match across non-adjoining regions', async () => {
+    const regions = [region0, region1, region2];
+    const localities = [
+      createLocalityData(localityDefaults, {
+        regionID: region1.id,
+        name: 'Zilker Preserve'
+      }),
+      createLocalityData(localityDefaults, {
+        regionID: region2.id,
+        name: 'Zilker Park'
+      })
+    ];
+
+    const matches = await runProcessor({
+      baselineDate: null,
+      regionToProcess: region1,
+      domainRegions: regions,
+      nondomainRegions: [],
+      regionTree: {
+        region: region0,
+        localityCount: localities.length,
+        children: [
+          {
+            region: region1,
+            localityCount: 1
+          },
+          {
+            region: region2,
+            localityCount: 1
+          }
+        ]
+      },
+      adjacencyMap: {},
+      localities
+    });
+
+    expect(matches).toEqual([]);
+  });
 });
 
 describe('phonetic locality matching', () => {
@@ -49,22 +128,22 @@ describe('phonetic locality matching', () => {
     const regions = [region1];
     const localities = [
       createLocalityData(localityDefaults, {
-        regionID: regions[0].id,
+        regionID: region1.id,
         name: 'Zilker Preserve'
       }),
       createLocalityData(localityDefaults, {
-        regionID: regions[0].id,
+        regionID: region1.id,
         name: 'Zilker Park'
       })
     ];
 
     const matches = await runProcessor({
       baselineDate: null,
-      regionToProcess: regions[0],
+      regionToProcess: region1,
       domainRegions: regions,
       nondomainRegions: [],
       regionTree: {
-        region: regions[0],
+        region: region1,
         localityCount: localities.length
       },
       adjacencyMap: {},
@@ -108,26 +187,26 @@ describe('phonetic locality matching', () => {
     const regions = [region1];
     const localities = [
       createLocalityData(localityDefaults, {
-        regionID: regions[0].id,
+        regionID: region1.id,
         name: 'Zilker Preserve'
       }),
       createLocalityData(localityDefaults, {
-        regionID: regions[0].id,
+        regionID: region1.id,
         name: 'Zilker Park'
       }),
       createLocalityData(localityDefaults, {
-        regionID: regions[0].id,
+        regionID: region1.id,
         name: 'Science Center at Zilker'
       })
     ];
 
     const matches = await runProcessor({
       baselineDate: null,
-      regionToProcess: regions[0],
+      regionToProcess: region1,
       domainRegions: regions,
       nondomainRegions: [],
       regionTree: {
-        region: regions[0],
+        region: region1,
         localityCount: localities.length
       },
       adjacencyMap: {},
@@ -222,18 +301,215 @@ describe('phonetic locality matching', () => {
       }
     ]);
   });
+
+  test('process multiple matches within localities', async () => {
+    const regions = [region1];
+    const localities = [
+      createLocalityData(localityDefaults, {
+        regionID: region1.id,
+        name: 'Zilker Nature Park and Nature Preserve'
+      }),
+      createLocalityData(localityDefaults, {
+        regionID: region1.id,
+        name: 'Park at Zilker Park'
+      }),
+      createLocalityData(localityDefaults, {
+        regionID: region1.id,
+        name: 'Another Nature Preserve'
+      })
+    ];
+
+    const matches = await runProcessor({
+      baselineDate: null,
+      regionToProcess: region1,
+      domainRegions: regions,
+      nondomainRegions: [],
+      regionTree: {
+        region: region1,
+        localityCount: localities.length
+      },
+      adjacencyMap: {},
+      localities
+    });
+
+    const zilkerSeries = toSortedPhoneticSeries('zilker');
+    const parkSeries = toSortedPhoneticSeries('park');
+    const naturePreserveSeries = toSortedPhoneticSeries('nature preserve');
+    expect(matches).toEqual([
+      {
+        baseLocality: localities[0],
+        testLocality: localities[1],
+        matches: [
+          {
+            sortedPhoneticSeries: zilkerSeries,
+            baseSubsets: [
+              {
+                sortedPhoneticSeries: zilkerSeries,
+                firstWordIndex: 0,
+                lastWordIndex: 0,
+                firstCharIndex: 0,
+                lastCharIndexPlusOne: 'Zilker'.length
+              }
+            ],
+            testSubsets: [
+              {
+                sortedPhoneticSeries: zilkerSeries,
+                firstWordIndex: 1,
+                lastWordIndex: 1,
+                firstCharIndex: localities[1].name.indexOf('Zilker'),
+                lastCharIndexPlusOne: localities[1].name.indexOf(' Park')
+              }
+            ]
+          },
+          {
+            sortedPhoneticSeries: parkSeries,
+            baseSubsets: [
+              {
+                sortedPhoneticSeries: parkSeries,
+                firstWordIndex: 2,
+                lastWordIndex: 2,
+                firstCharIndex: localities[0].name.indexOf('Park'),
+                lastCharIndexPlusOne: localities[0].name.indexOf(' and')
+              }
+            ],
+            testSubsets: [
+              {
+                sortedPhoneticSeries: parkSeries,
+                firstWordIndex: 0,
+                lastWordIndex: 0,
+                firstCharIndex: 0,
+                lastCharIndexPlusOne: 'Park'.length
+              },
+              {
+                sortedPhoneticSeries: parkSeries,
+                firstWordIndex: 2,
+                lastWordIndex: 2,
+                firstCharIndex: localities[1].name.indexOf(' Park') + 1,
+                lastCharIndexPlusOne: localities[1].name.length
+              }
+            ]
+          }
+        ],
+        excludedSubsetPairs: []
+      },
+      {
+        baseLocality: localities[0],
+        testLocality: localities[2],
+        matches: [
+          {
+            sortedPhoneticSeries: naturePreserveSeries,
+            baseSubsets: [
+              {
+                sortedPhoneticSeries: naturePreserveSeries,
+                firstWordIndex: 3,
+                lastWordIndex: 4,
+                firstCharIndex: localities[0].name.indexOf('Nature Preserve'),
+                lastCharIndexPlusOne: localities[0].name.length
+              }
+            ],
+            testSubsets: [
+              {
+                sortedPhoneticSeries: naturePreserveSeries,
+                firstWordIndex: 1,
+                lastWordIndex: 2,
+                firstCharIndex: localities[2].name.indexOf('Nature Preserve'),
+                lastCharIndexPlusOne: localities[2].name.length
+              }
+            ]
+          }
+        ],
+        excludedSubsetPairs: []
+      }
+    ]);
+  });
+
+  test('phonetic match across adjacent regions', async () => {
+    const regions = [region0, region1, region2];
+    const localities = [
+      createLocalityData(localityDefaults, {
+        regionID: region1.id,
+        name: 'Zilker Preserve'
+      }),
+      createLocalityData(localityDefaults, {
+        regionID: region2.id,
+        name: 'Zilker Park'
+      })
+    ];
+    const adjacencyMap: AdjacencyMap = {};
+    adjacencyMap[region1.id] = [region2];
+    adjacencyMap[region2.id] = [region1];
+
+    const matches = await runProcessor({
+      baselineDate: null,
+      regionToProcess: region1,
+      domainRegions: regions,
+      nondomainRegions: [],
+      regionTree: {
+        region: region0,
+        localityCount: localities.length,
+        children: [
+          {
+            region: region1,
+            localityCount: 1
+          },
+          {
+            region: region2,
+            localityCount: 1
+          }
+        ]
+      },
+      adjacencyMap,
+      localities
+    });
+
+    const phoneticSeries = toPartialSortedPhoneticSeries(localities[0].name, 0, 0);
+    expect(matches).toEqual([
+      {
+        baseLocality: localities[0],
+        testLocality: localities[1],
+        matches: [
+          {
+            sortedPhoneticSeries: phoneticSeries,
+            baseSubsets: [
+              {
+                sortedPhoneticSeries: phoneticSeries,
+                firstWordIndex: 0,
+                lastWordIndex: 0,
+                firstCharIndex: 0,
+                lastCharIndexPlusOne: 'Zilker'.length
+              }
+            ],
+            testSubsets: [
+              {
+                sortedPhoneticSeries: phoneticSeries,
+                firstWordIndex: 0,
+                lastWordIndex: 0,
+                firstCharIndex: 0,
+                lastCharIndexPlusOne: 'Zilker'.length
+              }
+            ]
+          }
+        ],
+        excludedSubsetPairs: []
+      }
+    ]);
+  });
 });
 
 //// TEST SUPPPORT ///////////////////////////////////////////////////////////
 
 class TestRegion extends Region {
-  constructor(id: number, name: string, processSubregions: boolean) {
-    super(id, RegionRank.County, name, 0);
+  static regionID = 1;
+
+  constructor(name: string, processSubregions: boolean) {
+    super(TestRegion.regionID++, RegionRank.County, name, 0);
     this.flags = processSubregions ? PROCESS_SUBREGIONS_FLAG : 0;
   }
 }
 
-const region1 = new TestRegion(1, 'Travis County', false);
+const region0 = new TestRegion('Texas', false);
+const region1 = new TestRegion('Travis County', false);
+const region2 = new TestRegion('Bastrop County', false);
 
 class MockLocalityCache implements LocalityCache {
   private _phoneticCodeIndex: MockPhoneticCodeIndex;
@@ -310,7 +586,7 @@ async function runProcessor(config: {
   domainRegions: Region[];
   nondomainRegions: Region[];
   regionTree: RegionNode;
-  adjacencyMap: Record<number, Region[]>;
+  adjacencyMap: AdjacencyMap;
   localities: LocalityData[];
 }): Promise<LocalityMatch[]> {
   const regionAccess = new MockRegionAccess(config.regionTree, config.adjacencyMap);
