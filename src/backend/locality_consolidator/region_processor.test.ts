@@ -811,6 +811,138 @@ describe('phonetic locality matching', () => {
       // does not match localities 0 with 1 because neither is in the processed region
     ]);
   });
+
+  test('matches combo of contained, containing, and adjacent regions', async () => {
+    const regions = [region0, region1, region2, region3];
+    const localities = [
+      createLocalityData(localityDefaults, {
+        regionID: region0.id,
+        name: 'Austin City Park'
+      }),
+      createLocalityData(localityDefaults, {
+        regionID: region1.id,
+        name: 'Zilker Park'
+      }),
+      createLocalityData(localityDefaults, {
+        regionID: region2.id,
+        name: 'Park'
+      }),
+      createLocalityData(localityDefaults, {
+        regionID: region3.id,
+        name: 'Another Park'
+      })
+    ];
+    const adjacencyMap: AdjacencyMap = {};
+    adjacencyMap[region1.id] = [region3];
+
+    const matches = await runProcessor({
+      baselineDate: null,
+      regionToProcess: region1,
+      domainRegions: regions,
+      nondomainRegions: [],
+      regionTree: {
+        region: region0,
+        children: [
+          {
+            region: region1,
+            children: [{ region: region2 }]
+          },
+          { region: region3 }
+        ]
+      },
+      adjacencyMap,
+      localities
+    });
+
+    const phoneticSeries = toSortedPhoneticSeries('park');
+    expect(matches).toEqual([
+      {
+        baseLocality: localities[1],
+        testLocality: localities[0],
+        matches: [
+          {
+            sortedPhoneticSeries: phoneticSeries,
+            baseSubsets: [
+              {
+                sortedPhoneticSeries: phoneticSeries,
+                firstWordIndex: 1,
+                lastWordIndex: 1,
+                firstCharIndex: localities[1].name.indexOf('Park'),
+                lastCharIndexPlusOne: localities[1].name.length
+              }
+            ],
+            testSubsets: [
+              {
+                sortedPhoneticSeries: phoneticSeries,
+                firstWordIndex: 2,
+                lastWordIndex: 2,
+                firstCharIndex: localities[0].name.indexOf('Park'),
+                lastCharIndexPlusOne: localities[0].name.length
+              }
+            ]
+          }
+        ],
+        excludedSubsetPairs: []
+      },
+      {
+        baseLocality: localities[1],
+        testLocality: localities[2],
+        matches: [
+          {
+            sortedPhoneticSeries: phoneticSeries,
+            baseSubsets: [
+              {
+                sortedPhoneticSeries: phoneticSeries,
+                firstWordIndex: 1,
+                lastWordIndex: 1,
+                firstCharIndex: localities[1].name.indexOf('Park'),
+                lastCharIndexPlusOne: localities[1].name.length
+              }
+            ],
+            testSubsets: [
+              {
+                sortedPhoneticSeries: phoneticSeries,
+                firstWordIndex: 0,
+                lastWordIndex: 0,
+                firstCharIndex: localities[2].name.indexOf('Park'),
+                lastCharIndexPlusOne: localities[2].name.length
+              }
+            ]
+          }
+        ],
+        excludedSubsetPairs: []
+      },
+      {
+        baseLocality: localities[1],
+        testLocality: localities[3],
+        matches: [
+          {
+            sortedPhoneticSeries: phoneticSeries,
+            baseSubsets: [
+              {
+                sortedPhoneticSeries: phoneticSeries,
+                firstWordIndex: 1,
+                lastWordIndex: 1,
+                firstCharIndex: localities[1].name.indexOf('Park'),
+                lastCharIndexPlusOne: localities[1].name.length
+              }
+            ],
+            testSubsets: [
+              {
+                sortedPhoneticSeries: phoneticSeries,
+                firstWordIndex: 1,
+                lastWordIndex: 1,
+                firstCharIndex: localities[3].name.indexOf('Park'),
+                lastCharIndexPlusOne: localities[3].name.length
+              }
+            ]
+          }
+        ],
+        excludedSubsetPairs: []
+      }
+      // does not match localities 1 with 2 because neither is in the processed region
+    ]);
+  });
 });
 
 //// TEST SUPPPORT ///////////////////////////////////////////////////////////
