@@ -619,22 +619,29 @@ function verifyRegions(
   regionTree: RegionNode,
   localities: LocalityData[]
 ): void {
-  verifyRegionNode(regions, regionTree);
   const regionIDs = regions.map((region) => region.id);
+  const treeRegions = verifyRegionNode(regions, regionTree);
+  const treeRegionIDs = treeRegions.map((region) => region.id);
+
   for (const locality of localities) {
     if (!regionIDs.includes(locality.regionID)) {
-      throw Error(`Locality region ID ${locality.regionID} not among provided regions`);
+      throw Error(`Locality '${locality.name}' region not in region lists`);
+    }
+    if (!treeRegionIDs.includes(locality.regionID)) {
+      throw Error(`Locality '${locality.name}' region not in provided tree`);
     }
   }
 }
 
-function verifyRegionNode(regions: Region[], regionNode: RegionNode): void {
+function verifyRegionNode(regions: Region[], regionNode: RegionNode): Region[] {
   if (!regions.includes(regionNode.region)) {
-    throw Error(`Region node "${regionNode.region.name}" not among provided regions`);
+    throw Error(`Region node "${regionNode.region.name}" not in region lists`);
   }
+  const collectedRegions: Region[] = [regionNode.region];
   if (regionNode.children) {
     for (const child of regionNode.children) {
-      verifyRegionNode(regions, child);
+      collectedRegions.push(...verifyRegionNode(regions, child));
     }
   }
+  return collectedRegions;
 }
