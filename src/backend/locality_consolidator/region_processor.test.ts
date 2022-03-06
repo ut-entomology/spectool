@@ -97,7 +97,6 @@ describe('no matches', () => {
       nondomainRegions: [],
       regionTree: {
         region: region0,
-        localityCount: localities.length,
         children: [{ region: region1 }, { region: region2 }]
       },
       adjacencyMap: {},
