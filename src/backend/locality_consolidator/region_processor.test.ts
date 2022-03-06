@@ -398,8 +398,8 @@ describe('phonetic locality matching', () => {
     ]);
   });
 
-  test('phonetic match across adjacent regions', async () => {
-    const regions = [region0, region1, region2];
+  test('matches across adjacent regions', async () => {
+    const regions = [region0, region1, region2, region3];
     const localities = [
       createLocalityData(localityDefaults, {
         regionID: region1.id,
@@ -408,11 +408,15 @@ describe('phonetic locality matching', () => {
       createLocalityData(localityDefaults, {
         regionID: region2.id,
         name: 'Zilker Park'
+      }),
+      createLocalityData(localityDefaults, {
+        regionID: region3.id,
+        name: 'Another Zilker'
       })
     ];
     const adjacencyMap: AdjacencyMap = {};
     adjacencyMap[region1.id] = [region2];
-    adjacencyMap[region2.id] = [region1];
+    adjacencyMap[region2.id] = [region3];
 
     const matches = await runProcessor({
       baselineDate: null,
@@ -421,7 +425,7 @@ describe('phonetic locality matching', () => {
       nondomainRegions: [],
       regionTree: {
         region: region0,
-        children: [{ region: region1 }, { region: region2 }]
+        children: [{ region: region1 }, { region: region2 }, { region: region3 }]
       },
       adjacencyMap,
       localities
@@ -457,6 +461,202 @@ describe('phonetic locality matching', () => {
         ],
         excludedSubsetPairs: []
       }
+      // no matches with localities[2] in region3 because only immediately adjacent
+      // regions are compared; adjacency is not transitive.
+    ]);
+  });
+
+  test('matches with contained regions', async () => {
+    const regions = [region0, region1, region2];
+    const localities = [
+      createLocalityData(localityDefaults, {
+        regionID: region0.id,
+        name: 'Austin City Park'
+      }),
+      createLocalityData(localityDefaults, {
+        regionID: region1.id,
+        name: 'Zilker Park'
+      }),
+      createLocalityData(localityDefaults, {
+        regionID: region2.id,
+        name: 'Park'
+      })
+    ];
+
+    const matches = await runProcessor({
+      baselineDate: null,
+      regionToProcess: region0,
+      domainRegions: regions,
+      nondomainRegions: [],
+      regionTree: {
+        region: region0,
+        children: [
+          {
+            region: region1,
+            children: [{ region: region2 }]
+          }
+        ]
+      },
+      adjacencyMap: {},
+      localities
+    });
+
+    const phoneticSeries = toSortedPhoneticSeries('park');
+    expect(matches).toEqual([
+      {
+        baseLocality: localities[0],
+        testLocality: localities[1],
+        matches: [
+          {
+            sortedPhoneticSeries: phoneticSeries,
+            baseSubsets: [
+              {
+                sortedPhoneticSeries: phoneticSeries,
+                firstWordIndex: 2,
+                lastWordIndex: 2,
+                firstCharIndex: localities[0].name.indexOf('Park'),
+                lastCharIndexPlusOne: localities[0].name.length
+              }
+            ],
+            testSubsets: [
+              {
+                sortedPhoneticSeries: phoneticSeries,
+                firstWordIndex: 1,
+                lastWordIndex: 1,
+                firstCharIndex: localities[1].name.indexOf('Park'),
+                lastCharIndexPlusOne: localities[1].name.length
+              }
+            ]
+          }
+        ],
+        excludedSubsetPairs: []
+      },
+      {
+        baseLocality: localities[0],
+        testLocality: localities[2],
+        matches: [
+          {
+            sortedPhoneticSeries: phoneticSeries,
+            baseSubsets: [
+              {
+                sortedPhoneticSeries: phoneticSeries,
+                firstWordIndex: 2,
+                lastWordIndex: 2,
+                firstCharIndex: localities[0].name.indexOf('Park'),
+                lastCharIndexPlusOne: localities[0].name.length
+              }
+            ],
+            testSubsets: [
+              {
+                sortedPhoneticSeries: phoneticSeries,
+                firstWordIndex: 0,
+                lastWordIndex: 0,
+                firstCharIndex: localities[2].name.indexOf('Park'),
+                lastCharIndexPlusOne: localities[2].name.length
+              }
+            ]
+          }
+        ],
+        excludedSubsetPairs: []
+      }
+      // does not match localities 1 with 2 because neither is in the processed region
+    ]);
+  });
+
+  test('matches with containing regions', async () => {
+    const regions = [region0, region1, region2];
+    const localities = [
+      createLocalityData(localityDefaults, {
+        regionID: region0.id,
+        name: 'Austin City Park'
+      }),
+      createLocalityData(localityDefaults, {
+        regionID: region1.id,
+        name: 'Zilker Park'
+      }),
+      createLocalityData(localityDefaults, {
+        regionID: region2.id,
+        name: 'Park'
+      })
+    ];
+
+    const matches = await runProcessor({
+      baselineDate: null,
+      regionToProcess: region2,
+      domainRegions: regions,
+      nondomainRegions: [],
+      regionTree: {
+        region: region0,
+        children: [
+          {
+            region: region1,
+            children: [{ region: region2 }]
+          }
+        ]
+      },
+      adjacencyMap: {},
+      localities
+    });
+
+    const phoneticSeries = toSortedPhoneticSeries('park');
+    expect(matches).toEqual([
+      {
+        baseLocality: localities[2],
+        testLocality: localities[0],
+        matches: [
+          {
+            sortedPhoneticSeries: phoneticSeries,
+            baseSubsets: [
+              {
+                sortedPhoneticSeries: phoneticSeries,
+                firstWordIndex: 0,
+                lastWordIndex: 0,
+                firstCharIndex: localities[2].name.indexOf('Park'),
+                lastCharIndexPlusOne: localities[2].name.length
+              }
+            ],
+            testSubsets: [
+              {
+                sortedPhoneticSeries: phoneticSeries,
+                firstWordIndex: 2,
+                lastWordIndex: 2,
+                firstCharIndex: localities[0].name.indexOf('Park'),
+                lastCharIndexPlusOne: localities[0].name.length
+              }
+            ]
+          }
+        ],
+        excludedSubsetPairs: []
+      },
+      {
+        baseLocality: localities[2],
+        testLocality: localities[1],
+        matches: [
+          {
+            sortedPhoneticSeries: phoneticSeries,
+            baseSubsets: [
+              {
+                sortedPhoneticSeries: phoneticSeries,
+                firstWordIndex: 0,
+                lastWordIndex: 0,
+                firstCharIndex: localities[2].name.indexOf('Park'),
+                lastCharIndexPlusOne: localities[2].name.length
+              }
+            ],
+            testSubsets: [
+              {
+                sortedPhoneticSeries: phoneticSeries,
+                firstWordIndex: 1,
+                lastWordIndex: 1,
+                firstCharIndex: localities[1].name.indexOf('Park'),
+                lastCharIndexPlusOne: localities[1].name.length
+              }
+            ]
+          }
+        ],
+        excludedSubsetPairs: []
+      }
+      // does not match localities 0 with 1 because neither is in the processed region
     ]);
   });
 });
@@ -475,6 +675,7 @@ class TestRegion extends Region {
 const region0 = new TestRegion('Texas', false);
 const region1 = new TestRegion('Travis County', false);
 const region2 = new TestRegion('Bastrop County', false);
+const region3 = new TestRegion('Hays County', false);
 
 class MockLocalityCache implements LocalityCache {
   private _phoneticCodeIndex: MockPhoneticCodeIndex;
@@ -540,6 +741,27 @@ function assignLocalityCounts(
   }
 }
 
+function completeAdjacencies(regions: Region[], adjacencyMap: AdjacencyMap): void {
+  const regionMap: Record<number, Region> = {};
+  for (const region of regions) {
+    regionMap[region.id] = region;
+  }
+  for (const indexedRegionID of Object.keys(adjacencyMap)) {
+    const indexedRegionIDNum = parseInt(indexedRegionID);
+    for (const providedAdjacentRegion of adjacencyMap[indexedRegionIDNum]) {
+      let impliedAdjacentRegions = adjacencyMap[providedAdjacentRegion.id];
+      if (!impliedAdjacentRegions) {
+        impliedAdjacentRegions = [];
+        adjacencyMap[providedAdjacentRegion.id] = impliedAdjacentRegions;
+      }
+      const impliedAdjacentRegion = regionMap[indexedRegionIDNum];
+      if (!impliedAdjacentRegions.includes(impliedAdjacentRegion)) {
+        impliedAdjacentRegions.push(impliedAdjacentRegion);
+      }
+    }
+  }
+}
+
 let localityID = 100;
 function createLocalityData(
   defaultData: Partial<LocalityData>,
@@ -570,12 +792,10 @@ async function runProcessor(config: {
   adjacencyMap: AdjacencyMap;
   localities: LocalityData[];
 }): Promise<LocalityMatch[]> {
-  verifyRegions(
-    config.domainRegions.concat(config.nondomainRegions),
-    config.regionTree,
-    config.localities
-  );
+  const allRegions = config.domainRegions.concat(config.nondomainRegions);
+  verifyRegions(allRegions, config.regionTree, config.localities);
   assignLocalityCounts(config.regionTree, config.localities);
+  completeAdjacencies(allRegions, config.adjacencyMap);
 
   const regionAccess = new MockRegionAccess(
     config.regionTree as RegionNode,
@@ -619,12 +839,12 @@ function verifyRegions(
   regionTree: RegionNode,
   localities: LocalityData[]
 ): void {
-  const regionIDs = regions.map((region) => region.id);
+  const listRegionIDs = regions.map((region) => region.id);
   const treeRegions = verifyRegionNode(regions, regionTree);
   const treeRegionIDs = treeRegions.map((region) => region.id);
 
   for (const locality of localities) {
-    if (!regionIDs.includes(locality.regionID)) {
+    if (!listRegionIDs.includes(locality.regionID)) {
       throw Error(`Locality '${locality.name}' region not in region lists`);
     }
     if (!treeRegionIDs.includes(locality.regionID)) {
