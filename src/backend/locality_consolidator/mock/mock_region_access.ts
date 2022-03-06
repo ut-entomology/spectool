@@ -3,7 +3,7 @@ import type { Region } from '../../../shared/shared_geography';
 
 export interface RegionNode {
   region: Region;
-  localityCount: number;
+  localityCount?: number; // region processor test will assign this
   children?: RegionNode[];
   parentNode?: RegionNode;
 }
@@ -40,7 +40,7 @@ export class MockRegionAccess implements RegionAccess {
   }
 
   getLocalityCount(forSingleGeographicID: number): number {
-    return this._findRegionNode(forSingleGeographicID)!.localityCount;
+    return this._findRegionNode(forSingleGeographicID)!.localityCount!;
   }
 
   private _collectDescendants(descendants: Region[], underNode: RegionNode): void {

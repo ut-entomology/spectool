@@ -39,10 +39,7 @@ describe('no matches', () => {
       regionToProcess: region1,
       domainRegions: regions,
       nondomainRegions: [],
-      regionTree: {
-        region: region1,
-        localityCount: localities.length
-      },
+      regionTree: { region: region1 },
       adjacencyMap: {},
       localities
     });
@@ -72,10 +69,7 @@ describe('no matches', () => {
       regionToProcess: region1,
       domainRegions: regions,
       nondomainRegions: [],
-      regionTree: {
-        region: region1,
-        localityCount: localities.length
-      },
+      regionTree: { region: region1 },
       adjacencyMap: {},
       localities
     });
@@ -104,16 +98,7 @@ describe('no matches', () => {
       regionTree: {
         region: region0,
         localityCount: localities.length,
-        children: [
-          {
-            region: region1,
-            localityCount: 1
-          },
-          {
-            region: region2,
-            localityCount: 1
-          }
-        ]
+        children: [{ region: region1 }, { region: region2 }]
       },
       adjacencyMap: {},
       localities
@@ -142,10 +127,7 @@ describe('phonetic locality matching', () => {
       regionToProcess: region1,
       domainRegions: regions,
       nondomainRegions: [],
-      regionTree: {
-        region: region1,
-        localityCount: localities.length
-      },
+      regionTree: { region: region1 },
       adjacencyMap: {},
       localities
     });
@@ -205,10 +187,7 @@ describe('phonetic locality matching', () => {
       regionToProcess: region1,
       domainRegions: regions,
       nondomainRegions: [],
-      regionTree: {
-        region: region1,
-        localityCount: localities.length
-      },
+      regionTree: { region: region1 },
       adjacencyMap: {},
       localities
     });
@@ -324,10 +303,7 @@ describe('phonetic locality matching', () => {
       regionToProcess: region1,
       domainRegions: regions,
       nondomainRegions: [],
-      regionTree: {
-        region: region1,
-        localityCount: localities.length
-      },
+      regionTree: { region: region1 },
       adjacencyMap: {},
       localities
     });
@@ -446,17 +422,7 @@ describe('phonetic locality matching', () => {
       nondomainRegions: [],
       regionTree: {
         region: region0,
-        localityCount: localities.length,
-        children: [
-          {
-            region: region1,
-            localityCount: 1
-          },
-          {
-            region: region2,
-            localityCount: 1
-          }
-        ]
+        children: [{ region: region1 }, { region: region2 }]
       },
       adjacencyMap,
       localities
@@ -558,8 +524,24 @@ class MockLocalityCache implements LocalityCache {
   }
 }
 
-let localityID = 100;
+function assignLocalityCounts(
+  regionNode: Partial<RegionNode>,
+  localities: Partial<LocalityData>[]
+): void {
+  regionNode.localityCount = 0;
+  for (const locality of localities) {
+    if (locality.regionID == regionNode.region!.id) {
+      ++regionNode.localityCount;
+    }
+  }
+  if (regionNode.children) {
+    for (const child of regionNode.children) {
+      assignLocalityCounts(child, localities);
+    }
+  }
+}
 
+let localityID = 100;
 function createLocalityData(
   defaultData: Partial<LocalityData>,
   data: Partial<LocalityData>
@@ -589,7 +571,12 @@ async function runProcessor(config: {
   adjacencyMap: AdjacencyMap;
   localities: LocalityData[];
 }): Promise<LocalityMatch[]> {
-  const regionAccess = new MockRegionAccess(config.regionTree, config.adjacencyMap);
+  assignLocalityCounts(config.regionTree, config.localities);
+
+  const regionAccess = new MockRegionAccess(
+    config.regionTree as RegionNode,
+    config.adjacencyMap
+  );
   const phoneticCodeIndex = new MockPhoneticCodeIndex();
   const regionRoster = new MockTrackedRegionRoster();
 
