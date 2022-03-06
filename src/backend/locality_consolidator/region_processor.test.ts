@@ -571,6 +571,11 @@ async function runProcessor(config: {
   adjacencyMap: AdjacencyMap;
   localities: LocalityData[];
 }): Promise<LocalityMatch[]> {
+  verifyRegions(
+    config.domainRegions.concat(config.nondomainRegions),
+    config.regionTree,
+    config.localities
+  );
   assignLocalityCounts(config.regionTree, config.localities);
 
   const regionAccess = new MockRegionAccess(
@@ -608,4 +613,29 @@ async function runProcessor(config: {
     matches.push(match);
   }
   return matches;
+}
+
+function verifyRegions(
+  regions: Region[],
+  regionTree: RegionNode,
+  localities: LocalityData[]
+): void {
+  verifyRegionNode(regions, regionTree);
+  const regionIDs = regions.map((region) => region.id);
+  for (const locality of localities) {
+    if (!regionIDs.includes(locality.regionID)) {
+      throw Error(`Locality region ID ${locality.regionID} not among provided regions`);
+    }
+  }
+}
+
+function verifyRegionNode(regions: Region[], regionNode: RegionNode): void {
+  if (!regions.includes(regionNode.region)) {
+    throw Error(`Region node "${regionNode.region.name}" not among provided regions`);
+  }
+  if (regionNode.children) {
+    for (const child of regionNode.children) {
+      verifyRegionNode(regions, child);
+    }
+  }
 }
