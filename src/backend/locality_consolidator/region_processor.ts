@@ -305,8 +305,8 @@ export class RegionProcessor {
     // The localities meet all the matching requirements, so return the match.
 
     return {
-      baseLocality,
-      testLocality,
+      baseLocality: baseLocality.toData(),
+      testLocality: testLocality.toData(),
       matches,
       excludedSubsetPairs
     };
@@ -412,8 +412,8 @@ export class RegionProcessor {
     // The localities meet all the matching requirements, so return the match.
 
     return {
-      baseLocality,
-      testLocality,
+      baseLocality: baseLocality.toData(),
+      testLocality: testLocality.toData(),
       matches,
       excludedSubsetPairs
     };

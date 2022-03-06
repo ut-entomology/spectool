@@ -50,21 +50,17 @@ test('process isolated region, isolated locality', async () => {
 describe('phonetic locality matching', () => {
   test('process only two single-word matching localities', async () => {
     const regions = [new TestRegion(1, 'Travis County', false)];
-    const localities = [
-      new CachedLocality(
-        Object.assign({}, localityDefaults, {
-          regionID: regions[0].id,
-          localityID: 10,
-          name: 'Zilker Preserve'
-        })
-      ),
-      new CachedLocality(
-        Object.assign({}, localityDefaults, {
-          regionID: regions[0].id,
-          localityID: 11,
-          name: 'Zilker Park'
-        })
-      )
+    const localities: LocalityData[] = [
+      Object.assign({}, localityDefaults, {
+        regionID: regions[0].id,
+        localityID: 10,
+        name: 'Zilker Preserve'
+      }),
+      Object.assign({}, localityDefaults, {
+        regionID: regions[0].id,
+        localityID: 11,
+        name: 'Zilker Park'
+      })
     ];
 
     const matches = await runProcessor({
