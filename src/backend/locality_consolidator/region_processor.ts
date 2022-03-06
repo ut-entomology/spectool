@@ -562,16 +562,14 @@ export class RegionProcessor {
       return false;
     }
 
-    // If the test locality is in the same domain as the base locality, it is in scope.
-
-    if (testLocality.regionID == baseLocality.regionID) {
-      return true;
-    }
-
     // Make sure at least one of the regions associated with the localities
     // is in the domain, so that we're only examining requested regions.
 
-    if (!currentRegion.inDomain) {
+    if (currentRegion.inDomain) {
+      if (testLocality.regionID == baseLocality.regionID) {
+        return true;
+      }
+    } else {
       const testRegion = (await this._regionRoster.getByID(testLocality.regionID))!;
       if (!testRegion.inDomain) {
         return false;

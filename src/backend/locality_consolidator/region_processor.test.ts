@@ -1074,12 +1074,165 @@ describe('processing non-domain regions with no baseline date', () => {
       }
     ]);
   });
+
+  test('does not match localities of processed non-domain region', async () => {
+    const localities = [
+      createLocalityData(localityDefaults, {
+        regionID: region1.id,
+        name: 'Zilker Park'
+      }),
+      createLocalityData(localityDefaults, {
+        regionID: region1.id,
+        name: 'Zilker Park'
+      }),
+      createLocalityData(localityDefaults, {
+        regionID: region2.id,
+        name: 'Zilker Park'
+      }),
+      createLocalityData(localityDefaults, {
+        regionID: region2.id,
+        name: 'Zilker Park'
+      })
+    ];
+    const adjacencyMap: AdjacencyMap = {};
+    adjacencyMap[region1.id] = [region2];
+
+    const matches = await runProcessor({
+      baselineDate: null,
+      regionToProcess: region1,
+      domainRegions: [region2],
+      nondomainRegions: [region0, region1],
+      regionTree: {
+        region: region0,
+        children: [{ region: region1 }, { region: region2 }]
+      },
+      adjacencyMap,
+      localities
+    });
+
+    const wordSeries = 'Zilker Park';
+    const phoneticSeries = toSortedPhoneticSeries(wordSeries);
+    expect(matches).toEqual([
+      {
+        baseLocality: localities[0],
+        testLocality: localities[2],
+        matches: [
+          {
+            sortedPhoneticSeries: phoneticSeries,
+            baseSubsets: [
+              {
+                sortedPhoneticSeries: phoneticSeries,
+                firstWordIndex: 0,
+                lastWordIndex: 1,
+                firstCharIndex: 0,
+                lastCharIndexPlusOne: wordSeries.length
+              }
+            ],
+            testSubsets: [
+              {
+                sortedPhoneticSeries: phoneticSeries,
+                firstWordIndex: 0,
+                lastWordIndex: 1,
+                firstCharIndex: 0,
+                lastCharIndexPlusOne: wordSeries.length
+              }
+            ]
+          }
+        ],
+        excludedSubsetPairs: []
+      },
+      {
+        baseLocality: localities[0],
+        testLocality: localities[3],
+        matches: [
+          {
+            sortedPhoneticSeries: phoneticSeries,
+            baseSubsets: [
+              {
+                sortedPhoneticSeries: phoneticSeries,
+                firstWordIndex: 0,
+                lastWordIndex: 1,
+                firstCharIndex: 0,
+                lastCharIndexPlusOne: wordSeries.length
+              }
+            ],
+            testSubsets: [
+              {
+                sortedPhoneticSeries: phoneticSeries,
+                firstWordIndex: 0,
+                lastWordIndex: 1,
+                firstCharIndex: 0,
+                lastCharIndexPlusOne: wordSeries.length
+              }
+            ]
+          }
+        ],
+        excludedSubsetPairs: []
+      },
+      {
+        baseLocality: localities[1],
+        testLocality: localities[2],
+        matches: [
+          {
+            sortedPhoneticSeries: phoneticSeries,
+            baseSubsets: [
+              {
+                sortedPhoneticSeries: phoneticSeries,
+                firstWordIndex: 0,
+                lastWordIndex: 1,
+                firstCharIndex: 0,
+                lastCharIndexPlusOne: wordSeries.length
+              }
+            ],
+            testSubsets: [
+              {
+                sortedPhoneticSeries: phoneticSeries,
+                firstWordIndex: 0,
+                lastWordIndex: 1,
+                firstCharIndex: 0,
+                lastCharIndexPlusOne: wordSeries.length
+              }
+            ]
+          }
+        ],
+        excludedSubsetPairs: []
+      },
+      {
+        baseLocality: localities[1],
+        testLocality: localities[3],
+        matches: [
+          {
+            sortedPhoneticSeries: phoneticSeries,
+            baseSubsets: [
+              {
+                sortedPhoneticSeries: phoneticSeries,
+                firstWordIndex: 0,
+                lastWordIndex: 1,
+                firstCharIndex: 0,
+                lastCharIndexPlusOne: wordSeries.length
+              }
+            ],
+            testSubsets: [
+              {
+                sortedPhoneticSeries: phoneticSeries,
+                firstWordIndex: 0,
+                lastWordIndex: 1,
+                firstCharIndex: 0,
+                lastCharIndexPlusOne: wordSeries.length
+              }
+            ]
+          }
+        ],
+        excludedSubsetPairs: []
+      }
+    ]);
+  });
 });
 
 //// TEST SUPPPORT ///////////////////////////////////////////////////////////
 
 class TestRegion extends Region {
-  static regionID = 1;
+  static regionID = 0;
 
   constructor(name: string, processSubregions: boolean) {
     super(TestRegion.regionID++, RegionRank.County, name, 0);
