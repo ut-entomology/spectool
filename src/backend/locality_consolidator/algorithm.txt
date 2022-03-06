@@ -289,7 +289,7 @@ Define a "found match" as a structure containing the following information:
 				(+) If (L2) is not in (D):
 					(+) If there is no baseline date, or if (R) is in the domain and (L1) is marked on or after the baseline date, or if (R) is not in the domain and (L2) is marked on or after the baseline date:
 						(+) Let (R2) be the region assigned to (L2).
-						(+) If (R1) is (R2), or if (R1) is in the domain and ((R2) is adjacent to (R), contains (R), or contained in (R)), or if (R2) is in the domain and is adjacent to (R) [notes:  because (R1) is not in the domain, (R2) won't contain or be contained in (R); the comparison is with (R) not (R1) because adjacencies may not be defined for (R1)] -- prevents comparison when neither locality is in the domain:
+						(+) If (R1) is in the domain and (((R1) is (R2)) OR ((R2) is adjacent to (R), contains (R), or contained in (R))), OR if (R2) is in the domain and is adjacent to (R) [notes:  because (R1) is not in the domain, (R2) won't contain or be contained in (R); the comparison is with (R) not (R1) because adjacencies may not be defined for (R1)] -- prevents comparison when neither locality is in the domain:
 							[END COMMON LOGIC]
 							(+) If the entire word series of (L1) and (L2) are not identical or they are identical but neither a region match nor a coordinate match in ExcludedMatchesStore for that word series:
 								(+) Collect the found matches (M) of all word series (W1) in (L1) having a sorted phonetic series identical to that of a word series (W2) in (L2), such that (W1) is not paired with (W2) in ExcludedMatchesStore.
@@ -307,7 +307,7 @@ Define a "found match" as a structure containing the following information:
 					(+) If (L2) is not in (D):
 						(+) If there is no baseline date, or if (R) is in the domain and (L1) is marked on or after the baseline date, or if (R) is not in the domain and (L2) is marked on or after the baseline date:
 							(+) Let (R2) be the region assigned to (L2).
-							(+) If (R1) is (R2), or if (R1) is in the domain and ((R2) is adjacent to (R), contains (R), or contained in (R)), or if (R2) is in the domain and is adjacent to (R) [notes:  because (R1) is not in the domain, (R2) won't contain or be contained in (R); the comparison is with (R) not (R1) because adjacencies may not be defined for (R1)] -- prevents comparison when neither locality is in the domain:
+							(+) If (R1) is in the domain and (((R1) is (R2)) OR ((R2) is adjacent to (R), contains (R), or contained in (R))), OR if (R2) is in the domain and is adjacent to (R) [notes:  because (R1) is not in the domain, (R2) won't contain or be contained in (R); the comparison is with (R) not (R1) because adjacencies may not be defined for (R1)] -- prevents comparison when neither locality is in the domain:
 								[END COMMON LOGIC]
 								(+) Collect the found matches (M) of all sorted phonetic series (Z2) in (L2) that are found in (I), such that the sorted word series (W1) for the phonetic series (Z1) in (L1) that is synonymous with (Z2) is not paired with the sorted word series (W2) for (Z2) in ExcludedMatchesStore.
 								[BEGIN COMMON LOGIC]
