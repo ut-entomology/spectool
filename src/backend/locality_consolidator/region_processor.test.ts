@@ -20,15 +20,12 @@ const localityDefaults = {
 };
 
 test('process isolated region, isolated locality', async () => {
-  const regions = [new TestRegion(1, 'Travis County', false)];
+  const regions = [region1];
   const localities = [
-    new CachedLocality(
-      Object.assign({}, localityDefaults, {
-        regionID: regions[0].id,
-        localityID: 10,
-        name: 'Zilker Preserve'
-      })
-    )
+    createLocalityData(localityDefaults, {
+      regionID: regions[0].id,
+      name: 'Zilker Preserve'
+    })
   ];
 
   const matches = await runProcessor({
@@ -49,16 +46,14 @@ test('process isolated region, isolated locality', async () => {
 
 describe('phonetic locality matching', () => {
   test('process only two single-word matching localities', async () => {
-    const regions = [new TestRegion(1, 'Travis County', false)];
-    const localities: LocalityData[] = [
-      Object.assign({}, localityDefaults, {
+    const regions = [region1];
+    const localities = [
+      createLocalityData(localityDefaults, {
         regionID: regions[0].id,
-        localityID: 10,
         name: 'Zilker Preserve'
       }),
-      Object.assign({}, localityDefaults, {
+      createLocalityData(localityDefaults, {
         regionID: regions[0].id,
-        localityID: 11,
         name: 'Zilker Park'
       })
     ];
@@ -108,6 +103,125 @@ describe('phonetic locality matching', () => {
       }
     ]);
   });
+
+  test('process three single-word matching localities', async () => {
+    const regions = [region1];
+    const localities = [
+      createLocalityData(localityDefaults, {
+        regionID: regions[0].id,
+        name: 'Zilker Preserve'
+      }),
+      createLocalityData(localityDefaults, {
+        regionID: regions[0].id,
+        name: 'Zilker Park'
+      }),
+      createLocalityData(localityDefaults, {
+        regionID: regions[0].id,
+        name: 'Science Center at Zilker'
+      })
+    ];
+
+    const matches = await runProcessor({
+      baselineDate: null,
+      regionToProcess: regions[0],
+      domainRegions: regions,
+      nondomainRegions: [],
+      regionTree: {
+        region: regions[0],
+        localityCount: localities.length
+      },
+      adjacencyMap: {},
+      localities
+    });
+
+    const phoneticSeries = toPartialSortedPhoneticSeries(localities[0].name, 0, 0);
+    expect(matches).toEqual([
+      {
+        baseLocality: localities[0],
+        testLocality: localities[1],
+        matches: [
+          {
+            sortedPhoneticSeries: phoneticSeries,
+            baseSubsets: [
+              {
+                sortedPhoneticSeries: phoneticSeries,
+                firstWordIndex: 0,
+                lastWordIndex: 0,
+                firstCharIndex: 0,
+                lastCharIndexPlusOne: 'Zilker'.length
+              }
+            ],
+            testSubsets: [
+              {
+                sortedPhoneticSeries: phoneticSeries,
+                firstWordIndex: 0,
+                lastWordIndex: 0,
+                firstCharIndex: 0,
+                lastCharIndexPlusOne: 'Zilker'.length
+              }
+            ]
+          }
+        ],
+        excludedSubsetPairs: []
+      },
+      {
+        baseLocality: localities[0],
+        testLocality: localities[2],
+        matches: [
+          {
+            sortedPhoneticSeries: phoneticSeries,
+            baseSubsets: [
+              {
+                sortedPhoneticSeries: phoneticSeries,
+                firstWordIndex: 0,
+                lastWordIndex: 0,
+                firstCharIndex: 0,
+                lastCharIndexPlusOne: 'Zilker'.length
+              }
+            ],
+            testSubsets: [
+              {
+                sortedPhoneticSeries: phoneticSeries,
+                firstWordIndex: 2,
+                lastWordIndex: 2,
+                firstCharIndex: 'Science Center at '.length,
+                lastCharIndexPlusOne: localities[2].name.length
+              }
+            ]
+          }
+        ],
+        excludedSubsetPairs: []
+      },
+      {
+        baseLocality: localities[1],
+        testLocality: localities[2],
+        matches: [
+          {
+            sortedPhoneticSeries: phoneticSeries,
+            baseSubsets: [
+              {
+                sortedPhoneticSeries: phoneticSeries,
+                firstWordIndex: 0,
+                lastWordIndex: 0,
+                firstCharIndex: 0,
+                lastCharIndexPlusOne: 'Zilker'.length
+              }
+            ],
+            testSubsets: [
+              {
+                sortedPhoneticSeries: phoneticSeries,
+                firstWordIndex: 2,
+                lastWordIndex: 2,
+                firstCharIndex: 'Science Center at '.length,
+                lastCharIndexPlusOne: localities[2].name.length
+              }
+            ]
+          }
+        ],
+        excludedSubsetPairs: []
+      }
+    ]);
+  });
 });
 
 //// TEST SUPPPORT ///////////////////////////////////////////////////////////
@@ -118,6 +232,8 @@ class TestRegion extends Region {
     this.flags = processSubregions ? PROCESS_SUBREGIONS_FLAG : 0;
   }
 }
+
+const region1 = new TestRegion(1, 'Travis County', false);
 
 class MockLocalityCache implements LocalityCache {
   private _phoneticCodeIndex: MockPhoneticCodeIndex;
@@ -164,6 +280,17 @@ class MockLocalityCache implements LocalityCache {
       await this._phoneticCodeIndex.removeLocality(locality);
     }
   }
+}
+
+let localityID = 100;
+
+function createLocalityData(
+  defaultData: Partial<LocalityData>,
+  data: Partial<LocalityData>
+): LocalityData {
+  return Object.assign({}, defaultData, data, {
+    localityID: localityID++
+  }) as LocalityData;
 }
 
 function purgeCachedWordSeries(localityMatch: LocalityMatch): void {
