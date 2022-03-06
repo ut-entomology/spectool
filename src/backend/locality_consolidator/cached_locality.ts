@@ -7,8 +7,8 @@ import type {
   PhoneticMatch
 } from '../../shared/shared_locality';
 
-// Words ignored when comparing localities, in addition to all words
-// of one or two characteres.
+// Words ignored when comparing localities, in addition to all words of one or two
+// characteres. Adding words to this list will break stored excluded matches.
 const EXCLUDED_WORDS = ['and', 'for', 'from', 'the', 'with'];
 
 /**

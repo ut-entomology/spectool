@@ -410,6 +410,10 @@ describe('phonetic locality matching', () => {
         name: 'Zilker Park'
       }),
       createLocalityData(localityDefaults, {
+        regionID: region2.id,
+        name: 'Zilker'
+      }),
+      createLocalityData(localityDefaults, {
         regionID: region3.id,
         name: 'Another Zilker'
       })
@@ -460,14 +464,42 @@ describe('phonetic locality matching', () => {
           }
         ],
         excludedSubsetPairs: []
+      },
+      {
+        baseLocality: localities[0],
+        testLocality: localities[2],
+        matches: [
+          {
+            sortedPhoneticSeries: phoneticSeries,
+            baseSubsets: [
+              {
+                sortedPhoneticSeries: phoneticSeries,
+                firstWordIndex: 0,
+                lastWordIndex: 0,
+                firstCharIndex: 0,
+                lastCharIndexPlusOne: 'Zilker'.length
+              }
+            ],
+            testSubsets: [
+              {
+                sortedPhoneticSeries: phoneticSeries,
+                firstWordIndex: 0,
+                lastWordIndex: 0,
+                firstCharIndex: 0,
+                lastCharIndexPlusOne: 'Zilker'.length
+              }
+            ]
+          }
+        ],
+        excludedSubsetPairs: []
       }
-      // no matches with localities[2] in region3 because only immediately adjacent
+      // no matches with localities[3] in region3 because only immediately adjacent
       // regions are compared; adjacency is not transitive.
     ]);
   });
 
   test('matches with contained regions', async () => {
-    const regions = [region0, region1, region2];
+    const regions = [region0, region1, region2, region3];
     const localities = [
       createLocalityData(localityDefaults, {
         regionID: region0.id,
@@ -480,6 +512,10 @@ describe('phonetic locality matching', () => {
       createLocalityData(localityDefaults, {
         regionID: region2.id,
         name: 'Park'
+      }),
+      createLocalityData(localityDefaults, {
+        regionID: region3.id,
+        name: 'Another Park'
       })
     ];
 
@@ -493,7 +529,7 @@ describe('phonetic locality matching', () => {
         children: [
           {
             region: region1,
-            children: [{ region: region2 }]
+            children: [{ region: region2 }, { region: region3 }]
           }
         ]
       },
@@ -558,6 +594,34 @@ describe('phonetic locality matching', () => {
           }
         ],
         excludedSubsetPairs: []
+      },
+      {
+        baseLocality: localities[0],
+        testLocality: localities[3],
+        matches: [
+          {
+            sortedPhoneticSeries: phoneticSeries,
+            baseSubsets: [
+              {
+                sortedPhoneticSeries: phoneticSeries,
+                firstWordIndex: 2,
+                lastWordIndex: 2,
+                firstCharIndex: localities[0].name.indexOf('Park'),
+                lastCharIndexPlusOne: localities[0].name.length
+              }
+            ],
+            testSubsets: [
+              {
+                sortedPhoneticSeries: phoneticSeries,
+                firstWordIndex: 1,
+                lastWordIndex: 1,
+                firstCharIndex: localities[3].name.indexOf('Park'),
+                lastCharIndexPlusOne: localities[3].name.length
+              }
+            ]
+          }
+        ],
+        excludedSubsetPairs: []
       }
       // does not match localities 1 with 2 because neither is in the processed region
     ]);
@@ -577,6 +641,10 @@ describe('phonetic locality matching', () => {
       createLocalityData(localityDefaults, {
         regionID: region2.id,
         name: 'Park'
+      }),
+      createLocalityData(localityDefaults, {
+        regionID: region2.id,
+        name: 'Another Park'
       })
     ];
 
@@ -641,6 +709,90 @@ describe('phonetic locality matching', () => {
                 lastWordIndex: 0,
                 firstCharIndex: localities[2].name.indexOf('Park'),
                 lastCharIndexPlusOne: localities[2].name.length
+              }
+            ],
+            testSubsets: [
+              {
+                sortedPhoneticSeries: phoneticSeries,
+                firstWordIndex: 1,
+                lastWordIndex: 1,
+                firstCharIndex: localities[1].name.indexOf('Park'),
+                lastCharIndexPlusOne: localities[1].name.length
+              }
+            ]
+          }
+        ],
+        excludedSubsetPairs: []
+      },
+      {
+        baseLocality: localities[2],
+        testLocality: localities[3],
+        matches: [
+          {
+            sortedPhoneticSeries: phoneticSeries,
+            baseSubsets: [
+              {
+                sortedPhoneticSeries: phoneticSeries,
+                firstWordIndex: 0,
+                lastWordIndex: 0,
+                firstCharIndex: localities[2].name.indexOf('Park'),
+                lastCharIndexPlusOne: localities[2].name.length
+              }
+            ],
+            testSubsets: [
+              {
+                sortedPhoneticSeries: phoneticSeries,
+                firstWordIndex: 1,
+                lastWordIndex: 1,
+                firstCharIndex: localities[3].name.indexOf('Park'),
+                lastCharIndexPlusOne: localities[3].name.length
+              }
+            ]
+          }
+        ],
+        excludedSubsetPairs: []
+      },
+      {
+        baseLocality: localities[3],
+        testLocality: localities[0],
+        matches: [
+          {
+            sortedPhoneticSeries: phoneticSeries,
+            baseSubsets: [
+              {
+                sortedPhoneticSeries: phoneticSeries,
+                firstWordIndex: 1,
+                lastWordIndex: 1,
+                firstCharIndex: localities[3].name.indexOf('Park'),
+                lastCharIndexPlusOne: localities[3].name.length
+              }
+            ],
+            testSubsets: [
+              {
+                sortedPhoneticSeries: phoneticSeries,
+                firstWordIndex: 2,
+                lastWordIndex: 2,
+                firstCharIndex: localities[0].name.indexOf('Park'),
+                lastCharIndexPlusOne: localities[0].name.length
+              }
+            ]
+          }
+        ],
+        excludedSubsetPairs: []
+      },
+      {
+        baseLocality: localities[3],
+        testLocality: localities[1],
+        matches: [
+          {
+            sortedPhoneticSeries: phoneticSeries,
+            baseSubsets: [
+              {
+                sortedPhoneticSeries: phoneticSeries,
+                firstWordIndex: 1,
+                lastWordIndex: 1,
+                firstCharIndex: localities[3].name.indexOf('Park'),
+                lastCharIndexPlusOne: localities[3].name.length
               }
             ],
             testSubsets: [
