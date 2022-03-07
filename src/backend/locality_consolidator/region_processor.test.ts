@@ -970,10 +970,100 @@ describe('phonetic locality matching', () => {
       }
     ]);
   });
+
+  test('matches adjoining non-domain regions', async () => {
+    const localities = [
+      createLocalityData(localityDefaults, {
+        regionID: region0.id,
+        name: 'Zilker Preserve'
+      }),
+      createLocalityData(localityDefaults, {
+        regionID: region1.id,
+        name: 'Zilker Park'
+      }),
+      createLocalityData(localityDefaults, {
+        regionID: region2.id,
+        name: 'Zilker'
+      })
+    ];
+    const adjacencyMap: AdjacencyMap = {};
+    adjacencyMap[region1.id] = [region2];
+
+    const matches = await runProcessor({
+      baselineDate: null,
+      regionToProcess: region1,
+      domainRegions: [region1],
+      nondomainRegions: [region0, region2],
+      regionTree: {
+        region: region0,
+        children: [{ region: region1 }, { region: region2 }]
+      },
+      adjacencyMap,
+      localities
+    });
+
+    const phoneticSeries = toPartialSortedPhoneticSeries(localities[0].name, 0, 0);
+    expect(matches).toEqual([
+      {
+        baseLocality: localities[1],
+        testLocality: localities[0],
+        matches: [
+          {
+            sortedPhoneticSeries: phoneticSeries,
+            baseSubsets: [
+              {
+                sortedPhoneticSeries: phoneticSeries,
+                firstWordIndex: 0,
+                lastWordIndex: 0,
+                firstCharIndex: 0,
+                lastCharIndexPlusOne: 'Zilker'.length
+              }
+            ],
+            testSubsets: [
+              {
+                sortedPhoneticSeries: phoneticSeries,
+                firstWordIndex: 0,
+                lastWordIndex: 0,
+                firstCharIndex: 0,
+                lastCharIndexPlusOne: 'Zilker'.length
+              }
+            ]
+          }
+        ],
+        excludedSubsetPairs: []
+      },
+      {
+        baseLocality: localities[1],
+        testLocality: localities[2],
+        matches: [
+          {
+            sortedPhoneticSeries: phoneticSeries,
+            baseSubsets: [
+              {
+                sortedPhoneticSeries: phoneticSeries,
+                firstWordIndex: 0,
+                lastWordIndex: 0,
+                firstCharIndex: 0,
+                lastCharIndexPlusOne: 'Zilker'.length
+              }
+            ],
+            testSubsets: [
+              {
+                sortedPhoneticSeries: phoneticSeries,
+                firstWordIndex: 0,
+                lastWordIndex: 0,
+                firstCharIndex: 0,
+                lastCharIndexPlusOne: 'Zilker'.length
+              }
+            ]
+          }
+        ],
+        excludedSubsetPairs: []
+      }
+    ]);
+  });
 });
 
-// TODO: process domain regions, verify comparisons with non-domains regions.
-// Am I doing this already?
 describe('processing non-domain regions with no baseline date', () => {
   test('matches only adjoining in-domain regions', async () => {
     const localities = [
