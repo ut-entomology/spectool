@@ -392,6 +392,8 @@ describe('phonetic locality matching', () => {
     ]);
   });
 
+  // TODO: If a parent is adjacent to another region, should children
+  // of the parent also be adjacent? Not tested.
   test('matches across adjacent regions', async () => {
     const localities = [
       createLocalityData(localityDefaults, {
@@ -934,6 +936,8 @@ describe('phonetic locality matching', () => {
   });
 });
 
+// TODO: process domain regions, verify comparisons with non-domains regions.
+// Am I doing this already?
 describe('processing non-domain regions with no baseline date', () => {
   test('matches only adjoining in-domain regions', async () => {
     const localities = [
@@ -1075,7 +1079,7 @@ describe('processing non-domain regions with no baseline date', () => {
     ]);
   });
 
-  test('does not match localities of processed non-domain region', async () => {
+  test('does not match localities of a processed non-domain region', async () => {
     const localities = [
       createLocalityData(localityDefaults, {
         regionID: region1.id,
@@ -1229,6 +1233,444 @@ describe('processing non-domain regions with no baseline date', () => {
   });
 });
 
+describe('processing included subregions', () => {
+  test('process domain region that includes its subregions', async () => {
+    const localities = [
+      createLocalityData(localityDefaults, {
+        regionID: region0.id,
+        name: 'Austin City Park'
+      }),
+      createLocalityData(localityDefaults, {
+        regionID: superregion6.id,
+        name: 'Zilker Park'
+      }),
+      createLocalityData(localityDefaults, {
+        regionID: region2.id,
+        name: 'Parck'
+      }),
+      createLocalityData(localityDefaults, {
+        regionID: region3.id,
+        name: 'Another Parrk'
+      }),
+      createLocalityData(localityDefaults, {
+        regionID: region4.id,
+        name: 'Adjacent Paark'
+      })
+    ];
+    const adjacencyMap: AdjacencyMap = {};
+    adjacencyMap[superregion6.id] = [region4];
+
+    const matches = await runProcessor({
+      baselineDate: null,
+      regionToProcess: superregion6,
+      domainRegions: [superregion6, region2, region3],
+      nondomainRegions: [region0, region4],
+      regionTree: {
+        region: region0,
+        children: [
+          {
+            region: superregion6,
+            children: [{ region: region2, children: [{ region: region3 }] }]
+          },
+          { region: region4 }
+        ]
+      },
+      adjacencyMap,
+      localities
+    });
+
+    const phoneticSeries = toSortedPhoneticSeries('park');
+    expect(matches).toEqual([
+      {
+        baseLocality: localities[1],
+        testLocality: localities[0],
+        matches: [
+          {
+            sortedPhoneticSeries: phoneticSeries,
+            baseSubsets: [
+              {
+                sortedPhoneticSeries: phoneticSeries,
+                firstWordIndex: 1,
+                lastWordIndex: 1,
+                firstCharIndex: localities[1].name.indexOf('Park'),
+                lastCharIndexPlusOne: localities[1].name.length
+              }
+            ],
+            testSubsets: [
+              {
+                sortedPhoneticSeries: phoneticSeries,
+                firstWordIndex: 2,
+                lastWordIndex: 2,
+                firstCharIndex: localities[0].name.indexOf('Park'),
+                lastCharIndexPlusOne: localities[0].name.length
+              }
+            ]
+          }
+        ],
+        excludedSubsetPairs: []
+      },
+      {
+        baseLocality: localities[1],
+        testLocality: localities[2],
+        matches: [
+          {
+            sortedPhoneticSeries: phoneticSeries,
+            baseSubsets: [
+              {
+                sortedPhoneticSeries: phoneticSeries,
+                firstWordIndex: 1,
+                lastWordIndex: 1,
+                firstCharIndex: localities[1].name.indexOf('Park'),
+                lastCharIndexPlusOne: localities[1].name.length
+              }
+            ],
+            testSubsets: [
+              {
+                sortedPhoneticSeries: phoneticSeries,
+                firstWordIndex: 0,
+                lastWordIndex: 0,
+                firstCharIndex: localities[2].name.indexOf('Parck'),
+                lastCharIndexPlusOne: localities[2].name.length
+              }
+            ]
+          }
+        ],
+        excludedSubsetPairs: []
+      },
+      {
+        baseLocality: localities[1],
+        testLocality: localities[3],
+        matches: [
+          {
+            sortedPhoneticSeries: phoneticSeries,
+            baseSubsets: [
+              {
+                sortedPhoneticSeries: phoneticSeries,
+                firstWordIndex: 1,
+                lastWordIndex: 1,
+                firstCharIndex: localities[1].name.indexOf('Park'),
+                lastCharIndexPlusOne: localities[1].name.length
+              }
+            ],
+            testSubsets: [
+              {
+                sortedPhoneticSeries: phoneticSeries,
+                firstWordIndex: 1,
+                lastWordIndex: 1,
+                firstCharIndex: localities[3].name.indexOf('Parrk'),
+                lastCharIndexPlusOne: localities[3].name.length
+              }
+            ]
+          }
+        ],
+        excludedSubsetPairs: []
+      },
+      {
+        baseLocality: localities[1],
+        testLocality: localities[4],
+        matches: [
+          {
+            sortedPhoneticSeries: phoneticSeries,
+            baseSubsets: [
+              {
+                sortedPhoneticSeries: phoneticSeries,
+                firstWordIndex: 1,
+                lastWordIndex: 1,
+                firstCharIndex: localities[1].name.indexOf('Park'),
+                lastCharIndexPlusOne: localities[1].name.length
+              }
+            ],
+            testSubsets: [
+              {
+                sortedPhoneticSeries: phoneticSeries,
+                firstWordIndex: 1,
+                lastWordIndex: 1,
+                firstCharIndex: localities[4].name.indexOf('Paark'),
+                lastCharIndexPlusOne: localities[4].name.length
+              }
+            ]
+          }
+        ],
+        excludedSubsetPairs: []
+      },
+      {
+        baseLocality: localities[2],
+        testLocality: localities[0],
+        matches: [
+          {
+            sortedPhoneticSeries: phoneticSeries,
+            baseSubsets: [
+              {
+                sortedPhoneticSeries: phoneticSeries,
+                firstWordIndex: 0,
+                lastWordIndex: 0,
+                firstCharIndex: localities[2].name.indexOf('Parck'),
+                lastCharIndexPlusOne: localities[2].name.length
+              }
+            ],
+            testSubsets: [
+              {
+                sortedPhoneticSeries: phoneticSeries,
+                firstWordIndex: 2,
+                lastWordIndex: 2,
+                firstCharIndex: localities[0].name.indexOf('Park'),
+                lastCharIndexPlusOne: localities[0].name.length
+              }
+            ]
+          }
+        ],
+        excludedSubsetPairs: []
+      },
+      {
+        baseLocality: localities[2],
+        testLocality: localities[3],
+        matches: [
+          {
+            sortedPhoneticSeries: phoneticSeries,
+            baseSubsets: [
+              {
+                sortedPhoneticSeries: phoneticSeries,
+                firstWordIndex: 0,
+                lastWordIndex: 0,
+                firstCharIndex: localities[2].name.indexOf('Parck'),
+                lastCharIndexPlusOne: localities[2].name.length
+              }
+            ],
+            testSubsets: [
+              {
+                sortedPhoneticSeries: phoneticSeries,
+                firstWordIndex: 1,
+                lastWordIndex: 1,
+                firstCharIndex: localities[3].name.indexOf('Parrk'),
+                lastCharIndexPlusOne: localities[3].name.length
+              }
+            ]
+          }
+        ],
+        excludedSubsetPairs: []
+      },
+      {
+        baseLocality: localities[2],
+        testLocality: localities[4],
+        matches: [
+          {
+            sortedPhoneticSeries: phoneticSeries,
+            baseSubsets: [
+              {
+                sortedPhoneticSeries: phoneticSeries,
+                firstWordIndex: 0,
+                lastWordIndex: 0,
+                firstCharIndex: localities[2].name.indexOf('Parck'),
+                lastCharIndexPlusOne: localities[2].name.length
+              }
+            ],
+            testSubsets: [
+              {
+                sortedPhoneticSeries: phoneticSeries,
+                firstWordIndex: 1,
+                lastWordIndex: 1,
+                firstCharIndex: localities[4].name.indexOf('Paark'),
+                lastCharIndexPlusOne: localities[4].name.length
+              }
+            ]
+          }
+        ],
+        excludedSubsetPairs: []
+      },
+      {
+        baseLocality: localities[3],
+        testLocality: localities[0],
+        matches: [
+          {
+            sortedPhoneticSeries: phoneticSeries,
+            baseSubsets: [
+              {
+                sortedPhoneticSeries: phoneticSeries,
+                firstWordIndex: 1,
+                lastWordIndex: 1,
+                firstCharIndex: localities[3].name.indexOf('Parrk'),
+                lastCharIndexPlusOne: localities[3].name.length
+              }
+            ],
+            testSubsets: [
+              {
+                sortedPhoneticSeries: phoneticSeries,
+                firstWordIndex: 2,
+                lastWordIndex: 2,
+                firstCharIndex: localities[0].name.indexOf('Park'),
+                lastCharIndexPlusOne: localities[0].name.length
+              }
+            ]
+          }
+        ],
+        excludedSubsetPairs: []
+      },
+      {
+        baseLocality: localities[3],
+        testLocality: localities[4],
+        matches: [
+          {
+            sortedPhoneticSeries: phoneticSeries,
+            baseSubsets: [
+              {
+                sortedPhoneticSeries: phoneticSeries,
+                firstWordIndex: 1,
+                lastWordIndex: 1,
+                firstCharIndex: localities[3].name.indexOf('Parrk'),
+                lastCharIndexPlusOne: localities[3].name.length
+              }
+            ],
+            testSubsets: [
+              {
+                sortedPhoneticSeries: phoneticSeries,
+                firstWordIndex: 1,
+                lastWordIndex: 1,
+                firstCharIndex: localities[4].name.indexOf('Paark'),
+                lastCharIndexPlusOne: localities[4].name.length
+              }
+            ]
+          }
+        ],
+        excludedSubsetPairs: []
+      }
+    ]);
+  });
+
+  test('process non-domain region that includes its subregions', async () => {
+    const localities = [
+      createLocalityData(localityDefaults, {
+        regionID: region0.id,
+        name: 'Austin City Park'
+      }),
+      createLocalityData(localityDefaults, {
+        regionID: superregion6.id,
+        name: 'Zilker Park'
+      }),
+      createLocalityData(localityDefaults, {
+        regionID: region2.id,
+        name: 'Parck'
+      }),
+      createLocalityData(localityDefaults, {
+        regionID: region3.id,
+        name: 'Another Parrk'
+      }),
+      createLocalityData(localityDefaults, {
+        regionID: region4.id,
+        name: 'Adjacent Paark'
+      })
+    ];
+    const adjacencyMap: AdjacencyMap = {};
+    adjacencyMap[superregion6.id] = [region4];
+
+    const matches = await runProcessor({
+      baselineDate: null,
+      regionToProcess: superregion6,
+      domainRegions: [region4],
+      nondomainRegions: [region0, superregion6, region2, region3],
+      regionTree: {
+        region: region0,
+        children: [
+          {
+            region: superregion6,
+            children: [{ region: region2, children: [{ region: region3 }] }]
+          },
+          { region: region4 }
+        ]
+      },
+      adjacencyMap,
+      localities
+    });
+
+    const phoneticSeries = toSortedPhoneticSeries('park');
+    expect(matches).toEqual([
+      {
+        baseLocality: localities[1],
+        testLocality: localities[4],
+        matches: [
+          {
+            sortedPhoneticSeries: phoneticSeries,
+            baseSubsets: [
+              {
+                sortedPhoneticSeries: phoneticSeries,
+                firstWordIndex: 1,
+                lastWordIndex: 1,
+                firstCharIndex: localities[1].name.indexOf('Park'),
+                lastCharIndexPlusOne: localities[1].name.length
+              }
+            ],
+            testSubsets: [
+              {
+                sortedPhoneticSeries: phoneticSeries,
+                firstWordIndex: 1,
+                lastWordIndex: 1,
+                firstCharIndex: localities[4].name.indexOf('Paark'),
+                lastCharIndexPlusOne: localities[4].name.length
+              }
+            ]
+          }
+        ],
+        excludedSubsetPairs: []
+      },
+      {
+        baseLocality: localities[2],
+        testLocality: localities[4],
+        matches: [
+          {
+            sortedPhoneticSeries: phoneticSeries,
+            baseSubsets: [
+              {
+                sortedPhoneticSeries: phoneticSeries,
+                firstWordIndex: 0,
+                lastWordIndex: 0,
+                firstCharIndex: localities[2].name.indexOf('Parck'),
+                lastCharIndexPlusOne: localities[2].name.length
+              }
+            ],
+            testSubsets: [
+              {
+                sortedPhoneticSeries: phoneticSeries,
+                firstWordIndex: 1,
+                lastWordIndex: 1,
+                firstCharIndex: localities[4].name.indexOf('Paark'),
+                lastCharIndexPlusOne: localities[4].name.length
+              }
+            ]
+          }
+        ],
+        excludedSubsetPairs: []
+      },
+      {
+        baseLocality: localities[3],
+        testLocality: localities[4],
+        matches: [
+          {
+            sortedPhoneticSeries: phoneticSeries,
+            baseSubsets: [
+              {
+                sortedPhoneticSeries: phoneticSeries,
+                firstWordIndex: 1,
+                lastWordIndex: 1,
+                firstCharIndex: localities[3].name.indexOf('Parrk'),
+                lastCharIndexPlusOne: localities[3].name.length
+              }
+            ],
+            testSubsets: [
+              {
+                sortedPhoneticSeries: phoneticSeries,
+                firstWordIndex: 1,
+                lastWordIndex: 1,
+                firstCharIndex: localities[4].name.indexOf('Paark'),
+                lastCharIndexPlusOne: localities[4].name.length
+              }
+            ]
+          }
+        ],
+        excludedSubsetPairs: []
+      }
+    ]);
+  });
+});
+
 //// TEST SUPPPORT ///////////////////////////////////////////////////////////
 
 class TestRegion extends Region {
@@ -1246,6 +1688,7 @@ const region2 = new TestRegion('Bastrop County', false);
 const region3 = new TestRegion('Hays County', false);
 const region4 = new TestRegion('Burnet County', false);
 const region5 = new TestRegion('Blanco County', false);
+const superregion6 = new TestRegion('Some State', true);
 
 class MockLocalityCache implements LocalityCache {
   private _phoneticCodeIndex: MockPhoneticCodeIndex;
