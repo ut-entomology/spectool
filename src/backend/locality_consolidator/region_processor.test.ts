@@ -17,17 +17,10 @@ import {
 
 type AdjacencyMap = Record<number, Region[]>;
 
-const localityDefaults = {
-  latitude: null,
-  longitude: null,
-  remarks: '',
-  lastModified: new Date('1-Jan-2022').getTime()
-};
-
 describe('no matches', () => {
   test('process isolated region, isolated locality', async () => {
     const localities = [
-      createLocalityData(localityDefaults, {
+      createLocalityData({
         regionID: region1.id,
         name: 'Zilker Preserve'
       })
@@ -48,15 +41,15 @@ describe('no matches', () => {
 
   test('process three non-matching localities', async () => {
     const localities = [
-      createLocalityData(localityDefaults, {
+      createLocalityData({
         regionID: region1.id,
         name: 'Zilker Preserve'
       }),
-      createLocalityData(localityDefaults, {
+      createLocalityData({
         regionID: region1.id,
         name: 'Austin Nature and Science Center'
       }),
-      createLocalityData(localityDefaults, {
+      createLocalityData({
         regionID: region1.id,
         name: 'McKinney Roughs Park'
       })
@@ -77,11 +70,11 @@ describe('no matches', () => {
 
   test('no match across non-adjoining regions', async () => {
     const localities = [
-      createLocalityData(localityDefaults, {
+      createLocalityData({
         regionID: region1.id,
         name: 'Zilker Preserve'
       }),
-      createLocalityData(localityDefaults, {
+      createLocalityData({
         regionID: region2.id,
         name: 'Zilker Park'
       })
@@ -107,11 +100,11 @@ describe('no matches', () => {
 describe('phonetic locality matching', () => {
   test('process only two single-word matching localities', async () => {
     const localities = [
-      createLocalityData(localityDefaults, {
+      createLocalityData({
         regionID: region1.id,
         name: 'Zilker Preserve'
       }),
-      createLocalityData(localityDefaults, {
+      createLocalityData({
         regionID: region1.id,
         name: 'Zilker Park'
       })
@@ -162,15 +155,15 @@ describe('phonetic locality matching', () => {
 
   test('process three single-word matching localities', async () => {
     const localities = [
-      createLocalityData(localityDefaults, {
+      createLocalityData({
         regionID: region1.id,
         name: 'Zilker Preserve'
       }),
-      createLocalityData(localityDefaults, {
+      createLocalityData({
         regionID: region1.id,
         name: 'Zilker Park'
       }),
-      createLocalityData(localityDefaults, {
+      createLocalityData({
         regionID: region1.id,
         name: 'Science Center at Zilker'
       })
@@ -277,15 +270,15 @@ describe('phonetic locality matching', () => {
 
   test('process multiple matches within localities', async () => {
     const localities = [
-      createLocalityData(localityDefaults, {
+      createLocalityData({
         regionID: region1.id,
         name: 'Zilker Nature Park and Nature Preserve'
       }),
-      createLocalityData(localityDefaults, {
+      createLocalityData({
         regionID: region1.id,
         name: 'Park at Zilker Park'
       }),
-      createLocalityData(localityDefaults, {
+      createLocalityData({
         regionID: region1.id,
         name: 'Another Nature Preserve'
       })
@@ -394,23 +387,23 @@ describe('phonetic locality matching', () => {
 
   test('matches across adjacent regions', async () => {
     const localities = [
-      createLocalityData(localityDefaults, {
+      createLocalityData({
         regionID: region1.id,
         name: 'Zilker Preserve'
       }),
-      createLocalityData(localityDefaults, {
+      createLocalityData({
         regionID: region2.id,
         name: 'Zilker Park'
       }),
-      createLocalityData(localityDefaults, {
+      createLocalityData({
         regionID: region2.id,
         name: 'Zilker'
       }),
-      createLocalityData(localityDefaults, {
+      createLocalityData({
         regionID: region3.id,
         name: 'Another Zilker'
       }),
-      createLocalityData(localityDefaults, {
+      createLocalityData({
         regionID: region4.id,
         name: 'Child Zilker'
       })
@@ -531,19 +524,19 @@ describe('phonetic locality matching', () => {
 
   test('matches with contained regions', async () => {
     const localities = [
-      createLocalityData(localityDefaults, {
+      createLocalityData({
         regionID: region0.id,
         name: 'Austin City Park'
       }),
-      createLocalityData(localityDefaults, {
+      createLocalityData({
         regionID: region1.id,
         name: 'Zilker Park'
       }),
-      createLocalityData(localityDefaults, {
+      createLocalityData({
         regionID: region2.id,
         name: 'Park'
       }),
-      createLocalityData(localityDefaults, {
+      createLocalityData({
         regionID: region3.id,
         name: 'Another Park'
       })
@@ -659,19 +652,19 @@ describe('phonetic locality matching', () => {
 
   test('matches with containing regions', async () => {
     const localities = [
-      createLocalityData(localityDefaults, {
+      createLocalityData({
         regionID: region0.id,
         name: 'Austin City Park'
       }),
-      createLocalityData(localityDefaults, {
+      createLocalityData({
         regionID: region1.id,
         name: 'Zilker Park'
       }),
-      createLocalityData(localityDefaults, {
+      createLocalityData({
         regionID: region2.id,
         name: 'Park'
       }),
-      createLocalityData(localityDefaults, {
+      createLocalityData({
         regionID: region2.id,
         name: 'Another Park'
       })
@@ -843,19 +836,19 @@ describe('phonetic locality matching', () => {
 
   test('matches combo of contained, containing, and adjacent regions', async () => {
     const localities = [
-      createLocalityData(localityDefaults, {
+      createLocalityData({
         regionID: region0.id,
         name: 'Austin City Park'
       }),
-      createLocalityData(localityDefaults, {
+      createLocalityData({
         regionID: region1.id,
         name: 'Zilker Park'
       }),
-      createLocalityData(localityDefaults, {
+      createLocalityData({
         regionID: region2.id,
         name: 'Park'
       }),
-      createLocalityData(localityDefaults, {
+      createLocalityData({
         regionID: region3.id,
         name: 'Another Park'
       })
@@ -973,15 +966,15 @@ describe('phonetic locality matching', () => {
 
   test('matches adjoining non-domain regions', async () => {
     const localities = [
-      createLocalityData(localityDefaults, {
+      createLocalityData({
         regionID: region0.id,
         name: 'Zilker Preserve'
       }),
-      createLocalityData(localityDefaults, {
+      createLocalityData({
         regionID: region1.id,
         name: 'Zilker Park'
       }),
-      createLocalityData(localityDefaults, {
+      createLocalityData({
         regionID: region2.id,
         name: 'Zilker'
       })
@@ -1067,27 +1060,27 @@ describe('phonetic locality matching', () => {
 describe('processing non-domain regions with no baseline date', () => {
   test('matches only adjoining in-domain regions', async () => {
     const localities = [
-      createLocalityData(localityDefaults, {
+      createLocalityData({
         regionID: region1.id,
         name: 'Austin City Park'
       }),
-      createLocalityData(localityDefaults, {
+      createLocalityData({
         regionID: region2.id,
         name: 'Zilker Park'
       }),
-      createLocalityData(localityDefaults, {
+      createLocalityData({
         regionID: region3.id,
         name: 'Park'
       }),
-      createLocalityData(localityDefaults, {
+      createLocalityData({
         regionID: region4.id,
         name: 'Another Park'
       }),
-      createLocalityData(localityDefaults, {
+      createLocalityData({
         regionID: region5.id,
         name: 'Non-Domain Park'
       }),
-      createLocalityData(localityDefaults, {
+      createLocalityData({
         regionID: region0.id,
         name: 'Another Non-Domain Park'
       })
@@ -1206,19 +1199,19 @@ describe('processing non-domain regions with no baseline date', () => {
 
   test('does not match localities of a processed non-domain region', async () => {
     const localities = [
-      createLocalityData(localityDefaults, {
+      createLocalityData({
         regionID: region1.id,
         name: 'Zilker Park'
       }),
-      createLocalityData(localityDefaults, {
+      createLocalityData({
         regionID: region1.id,
         name: 'Zilker Park'
       }),
-      createLocalityData(localityDefaults, {
+      createLocalityData({
         regionID: region2.id,
         name: 'Zilker Park'
       }),
-      createLocalityData(localityDefaults, {
+      createLocalityData({
         regionID: region2.id,
         name: 'Zilker Park'
       })
@@ -1361,23 +1354,23 @@ describe('processing non-domain regions with no baseline date', () => {
 describe('processing included subregions', () => {
   test('process domain region that includes its subregions', async () => {
     const localities = [
-      createLocalityData(localityDefaults, {
+      createLocalityData({
         regionID: region0.id,
         name: 'Austin City Park'
       }),
-      createLocalityData(localityDefaults, {
+      createLocalityData({
         regionID: superregion6.id,
         name: 'Zilker Park'
       }),
-      createLocalityData(localityDefaults, {
+      createLocalityData({
         regionID: region2.id,
         name: 'Parck'
       }),
-      createLocalityData(localityDefaults, {
+      createLocalityData({
         regionID: region3.id,
         name: 'Another Parrk'
       }),
-      createLocalityData(localityDefaults, {
+      createLocalityData({
         regionID: region4.id,
         name: 'Adjacent Paark'
       })
@@ -1663,23 +1656,23 @@ describe('processing included subregions', () => {
 
   test('process non-domain region that includes its subregions', async () => {
     const localities = [
-      createLocalityData(localityDefaults, {
+      createLocalityData({
         regionID: region0.id,
         name: 'Austin City Park'
       }),
-      createLocalityData(localityDefaults, {
+      createLocalityData({
         regionID: superregion6.id,
         name: 'Zilker Park'
       }),
-      createLocalityData(localityDefaults, {
+      createLocalityData({
         regionID: region2.id,
         name: 'Parck'
       }),
-      createLocalityData(localityDefaults, {
+      createLocalityData({
         regionID: region3.id,
         name: 'Another Parrk'
       }),
-      createLocalityData(localityDefaults, {
+      createLocalityData({
         regionID: region4.id,
         name: 'Adjacent Paark'
       })
@@ -1800,27 +1793,27 @@ describe('using a baseline date', () => {
   test('processing an in-domain region using a baseline date', async () => {
     const baselineDate = new Date('January 15, 2022');
     const localities = [
-      createLocalityData(localityDefaults, {
+      createLocalityData({
         regionID: region1.id,
         name: 'Zilker A',
         lastModified: new Date('January 1, 2022').getTime() // before baseline date
       }),
-      createLocalityData(localityDefaults, {
+      createLocalityData({
         regionID: region1.id,
         name: 'Zilker B',
         lastModified: baselineDate.getTime() // exactly baseline date
       }),
-      createLocalityData(localityDefaults, {
+      createLocalityData({
         regionID: region1.id,
         name: 'Zilker C',
         lastModified: new Date('January 30, 2022').getTime() // after baseline date
       }),
-      createLocalityData(localityDefaults, {
+      createLocalityData({
         regionID: region2.id,
         name: 'Zilker D',
         lastModified: new Date('January 1, 2022').getTime() // before baseline date
       }),
-      createLocalityData(localityDefaults, {
+      createLocalityData({
         regionID: region3.id,
         name: 'Zilker E',
         lastModified: new Date('January 1, 2022').getTime() // before baseline date
@@ -1990,32 +1983,32 @@ describe('using a baseline date', () => {
   test('processing a non-domain region using a baseline date', async () => {
     const baselineDate = new Date('January 15, 2022');
     const localities = [
-      createLocalityData(localityDefaults, {
+      createLocalityData({
         regionID: region1.id,
         name: 'Zilker 0',
         lastModified: new Date('January 1, 2022').getTime() // before baseline date
       }),
-      createLocalityData(localityDefaults, {
+      createLocalityData({
         regionID: region1.id,
         name: 'Zilker 1',
         lastModified: new Date('January 30, 2022').getTime() // after baseline date
       }),
-      createLocalityData(localityDefaults, {
+      createLocalityData({
         regionID: region2.id,
         name: 'Zilker 2',
         lastModified: new Date('January 30, 2022').getTime() // after baseline date
       }),
-      createLocalityData(localityDefaults, {
+      createLocalityData({
         regionID: region2.id,
         name: 'Zilker 3',
         lastModified: new Date('January 1, 2022').getTime() // before baseline date
       }),
-      createLocalityData(localityDefaults, {
+      createLocalityData({
         regionID: region3.id,
         name: 'Zilker 4',
         lastModified: new Date('January 1, 2022').getTime() // before baseline date
       }),
-      createLocalityData(localityDefaults, {
+      createLocalityData({
         regionID: region3.id,
         name: 'Zilker 5',
         lastModified: new Date('January 30, 2022').getTime() // after baseline date
@@ -2263,13 +2256,20 @@ function completeAdjacencies(regions: Region[], adjacencyMap: AdjacencyMap): voi
 }
 
 let localityID = 100;
-function createLocalityData(
-  defaultData: Partial<LocalityData>,
-  data: Partial<LocalityData>
-): LocalityData {
-  return Object.assign({}, defaultData, data, {
-    localityID: localityID++
-  }) as LocalityData;
+function createLocalityData(data: Partial<LocalityData>): LocalityData {
+  return Object.assign(
+    {},
+    {
+      latitude: null,
+      longitude: null,
+      remarks: '',
+      lastModified: new Date('1-Jan-2022').getTime()
+    },
+    data,
+    {
+      localityID: localityID++
+    }
+  ) as LocalityData;
 }
 
 function purgeCachedWordSeries(localityMatch: LocalityMatch): void {
