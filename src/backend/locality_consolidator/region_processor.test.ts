@@ -1085,7 +1085,6 @@ describe('processing non-domain regions with no baseline date', () => {
       }),
       createLocalityData(localityDefaults, {
         regionID: region5.id,
-        // TODO: test matching dashes, commas, quotes, etc., if I'm not already
         name: 'Non-Domain Park'
       }),
       createLocalityData(localityDefaults, {

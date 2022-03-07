@@ -15,6 +15,30 @@ describe('word series utilities', () => {
     expect(wordSeries).toEqual('foo bar park');
   });
 
+  test('produces word series independent of punctuation', () => {
+    const locality1 = createCachedLocality('Foo Bar 123');
+    const locality2 = createCachedLocality('Foo-Bar,123');
+    const locality3 = createCachedLocality('Foo:Bar;123');
+    const locality4 = createCachedLocality('Foo/Bar.123');
+
+    const wordSeries = locality1.getEntireWordSeries();
+    expect(locality1.words).toEqual(['foo', 'bar', '123']);
+    expect(locality2.getEntireWordSeries()).toEqual(wordSeries);
+    expect(locality3.getEntireWordSeries()).toEqual(wordSeries);
+    expect(locality4.getEntireWordSeries()).toEqual(wordSeries);
+  });
+
+  test('produces word series ignoring single-quotes', () => {
+    const locality1 = createCachedLocality('Foobar Baz');
+    const locality2 = createCachedLocality("Foo'Bar Baz");
+    const locality3 = createCachedLocality('Foo`Bar Baz');
+
+    const wordSeries = locality1.getEntireWordSeries();
+    expect(locality1.words).toEqual(['foobar', 'baz']);
+    expect(locality2.getEntireWordSeries()).toEqual(wordSeries);
+    expect(locality3.getEntireWordSeries()).toEqual(wordSeries);
+  });
+
   test('produces word series for a phonetic subset', () => {
     let subset: PhoneticSubset = {
       sortedPhoneticSeries: 'BR FO PK',
