@@ -17,6 +17,29 @@ import {
 
 type AdjacencyMap = Record<number, Region[]>;
 
+const zilkerPhoneticSeries = toSortedPhoneticSeries('zilker');
+const zilkerMatch = {
+  sortedPhoneticSeries: zilkerPhoneticSeries,
+  baseSubsets: [
+    {
+      sortedPhoneticSeries: zilkerPhoneticSeries,
+      firstWordIndex: 0,
+      lastWordIndex: 0,
+      firstCharIndex: 0,
+      lastCharIndexPlusOne: 'Zilker'.length
+    }
+  ],
+  testSubsets: [
+    {
+      sortedPhoneticSeries: zilkerPhoneticSeries,
+      firstWordIndex: 0,
+      lastWordIndex: 0,
+      firstCharIndex: 0,
+      lastCharIndexPlusOne: 'Zilker'.length
+    }
+  ]
+};
+
 describe('no matches', () => {
   test('process isolated region, isolated locality', async () => {
     const localities = [
@@ -120,34 +143,11 @@ describe('phonetic locality matching', () => {
       localities
     });
 
-    const phoneticSeries = toPartialSortedPhoneticSeries(localities[0].name, 0, 0);
     expect(matches).toEqual([
       {
         baseLocality: localities[0],
         testLocality: localities[1],
-        matches: [
-          {
-            sortedPhoneticSeries: phoneticSeries,
-            baseSubsets: [
-              {
-                sortedPhoneticSeries: phoneticSeries,
-                firstWordIndex: 0,
-                lastWordIndex: 0,
-                firstCharIndex: 0,
-                lastCharIndexPlusOne: 'Zilker'.length
-              }
-            ],
-            testSubsets: [
-              {
-                sortedPhoneticSeries: phoneticSeries,
-                firstWordIndex: 0,
-                lastWordIndex: 0,
-                firstCharIndex: 0,
-                lastCharIndexPlusOne: 'Zilker'.length
-              }
-            ]
-          }
-        ],
+        matches: [zilkerMatch],
         excludedSubsetPairs: []
       }
     ]);
@@ -184,29 +184,7 @@ describe('phonetic locality matching', () => {
       {
         baseLocality: localities[0],
         testLocality: localities[1],
-        matches: [
-          {
-            sortedPhoneticSeries: phoneticSeries,
-            baseSubsets: [
-              {
-                sortedPhoneticSeries: phoneticSeries,
-                firstWordIndex: 0,
-                lastWordIndex: 0,
-                firstCharIndex: 0,
-                lastCharIndexPlusOne: 'Zilker'.length
-              }
-            ],
-            testSubsets: [
-              {
-                sortedPhoneticSeries: phoneticSeries,
-                firstWordIndex: 0,
-                lastWordIndex: 0,
-                firstCharIndex: 0,
-                lastCharIndexPlusOne: 'Zilker'.length
-              }
-            ]
-          }
-        ],
+        matches: [zilkerMatch],
         excludedSubsetPairs: []
       },
       {
@@ -434,57 +412,13 @@ describe('phonetic locality matching', () => {
       {
         baseLocality: localities[0],
         testLocality: localities[1],
-        matches: [
-          {
-            sortedPhoneticSeries: phoneticSeries,
-            baseSubsets: [
-              {
-                sortedPhoneticSeries: phoneticSeries,
-                firstWordIndex: 0,
-                lastWordIndex: 0,
-                firstCharIndex: 0,
-                lastCharIndexPlusOne: 'Zilker'.length
-              }
-            ],
-            testSubsets: [
-              {
-                sortedPhoneticSeries: phoneticSeries,
-                firstWordIndex: 0,
-                lastWordIndex: 0,
-                firstCharIndex: 0,
-                lastCharIndexPlusOne: 'Zilker'.length
-              }
-            ]
-          }
-        ],
+        matches: [zilkerMatch],
         excludedSubsetPairs: []
       },
       {
         baseLocality: localities[0],
         testLocality: localities[2],
-        matches: [
-          {
-            sortedPhoneticSeries: phoneticSeries,
-            baseSubsets: [
-              {
-                sortedPhoneticSeries: phoneticSeries,
-                firstWordIndex: 0,
-                lastWordIndex: 0,
-                firstCharIndex: 0,
-                lastCharIndexPlusOne: 'Zilker'.length
-              }
-            ],
-            testSubsets: [
-              {
-                sortedPhoneticSeries: phoneticSeries,
-                firstWordIndex: 0,
-                lastWordIndex: 0,
-                firstCharIndex: 0,
-                lastCharIndexPlusOne: 'Zilker'.length
-              }
-            ]
-          }
-        ],
+        matches: [zilkerMatch],
         excludedSubsetPairs: []
       },
       {
@@ -995,62 +929,17 @@ describe('phonetic locality matching', () => {
       localities
     });
 
-    const phoneticSeries = toPartialSortedPhoneticSeries(localities[0].name, 0, 0);
     expect(matches).toEqual([
       {
         baseLocality: localities[1],
         testLocality: localities[0],
-        matches: [
-          {
-            sortedPhoneticSeries: phoneticSeries,
-            baseSubsets: [
-              {
-                sortedPhoneticSeries: phoneticSeries,
-                firstWordIndex: 0,
-                lastWordIndex: 0,
-                firstCharIndex: 0,
-                lastCharIndexPlusOne: 'Zilker'.length
-              }
-            ],
-            testSubsets: [
-              {
-                sortedPhoneticSeries: phoneticSeries,
-                firstWordIndex: 0,
-                lastWordIndex: 0,
-                firstCharIndex: 0,
-                lastCharIndexPlusOne: 'Zilker'.length
-              }
-            ]
-          }
-        ],
+        matches: [zilkerMatch],
         excludedSubsetPairs: []
       },
       {
         baseLocality: localities[1],
         testLocality: localities[2],
-        matches: [
-          {
-            sortedPhoneticSeries: phoneticSeries,
-            baseSubsets: [
-              {
-                sortedPhoneticSeries: phoneticSeries,
-                firstWordIndex: 0,
-                lastWordIndex: 0,
-                firstCharIndex: 0,
-                lastCharIndexPlusOne: 'Zilker'.length
-              }
-            ],
-            testSubsets: [
-              {
-                sortedPhoneticSeries: phoneticSeries,
-                firstWordIndex: 0,
-                lastWordIndex: 0,
-                firstCharIndex: 0,
-                lastCharIndexPlusOne: 'Zilker'.length
-              }
-            ]
-          }
-        ],
+        matches: [zilkerMatch],
         excludedSubsetPairs: []
       }
     ]);
@@ -1835,146 +1724,35 @@ describe('using a baseline date', () => {
       localities
     });
 
-    const phoneticSeries = toPartialSortedPhoneticSeries(localities[0].name, 0, 0);
     expect(matches).toEqual([
       {
         baseLocality: localities[1],
         testLocality: localities[2],
-        matches: [
-          {
-            sortedPhoneticSeries: phoneticSeries,
-            baseSubsets: [
-              {
-                sortedPhoneticSeries: phoneticSeries,
-                firstWordIndex: 0,
-                lastWordIndex: 0,
-                firstCharIndex: 0,
-                lastCharIndexPlusOne: 'Zilker'.length
-              }
-            ],
-            testSubsets: [
-              {
-                sortedPhoneticSeries: phoneticSeries,
-                firstWordIndex: 0,
-                lastWordIndex: 0,
-                firstCharIndex: 0,
-                lastCharIndexPlusOne: 'Zilker'.length
-              }
-            ]
-          }
-        ],
+        matches: [zilkerMatch],
         excludedSubsetPairs: []
       },
       {
         baseLocality: localities[1],
         testLocality: localities[3],
-        matches: [
-          {
-            sortedPhoneticSeries: phoneticSeries,
-            baseSubsets: [
-              {
-                sortedPhoneticSeries: phoneticSeries,
-                firstWordIndex: 0,
-                lastWordIndex: 0,
-                firstCharIndex: 0,
-                lastCharIndexPlusOne: 'Zilker'.length
-              }
-            ],
-            testSubsets: [
-              {
-                sortedPhoneticSeries: phoneticSeries,
-                firstWordIndex: 0,
-                lastWordIndex: 0,
-                firstCharIndex: 0,
-                lastCharIndexPlusOne: 'Zilker'.length
-              }
-            ]
-          }
-        ],
+        matches: [zilkerMatch],
         excludedSubsetPairs: []
       },
       {
         baseLocality: localities[1],
         testLocality: localities[4],
-        matches: [
-          {
-            sortedPhoneticSeries: phoneticSeries,
-            baseSubsets: [
-              {
-                sortedPhoneticSeries: phoneticSeries,
-                firstWordIndex: 0,
-                lastWordIndex: 0,
-                firstCharIndex: 0,
-                lastCharIndexPlusOne: 'Zilker'.length
-              }
-            ],
-            testSubsets: [
-              {
-                sortedPhoneticSeries: phoneticSeries,
-                firstWordIndex: 0,
-                lastWordIndex: 0,
-                firstCharIndex: 0,
-                lastCharIndexPlusOne: 'Zilker'.length
-              }
-            ]
-          }
-        ],
+        matches: [zilkerMatch],
         excludedSubsetPairs: []
       },
       {
         baseLocality: localities[2],
         testLocality: localities[3],
-        matches: [
-          {
-            sortedPhoneticSeries: phoneticSeries,
-            baseSubsets: [
-              {
-                sortedPhoneticSeries: phoneticSeries,
-                firstWordIndex: 0,
-                lastWordIndex: 0,
-                firstCharIndex: 0,
-                lastCharIndexPlusOne: 'Zilker'.length
-              }
-            ],
-            testSubsets: [
-              {
-                sortedPhoneticSeries: phoneticSeries,
-                firstWordIndex: 0,
-                lastWordIndex: 0,
-                firstCharIndex: 0,
-                lastCharIndexPlusOne: 'Zilker'.length
-              }
-            ]
-          }
-        ],
+        matches: [zilkerMatch],
         excludedSubsetPairs: []
       },
       {
         baseLocality: localities[2],
         testLocality: localities[4],
-        matches: [
-          {
-            sortedPhoneticSeries: phoneticSeries,
-            baseSubsets: [
-              {
-                sortedPhoneticSeries: phoneticSeries,
-                firstWordIndex: 0,
-                lastWordIndex: 0,
-                firstCharIndex: 0,
-                lastCharIndexPlusOne: 'Zilker'.length
-              }
-            ],
-            testSubsets: [
-              {
-                sortedPhoneticSeries: phoneticSeries,
-                firstWordIndex: 0,
-                lastWordIndex: 0,
-                firstCharIndex: 0,
-                lastCharIndexPlusOne: 'Zilker'.length
-              }
-            ]
-          }
-        ],
+        matches: [zilkerMatch],
         excludedSubsetPairs: []
       }
     ]);
@@ -2033,118 +1811,29 @@ describe('using a baseline date', () => {
       localities
     });
 
-    const phoneticSeries = toPartialSortedPhoneticSeries(localities[0].name, 0, 0);
     expect(matches).toEqual([
       {
         baseLocality: localities[0],
         testLocality: localities[2],
-        matches: [
-          {
-            sortedPhoneticSeries: phoneticSeries,
-            baseSubsets: [
-              {
-                sortedPhoneticSeries: phoneticSeries,
-                firstWordIndex: 0,
-                lastWordIndex: 0,
-                firstCharIndex: 0,
-                lastCharIndexPlusOne: 'Zilker'.length
-              }
-            ],
-            testSubsets: [
-              {
-                sortedPhoneticSeries: phoneticSeries,
-                firstWordIndex: 0,
-                lastWordIndex: 0,
-                firstCharIndex: 0,
-                lastCharIndexPlusOne: 'Zilker'.length
-              }
-            ]
-          }
-        ],
+        matches: [zilkerMatch],
         excludedSubsetPairs: []
       },
       {
         baseLocality: localities[0],
         testLocality: localities[5],
-        matches: [
-          {
-            sortedPhoneticSeries: phoneticSeries,
-            baseSubsets: [
-              {
-                sortedPhoneticSeries: phoneticSeries,
-                firstWordIndex: 0,
-                lastWordIndex: 0,
-                firstCharIndex: 0,
-                lastCharIndexPlusOne: 'Zilker'.length
-              }
-            ],
-            testSubsets: [
-              {
-                sortedPhoneticSeries: phoneticSeries,
-                firstWordIndex: 0,
-                lastWordIndex: 0,
-                firstCharIndex: 0,
-                lastCharIndexPlusOne: 'Zilker'.length
-              }
-            ]
-          }
-        ],
+        matches: [zilkerMatch],
         excludedSubsetPairs: []
       },
       {
         baseLocality: localities[1],
         testLocality: localities[2],
-        matches: [
-          {
-            sortedPhoneticSeries: phoneticSeries,
-            baseSubsets: [
-              {
-                sortedPhoneticSeries: phoneticSeries,
-                firstWordIndex: 0,
-                lastWordIndex: 0,
-                firstCharIndex: 0,
-                lastCharIndexPlusOne: 'Zilker'.length
-              }
-            ],
-            testSubsets: [
-              {
-                sortedPhoneticSeries: phoneticSeries,
-                firstWordIndex: 0,
-                lastWordIndex: 0,
-                firstCharIndex: 0,
-                lastCharIndexPlusOne: 'Zilker'.length
-              }
-            ]
-          }
-        ],
+        matches: [zilkerMatch],
         excludedSubsetPairs: []
       },
       {
         baseLocality: localities[1],
         testLocality: localities[5],
-        matches: [
-          {
-            sortedPhoneticSeries: phoneticSeries,
-            baseSubsets: [
-              {
-                sortedPhoneticSeries: phoneticSeries,
-                firstWordIndex: 0,
-                lastWordIndex: 0,
-                firstCharIndex: 0,
-                lastCharIndexPlusOne: 'Zilker'.length
-              }
-            ],
-            testSubsets: [
-              {
-                sortedPhoneticSeries: phoneticSeries,
-                firstWordIndex: 0,
-                lastWordIndex: 0,
-                firstCharIndex: 0,
-                lastCharIndexPlusOne: 'Zilker'.length
-              }
-            ]
-          }
-        ],
+        matches: [zilkerMatch],
         excludedSubsetPairs: []
       }
     ]);
