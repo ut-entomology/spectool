@@ -1922,7 +1922,63 @@ describe('using a baseline date', () => {
 });
 
 describe('phonetically-synonymous locality matching', () => {
-  //
+  test('process only two single-word synonymous localities', async () => {
+    const localities = [
+      createLocalityData({
+        regionID: region1.id,
+        name: 'Brackenridge'
+      }),
+      createLocalityData({
+        regionID: region1.id,
+        name: 'BFL'
+      })
+    ];
+    const synonyms: StoredSynonym[][] = [
+      [createSynonym(localities[0].name), createSynonym(localities[1].name)]
+    ];
+
+    const matches = await runProcessor({
+      baselineDate: null,
+      regionToProcess: region1,
+      domainRegions: [region1],
+      nondomainRegions: [],
+      regionTree: { region: region1 },
+      localities,
+      adjacencyMap: {},
+      synonyms
+    });
+
+    expect(matches).toEqual([
+      {
+        baseLocality: localities[0],
+        testLocality: localities[1],
+        matches: [
+          {
+            sortedPhoneticSeries: synonyms[0][0].phoneticSeries,
+            baseSubsets: [
+              {
+                sortedPhoneticSeries: synonyms[0][0].phoneticSeries,
+                firstWordIndex: 0,
+                lastWordIndex: 0,
+                firstCharIndex: 0,
+                lastCharIndexPlusOne: localities[0].name.length
+              }
+            ],
+            testSubsets: [
+              {
+                sortedPhoneticSeries: synonyms[0][1].phoneticSeries,
+                firstWordIndex: 0,
+                lastWordIndex: 0,
+                firstCharIndex: 0,
+                lastCharIndexPlusOne: localities[1].name.length
+              }
+            ]
+          }
+        ],
+        excludedSubsetPairs: []
+      }
+    ]);
+  });
 });
 
 //// TEST SUPPPORT ///////////////////////////////////////////////////////////
@@ -2047,12 +2103,12 @@ function createLocalityData(data: Partial<LocalityData>): LocalityData {
 }
 
 // Assumes that all ignored words have been removed from phrase.
-// function createSynonym(fromPhrase: string): StoredSynonym {
-//   return {
-//     originalWordSeries: fromPhrase.toLocaleLowerCase(),
-//     phoneticSeries: toSortedPhoneticSeries(fromPhrase)
-//   };
-// }
+function createSynonym(fromPhrase: string): StoredSynonym {
+  return {
+    originalWordSeries: fromPhrase.toLocaleLowerCase(),
+    phoneticSeries: toSortedPhoneticSeries(fromPhrase)
+  };
+}
 
 function purgeCachedWordSeries(localityMatch: LocalityMatch): void {
   for (const phoneticMatch of localityMatch.matches) {
@@ -2095,14 +2151,14 @@ async function runProcessor(config: {
     await regionRoster.getOrCreate(region, false);
   }
 
-  const potentialSynonymsStore = new MockPotentialSynonymsStore();
+  const phoneticCodeIndex = new MockPhoneticCodeIndex();
+  const potentialSynonymsStore = new MockPotentialSynonymsStore(phoneticCodeIndex);
   if (config.synonyms) {
     for (const synonymPair of config.synonyms) {
       potentialSynonymsStore.addSynonym(synonymPair[0], synonymPair[1]);
     }
   }
 
-  const phoneticCodeIndex = new MockPhoneticCodeIndex();
   const processor = new RegionProcessor(
     regionAccess,
     new MockLocalityCache(

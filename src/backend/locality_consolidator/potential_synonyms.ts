@@ -3,6 +3,7 @@
  * in localities. Word series are treated as potentially synonymous if
  * sorts of their phonetic encodings are identical.
  */
+import type { PhoneticCodeIndex } from './phonetic_code_index';
 
 /**
  * Structure representing a stored synonym.
@@ -18,6 +19,16 @@ export interface StoredSynonym {
  * Base class for synonyms among locality word series.
  */
 export abstract class PotentialSynonymsStore {
+  protected _phoneticCodeIndex: PhoneticCodeIndex;
+
+  /**
+   * @phoneticCodeIndex The index in which to index synonyms by their
+   * contituent phonetic codes.
+   */
+  constructor(phoneticCodeIndex: PhoneticCodeIndex) {
+    this._phoneticCodeIndex = phoneticCodeIndex;
+  }
+
   /**
    * Adds a synonym to the storage, where `synonym1` is equivalent to
    * `synonym2`. Argument order does not matter.
@@ -88,6 +99,7 @@ export abstract class PotentialSynonymsStore {
     }
     synonyms.push(indexedSynonym);
     this._setSynonymList(phoneticSeriesIndex, synonyms);
+    this._phoneticCodeIndex.addPhoneticSeriesSynonym(phoneticSeriesIndex);
   }
 
   private _collectSynonymousSeries(
@@ -127,6 +139,7 @@ export abstract class PotentialSynonymsStore {
       if (synonyms[i].originalWordSeries == indexedSynonym.originalWordSeries) {
         synonyms.splice(i, 1);
         this._setSynonymList(phoneticSeriesIndex, synonyms);
+        this._phoneticCodeIndex.removePhoneticSeriesSynonym(phoneticSeriesIndex);
         return; // removed this half of synonym
       }
     }
