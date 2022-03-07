@@ -1796,6 +1796,368 @@ describe('processing included subregions', () => {
   });
 });
 
+describe('using a baseline date', () => {
+  test('processing an in-domain region using a baseline date', async () => {
+    const baselineDate = new Date('January 15, 2022');
+    const localities = [
+      createLocalityData(localityDefaults, {
+        regionID: region1.id,
+        name: 'Zilker A',
+        lastModified: new Date('January 1, 2022').getTime() // before baseline date
+      }),
+      createLocalityData(localityDefaults, {
+        regionID: region1.id,
+        name: 'Zilker B',
+        lastModified: baselineDate.getTime() // exactly baseline date
+      }),
+      createLocalityData(localityDefaults, {
+        regionID: region1.id,
+        name: 'Zilker C',
+        lastModified: new Date('January 30, 2022').getTime() // after baseline date
+      }),
+      createLocalityData(localityDefaults, {
+        regionID: region2.id,
+        name: 'Zilker D',
+        lastModified: new Date('January 1, 2022').getTime() // before baseline date
+      }),
+      createLocalityData(localityDefaults, {
+        regionID: region3.id,
+        name: 'Zilker E',
+        lastModified: new Date('January 1, 2022').getTime() // before baseline date
+      })
+    ];
+    const adjacencyMap: AdjacencyMap = {};
+    adjacencyMap[region1.id] = [region2, region3];
+
+    const matches = await runProcessor({
+      baselineDate,
+      regionToProcess: region1,
+      domainRegions: [region1, region2],
+      nondomainRegions: [region0, region3],
+      regionTree: {
+        region: region0,
+        children: [{ region: region1 }, { region: region2 }, { region: region3 }]
+      },
+      adjacencyMap,
+      localities
+    });
+
+    const phoneticSeries = toPartialSortedPhoneticSeries(localities[0].name, 0, 0);
+    expect(matches).toEqual([
+      {
+        baseLocality: localities[1],
+        testLocality: localities[2],
+        matches: [
+          {
+            sortedPhoneticSeries: phoneticSeries,
+            baseSubsets: [
+              {
+                sortedPhoneticSeries: phoneticSeries,
+                firstWordIndex: 0,
+                lastWordIndex: 0,
+                firstCharIndex: 0,
+                lastCharIndexPlusOne: 'Zilker'.length
+              }
+            ],
+            testSubsets: [
+              {
+                sortedPhoneticSeries: phoneticSeries,
+                firstWordIndex: 0,
+                lastWordIndex: 0,
+                firstCharIndex: 0,
+                lastCharIndexPlusOne: 'Zilker'.length
+              }
+            ]
+          }
+        ],
+        excludedSubsetPairs: []
+      },
+      {
+        baseLocality: localities[1],
+        testLocality: localities[3],
+        matches: [
+          {
+            sortedPhoneticSeries: phoneticSeries,
+            baseSubsets: [
+              {
+                sortedPhoneticSeries: phoneticSeries,
+                firstWordIndex: 0,
+                lastWordIndex: 0,
+                firstCharIndex: 0,
+                lastCharIndexPlusOne: 'Zilker'.length
+              }
+            ],
+            testSubsets: [
+              {
+                sortedPhoneticSeries: phoneticSeries,
+                firstWordIndex: 0,
+                lastWordIndex: 0,
+                firstCharIndex: 0,
+                lastCharIndexPlusOne: 'Zilker'.length
+              }
+            ]
+          }
+        ],
+        excludedSubsetPairs: []
+      },
+      {
+        baseLocality: localities[1],
+        testLocality: localities[4],
+        matches: [
+          {
+            sortedPhoneticSeries: phoneticSeries,
+            baseSubsets: [
+              {
+                sortedPhoneticSeries: phoneticSeries,
+                firstWordIndex: 0,
+                lastWordIndex: 0,
+                firstCharIndex: 0,
+                lastCharIndexPlusOne: 'Zilker'.length
+              }
+            ],
+            testSubsets: [
+              {
+                sortedPhoneticSeries: phoneticSeries,
+                firstWordIndex: 0,
+                lastWordIndex: 0,
+                firstCharIndex: 0,
+                lastCharIndexPlusOne: 'Zilker'.length
+              }
+            ]
+          }
+        ],
+        excludedSubsetPairs: []
+      },
+      {
+        baseLocality: localities[2],
+        testLocality: localities[3],
+        matches: [
+          {
+            sortedPhoneticSeries: phoneticSeries,
+            baseSubsets: [
+              {
+                sortedPhoneticSeries: phoneticSeries,
+                firstWordIndex: 0,
+                lastWordIndex: 0,
+                firstCharIndex: 0,
+                lastCharIndexPlusOne: 'Zilker'.length
+              }
+            ],
+            testSubsets: [
+              {
+                sortedPhoneticSeries: phoneticSeries,
+                firstWordIndex: 0,
+                lastWordIndex: 0,
+                firstCharIndex: 0,
+                lastCharIndexPlusOne: 'Zilker'.length
+              }
+            ]
+          }
+        ],
+        excludedSubsetPairs: []
+      },
+      {
+        baseLocality: localities[2],
+        testLocality: localities[4],
+        matches: [
+          {
+            sortedPhoneticSeries: phoneticSeries,
+            baseSubsets: [
+              {
+                sortedPhoneticSeries: phoneticSeries,
+                firstWordIndex: 0,
+                lastWordIndex: 0,
+                firstCharIndex: 0,
+                lastCharIndexPlusOne: 'Zilker'.length
+              }
+            ],
+            testSubsets: [
+              {
+                sortedPhoneticSeries: phoneticSeries,
+                firstWordIndex: 0,
+                lastWordIndex: 0,
+                firstCharIndex: 0,
+                lastCharIndexPlusOne: 'Zilker'.length
+              }
+            ]
+          }
+        ],
+        excludedSubsetPairs: []
+      }
+    ]);
+  });
+
+  test('processing a non-domain region using a baseline date', async () => {
+    const baselineDate = new Date('January 15, 2022');
+    const localities = [
+      createLocalityData(localityDefaults, {
+        regionID: region1.id,
+        name: 'Zilker 0',
+        lastModified: new Date('January 1, 2022').getTime() // before baseline date
+      }),
+      createLocalityData(localityDefaults, {
+        regionID: region1.id,
+        name: 'Zilker 1',
+        lastModified: new Date('January 30, 2022').getTime() // after baseline date
+      }),
+      createLocalityData(localityDefaults, {
+        regionID: region2.id,
+        name: 'Zilker 2',
+        lastModified: new Date('January 30, 2022').getTime() // after baseline date
+      }),
+      createLocalityData(localityDefaults, {
+        regionID: region2.id,
+        name: 'Zilker 3',
+        lastModified: new Date('January 1, 2022').getTime() // before baseline date
+      }),
+      createLocalityData(localityDefaults, {
+        regionID: region3.id,
+        name: 'Zilker 4',
+        lastModified: new Date('January 1, 2022').getTime() // before baseline date
+      }),
+      createLocalityData(localityDefaults, {
+        regionID: region3.id,
+        name: 'Zilker 5',
+        lastModified: new Date('January 30, 2022').getTime() // after baseline date
+      })
+    ];
+    const adjacencyMap: AdjacencyMap = {};
+    adjacencyMap[region1.id] = [region3];
+
+    const matches = await runProcessor({
+      baselineDate,
+      regionToProcess: region1,
+      domainRegions: [region2, region3],
+      nondomainRegions: [region0, region1],
+      regionTree: {
+        region: region0,
+        children: [
+          { region: region1, children: [{ region: region2 }] },
+          { region: region3 }
+        ]
+      },
+      adjacencyMap,
+      localities
+    });
+
+    const phoneticSeries = toPartialSortedPhoneticSeries(localities[0].name, 0, 0);
+    expect(matches).toEqual([
+      {
+        baseLocality: localities[0],
+        testLocality: localities[2],
+        matches: [
+          {
+            sortedPhoneticSeries: phoneticSeries,
+            baseSubsets: [
+              {
+                sortedPhoneticSeries: phoneticSeries,
+                firstWordIndex: 0,
+                lastWordIndex: 0,
+                firstCharIndex: 0,
+                lastCharIndexPlusOne: 'Zilker'.length
+              }
+            ],
+            testSubsets: [
+              {
+                sortedPhoneticSeries: phoneticSeries,
+                firstWordIndex: 0,
+                lastWordIndex: 0,
+                firstCharIndex: 0,
+                lastCharIndexPlusOne: 'Zilker'.length
+              }
+            ]
+          }
+        ],
+        excludedSubsetPairs: []
+      },
+      {
+        baseLocality: localities[0],
+        testLocality: localities[5],
+        matches: [
+          {
+            sortedPhoneticSeries: phoneticSeries,
+            baseSubsets: [
+              {
+                sortedPhoneticSeries: phoneticSeries,
+                firstWordIndex: 0,
+                lastWordIndex: 0,
+                firstCharIndex: 0,
+                lastCharIndexPlusOne: 'Zilker'.length
+              }
+            ],
+            testSubsets: [
+              {
+                sortedPhoneticSeries: phoneticSeries,
+                firstWordIndex: 0,
+                lastWordIndex: 0,
+                firstCharIndex: 0,
+                lastCharIndexPlusOne: 'Zilker'.length
+              }
+            ]
+          }
+        ],
+        excludedSubsetPairs: []
+      },
+      {
+        baseLocality: localities[1],
+        testLocality: localities[2],
+        matches: [
+          {
+            sortedPhoneticSeries: phoneticSeries,
+            baseSubsets: [
+              {
+                sortedPhoneticSeries: phoneticSeries,
+                firstWordIndex: 0,
+                lastWordIndex: 0,
+                firstCharIndex: 0,
+                lastCharIndexPlusOne: 'Zilker'.length
+              }
+            ],
+            testSubsets: [
+              {
+                sortedPhoneticSeries: phoneticSeries,
+                firstWordIndex: 0,
+                lastWordIndex: 0,
+                firstCharIndex: 0,
+                lastCharIndexPlusOne: 'Zilker'.length
+              }
+            ]
+          }
+        ],
+        excludedSubsetPairs: []
+      },
+      {
+        baseLocality: localities[1],
+        testLocality: localities[5],
+        matches: [
+          {
+            sortedPhoneticSeries: phoneticSeries,
+            baseSubsets: [
+              {
+                sortedPhoneticSeries: phoneticSeries,
+                firstWordIndex: 0,
+                lastWordIndex: 0,
+                firstCharIndex: 0,
+                lastCharIndexPlusOne: 'Zilker'.length
+              }
+            ],
+            testSubsets: [
+              {
+                sortedPhoneticSeries: phoneticSeries,
+                firstWordIndex: 0,
+                lastWordIndex: 0,
+                firstCharIndex: 0,
+                lastCharIndexPlusOne: 'Zilker'.length
+              }
+            ]
+          }
+        ],
+        excludedSubsetPairs: []
+      }
+    ]);
+  });
+});
+
 //// TEST SUPPPORT ///////////////////////////////////////////////////////////
 
 class TestRegion extends Region {
