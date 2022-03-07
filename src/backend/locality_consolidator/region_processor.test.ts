@@ -2,6 +2,7 @@ import { CachedLocality } from './cached_locality';
 import type { LocalityCache } from './locality_cache';
 import type { TrackedRegion } from './tracked_region';
 import { RegionProcessor } from './region_processor';
+import type { StoredSynonym } from './potential_synonyms';
 import { Region, RegionRank } from '../../shared/shared_geography';
 import { MockRegionAccess, RegionNode } from './mock/mock_region_access';
 import { MockTrackedRegionRoster } from './mock/mock_tracked_region_roster';
@@ -14,6 +15,7 @@ import {
   toPartialSortedPhoneticSeries,
   toSortedPhoneticSeries
 } from './mock/phonetic_util';
+import type { ExcludedMatchesStore } from './excluded_matches';
 
 type AdjacencyMap = Record<number, Region[]>;
 
@@ -55,7 +57,6 @@ describe('no matches', () => {
       domainRegions: [region1],
       nondomainRegions: [],
       regionTree: { region: region1 },
-      adjacencyMap: {},
       localities
     });
 
@@ -84,7 +85,6 @@ describe('no matches', () => {
       domainRegions: [region1],
       nondomainRegions: [],
       regionTree: { region: region1 },
-      adjacencyMap: {},
       localities
     });
 
@@ -112,7 +112,6 @@ describe('no matches', () => {
         region: region0,
         children: [{ region: region1 }, { region: region2 }]
       },
-      adjacencyMap: {},
       localities
     });
 
@@ -139,7 +138,6 @@ describe('phonetic locality matching', () => {
       domainRegions: [region1],
       nondomainRegions: [],
       regionTree: { region: region1 },
-      adjacencyMap: {},
       localities
     });
 
@@ -175,7 +173,6 @@ describe('phonetic locality matching', () => {
       domainRegions: [region1],
       nondomainRegions: [],
       regionTree: { region: region1 },
-      adjacencyMap: {},
       localities
     });
 
@@ -268,7 +265,6 @@ describe('phonetic locality matching', () => {
       domainRegions: [region1],
       nondomainRegions: [],
       regionTree: { region: region1 },
-      adjacencyMap: {},
       localities
     });
 
@@ -403,8 +399,8 @@ describe('phonetic locality matching', () => {
           { region: region3 }
         ]
       },
-      adjacencyMap,
-      localities
+      localities,
+      adjacencyMap
     });
 
     const phoneticSeries = toPartialSortedPhoneticSeries(localities[0].name, 0, 0);
@@ -490,7 +486,6 @@ describe('phonetic locality matching', () => {
           }
         ]
       },
-      adjacencyMap: {},
       localities
     });
 
@@ -618,7 +613,6 @@ describe('phonetic locality matching', () => {
           }
         ]
       },
-      adjacencyMap: {},
       localities
     });
 
@@ -805,8 +799,8 @@ describe('phonetic locality matching', () => {
           { region: region3 }
         ]
       },
-      adjacencyMap,
-      localities
+      localities,
+      adjacencyMap
     });
 
     const phoneticSeries = toSortedPhoneticSeries('park');
@@ -925,8 +919,8 @@ describe('phonetic locality matching', () => {
         region: region0,
         children: [{ region: region1 }, { region: region2 }]
       },
-      adjacencyMap,
-      localities
+      localities,
+      adjacencyMap
     });
 
     expect(matches).toEqual([
@@ -993,8 +987,8 @@ describe('processing non-domain regions with no baseline date', () => {
           { region: region5 }
         ]
       },
-      adjacencyMap,
-      localities
+      localities,
+      adjacencyMap
     });
 
     const phoneticSeries = toSortedPhoneticSeries('park');
@@ -1117,8 +1111,8 @@ describe('processing non-domain regions with no baseline date', () => {
         region: region0,
         children: [{ region: region1 }, { region: region2 }]
       },
-      adjacencyMap,
-      localities
+      localities,
+      adjacencyMap
     });
 
     const wordSeries = 'Zilker Park';
@@ -1282,8 +1276,8 @@ describe('processing included subregions', () => {
           { region: region4 }
         ]
       },
-      adjacencyMap,
-      localities
+      localities,
+      adjacencyMap
     });
 
     const phoneticSeries = toSortedPhoneticSeries('park');
@@ -1584,8 +1578,8 @@ describe('processing included subregions', () => {
           { region: region4 }
         ]
       },
-      adjacencyMap,
-      localities
+      localities,
+      adjacencyMap
     });
 
     const phoneticSeries = toSortedPhoneticSeries('park');
@@ -1720,8 +1714,8 @@ describe('using a baseline date', () => {
         region: region0,
         children: [{ region: region1 }, { region: region2 }, { region: region3 }]
       },
-      adjacencyMap,
-      localities
+      localities,
+      adjacencyMap
     });
 
     expect(matches).toEqual([
@@ -1807,8 +1801,8 @@ describe('using a baseline date', () => {
           { region: region3 }
         ]
       },
-      adjacencyMap,
-      localities
+      localities,
+      adjacencyMap
     });
 
     expect(matches).toEqual([
@@ -1978,21 +1972,23 @@ async function runProcessor(config: {
   domainRegions: Region[];
   nondomainRegions: Region[];
   regionTree: RegionNode;
-  adjacencyMap: AdjacencyMap;
   localities: LocalityData[];
+  adjacencyMap?: AdjacencyMap;
+  synonyms?: StoredSynonym[][];
+  excludedMatchesStore?: ExcludedMatchesStore;
 }): Promise<LocalityMatch[]> {
   const allRegions = config.domainRegions.concat(config.nondomainRegions);
   verifyRegions(allRegions, config.regionTree, config.localities);
   assignLocalityCounts(config.regionTree, config.localities);
-  completeAdjacencies(allRegions, config.adjacencyMap);
+  if (config.adjacencyMap) {
+    completeAdjacencies(allRegions, config.adjacencyMap);
+  }
 
   const regionAccess = new MockRegionAccess(
     config.regionTree as RegionNode,
-    config.adjacencyMap
+    config.adjacencyMap || {}
   );
-  const phoneticCodeIndex = new MockPhoneticCodeIndex();
   const regionRoster = new MockTrackedRegionRoster();
-
   for (const region of config.domainRegions) {
     await regionRoster.getOrCreate(region, true);
   }
@@ -2000,16 +1996,24 @@ async function runProcessor(config: {
     await regionRoster.getOrCreate(region, false);
   }
 
+  const potentialSynonymsStore = new MockPotentialSynonymsStore();
+  if (config.synonyms) {
+    for (const synonymPair of config.synonyms) {
+      potentialSynonymsStore.addSynonym(synonymPair[0], synonymPair[1]);
+    }
+  }
+
+  const phoneticCodeIndex = new MockPhoneticCodeIndex();
   const processor = new RegionProcessor(
     regionAccess,
     new MockLocalityCache(
       phoneticCodeIndex,
       config.localities.map((data) => new CachedLocality(data))
     ),
-    new MockPotentialSynonymsStore(),
+    potentialSynonymsStore,
     phoneticCodeIndex,
     regionRoster,
-    new MockExcludedMatchesStore()
+    config.excludedMatchesStore || new MockExcludedMatchesStore()
   );
 
   const matches: LocalityMatch[] = [];
