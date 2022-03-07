@@ -392,8 +392,6 @@ describe('phonetic locality matching', () => {
     ]);
   });
 
-  // TODO: If a parent is adjacent to another region, should children
-  // of the parent also be adjacent? Not tested.
   test('matches across adjacent regions', async () => {
     const localities = [
       createLocalityData(localityDefaults, {
@@ -411,6 +409,10 @@ describe('phonetic locality matching', () => {
       createLocalityData(localityDefaults, {
         regionID: region3.id,
         name: 'Another Zilker'
+      }),
+      createLocalityData(localityDefaults, {
+        regionID: region4.id,
+        name: 'Child Zilker'
       })
     ];
     const adjacencyMap: AdjacencyMap = {};
@@ -420,11 +422,15 @@ describe('phonetic locality matching', () => {
     const matches = await runProcessor({
       baselineDate: null,
       regionToProcess: region1,
-      domainRegions: [region0, region1, region2, region3],
+      domainRegions: [region0, region1, region2, region3, region4],
       nondomainRegions: [],
       regionTree: {
         region: region0,
-        children: [{ region: region1 }, { region: region2 }, { region: region3 }]
+        children: [
+          { region: region1, children: [{ region: region4 }] },
+          { region: region2 },
+          { region: region3 }
+        ]
       },
       adjacencyMap,
       localities
@@ -487,8 +493,38 @@ describe('phonetic locality matching', () => {
           }
         ],
         excludedSubsetPairs: []
+      },
+      {
+        baseLocality: localities[0],
+        testLocality: localities[4],
+        matches: [
+          {
+            sortedPhoneticSeries: phoneticSeries,
+            baseSubsets: [
+              {
+                sortedPhoneticSeries: phoneticSeries,
+                firstWordIndex: 0,
+                lastWordIndex: 0,
+                firstCharIndex: 0,
+                lastCharIndexPlusOne: 'Zilker'.length
+              }
+            ],
+            testSubsets: [
+              {
+                sortedPhoneticSeries: phoneticSeries,
+                firstWordIndex: 1,
+                lastWordIndex: 1,
+                firstCharIndex: localities[4].name.indexOf('Zilker'),
+                lastCharIndexPlusOne: localities[4].name.length
+              }
+            ]
+          }
+        ],
+        excludedSubsetPairs: []
       }
-      // no matches with localities[3] in region3 because only immediately adjacent
+      // No matches between localities[4] and region2 because the adjacency of a parent
+      // region does not always imply the adjacency of a child region.
+      // No matches with localities[3] in region3 because only immediately adjacent
       // regions are compared; adjacency is not transitive.
     ]);
   });
