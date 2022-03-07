@@ -1537,7 +1537,7 @@ describe('processing included subregions', () => {
     ]);
   });
 
-  test('process non-domain region that includes its subregions', async () => {
+  test('process non-domain region that includes its subregions (which it has)', async () => {
     const localities = [
       createLocalityData({
         regionID: region0.id,
@@ -1666,6 +1666,47 @@ describe('processing included subregions', () => {
             ]
           }
         ],
+        excludedSubsetPairs: []
+      }
+    ]);
+  });
+
+  test('process non-domain region that includes its subregions but has none', async () => {
+    const localities = [
+      createLocalityData({
+        regionID: region0.id,
+        name: 'Zilker Preserve'
+      }),
+      createLocalityData({
+        regionID: superregion6.id,
+        name: 'Zilker Park'
+      }),
+      createLocalityData({
+        regionID: region1.id,
+        name: 'Zilker'
+      })
+    ];
+    const adjacencyMap: AdjacencyMap = {};
+    adjacencyMap[superregion6.id] = [region1];
+
+    const matches = await runProcessor({
+      baselineDate: null,
+      regionToProcess: superregion6,
+      domainRegions: [region1],
+      nondomainRegions: [region0, superregion6],
+      regionTree: {
+        region: region0,
+        children: [{ region: superregion6 }, { region: region1 }]
+      },
+      localities,
+      adjacencyMap
+    });
+
+    expect(matches).toEqual([
+      {
+        baseLocality: localities[1],
+        testLocality: localities[2],
+        matches: [zilkerMatch],
         excludedSubsetPairs: []
       }
     ]);
