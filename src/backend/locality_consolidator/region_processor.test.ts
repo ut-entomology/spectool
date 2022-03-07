@@ -117,52 +117,6 @@ describe('no matches', () => {
 
     expect(matches).toEqual([]);
   });
-
-  test('no match processing a non-domain region using a baseline date', async () => {
-    const baselineDate = new Date('January 15, 2022');
-    const localities = [
-      createLocalityData({
-        regionID: region1.id,
-        name: 'Zilker 0',
-        lastModified: new Date('January 1, 2022').getTime() // before baseline date
-      }),
-      createLocalityData({
-        regionID: region1.id,
-        name: 'Zilker 1',
-        lastModified: new Date('January 30, 2022').getTime() // after baseline date
-      }),
-      createLocalityData({
-        regionID: region2.id,
-        name: 'Zilker 2',
-        lastModified: new Date('January 1, 2022').getTime() // before baseline date
-      }),
-      createLocalityData({
-        regionID: region3.id,
-        name: 'Zilker 3',
-        lastModified: new Date('January 1, 2022').getTime() // before baseline date
-      })
-    ];
-    const adjacencyMap: AdjacencyMap = {};
-    adjacencyMap[region1.id] = [region3];
-
-    const matches = await runProcessor({
-      baselineDate,
-      regionToProcess: region1,
-      domainRegions: [region2, region3],
-      nondomainRegions: [region0, region1],
-      regionTree: {
-        region: region0,
-        children: [
-          { region: region1, children: [{ region: region2 }] },
-          { region: region3 }
-        ]
-      },
-      localities,
-      adjacencyMap
-    });
-
-    expect(matches).toEqual([]);
-  });
 });
 
 describe('phonetically-similar locality matching', () => {
@@ -1877,6 +1831,52 @@ describe('using a baseline date', () => {
         excludedSubsetPairs: []
       }
     ]);
+  });
+
+  test('no match processing a non-domain region using a baseline date', async () => {
+    const baselineDate = new Date('January 15, 2022');
+    const localities = [
+      createLocalityData({
+        regionID: region1.id,
+        name: 'Zilker 0',
+        lastModified: new Date('January 1, 2022').getTime() // before baseline date
+      }),
+      createLocalityData({
+        regionID: region1.id,
+        name: 'Zilker 1',
+        lastModified: new Date('January 30, 2022').getTime() // after baseline date
+      }),
+      createLocalityData({
+        regionID: region2.id,
+        name: 'Zilker 2',
+        lastModified: new Date('January 1, 2022').getTime() // before baseline date
+      }),
+      createLocalityData({
+        regionID: region3.id,
+        name: 'Zilker 3',
+        lastModified: new Date('January 1, 2022').getTime() // before baseline date
+      })
+    ];
+    const adjacencyMap: AdjacencyMap = {};
+    adjacencyMap[region1.id] = [region3];
+
+    const matches = await runProcessor({
+      baselineDate,
+      regionToProcess: region1,
+      domainRegions: [region2, region3],
+      nondomainRegions: [region0, region1],
+      regionTree: {
+        region: region0,
+        children: [
+          { region: region1, children: [{ region: region2 }] },
+          { region: region3 }
+        ]
+      },
+      localities,
+      adjacencyMap
+    });
+
+    expect(matches).toEqual([]);
   });
 });
 
