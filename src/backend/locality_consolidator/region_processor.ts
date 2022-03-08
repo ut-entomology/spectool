@@ -346,7 +346,7 @@ export class RegionProcessor {
       });
     }
     const matches: PhoneticMatch[] = [];
-    for (let i = 0; i < testSubsetMatches.length - 1; ++i) {
+    for (let i = 0; i < testSubsetMatches.length; ++i) {
       const combinedMatch = testSubsetMatches[i];
       // only examine matches that weren't previously combined with prior matches
       if (combinedMatch.baseSubsets.length > 0) {
@@ -365,6 +365,14 @@ export class RegionProcessor {
         }
         matches.push(combinedMatch);
       }
+    }
+
+    // Sort by location and mark the locations of the base and test subsets in
+    // their respective localities.
+
+    for (const match of matches) {
+      baseLocality.sortAndMarkWordLocations(match.baseSubsets);
+      testLocality.sortAndMarkWordLocations(match.testSubsets);
     }
 
     // Collect the excluded subset matches, and return null if the exclusions

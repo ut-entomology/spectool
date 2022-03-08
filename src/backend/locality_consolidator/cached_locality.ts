@@ -184,6 +184,37 @@ export class CachedLocality {
   }
 
   /**
+   * Modifies the provided phonetic subsets to indicate their starting and
+   * ending character locations within the original locality name. Also
+   * sorts the subsets in their order of occurrence in the locality.
+   */
+  sortAndMarkWordLocations(subsets: PhoneticSubset[]): void {
+    let subsetIndex = 0;
+    let wordIndex = 0;
+    subsets.sort((a, b) => a.firstWordIndex - b.firstWordIndex);
+    // Must be consistent with code in _toWordSeries. Does not leverage common
+    // code because I can't remove single quotes in advance here.
+    const text = Geography.latinize(this.name).toLowerCase();
+    const wordRegex = /[a-z0-9'`]{3,}/g;
+    let nextMatch = wordRegex.exec(text);
+    while (subsetIndex < subsets.length && nextMatch) {
+      const subset = subsets[subsetIndex];
+      const word = nextMatch[0].replace(/['`]/g, '');
+      if (word.length >= 3 && !EXCLUDED_WORDS.includes(word)) {
+        if (wordIndex == subset.firstWordIndex) {
+          subset.firstCharIndex = nextMatch.index;
+        }
+        if (wordIndex == subset.lastWordIndex) {
+          subset.lastCharIndexPlusOne = nextMatch.index + nextMatch[0].length;
+          ++subsetIndex;
+        }
+        ++wordIndex;
+      }
+      nextMatch = wordRegex.exec(text);
+    }
+  }
+
+  /**
    * Returns information about the cached locality for transfer to the client.
    */
   toData(): LocalityData {
@@ -241,39 +272,6 @@ export class CachedLocality {
   }
 
   /**
-   * Modifies the provided phonetic subsets to indicate their starting and
-   * ending character locations within the original locality name. Assumes
-   * that subsets are listed in their order of occurrence in the locality.
-   */
-  private _markWordLocations(
-    locality: CachedLocality,
-    subsets: PhoneticSubset[]
-  ): void {
-    let subsetIndex = 0;
-    let wordIndex = 0;
-    // Must be consistent with code in _toWordSeries. Does not leverage common
-    // code because I can't remove single quotes in advance here.
-    const text = Geography.latinize(locality.name).toLowerCase();
-    const wordRegex = /[a-z0-9'`]{3,}/g;
-    let nextMatch = wordRegex.exec(text);
-    while (subsetIndex < subsets.length && nextMatch) {
-      const subset = subsets[subsetIndex];
-      const word = nextMatch[0].replace(/['`]/g, '');
-      if (word.length >= 3 && !EXCLUDED_WORDS.includes(word)) {
-        if (wordIndex == subset.firstWordIndex) {
-          subset.firstCharIndex = nextMatch.index;
-        }
-        if (wordIndex == subset.lastWordIndex) {
-          subset.lastCharIndexPlusOne = nextMatch.index + nextMatch[0].length;
-          ++subsetIndex;
-        }
-        ++wordIndex;
-      }
-      nextMatch = wordRegex.exec(text);
-    }
-  }
-
-  /**
    * Given all found phonetic subsets of a locality, determines the minimal set
    * of subsets that includes all subsets, which is the set of subsets providing
    * maximal coverage over the set of words. Any subsets that are fully contained
@@ -326,7 +324,7 @@ export class CachedLocality {
     // Collect all the subsets in their order of occurrence.
     const orderedCaptures = capturesByStartIndex.filter((capture) => !!capture);
     // Mark the starting and ending characters of these subsets.
-    this._markWordLocations(locality, orderedCaptures);
+    locality.sortAndMarkWordLocations(orderedCaptures);
 
     // Return a map of all subsets indexed by phonetic series.
     const capturesBySortedSeries: Record<string, PhoneticSubset[]> = {};
