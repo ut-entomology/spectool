@@ -21,7 +21,6 @@ type AdjacencyMap = Record<number, Region[]>;
 
 const zilkerPhoneticSeries = toSortedPhoneticSeries('zilker');
 const zilkerMatch = {
-  sortedPhoneticSeries: zilkerPhoneticSeries,
   baseSubsets: [
     {
       sortedPhoneticSeries: zilkerPhoneticSeries,
@@ -189,7 +188,6 @@ describe('phonetically-similar locality matching', () => {
         testLocality: localities[2],
         matches: [
           {
-            sortedPhoneticSeries: phoneticSeries,
             baseSubsets: [
               {
                 sortedPhoneticSeries: phoneticSeries,
@@ -217,7 +215,6 @@ describe('phonetically-similar locality matching', () => {
         testLocality: localities[2],
         matches: [
           {
-            sortedPhoneticSeries: phoneticSeries,
             baseSubsets: [
               {
                 sortedPhoneticSeries: phoneticSeries,
@@ -277,7 +274,6 @@ describe('phonetically-similar locality matching', () => {
         testLocality: localities[1],
         matches: [
           {
-            sortedPhoneticSeries: zilkerSeries,
             baseSubsets: [
               {
                 sortedPhoneticSeries: zilkerSeries,
@@ -298,7 +294,6 @@ describe('phonetically-similar locality matching', () => {
             ]
           },
           {
-            sortedPhoneticSeries: parkSeries,
             baseSubsets: [
               {
                 sortedPhoneticSeries: parkSeries,
@@ -333,7 +328,6 @@ describe('phonetically-similar locality matching', () => {
         testLocality: localities[2],
         matches: [
           {
-            sortedPhoneticSeries: naturePreserveSeries,
             baseSubsets: [
               {
                 sortedPhoneticSeries: naturePreserveSeries,
@@ -422,7 +416,6 @@ describe('phonetically-similar locality matching', () => {
         testLocality: localities[4],
         matches: [
           {
-            sortedPhoneticSeries: phoneticSeries,
             baseSubsets: [
               {
                 sortedPhoneticSeries: phoneticSeries,
@@ -496,7 +489,6 @@ describe('phonetically-similar locality matching', () => {
         testLocality: localities[1],
         matches: [
           {
-            sortedPhoneticSeries: phoneticSeries,
             baseSubsets: [
               {
                 sortedPhoneticSeries: phoneticSeries,
@@ -524,7 +516,6 @@ describe('phonetically-similar locality matching', () => {
         testLocality: localities[2],
         matches: [
           {
-            sortedPhoneticSeries: phoneticSeries,
             baseSubsets: [
               {
                 sortedPhoneticSeries: phoneticSeries,
@@ -552,7 +543,6 @@ describe('phonetically-similar locality matching', () => {
         testLocality: localities[3],
         matches: [
           {
-            sortedPhoneticSeries: phoneticSeries,
             baseSubsets: [
               {
                 sortedPhoneticSeries: phoneticSeries,
@@ -623,7 +613,6 @@ describe('phonetically-similar locality matching', () => {
         testLocality: localities[0],
         matches: [
           {
-            sortedPhoneticSeries: phoneticSeries,
             baseSubsets: [
               {
                 sortedPhoneticSeries: phoneticSeries,
@@ -651,7 +640,6 @@ describe('phonetically-similar locality matching', () => {
         testLocality: localities[1],
         matches: [
           {
-            sortedPhoneticSeries: phoneticSeries,
             baseSubsets: [
               {
                 sortedPhoneticSeries: phoneticSeries,
@@ -679,7 +667,6 @@ describe('phonetically-similar locality matching', () => {
         testLocality: localities[3],
         matches: [
           {
-            sortedPhoneticSeries: phoneticSeries,
             baseSubsets: [
               {
                 sortedPhoneticSeries: phoneticSeries,
@@ -707,7 +694,6 @@ describe('phonetically-similar locality matching', () => {
         testLocality: localities[0],
         matches: [
           {
-            sortedPhoneticSeries: phoneticSeries,
             baseSubsets: [
               {
                 sortedPhoneticSeries: phoneticSeries,
@@ -735,7 +721,6 @@ describe('phonetically-similar locality matching', () => {
         testLocality: localities[1],
         matches: [
           {
-            sortedPhoneticSeries: phoneticSeries,
             baseSubsets: [
               {
                 sortedPhoneticSeries: phoneticSeries,
@@ -810,7 +795,6 @@ describe('phonetically-similar locality matching', () => {
         testLocality: localities[0],
         matches: [
           {
-            sortedPhoneticSeries: phoneticSeries,
             baseSubsets: [
               {
                 sortedPhoneticSeries: phoneticSeries,
@@ -838,7 +822,6 @@ describe('phonetically-similar locality matching', () => {
         testLocality: localities[2],
         matches: [
           {
-            sortedPhoneticSeries: phoneticSeries,
             baseSubsets: [
               {
                 sortedPhoneticSeries: phoneticSeries,
@@ -866,7 +849,6 @@ describe('phonetically-similar locality matching', () => {
         testLocality: localities[3],
         matches: [
           {
-            sortedPhoneticSeries: phoneticSeries,
             baseSubsets: [
               {
                 sortedPhoneticSeries: phoneticSeries,
@@ -998,7 +980,6 @@ describe('processing non-domain regions with no baseline date', () => {
         testLocality: localities[0],
         matches: [
           {
-            sortedPhoneticSeries: phoneticSeries,
             baseSubsets: [
               {
                 sortedPhoneticSeries: phoneticSeries,
@@ -1026,7 +1007,6 @@ describe('processing non-domain regions with no baseline date', () => {
         testLocality: localities[2],
         matches: [
           {
-            sortedPhoneticSeries: phoneticSeries,
             baseSubsets: [
               {
                 sortedPhoneticSeries: phoneticSeries,
@@ -1054,7 +1034,6 @@ describe('processing non-domain regions with no baseline date', () => {
         testLocality: localities[3],
         matches: [
           {
-            sortedPhoneticSeries: phoneticSeries,
             baseSubsets: [
               {
                 sortedPhoneticSeries: phoneticSeries,
@@ -1123,7 +1102,6 @@ describe('processing non-domain regions with no baseline date', () => {
         testLocality: localities[2],
         matches: [
           {
-            sortedPhoneticSeries: phoneticSeries,
             baseSubsets: [
               {
                 sortedPhoneticSeries: phoneticSeries,
@@ -1151,7 +1129,6 @@ describe('processing non-domain regions with no baseline date', () => {
         testLocality: localities[3],
         matches: [
           {
-            sortedPhoneticSeries: phoneticSeries,
             baseSubsets: [
               {
                 sortedPhoneticSeries: phoneticSeries,
@@ -1179,7 +1156,6 @@ describe('processing non-domain regions with no baseline date', () => {
         testLocality: localities[2],
         matches: [
           {
-            sortedPhoneticSeries: phoneticSeries,
             baseSubsets: [
               {
                 sortedPhoneticSeries: phoneticSeries,
@@ -1207,7 +1183,6 @@ describe('processing non-domain regions with no baseline date', () => {
         testLocality: localities[3],
         matches: [
           {
-            sortedPhoneticSeries: phoneticSeries,
             baseSubsets: [
               {
                 sortedPhoneticSeries: phoneticSeries,
@@ -1287,7 +1262,6 @@ describe('processing included subregions', () => {
         testLocality: localities[0],
         matches: [
           {
-            sortedPhoneticSeries: phoneticSeries,
             baseSubsets: [
               {
                 sortedPhoneticSeries: phoneticSeries,
@@ -1315,7 +1289,6 @@ describe('processing included subregions', () => {
         testLocality: localities[2],
         matches: [
           {
-            sortedPhoneticSeries: phoneticSeries,
             baseSubsets: [
               {
                 sortedPhoneticSeries: phoneticSeries,
@@ -1343,7 +1316,6 @@ describe('processing included subregions', () => {
         testLocality: localities[3],
         matches: [
           {
-            sortedPhoneticSeries: phoneticSeries,
             baseSubsets: [
               {
                 sortedPhoneticSeries: phoneticSeries,
@@ -1371,7 +1343,6 @@ describe('processing included subregions', () => {
         testLocality: localities[4],
         matches: [
           {
-            sortedPhoneticSeries: phoneticSeries,
             baseSubsets: [
               {
                 sortedPhoneticSeries: phoneticSeries,
@@ -1399,7 +1370,6 @@ describe('processing included subregions', () => {
         testLocality: localities[0],
         matches: [
           {
-            sortedPhoneticSeries: phoneticSeries,
             baseSubsets: [
               {
                 sortedPhoneticSeries: phoneticSeries,
@@ -1427,7 +1397,6 @@ describe('processing included subregions', () => {
         testLocality: localities[3],
         matches: [
           {
-            sortedPhoneticSeries: phoneticSeries,
             baseSubsets: [
               {
                 sortedPhoneticSeries: phoneticSeries,
@@ -1455,7 +1424,6 @@ describe('processing included subregions', () => {
         testLocality: localities[4],
         matches: [
           {
-            sortedPhoneticSeries: phoneticSeries,
             baseSubsets: [
               {
                 sortedPhoneticSeries: phoneticSeries,
@@ -1483,7 +1451,6 @@ describe('processing included subregions', () => {
         testLocality: localities[0],
         matches: [
           {
-            sortedPhoneticSeries: phoneticSeries,
             baseSubsets: [
               {
                 sortedPhoneticSeries: phoneticSeries,
@@ -1511,7 +1478,6 @@ describe('processing included subregions', () => {
         testLocality: localities[4],
         matches: [
           {
-            sortedPhoneticSeries: phoneticSeries,
             baseSubsets: [
               {
                 sortedPhoneticSeries: phoneticSeries,
@@ -1589,7 +1555,6 @@ describe('processing included subregions', () => {
         testLocality: localities[4],
         matches: [
           {
-            sortedPhoneticSeries: phoneticSeries,
             baseSubsets: [
               {
                 sortedPhoneticSeries: phoneticSeries,
@@ -1617,7 +1582,6 @@ describe('processing included subregions', () => {
         testLocality: localities[4],
         matches: [
           {
-            sortedPhoneticSeries: phoneticSeries,
             baseSubsets: [
               {
                 sortedPhoneticSeries: phoneticSeries,
@@ -1645,7 +1609,6 @@ describe('processing included subregions', () => {
         testLocality: localities[4],
         matches: [
           {
-            sortedPhoneticSeries: phoneticSeries,
             baseSubsets: [
               {
                 sortedPhoneticSeries: phoneticSeries,
@@ -1954,7 +1917,6 @@ describe('phonetically-synonymous locality matching', () => {
         testLocality: localities[1],
         matches: [
           {
-            sortedPhoneticSeries: synonyms[0][0].phoneticSeries,
             baseSubsets: [
               {
                 sortedPhoneticSeries: synonyms[0][0].phoneticSeries,

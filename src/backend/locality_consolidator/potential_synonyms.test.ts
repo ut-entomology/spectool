@@ -115,24 +115,24 @@ test('indexing of phonetic synonyms by phonetic code', async () => {
 
   // Gradually add synonyms.
 
-  verifyIndexes(phoneticCodeIndex, {});
+  await verifyIndexes(phoneticCodeIndex, {});
 
   store.addSynonym(syn1a, syn1b);
-  verifyIndexes(phoneticCodeIndex, {
+  await verifyIndexes(phoneticCodeIndex, {
     BR: ['BR FO'],
     FB: ['FB'],
     FO: ['BR FO']
   });
 
   store.addSynonym(syn1a, syn1b); // adding again should change nothing
-  verifyIndexes(phoneticCodeIndex, {
+  await verifyIndexes(phoneticCodeIndex, {
     BR: ['BR FO'],
     FB: ['FB'],
     FO: ['BR FO']
   });
 
   store.addSynonym(syn2a, syn2b);
-  verifyIndexes(phoneticCodeIndex, {
+  await verifyIndexes(phoneticCodeIndex, {
     BB: ['BB'],
     BR: ['BR FO'],
     BZ: ['BZ YY'],
@@ -142,7 +142,7 @@ test('indexing of phonetic synonyms by phonetic code', async () => {
   });
 
   store.addSynonym(syn3b, syn3a);
-  verifyIndexes(phoneticCodeIndex, {
+  await verifyIndexes(phoneticCodeIndex, {
     BB: ['BB'],
     BR: ['BR FO', 'BR BZ FO'],
     BZ: ['BZ YY', 'BR BZ FO', 'FO BZ'],
@@ -154,7 +154,7 @@ test('indexing of phonetic synonyms by phonetic code', async () => {
   // Removing synonyms in reverse order should reproduce above results.
 
   store.removeSynonym(syn3a, syn3b); // swapped order adding the pair
-  verifyIndexes(phoneticCodeIndex, {
+  await verifyIndexes(phoneticCodeIndex, {
     BB: ['BB'],
     BR: ['BR FO'],
     BZ: ['BZ YY'],
@@ -164,14 +164,14 @@ test('indexing of phonetic synonyms by phonetic code', async () => {
   });
 
   store.removeSynonym(syn2a, syn2b);
-  verifyIndexes(phoneticCodeIndex, {
+  await verifyIndexes(phoneticCodeIndex, {
     BR: ['BR FO'],
     FB: ['FB'],
     FO: ['BR FO']
   });
 
   store.removeSynonym(syn1a, syn1b);
-  verifyIndexes(phoneticCodeIndex, {});
+  await verifyIndexes(phoneticCodeIndex, {});
 });
 
 async function verifyIndexes(

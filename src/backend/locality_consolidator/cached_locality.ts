@@ -114,7 +114,6 @@ export class CachedLocality {
       } else {
         // phoneticSeries now known to be common to both sets of captures
         matches.push({
-          sortedPhoneticSeries,
           baseSubsets: baseCapturesBySortedSeries[sortedPhoneticSeries],
           testSubsets: testCaptures
         });

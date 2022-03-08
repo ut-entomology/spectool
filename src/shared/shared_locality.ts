@@ -26,12 +26,10 @@ export interface LocalityData {
 }
 
 /**
- * Interface describing the portions of two localities that match a particular
- * phonetic series. When representing matches of synonyms, `sortedPhoneticSeries`
- * is that of the base locality subset.
+ * Interface describing the portions of two localities that match phonetically-
+ * similar series or phonetically-synonymous series.
  */
 export interface PhoneticMatch {
-  sortedPhoneticSeries: string; // sorted and spaced-delimited codes, no dups
   baseSubsets: PhoneticSubset[];
   testSubsets: PhoneticSubset[];
 }

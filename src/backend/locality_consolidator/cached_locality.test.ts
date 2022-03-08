@@ -366,7 +366,6 @@ describe('find similarities between two localities', () => {
     const sortedPhoneticSeries = toSortedPhoneticSeries('park');
     expect(matches).toEqual([
       {
-        sortedPhoneticSeries: sortedPhoneticSeries,
         baseSubsets: [
           {
             sortedPhoneticSeries,
@@ -399,7 +398,6 @@ describe('find similarities between two localities', () => {
     let sortedPhoneticSeries = toSortedPhoneticSeries('park');
     expect(matches).toEqual([
       {
-        sortedPhoneticSeries: sortedPhoneticSeries,
         baseSubsets: [
           {
             sortedPhoneticSeries,
@@ -425,7 +423,6 @@ describe('find similarities between two localities', () => {
     matches = locality3.findPhoneticMatches(locality1);
     expect(matches).toEqual([
       {
-        sortedPhoneticSeries: sortedPhoneticSeries,
         baseSubsets: [
           {
             sortedPhoneticSeries,
@@ -460,7 +457,6 @@ describe('find similarities between two localities', () => {
     let matches = locality0.findPhoneticMatches(locality1);
     expect(matches).toEqual([
       {
-        sortedPhoneticSeries: toSortedPhoneticSeries(locality0.name),
         baseSubsets: [
           {
             sortedPhoneticSeries: toSortedPhoneticSeries(locality0.name),
@@ -486,7 +482,6 @@ describe('find similarities between two localities', () => {
     matches = locality1.findPhoneticMatches(locality3);
     expect(matches).toEqual([
       {
-        sortedPhoneticSeries: toSortedPhoneticSeries('green'),
         baseSubsets: [
           {
             sortedPhoneticSeries: toSortedPhoneticSeries('green'),
@@ -507,7 +502,6 @@ describe('find similarities between two localities', () => {
         ]
       },
       {
-        sortedPhoneticSeries: toSortedPhoneticSeries('park'),
         baseSubsets: [
           {
             sortedPhoneticSeries: toSortedPhoneticSeries('park'),
@@ -533,7 +527,6 @@ describe('find similarities between two localities', () => {
     matches = locality2.findPhoneticMatches(locality3);
     expect(matches).toEqual([
       {
-        sortedPhoneticSeries: toSortedPhoneticSeries(locality2.name),
         baseSubsets: [
           {
             sortedPhoneticSeries: toSortedPhoneticSeries(locality2.name),
@@ -559,7 +552,6 @@ describe('find similarities between two localities', () => {
     matches = locality3.findPhoneticMatches(locality4);
     expect(matches).toEqual([
       {
-        sortedPhoneticSeries: toSortedPhoneticSeries(locality4.name),
         baseSubsets: [
           {
             sortedPhoneticSeries: toSortedPhoneticSeries(locality4.name),
@@ -585,7 +577,6 @@ describe('find similarities between two localities', () => {
     matches = locality3.findPhoneticMatches(locality5);
     expect(matches).toEqual([
       {
-        sortedPhoneticSeries: toSortedPhoneticSeries('green'),
         baseSubsets: [
           {
             sortedPhoneticSeries: toSortedPhoneticSeries('green'),
@@ -606,7 +597,6 @@ describe('find similarities between two localities', () => {
         ]
       },
       {
-        sortedPhoneticSeries: toSortedPhoneticSeries('park'),
         baseSubsets: [
           {
             sortedPhoneticSeries: toSortedPhoneticSeries('park'),
@@ -639,7 +629,6 @@ describe('find similarities between two localities', () => {
     let matches = locality1.findPhoneticMatches(locality2);
     expect(matches).toEqual([
       {
-        sortedPhoneticSeries: toSortedPhoneticSeries('foo'),
         baseSubsets: [
           {
             sortedPhoneticSeries: toSortedPhoneticSeries('foo'),
@@ -665,7 +654,6 @@ describe('find similarities between two localities', () => {
     matches = locality2.findPhoneticMatches(locality1);
     expect(matches).toEqual([
       {
-        sortedPhoneticSeries: toSortedPhoneticSeries('foo'),
         baseSubsets: [
           {
             sortedPhoneticSeries: toSortedPhoneticSeries('foo'),
@@ -691,7 +679,6 @@ describe('find similarities between two localities', () => {
     matches = locality1.findPhoneticMatches(locality3);
     expect(matches).toEqual([
       {
-        sortedPhoneticSeries: toSortedPhoneticSeries('foo'),
         baseSubsets: [
           {
             sortedPhoneticSeries: toSortedPhoneticSeries('foo'),
@@ -724,7 +711,6 @@ describe('find similarities between two localities', () => {
     matches = locality1.findPhoneticMatches(locality4);
     expect(matches).toEqual([
       {
-        sortedPhoneticSeries: toSortedPhoneticSeries('foo forest'),
         baseSubsets: [
           {
             sortedPhoneticSeries: toSortedPhoneticSeries('foo forest'),

@@ -16,11 +16,6 @@ import type {
   PhoneticSubset
 } from '../../shared/shared_locality';
 
-interface SubsetCorrespondence {
-  baseSubset: PhoneticSubset;
-  synonymousSeries: string[];
-}
-
 /**
  * Class for processing regions, one region at a time, comparing its localities
  * to other localities within the region and to the localities of other regions
@@ -128,15 +123,15 @@ export class RegionProcessor {
           // with any phonetic series that is synonymous with a phonetic series found
           // in baseLocality, checking them for possible duplication of baseLocality.
 
-          const basePhoneticSeriesCorrespondenceMap =
-            await this._getAllSynonymsAssociatedWithBasePhoneticCode(
+          const baseSubsetsBySynonymPhoneticSeries =
+            await this._getBaseSubsetsBySynonymPhoneticSeries(
               baseLocality,
               basePhoneticCode,
               previouslyExaminedBaseWordSeries
             );
-          if (basePhoneticSeriesCorrespondenceMap !== null) {
-            for (const synonymPhoneticCode of this._collectPhoneticCodesFromCorrespondenceMap(
-              basePhoneticSeriesCorrespondenceMap
+          if (baseSubsetsBySynonymPhoneticSeries !== null) {
+            for (const synonymPhoneticCode of this._collectPhoneticCodes(
+              Object.keys(baseSubsetsBySynonymPhoneticSeries)
             )) {
               const testLocalityIDs = await this._phoneticCodeIndex.getLocalityIDs(
                 synonymPhoneticCode
@@ -152,7 +147,7 @@ export class RegionProcessor {
                         currentRegion,
                         baseLocality,
                         await this._localityCache.getLocality(testLocalityID),
-                        basePhoneticSeriesCorrespondenceMap
+                        baseSubsetsBySynonymPhoneticSeries
                       );
                     if (localityMatch) {
                       yield localityMatch;
@@ -194,27 +189,15 @@ export class RegionProcessor {
   }
 
   /**
-   * Adds to the provide list of codes those phonetic codes in the provided phonetic
-   * series that are not already in the list of codes.
+   * Returns a list of all phonetic codes found in the provided phonetic series.
    */
-  private _collectPhoneticCodes(codes: string[], phoneticSeries: string[]): void {
-    for (const code of phoneticSeries) {
-      if (!codes.includes(code)) {
-        codes.push(code);
-      }
-    }
-  }
-
-  /**
-   * Returns a list of all phonetic codes found in the provided stored synonyms.
-   */
-  private _collectPhoneticCodesFromCorrespondenceMap(
-    correspondenceMap: Record<string, SubsetCorrespondence>
-  ): string[] {
+  private _collectPhoneticCodes(phoneticSeriesList: string[]): string[] {
     const codes: string[] = [];
-    for (const subsetEquivalance of Object.values(correspondenceMap)) {
-      for (const phoneticSeries of subsetEquivalance.synonymousSeries) {
-        this._collectPhoneticCodes(codes, phoneticSeries.split(' '));
+    for (const phoneticSeries of phoneticSeriesList) {
+      for (const code of phoneticSeries.split(' ')) {
+        if (!codes.includes(code)) {
+          codes.push(code);
+        }
       }
     }
     return codes;
@@ -312,7 +295,6 @@ export class RegionProcessor {
     };
   }
 
-  // TODO: revise this comment
   /**
    * Compares the phonetic synonyms of the provided base and test localities,
    * returning the matching synonyms if they are in scope and not precluded
@@ -325,7 +307,7 @@ export class RegionProcessor {
     currentRegion: TrackedRegion,
     baseLocality: CachedLocality,
     testLocality: CachedLocality,
-    phoneticWordSeriesCorrespondenceMap: Record<string, SubsetCorrespondence>
+    baseSubsetsBySynonymPhoneticSeries: Record<string, PhoneticSubset[]>
   ): Promise<LocalityMatch | null> {
     // Make sure the localities are spatially and temporally in scope.
 
@@ -342,62 +324,48 @@ export class RegionProcessor {
       return null;
     }
 
-    // Collect all the synonymous phonetic series together in order to efficiently
-    // search for all of them at once.
-
-    const synonymousPhoneticSeriesToSearchFor: string[] = [];
-    for (const subsetCorrespondence of Object.values(
-      phoneticWordSeriesCorrespondenceMap
-    )) {
-      for (const phoneticSeries of subsetCorrespondence.synonymousSeries) {
-        synonymousPhoneticSeriesToSearchFor.push(phoneticSeries);
-      }
-    }
-
-    // Retrieve all subsets from the test locality that match phonetic series of
-    // `potentialSynonymPhoneticSeries`.
+    // Retrieve all the subsets of the test locality corresponding to the synonym
+    // phonetic series of baseSubsetsBySynonymPhoneticSeries. Not all these synonyms
+    // need occur within the test locality, and it may be that none do.
 
     const foundSynonymousTestSubsets = testLocality.findPhoneticSubsets(
-      synonymousPhoneticSeriesToSearchFor
+      Object.keys(baseSubsetsBySynonymPhoneticSeries)
     );
 
-    // Collect the phonetic matches between the base and test localities.
+    // Collect the phonetic matches between the base and test localities. It may be
+    // that more than one base subset matches more than one test subset, so first
+    // collect the base subset matches for each test subset, and then merge the
+    // matches sharing the same list of base subsets.
 
-    const matchesByBasePhoneticSeries: Record<string, PhoneticMatch> = {};
+    const testSubsetMatches: PhoneticMatch[] = [];
     for (const testSubset of foundSynonymousTestSubsets) {
-      const synonymCorrespondence =
-        phoneticWordSeriesCorrespondenceMap[testSubset.sortedPhoneticSeries];
-      const baseSubset = synonymCorrespondence.baseSubset;
-
-      // Add each test subset to the match for its base phonetic series,
-      // accumulating the corresponding base subsets, because more than
-      // one base subset may have the (sorted) phonetic series.
-
-      let match = matchesByBasePhoneticSeries[baseSubset.sortedPhoneticSeries];
-      if (match) {
-        let foundBaseSubset = false;
-        for (const checkBaseSubset of match.baseSubsets) {
+      testSubsetMatches.push({
+        baseSubsets:
+          baseSubsetsBySynonymPhoneticSeries[testSubset.sortedPhoneticSeries],
+        testSubsets: [testSubset]
+      });
+    }
+    const matches: PhoneticMatch[] = [];
+    for (let i = 0; i < testSubsetMatches.length - 1; ++i) {
+      const combinedMatch = testSubsetMatches[i];
+      // only examine matches that weren't previously combined with prior matches
+      if (combinedMatch.baseSubsets.length > 0) {
+        for (let j = i + 1; j < testSubsetMatches.length; ++j) {
+          const checkMatch = testSubsetMatches[j];
           if (
-            checkBaseSubset.firstWordIndex == baseSubset.firstWordIndex &&
-            checkBaseSubset.lastWordIndex == baseSubset.lastWordIndex
+            checkMatch.baseSubsets.length == combinedMatch.baseSubsets.length &&
+            checkMatch.baseSubsets.every((subset) =>
+              combinedMatch.baseSubsets.includes(subset)
+            )
           ) {
-            foundBaseSubset = true;
-            break;
+            combinedMatch.testSubsets.push(...checkMatch.testSubsets);
+            // prevent this merged match from being added to the final set
+            checkMatch.baseSubsets = [];
           }
         }
-        if (!foundBaseSubset) {
-          match.baseSubsets.push(baseSubset);
-        }
-        match.testSubsets.push(testSubset);
-      } else {
-        matchesByBasePhoneticSeries[baseSubset.sortedPhoneticSeries] = {
-          sortedPhoneticSeries: baseSubset.sortedPhoneticSeries,
-          baseSubsets: [baseSubset],
-          testSubsets: [testSubset]
-        };
+        matches.push(combinedMatch);
       }
     }
-    const matches = Object.values(matchesByBasePhoneticSeries);
 
     // Collect the excluded subset matches, and return null if the exclusions
     // have eliminated all of the matches.
@@ -421,18 +389,18 @@ export class RegionProcessor {
 
   /**
    * Returns a map of all series known to be synonymous with each series both found
-   * in the provided locality and containing the provided phonetic code. This map
-   * maps each word series of the locality having synonyms to a list of its synonyms.
-   * Returns null if no series are synonymous with any series of locality that
-   * contain the provided code. Because it's possible for this method to repeatedly
-   * examine the same series on succesive calls, the method also takes a parameter
-   * that tracks which have been examined so they aren't examined again.
+   * in the provided locality and containing the provided phonetic code. It map each
+   * synonymous phonetic series to a list of the subsets of the provided locality for
+   * which they are synonymous. Returns null if no series are synonymous with any
+   * series of locality that contain the provided code. Because it's possible for this
+   * method to repeatedly examine the same series on succesive calls, the method also
+   * takes a parameter that tracks which have been examined so they aren't examined again.
    */
-  private async _getAllSynonymsAssociatedWithBasePhoneticCode(
+  private async _getBaseSubsetsBySynonymPhoneticSeries(
     baseLocality: CachedLocality,
     basePhoneticCode: string,
     previouslyExaminedBaseWordSeries: Record<string, boolean>
-  ): Promise<Record<string, SubsetCorrespondence> | null> {
+  ): Promise<Record<string, PhoneticSubset[]> | null> {
     // Find all the synonyms that use the provided phonetic code. This list can
     // include series that are found in the locality and those that are not.
 
@@ -451,12 +419,10 @@ export class RegionProcessor {
       return null;
     }
 
-    // Generate a structure that maps each phonetic series found in the base locality
-    // to a list of its synonymous series. It is possible that more than one series
-    // of the locality will both contain the phonetic code and have a synonym.
+    // Generate a structure that maps each phonetic series synonym of a base locality
+    // phonetic series to the subsets of the base locality having that synonym.
 
-    const basePhoneticSeriesCorrespondenceMap: Record<string, SubsetCorrespondence> =
-      {};
+    const baseSubsetsBySynonymPhoneticSeries: Record<string, PhoneticSubset[]> = {};
     for (const baseSubset of basePhoneticSubsetSynonymsUsingBasePhoneticCode) {
       const baseWordSeries = baseLocality.getWordSeries(baseSubset);
 
@@ -473,13 +439,19 @@ export class RegionProcessor {
             baseSubset.sortedPhoneticSeries
           );
 
-        // Collect the synonyms of the base subset, indexing them by phonetic series.
+        // Collect the base subsets corresponding to each synonym phonetic series.
 
         if (synonymousSeriesOfBaseSubset) {
-          basePhoneticSeriesCorrespondenceMap[baseSubset.sortedPhoneticSeries] = {
-            baseSubset,
-            synonymousSeries: synonymousSeriesOfBaseSubset
-          };
+          for (const synonymSeries of synonymousSeriesOfBaseSubset) {
+            let correspondingBaseSubsets =
+              baseSubsetsBySynonymPhoneticSeries[synonymSeries];
+            if (!correspondingBaseSubsets) {
+              correspondingBaseSubsets = [];
+              baseSubsetsBySynonymPhoneticSeries[synonymSeries] =
+                correspondingBaseSubsets;
+            }
+            correspondingBaseSubsets.push(baseSubset);
+          }
         }
 
         // Prevent this word series from being processed again for a different subset
@@ -489,11 +461,12 @@ export class RegionProcessor {
       }
     }
 
-    // Return a structure mapping phonetic series of the locality to their synonyms, or
-    // return null if no word series of the locality were found to have any synonyms.
+    // Return a structure that maps each phonetic series synonym of a base locality
+    // phonetic series to the subsets of the base locality having that synonym, or
+    // null if no phonetic series of the locality were found to have any synonyms.
 
-    return Object.keys(basePhoneticSeriesCorrespondenceMap).length > 0
-      ? basePhoneticSeriesCorrespondenceMap
+    return Object.keys(baseSubsetsBySynonymPhoneticSeries).length > 0
+      ? baseSubsetsBySynonymPhoneticSeries
       : null;
   }
 
