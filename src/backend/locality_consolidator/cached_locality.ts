@@ -38,8 +38,8 @@ export class CachedLocality {
     this.remarks = data.remarks;
     this.lastModified = data.lastModified;
 
-    this.words = this._toWordSeries(data.name);
-    this.phoneticCodes = this._toPhoneticCodes(this.words);
+    this.words = CachedLocality._toWordSeries(data.name);
+    this.phoneticCodes = CachedLocality._toPhoneticCodes(this.words);
   }
 
   // Returns a list of all subsets that match by sorted phonetic series,
@@ -230,6 +230,17 @@ export class CachedLocality {
   }
 
   /**
+   * Returns a sorted phonetic series for the provided locality name.
+   */
+  static toSortedPhoneticSeries(name: string): string {
+    const wordSeries = CachedLocality._toWordSeries(name);
+    if (wordSeries === null) {
+      throw Error(`Name '${name}' has no phonetic codes`);
+    }
+    return CachedLocality._toPhoneticCodes(wordSeries)!.sort().join(' ');
+  }
+
+  /**
    * Returns all possible subsets of consecutive phonetic codes of a given
    * locality restricted to the codes in the provided code map, indexed by
    * a sort of the phonetic series. Because a single phonetic series may
@@ -344,7 +355,7 @@ export class CachedLocality {
    * correspondence with their associated words. Any word containing a number
    * returns with a code equal to that word but prefixed with '#'.
    */
-  private _toPhoneticCodes(words: string[] | null): string[] | null {
+  private static _toPhoneticCodes(words: string[] | null): string[] | null {
     if (words == null) return null;
     return words.map((word) => (/[0-9]/.test(word) ? '#' + word : fuzzySoundex(word)));
   }
@@ -357,7 +368,7 @@ export class CachedLocality {
    * order in which they appear in the provided string. Returns null if the string
    * contains no words (by this definition).
    */
-  private _toWordSeries(text: string): string[] | null {
+  private static _toWordSeries(text: string): string[] | null {
     // Must be consistent with code in _markWordLocations. Does not leverage common
     // code because I can't remove single quotes in advance from _markWordLocations.
     const unfilteredWords = Geography.latinize(text)

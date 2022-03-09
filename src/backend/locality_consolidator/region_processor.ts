@@ -103,7 +103,7 @@ export class RegionProcessor {
           if (testLocalityIDs) {
             for (const testLocalityID of testLocalityIDs) {
               if (!previouslyComparedLocalityIDs[testLocalityID]) {
-                const localityMatch = await this._comparePhoneticallyRelatedLocalities(
+                const localityMatch = await this._compareSimilarityRelatedLocalities(
                   adjoiningRegionIDs,
                   baselineDate,
                   overallRegion,
@@ -208,7 +208,7 @@ export class RegionProcessor {
    * returning a description of their similarities if they are in scope and not
    * precluded from matching by the `ExcludedMatchesStore`, and null otherwise.
    */
-  private async _comparePhoneticallyRelatedLocalities(
+  private async _compareSimilarityRelatedLocalities(
     adjoiningRegionIDs: number[],
     baselineDate: Date | null,
     overallRegion: TrackedRegion,
@@ -237,7 +237,7 @@ export class RegionProcessor {
     // indicates leftover subsets of unmatched for being subsumed by other,
     // longer subsets in the other locality, even if there are no leftovers.)
 
-    const matches = baseLocality.findPhoneticMatches(testLocality);
+    const phoneticMatches = baseLocality.findPhoneticMatches(testLocality);
 
     // Skip over localities having known to have identical names but be in
     // different regions or at different coordinates. Localities in different
@@ -279,7 +279,7 @@ export class RegionProcessor {
     // have eliminated all of the matches.
 
     const excludedSubsetPairs = this._getExcludedSubsetPairs(
-      matches,
+      phoneticMatches,
       baseLocality,
       testLocality
     );
@@ -290,7 +290,7 @@ export class RegionProcessor {
     return {
       baseLocality: baseLocality.toData(),
       testLocality: testLocality.toData(),
-      matches,
+      phoneticMatches,
       excludedSubsetPairs
     };
   }
@@ -331,6 +331,9 @@ export class RegionProcessor {
     const foundSynonymousTestSubsets = testLocality.findPhoneticSubsets(
       Object.keys(baseSubsetsBySynonymPhoneticSeries)
     );
+    if (foundSynonymousTestSubsets.length == 0) {
+      return null;
+    }
 
     // Collect the phonetic matches between the base and test localities. It may be
     // that more than one base subset matches more than one test subset, so first
@@ -345,7 +348,7 @@ export class RegionProcessor {
         testSubsets: [testSubset]
       });
     }
-    const matches: PhoneticMatch[] = [];
+    const phoneticMatches: PhoneticMatch[] = [];
     for (let i = 0; i < testSubsetMatches.length; ++i) {
       const combinedMatch = testSubsetMatches[i];
       // only examine matches that weren't previously combined with prior matches
@@ -363,23 +366,23 @@ export class RegionProcessor {
             checkMatch.baseSubsets = [];
           }
         }
-        matches.push(combinedMatch);
+        phoneticMatches.push(combinedMatch);
       }
     }
 
     // Sort by location and mark the locations of the base and test subsets in
     // their respective localities.
 
-    for (const match of matches) {
-      baseLocality.sortAndMarkWordLocations(match.baseSubsets);
-      testLocality.sortAndMarkWordLocations(match.testSubsets);
+    for (const phoneticMatch of phoneticMatches) {
+      baseLocality.sortAndMarkWordLocations(phoneticMatch.baseSubsets);
+      testLocality.sortAndMarkWordLocations(phoneticMatch.testSubsets);
     }
 
     // Collect the excluded subset matches, and return null if the exclusions
-    // have eliminated all of the matches.
+    // have eliminated all of the phonetic matches.
 
     const excludedSubsetPairs = this._getExcludedSubsetPairs(
-      matches,
+      phoneticMatches,
       baseLocality,
       testLocality
     );
@@ -390,7 +393,7 @@ export class RegionProcessor {
     return {
       baseLocality: baseLocality.toData(),
       testLocality: testLocality.toData(),
-      matches,
+      phoneticMatches,
       excludedSubsetPairs
     };
   }

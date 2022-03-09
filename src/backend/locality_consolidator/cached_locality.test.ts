@@ -2,10 +2,9 @@ import { Region, RegionRank } from '../../shared/shared_geography';
 import type { PhoneticSubset } from '../../shared/shared_locality';
 import { TrackedRegion } from './tracked_region';
 import { CachedLocality } from './cached_locality';
-import {
-  toPartialSortedPhoneticSeries,
-  toSortedPhoneticSeries
-} from './mock/phonetic_util';
+import { toPartialSortedPhoneticSeries } from './mock/phonetic_util';
+
+const toSortedPhoneticSeries = CachedLocality.toSortedPhoneticSeries;
 
 describe('word series utilities', () => {
   const fooBarPark = createCachedLocality('Foo Bar Park');

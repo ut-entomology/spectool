@@ -272,7 +272,7 @@ Processes the current region (R), which must be a cached region of RegionRoster.
 
 ## Consolidate a Region
 
-Process the region (R), which must be a cached region.
+Process the region (R), which must be a cached region. This algorithm allows for reporting all similar phonetic series of two localities, but if there are also synonyms in the localities, they won't be reported, and if there are no similar phonetic series but there are synonymous series, it only reports the first found matching synonym. The algorithm also only avaluates the found matches for possible future exclusion.
 
 Define a "found match" as a structure containing the following information:
 	(+) the matching word series (W1) and its sorted phonetic series (Z1) from the first locality (L1)

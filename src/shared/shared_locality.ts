@@ -8,7 +8,7 @@
 export interface LocalityMatch {
   baseLocality: LocalityData;
   testLocality: LocalityData;
-  matches: PhoneticMatch[];
+  phoneticMatches: PhoneticMatch[];
   excludedSubsetPairs: PhoneticSubset[][];
 }
 
