@@ -2644,22 +2644,22 @@ describe('phonetically-synonymous locality matching', () => {
     const localities = [
       createLocalityData({
         regionID: region0.id,
-        name: 'ABC Preserve'
+        name: 'ABC 123 Preserve'
       }),
       createLocalityData({
         regionID: region1.id,
-        name: 'DEF Park'
+        name: 'DEF 456 Park'
       }),
       createLocalityData({
         regionID: region2.id,
-        name: 'GHI'
+        name: 'GHI XYZ'
       })
     ];
     const adjacencyMap: AdjacencyMap = {};
     adjacencyMap[region1.id] = [region2];
     const synonyms: StoredSynonym[][] = [
-      [createSynonym('ABC'), createSynonym('DEF')],
-      [createSynonym('GHI'), createSynonym('DEF')]
+      [createSynonym('123 ABC'), createSynonym('456 DEF')],
+      [createSynonym('XYZ GHI'), createSynonym('DEF 456')]
     ];
 
     const matches = await runProcessor({
@@ -2684,20 +2684,20 @@ describe('phonetically-synonymous locality matching', () => {
           {
             baseSubsets: [
               {
-                sortedPhoneticSeries: toSortedPhoneticSeries('DEF'),
+                sortedPhoneticSeries: toSortedPhoneticSeries('DEF 456'),
                 firstWordIndex: 0,
-                lastWordIndex: 0,
+                lastWordIndex: 1,
                 firstCharIndex: 0,
-                lastCharIndexPlusOne: 'DEF'.length
+                lastCharIndexPlusOne: 'DEF 456'.length
               }
             ],
             testSubsets: [
               {
-                sortedPhoneticSeries: toSortedPhoneticSeries('ABC'),
+                sortedPhoneticSeries: toSortedPhoneticSeries('ABC 123'),
                 firstWordIndex: 0,
-                lastWordIndex: 0,
+                lastWordIndex: 1,
                 firstCharIndex: 0,
-                lastCharIndexPlusOne: 'ABC'.length
+                lastCharIndexPlusOne: 'ABC 123'.length
               }
             ]
           }
@@ -2711,20 +2711,20 @@ describe('phonetically-synonymous locality matching', () => {
           {
             baseSubsets: [
               {
-                sortedPhoneticSeries: toSortedPhoneticSeries('DEF'),
+                sortedPhoneticSeries: toSortedPhoneticSeries('DEF 456'),
                 firstWordIndex: 0,
-                lastWordIndex: 0,
+                lastWordIndex: 1,
                 firstCharIndex: 0,
-                lastCharIndexPlusOne: 'DEF'.length
+                lastCharIndexPlusOne: 'DEF 456'.length
               }
             ],
             testSubsets: [
               {
-                sortedPhoneticSeries: toSortedPhoneticSeries('GHI'),
+                sortedPhoneticSeries: toSortedPhoneticSeries('XYZ GHI'),
                 firstWordIndex: 0,
-                lastWordIndex: 0,
+                lastWordIndex: 1,
                 firstCharIndex: 0,
-                lastCharIndexPlusOne: 'GHI'.length
+                lastCharIndexPlusOne: 'XYZ GHI'.length
               }
             ]
           }
