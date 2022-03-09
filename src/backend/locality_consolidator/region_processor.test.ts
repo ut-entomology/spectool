@@ -2428,7 +2428,6 @@ describe('phonetically-synonymous locality matching', () => {
       adjacencyMap: {},
       synonyms
     });
-    console.log('**** matches:', JSON.stringify(matches, undefined, '  '));
 
     expect(matches).toEqual([
       {
@@ -2493,6 +2492,239 @@ describe('phonetically-synonymous locality matching', () => {
                 lastWordIndex: 1,
                 firstCharIndex: 0,
                 lastCharIndexPlusOne: localities[3].name.length
+              }
+            ]
+          }
+        ],
+        excludedSubsetPairs: []
+      }
+    ]);
+  });
+
+  test('synonyms across adjacent regions', async () => {
+    const localities = [
+      createLocalityData({
+        regionID: region1.id,
+        name: 'ABC Preserve'
+      }),
+      createLocalityData({
+        regionID: region2.id,
+        name: 'DEF Park'
+      }),
+      createLocalityData({
+        regionID: region2.id,
+        name: 'GHI'
+      }),
+      createLocalityData({
+        regionID: region3.id,
+        name: 'Another JKL'
+      }),
+      createLocalityData({
+        regionID: region4.id,
+        name: 'Child MNO'
+      })
+    ];
+    const adjacencyMap: AdjacencyMap = {};
+    adjacencyMap[region1.id] = [region2];
+    adjacencyMap[region2.id] = [region3];
+    const synonymousTerms = ['DEF', 'GHI', 'JKL', 'MNO'];
+    const synonyms: StoredSynonym[][] = synonymousTerms.map((term) => [
+      createSynonym('ABC'),
+      createSynonym(term)
+    ]);
+
+    const matches = await runProcessor({
+      baselineDate: null,
+      regionToProcess: region1,
+      domainRegions: [region0, region1, region2, region3, region4],
+      nondomainRegions: [],
+      regionTree: {
+        region: region0,
+        children: [
+          { region: region1, children: [{ region: region4 }] },
+          { region: region2 },
+          { region: region3 }
+        ]
+      },
+      localities,
+      adjacencyMap,
+      synonyms
+    });
+
+    expect(matches).toEqual([
+      {
+        baseLocality: localities[0],
+        testLocality: localities[1],
+        phoneticMatches: [
+          {
+            baseSubsets: [
+              {
+                sortedPhoneticSeries: toSortedPhoneticSeries('ABC'),
+                firstWordIndex: 0,
+                lastWordIndex: 0,
+                firstCharIndex: 0,
+                lastCharIndexPlusOne: 'ABC'.length
+              }
+            ],
+            testSubsets: [
+              {
+                sortedPhoneticSeries: toSortedPhoneticSeries('DEF'),
+                firstWordIndex: 0,
+                lastWordIndex: 0,
+                firstCharIndex: 0,
+                lastCharIndexPlusOne: 'DEF'.length
+              }
+            ]
+          }
+        ],
+        excludedSubsetPairs: []
+      },
+      {
+        baseLocality: localities[0],
+        testLocality: localities[2],
+        phoneticMatches: [
+          {
+            baseSubsets: [
+              {
+                sortedPhoneticSeries: toSortedPhoneticSeries('ABC'),
+                firstWordIndex: 0,
+                lastWordIndex: 0,
+                firstCharIndex: 0,
+                lastCharIndexPlusOne: 'ABC'.length
+              }
+            ],
+            testSubsets: [
+              {
+                sortedPhoneticSeries: toSortedPhoneticSeries('GHI'),
+                firstWordIndex: 0,
+                lastWordIndex: 0,
+                firstCharIndex: 0,
+                lastCharIndexPlusOne: 'GHI'.length
+              }
+            ]
+          }
+        ],
+        excludedSubsetPairs: []
+      },
+      {
+        baseLocality: localities[0],
+        testLocality: localities[4],
+        phoneticMatches: [
+          {
+            baseSubsets: [
+              {
+                sortedPhoneticSeries: toSortedPhoneticSeries('ABC'),
+                firstWordIndex: 0,
+                lastWordIndex: 0,
+                firstCharIndex: 0,
+                lastCharIndexPlusOne: 'ABC'.length
+              }
+            ],
+            testSubsets: [
+              {
+                sortedPhoneticSeries: toSortedPhoneticSeries('MNO'),
+                firstWordIndex: 1,
+                lastWordIndex: 1,
+                firstCharIndex: localities[4].name.indexOf('MNO'),
+                lastCharIndexPlusOne: localities[4].name.length
+              }
+            ]
+          }
+        ],
+        excludedSubsetPairs: []
+      }
+      // No matches between localities[4] and region2 because the adjacency of a parent
+      // region does not always imply the adjacency of a child region.
+      // No matches with localities[3] in region3 because only immediately adjacent
+      // regions are compared; adjacency is not transitive.
+    ]);
+  });
+
+  test('process synonyms of locality adjoining non-domain regions', async () => {
+    const localities = [
+      createLocalityData({
+        regionID: region0.id,
+        name: 'ABC Preserve'
+      }),
+      createLocalityData({
+        regionID: region1.id,
+        name: 'DEF Park'
+      }),
+      createLocalityData({
+        regionID: region2.id,
+        name: 'GHI'
+      })
+    ];
+    const adjacencyMap: AdjacencyMap = {};
+    adjacencyMap[region1.id] = [region2];
+    const synonyms: StoredSynonym[][] = [
+      [createSynonym('ABC'), createSynonym('DEF')],
+      [createSynonym('GHI'), createSynonym('DEF')]
+    ];
+
+    const matches = await runProcessor({
+      baselineDate: null,
+      regionToProcess: region1,
+      domainRegions: [region1],
+      nondomainRegions: [region0, region2],
+      regionTree: {
+        region: region0,
+        children: [{ region: region1 }, { region: region2 }]
+      },
+      localities,
+      adjacencyMap,
+      synonyms
+    });
+
+    expect(matches).toEqual([
+      {
+        baseLocality: localities[1],
+        testLocality: localities[0],
+        phoneticMatches: [
+          {
+            baseSubsets: [
+              {
+                sortedPhoneticSeries: toSortedPhoneticSeries('DEF'),
+                firstWordIndex: 0,
+                lastWordIndex: 0,
+                firstCharIndex: 0,
+                lastCharIndexPlusOne: 'DEF'.length
+              }
+            ],
+            testSubsets: [
+              {
+                sortedPhoneticSeries: toSortedPhoneticSeries('ABC'),
+                firstWordIndex: 0,
+                lastWordIndex: 0,
+                firstCharIndex: 0,
+                lastCharIndexPlusOne: 'ABC'.length
+              }
+            ]
+          }
+        ],
+        excludedSubsetPairs: []
+      },
+      {
+        baseLocality: localities[1],
+        testLocality: localities[2],
+        phoneticMatches: [
+          {
+            baseSubsets: [
+              {
+                sortedPhoneticSeries: toSortedPhoneticSeries('DEF'),
+                firstWordIndex: 0,
+                lastWordIndex: 0,
+                firstCharIndex: 0,
+                lastCharIndexPlusOne: 'DEF'.length
+              }
+            ],
+            testSubsets: [
+              {
+                sortedPhoneticSeries: toSortedPhoneticSeries('GHI'),
+                firstWordIndex: 0,
+                lastWordIndex: 0,
+                firstCharIndex: 0,
+                lastCharIndexPlusOne: 'GHI'.length
               }
             ]
           }
