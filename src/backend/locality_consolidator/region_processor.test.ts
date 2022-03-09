@@ -1999,7 +1999,7 @@ describe('phonetically-synonymous locality matching', () => {
     ]);
   });
 
-  test('match multi-word-synonyms and synonymously-related non-matching localities', async () => {
+  test('match synonymously-related matching and non-matching multi-word localities', async () => {
     const localities = [
       createLocalityData({
         regionID: region1.id,
@@ -2032,7 +2032,6 @@ describe('phonetically-synonymous locality matching', () => {
       adjacencyMap: {},
       synonyms
     });
-    console.log('**** matches:', JSON.stringify(matches, undefined, '  '));
 
     const sciencePhoneticSeries = toSortedPhoneticSeries('Science');
     const centerPhoneticSeries = toSortedPhoneticSeries('Center');
