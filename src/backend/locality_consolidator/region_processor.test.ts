@@ -1999,7 +1999,7 @@ describe('phonetically-synonymous locality matching', () => {
     ]);
   });
 
-  test('match synonymously-related matching and non-matching multi-word localities', async () => {
+  test('process synonymously-related matching and non-matching multi-word localities', async () => {
     const localities = [
       createLocalityData({
         regionID: region1.id,
@@ -2007,7 +2007,7 @@ describe('phonetically-synonymous locality matching', () => {
       }),
       createLocalityData({
         regionID: region1.id,
-        name: 'Austin Sience and Natur Centr'
+        name: 'Austin Sience and Natur Centre'
       }),
       createLocalityData({
         regionID: region1.id,
@@ -2175,7 +2175,7 @@ describe('phonetically-synonymous locality matching', () => {
                 sortedPhoneticSeries: centerPhoneticSeries,
                 firstWordIndex: 3,
                 lastWordIndex: 3,
-                firstCharIndex: localities[1].name.indexOf('Centr'),
+                firstCharIndex: localities[1].name.indexOf('Centre'),
                 lastCharIndexPlusOne: localities[1].name.length
               }
             ],
@@ -2185,6 +2185,202 @@ describe('phonetically-synonymous locality matching', () => {
                 firstWordIndex: 1,
                 lastWordIndex: 1,
                 firstCharIndex: localities[3].name.indexOf('Center'),
+                lastCharIndexPlusOne: localities[3].name.length
+              }
+            ]
+          }
+        ],
+        excludedSubsetPairs: []
+      }
+    ]);
+  });
+
+  test('comparing localities in reverse order of prior test', async () => {
+    const localities = [
+      createLocalityData({
+        regionID: region1.id,
+        name: 'Science Center'
+      }),
+      createLocalityData({
+        regionID: region1.id,
+        name: 'ANSC'
+      }),
+      createLocalityData({
+        regionID: region1.id,
+        name: 'Austin Sience and Natur Centre'
+      }),
+      createLocalityData({
+        regionID: region1.id,
+        name: 'Austin Nature and Science Center'
+      })
+    ];
+    const synonyms: StoredSynonym[][] = [
+      [createSynonym('Austin Nature and Science Center'), createSynonym('ANSC')]
+    ];
+
+    const matches = await runProcessor({
+      baselineDate: null,
+      regionToProcess: region1,
+      domainRegions: [region1],
+      nondomainRegions: [],
+      regionTree: { region: region1 },
+      localities,
+      adjacencyMap: {},
+      synonyms
+    });
+
+    const sciencePhoneticSeries = toSortedPhoneticSeries('Science');
+    const centerPhoneticSeries = toSortedPhoneticSeries('Center');
+    const scienceCenterPhoneticSeries = toSortedPhoneticSeries('Science Center');
+    expect(matches).toEqual([
+      {
+        baseLocality: localities[0],
+        testLocality: localities[2],
+        phoneticMatches: [
+          {
+            baseSubsets: [
+              {
+                sortedPhoneticSeries: sciencePhoneticSeries,
+                firstWordIndex: 0,
+                lastWordIndex: 0,
+                firstCharIndex: 0,
+                lastCharIndexPlusOne: 'Science'.length
+              }
+            ],
+            testSubsets: [
+              {
+                sortedPhoneticSeries: sciencePhoneticSeries,
+                firstWordIndex: 1,
+                lastWordIndex: 1,
+                firstCharIndex: localities[2].name.indexOf('Sience'),
+                lastCharIndexPlusOne: localities[2].name.indexOf(' and')
+              }
+            ]
+          },
+          {
+            baseSubsets: [
+              {
+                sortedPhoneticSeries: centerPhoneticSeries,
+                firstWordIndex: 1,
+                lastWordIndex: 1,
+                firstCharIndex: localities[0].name.indexOf('Center'),
+                lastCharIndexPlusOne: localities[0].name.length
+              }
+            ],
+            testSubsets: [
+              {
+                sortedPhoneticSeries: centerPhoneticSeries,
+                firstWordIndex: 3,
+                lastWordIndex: 3,
+                firstCharIndex: localities[2].name.indexOf('Centre'),
+                lastCharIndexPlusOne: localities[2].name.length
+              }
+            ]
+          }
+        ],
+        excludedSubsetPairs: []
+      },
+      {
+        baseLocality: localities[0],
+        testLocality: localities[3],
+        phoneticMatches: [
+          {
+            baseSubsets: [
+              {
+                sortedPhoneticSeries: scienceCenterPhoneticSeries,
+                firstWordIndex: 0,
+                lastWordIndex: 1,
+                firstCharIndex: 0,
+                lastCharIndexPlusOne: localities[0].name.length
+              }
+            ],
+            testSubsets: [
+              {
+                sortedPhoneticSeries: scienceCenterPhoneticSeries,
+                firstWordIndex: 2,
+                lastWordIndex: 3,
+                firstCharIndex: localities[3].name.indexOf('Science'),
+                lastCharIndexPlusOne: localities[3].name.length
+              }
+            ]
+          }
+        ],
+        excludedSubsetPairs: []
+      },
+      {
+        baseLocality: localities[1],
+        testLocality: localities[2],
+        phoneticMatches: [
+          {
+            baseSubsets: [
+              {
+                sortedPhoneticSeries: synonyms[0][1].phoneticSeries,
+                firstWordIndex: 0,
+                lastWordIndex: 0,
+                firstCharIndex: 0,
+                lastCharIndexPlusOne: localities[1].name.length
+              }
+            ],
+            testSubsets: [
+              {
+                sortedPhoneticSeries: synonyms[0][0].phoneticSeries,
+                firstWordIndex: 0,
+                lastWordIndex: 3,
+                firstCharIndex: 0,
+                lastCharIndexPlusOne: localities[2].name.length
+              }
+            ]
+          }
+        ],
+        excludedSubsetPairs: []
+      },
+      {
+        baseLocality: localities[1],
+        testLocality: localities[3],
+        phoneticMatches: [
+          {
+            baseSubsets: [
+              {
+                sortedPhoneticSeries: synonyms[0][1].phoneticSeries,
+                firstWordIndex: 0,
+                lastWordIndex: 0,
+                firstCharIndex: 0,
+                lastCharIndexPlusOne: localities[1].name.length
+              }
+            ],
+            testSubsets: [
+              {
+                sortedPhoneticSeries: synonyms[0][0].phoneticSeries,
+                firstWordIndex: 0,
+                lastWordIndex: 3,
+                firstCharIndex: 0,
+                lastCharIndexPlusOne: localities[3].name.length
+              }
+            ]
+          }
+        ],
+        excludedSubsetPairs: []
+      },
+      {
+        baseLocality: localities[2],
+        testLocality: localities[3],
+        phoneticMatches: [
+          {
+            baseSubsets: [
+              {
+                sortedPhoneticSeries: synonyms[0][0].phoneticSeries,
+                firstWordIndex: 0,
+                lastWordIndex: 3,
+                firstCharIndex: 0,
+                lastCharIndexPlusOne: localities[2].name.length
+              }
+            ],
+            testSubsets: [
+              {
+                sortedPhoneticSeries: synonyms[0][0].phoneticSeries,
+                firstWordIndex: 0,
+                lastWordIndex: 3,
+                firstCharIndex: 0,
                 lastCharIndexPlusOne: localities[3].name.length
               }
             ]
