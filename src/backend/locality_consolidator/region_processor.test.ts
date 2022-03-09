@@ -2007,7 +2007,7 @@ describe('phonetically-synonymous locality matching', () => {
       }),
       createLocalityData({
         regionID: region1.id,
-        name: 'Austin Sience and Natur Centre'
+        name: 'Austin Sience & Natur Centre'
       }),
       createLocalityData({
         regionID: region1.id,
@@ -2156,7 +2156,7 @@ describe('phonetically-synonymous locality matching', () => {
                 firstWordIndex: 1,
                 lastWordIndex: 1,
                 firstCharIndex: localities[1].name.indexOf('Sience'),
-                lastCharIndexPlusOne: localities[1].name.indexOf(' and')
+                lastCharIndexPlusOne: localities[1].name.indexOf(' &')
               }
             ],
             testSubsets: [
@@ -2207,7 +2207,7 @@ describe('phonetically-synonymous locality matching', () => {
       }),
       createLocalityData({
         regionID: region1.id,
-        name: 'Austin Sience and Natur Centre'
+        name: 'Austin Sience & Natur Centre'
       }),
       createLocalityData({
         regionID: region1.id,
@@ -2253,7 +2253,7 @@ describe('phonetically-synonymous locality matching', () => {
                 firstWordIndex: 1,
                 lastWordIndex: 1,
                 firstCharIndex: localities[2].name.indexOf('Sience'),
-                lastCharIndexPlusOne: localities[2].name.indexOf(' and')
+                lastCharIndexPlusOne: localities[2].name.indexOf(' &')
               }
             ]
           },
@@ -2380,6 +2380,117 @@ describe('phonetically-synonymous locality matching', () => {
                 sortedPhoneticSeries: synonyms[0][0].phoneticSeries,
                 firstWordIndex: 0,
                 lastWordIndex: 3,
+                firstCharIndex: 0,
+                lastCharIndexPlusOne: localities[3].name.length
+              }
+            ]
+          }
+        ],
+        excludedSubsetPairs: []
+      }
+    ]);
+  });
+
+  test('process localities multiply matching on a synonym', async () => {
+    const localities = [
+      createLocalityData({
+        regionID: region1.id,
+        name: 'Brackenridge Preserve'
+      }),
+      createLocalityData({
+        regionID: region1.id,
+        name: 'BFL Brack Tract'
+      }),
+      // reverse the matching order, but use different synonyms
+      createLocalityData({
+        regionID: region1.id,
+        name: 'Valley of Spiders aka Valley of Tarantulas'
+      }),
+      createLocalityData({
+        regionID: region1.id,
+        name: 'Arachnid Canyon'
+      })
+    ];
+    const synonyms: StoredSynonym[][] = [
+      [createSynonym('Brackenridge'), createSynonym('BFL')],
+      [createSynonym('Brackenridge'), createSynonym('Brack Tract')],
+      [createSynonym('Valley of Spiders'), createSynonym('Arachnid Canyon')],
+      [createSynonym('Valley of Tarantulas'), createSynonym('Arachnid Canyon')]
+    ];
+
+    const matches = await runProcessor({
+      baselineDate: null,
+      regionToProcess: region1,
+      domainRegions: [region1],
+      nondomainRegions: [],
+      regionTree: { region: region1 },
+      localities,
+      adjacencyMap: {},
+      synonyms
+    });
+    console.log('**** matches:', JSON.stringify(matches, undefined, '  '));
+
+    expect(matches).toEqual([
+      {
+        baseLocality: localities[0],
+        testLocality: localities[1],
+        phoneticMatches: [
+          {
+            baseSubsets: [
+              {
+                sortedPhoneticSeries: synonyms[0][0].phoneticSeries,
+                firstWordIndex: 0,
+                lastWordIndex: 0,
+                firstCharIndex: 0,
+                lastCharIndexPlusOne: 'Brackenridge'.length
+              }
+            ],
+            testSubsets: [
+              {
+                sortedPhoneticSeries: synonyms[0][1].phoneticSeries,
+                firstWordIndex: 0,
+                lastWordIndex: 0,
+                firstCharIndex: 0,
+                lastCharIndexPlusOne: 'BFL'.length
+              },
+              {
+                sortedPhoneticSeries: synonyms[1][1].phoneticSeries,
+                firstWordIndex: 1,
+                lastWordIndex: 2,
+                firstCharIndex: localities[1].name.indexOf('Brack'),
+                lastCharIndexPlusOne: localities[1].name.length
+              }
+            ]
+          }
+        ],
+        excludedSubsetPairs: []
+      },
+      {
+        baseLocality: localities[2],
+        testLocality: localities[3],
+        phoneticMatches: [
+          {
+            baseSubsets: [
+              {
+                sortedPhoneticSeries: synonyms[2][0].phoneticSeries,
+                firstWordIndex: 0,
+                lastWordIndex: 1,
+                firstCharIndex: 0,
+                lastCharIndexPlusOne: localities[2].name.indexOf(' aka')
+              },
+              {
+                sortedPhoneticSeries: synonyms[3][0].phoneticSeries,
+                firstWordIndex: 3,
+                lastWordIndex: 4,
+                firstCharIndex: localities[2].name.indexOf('Valley of Tarantulas'),
+                lastCharIndexPlusOne: localities[2].name.length
+              }
+            ],
+            testSubsets: [
+              {
+                sortedPhoneticSeries: synonyms[2][1].phoneticSeries,
+                firstWordIndex: 0,
+                lastWordIndex: 1,
                 firstCharIndex: 0,
                 lastCharIndexPlusOne: localities[3].name.length
               }
