@@ -2735,6 +2735,382 @@ describe('phonetically-synonymous locality matching', () => {
   });
 });
 
+describe('excluding specified matches', () => {
+  test('excluding matches having specified region pairs', async () => {
+    const localities = [
+      createLocalityData({
+        regionID: region0.id,
+        name: 'Foo Bar'
+      }),
+      createLocalityData({
+        regionID: region1.id,
+        name: 'Foo Bar'
+      }),
+      createLocalityData({
+        regionID: region2.id,
+        name: 'Foo Bar'
+      }),
+      createLocalityData({
+        regionID: region3.id,
+        name: 'Foo Bar'
+      }),
+      createLocalityData({
+        regionID: region4.id,
+        name: 'Foo Bar'
+      }),
+      createLocalityData({
+        regionID: region4.id,
+        name: 'Foo Bar'
+      })
+    ];
+    const adjacencyMap: AdjacencyMap = {};
+    adjacencyMap[region1.id] = [region2];
+    const excludedMatchesStore = new MockExcludedMatchesStore();
+    excludedMatchesStore.excludeRegionMatch('foo bar', 1, 2);
+    excludedMatchesStore.excludeRegionMatch('foo bar', 1, 3);
+    excludedMatchesStore.excludeRegionMatch('foo bar', 1, 4);
+
+    const matches = await runProcessor({
+      baselineDate: null,
+      regionToProcess: region1,
+      domainRegions: [region1, region2, region4],
+      nondomainRegions: [region0, region3],
+      regionTree: {
+        region: region0,
+        children: [
+          { region: region1, children: [{ region: region4 }] },
+          { region: region2 },
+          { region: region3 }
+        ]
+      },
+      localities,
+      adjacencyMap,
+      synonyms: [],
+      excludedMatchesStore
+    });
+
+    expect(matches).toEqual([
+      {
+        baseLocality: localities[1],
+        testLocality: localities[0],
+        phoneticMatches: [
+          {
+            baseSubsets: [
+              {
+                sortedPhoneticSeries: toSortedPhoneticSeries('Foo Bar'),
+                firstWordIndex: 0,
+                lastWordIndex: 1,
+                firstCharIndex: 0,
+                lastCharIndexPlusOne: 'Foo Bar'.length
+              }
+            ],
+            testSubsets: [
+              {
+                sortedPhoneticSeries: toSortedPhoneticSeries('Foo Bar'),
+                firstWordIndex: 0,
+                lastWordIndex: 1,
+                firstCharIndex: 0,
+                lastCharIndexPlusOne: 'Foo Bar'.length
+              }
+            ]
+          }
+        ],
+        excludedSubsetPairs: []
+      }
+    ]);
+  });
+
+  test('excluding intraregion matches having specified coordinate pairings', async () => {
+    const localities = [
+      createLocalityData({
+        remarks: 'index 0',
+        regionID: region0.id,
+        name: 'Foo Bar',
+        latitude: 11,
+        longitude: 21
+      }),
+      createLocalityData({
+        remarks: 'index 1',
+        regionID: region1.id,
+        name: 'Foo Bar',
+        latitude: 10,
+        longitude: 20
+      }),
+      createLocalityData({
+        remarks: 'index 2',
+        regionID: region1.id,
+        name: 'Foo Bar',
+        latitude: 10,
+        longitude: 20
+      }),
+      createLocalityData({
+        remarks: 'index 3',
+        regionID: region1.id,
+        name: 'Foo Bar',
+        latitude: 11,
+        longitude: 21
+      }),
+      createLocalityData({
+        remarks: 'index 4',
+        regionID: region1.id,
+        name: 'Foo Bar',
+        latitude: 12,
+        longitude: 22
+      }),
+      createLocalityData({
+        remarks: 'index 5',
+        regionID: region1.id,
+        name: 'Foo Bar',
+        latitude: 13,
+        longitude: 23
+      }),
+      createLocalityData({
+        remarks: 'index 6',
+        regionID: region1.id,
+        name: 'Foo Bar',
+        latitude: null,
+        longitude: null
+      }),
+      createLocalityData({
+        remarks: 'index 7',
+        regionID: region3.id,
+        name: 'Foo Bar',
+        latitude: 11,
+        longitude: 21
+      }),
+      createLocalityData({
+        remarks: 'index 8',
+        regionID: region3.id,
+        name: 'Foo Bar',
+        latitude: 11,
+        longitude: 21
+      })
+    ];
+    const adjacencyMap: AdjacencyMap = {};
+    adjacencyMap[region1.id] = [region2];
+    const excludedMatchesStore = new MockExcludedMatchesStore();
+    excludedMatchesStore.excludeCoordinateMatch('foo bar', [10, 20], [11, 21]);
+    excludedMatchesStore.excludeCoordinateMatch('foo bar', [10, 20], [12, 22]);
+
+    const matches = await runProcessor({
+      baselineDate: null,
+      regionToProcess: region1,
+      domainRegions: [region1, region3],
+      nondomainRegions: [region0, region2],
+      regionTree: {
+        region: region0,
+        children: [
+          { region: region1, children: [{ region: region3 }] },
+          { region: region2 }
+        ]
+      },
+      localities,
+      adjacencyMap,
+      synonyms: [],
+      excludedMatchesStore
+    });
+    console.log('**** matches:', JSON.stringify(matches, undefined, '  '));
+
+    const fooBarPhoneticSeries = toSortedPhoneticSeries('Foo Bar');
+    const fooBarMatch = {
+      baseSubsets: [
+        {
+          sortedPhoneticSeries: fooBarPhoneticSeries,
+          firstWordIndex: 0,
+          lastWordIndex: 1,
+          firstCharIndex: 0,
+          lastCharIndexPlusOne: 'Foo Bar'.length
+        }
+      ],
+      testSubsets: [
+        {
+          sortedPhoneticSeries: fooBarPhoneticSeries,
+          firstWordIndex: 0,
+          lastWordIndex: 1,
+          firstCharIndex: 0,
+          lastCharIndexPlusOne: 'Foo Bar'.length
+        }
+      ]
+    };
+    expect(matches).toEqual([
+      {
+        baseLocality: localities[1],
+        testLocality: localities[0],
+        phoneticMatches: [fooBarMatch],
+        excludedSubsetPairs: []
+      },
+      {
+        baseLocality: localities[1],
+        testLocality: localities[2],
+        phoneticMatches: [fooBarMatch],
+        excludedSubsetPairs: []
+      },
+      {
+        baseLocality: localities[1],
+        testLocality: localities[5],
+        phoneticMatches: [fooBarMatch],
+        excludedSubsetPairs: []
+      },
+      {
+        baseLocality: localities[1],
+        testLocality: localities[6],
+        phoneticMatches: [fooBarMatch],
+        excludedSubsetPairs: []
+      },
+      {
+        baseLocality: localities[1],
+        testLocality: localities[7],
+        phoneticMatches: [fooBarMatch],
+        excludedSubsetPairs: []
+      },
+      {
+        baseLocality: localities[1],
+        testLocality: localities[8],
+        phoneticMatches: [fooBarMatch],
+        excludedSubsetPairs: []
+      },
+      {
+        baseLocality: localities[2],
+        testLocality: localities[0],
+        phoneticMatches: [fooBarMatch],
+        excludedSubsetPairs: []
+      },
+      {
+        baseLocality: localities[2],
+        testLocality: localities[5],
+        phoneticMatches: [fooBarMatch],
+        excludedSubsetPairs: []
+      },
+      {
+        baseLocality: localities[2],
+        testLocality: localities[6],
+        phoneticMatches: [fooBarMatch],
+        excludedSubsetPairs: []
+      },
+      {
+        baseLocality: localities[2],
+        testLocality: localities[7],
+        phoneticMatches: [fooBarMatch],
+        excludedSubsetPairs: []
+      },
+      {
+        baseLocality: localities[2],
+        testLocality: localities[8],
+        phoneticMatches: [fooBarMatch],
+        excludedSubsetPairs: []
+      },
+      {
+        baseLocality: localities[3],
+        testLocality: localities[0],
+        phoneticMatches: [fooBarMatch],
+        excludedSubsetPairs: []
+      },
+      {
+        baseLocality: localities[3],
+        testLocality: localities[4],
+        phoneticMatches: [fooBarMatch],
+        excludedSubsetPairs: []
+      },
+      {
+        baseLocality: localities[3],
+        testLocality: localities[5],
+        phoneticMatches: [fooBarMatch],
+        excludedSubsetPairs: []
+      },
+      {
+        baseLocality: localities[3],
+        testLocality: localities[6],
+        phoneticMatches: [fooBarMatch],
+        excludedSubsetPairs: []
+      },
+      {
+        baseLocality: localities[3],
+        testLocality: localities[7],
+        phoneticMatches: [fooBarMatch],
+        excludedSubsetPairs: []
+      },
+      {
+        baseLocality: localities[3],
+        testLocality: localities[8],
+        phoneticMatches: [fooBarMatch],
+        excludedSubsetPairs: []
+      },
+      {
+        baseLocality: localities[4],
+        testLocality: localities[0],
+        phoneticMatches: [fooBarMatch],
+        excludedSubsetPairs: []
+      },
+      {
+        baseLocality: localities[4],
+        testLocality: localities[5],
+        phoneticMatches: [fooBarMatch],
+        excludedSubsetPairs: []
+      },
+      {
+        baseLocality: localities[4],
+        testLocality: localities[6],
+        phoneticMatches: [fooBarMatch],
+        excludedSubsetPairs: []
+      },
+      {
+        baseLocality: localities[4],
+        testLocality: localities[7],
+        phoneticMatches: [fooBarMatch],
+        excludedSubsetPairs: []
+      },
+      {
+        baseLocality: localities[4],
+        testLocality: localities[8],
+        phoneticMatches: [fooBarMatch],
+        excludedSubsetPairs: []
+      },
+      {
+        baseLocality: localities[5],
+        testLocality: localities[0],
+        phoneticMatches: [fooBarMatch],
+        excludedSubsetPairs: []
+      },
+      {
+        baseLocality: localities[5],
+        testLocality: localities[6],
+        phoneticMatches: [fooBarMatch],
+        excludedSubsetPairs: []
+      },
+      {
+        baseLocality: localities[5],
+        testLocality: localities[7],
+        phoneticMatches: [fooBarMatch],
+        excludedSubsetPairs: []
+      },
+      {
+        baseLocality: localities[5],
+        testLocality: localities[8],
+        phoneticMatches: [fooBarMatch],
+        excludedSubsetPairs: []
+      },
+      {
+        baseLocality: localities[6],
+        testLocality: localities[0],
+        phoneticMatches: [fooBarMatch],
+        excludedSubsetPairs: []
+      },
+      {
+        baseLocality: localities[6],
+        testLocality: localities[7],
+        phoneticMatches: [fooBarMatch],
+        excludedSubsetPairs: []
+      },
+      {
+        baseLocality: localities[6],
+        testLocality: localities[8],
+        phoneticMatches: [fooBarMatch],
+        excludedSubsetPairs: []
+      }
+    ]);
+  });
+});
+
 //// TEST SUPPPORT ///////////////////////////////////////////////////////////
 
 class TestRegion extends Region {
