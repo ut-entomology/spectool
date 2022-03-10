@@ -2977,6 +2977,7 @@ describe('excluding specified matches', () => {
 
   test('identical series exclusions mismatch only in strict subsets', async () => {
     const localities = [
+      // Must be first to test base locality subsets of test localties.
       createLocalityData({
         remarks: 'index 0',
         regionID: region1.id,
@@ -2985,22 +2986,23 @@ describe('excluding specified matches', () => {
       createLocalityData({
         remarks: 'index 1',
         regionID: region1.id,
-        name: 'foo bar'
+        name: 'Foo Bar Baz'
       }),
       createLocalityData({
         remarks: 'index 2',
         regionID: region1.id,
-        name: 'Foo Bar Baz'
+        name: 'Wow Foo Bar'
       }),
       createLocalityData({
         remarks: 'index 3',
         regionID: region1.id,
-        name: 'Wow Foo Bar'
+        name: 'Foo Bar Wow'
       }),
+      // Must be last to test test locality subsets of base localities.
       createLocalityData({
         remarks: 'index 4',
         regionID: region1.id,
-        name: 'Foo Bar Wow'
+        name: 'foo bar'
       })
     ];
     const excludedMatchesStore = new MockExcludedMatchesStore();
@@ -3042,6 +3044,87 @@ describe('excluding specified matches', () => {
                 firstWordIndex: 0,
                 lastWordIndex: 1,
                 firstCharIndex: 0,
+                lastCharIndexPlusOne: 'Foo Bar'.length
+              }
+            ]
+          }
+        ],
+        excludedSubsetPairs: []
+      },
+      {
+        baseLocality: localities[0],
+        testLocality: localities[2],
+        phoneticMatches: [
+          {
+            baseSubsets: [
+              {
+                sortedPhoneticSeries: toSortedPhoneticSeries('Foo Bar'),
+                firstWordIndex: 0,
+                lastWordIndex: 1,
+                firstCharIndex: 0,
+                lastCharIndexPlusOne: 'Foo Bar'.length
+              }
+            ],
+            testSubsets: [
+              {
+                sortedPhoneticSeries: toSortedPhoneticSeries('Foo Bar'),
+                firstWordIndex: 1,
+                lastWordIndex: 2,
+                firstCharIndex: localities[2].name.indexOf('Foo'),
+                lastCharIndexPlusOne: localities[2].name.length
+              }
+            ]
+          }
+        ],
+        excludedSubsetPairs: []
+      },
+      {
+        baseLocality: localities[0],
+        testLocality: localities[3],
+        phoneticMatches: [
+          {
+            baseSubsets: [
+              {
+                sortedPhoneticSeries: toSortedPhoneticSeries('Foo Bar'),
+                firstWordIndex: 0,
+                lastWordIndex: 1,
+                firstCharIndex: 0,
+                lastCharIndexPlusOne: 'Foo Bar'.length
+              }
+            ],
+            testSubsets: [
+              {
+                sortedPhoneticSeries: toSortedPhoneticSeries('Foo Bar'),
+                firstWordIndex: 0,
+                lastWordIndex: 1,
+                firstCharIndex: 0,
+                lastCharIndexPlusOne: 'Foo Bar'.length
+              }
+            ]
+          }
+        ],
+        excludedSubsetPairs: []
+      },
+      {
+        baseLocality: localities[0],
+        testLocality: localities[4],
+        phoneticMatches: [
+          {
+            baseSubsets: [
+              {
+                sortedPhoneticSeries: toSortedPhoneticSeries('Foo Bar'),
+                firstWordIndex: 0,
+                lastWordIndex: 1,
+                firstCharIndex: 0,
+                lastCharIndexPlusOne: 'Foo Bar'.length
+              }
+            ],
+            testSubsets: [
+              {
+                sortedPhoneticSeries: toSortedPhoneticSeries('Foo Bar'),
+                firstWordIndex: 0,
+                lastWordIndex: 1,
+                firstCharIndex: 0,
                 lastCharIndexPlusOne: 'foo bar'.length
               }
             ]
@@ -3050,141 +3133,6 @@ describe('excluding specified matches', () => {
         excludedSubsetPairs: []
       },
       {
-        baseLocality: localities[0],
-        testLocality: localities[2],
-        phoneticMatches: [
-          {
-            baseSubsets: [
-              {
-                sortedPhoneticSeries: toSortedPhoneticSeries('Foo Bar'),
-                firstWordIndex: 0,
-                lastWordIndex: 1,
-                firstCharIndex: 0,
-                lastCharIndexPlusOne: 'Foo Bar'.length
-              }
-            ],
-            testSubsets: [
-              {
-                sortedPhoneticSeries: toSortedPhoneticSeries('Foo Bar'),
-                firstWordIndex: 0,
-                lastWordIndex: 1,
-                firstCharIndex: 0,
-                lastCharIndexPlusOne: 'Foo Bar'.length
-              }
-            ]
-          }
-        ],
-        excludedSubsetPairs: []
-      },
-      {
-        baseLocality: localities[0],
-        testLocality: localities[3],
-        phoneticMatches: [
-          {
-            baseSubsets: [
-              {
-                sortedPhoneticSeries: toSortedPhoneticSeries('Foo Bar'),
-                firstWordIndex: 0,
-                lastWordIndex: 1,
-                firstCharIndex: 0,
-                lastCharIndexPlusOne: 'Foo Bar'.length
-              }
-            ],
-            testSubsets: [
-              {
-                sortedPhoneticSeries: toSortedPhoneticSeries('Foo Bar'),
-                firstWordIndex: 1,
-                lastWordIndex: 2,
-                firstCharIndex: localities[3].name.indexOf('Foo'),
-                lastCharIndexPlusOne: localities[3].name.length
-              }
-            ]
-          }
-        ],
-        excludedSubsetPairs: []
-      },
-      {
-        baseLocality: localities[0],
-        testLocality: localities[4],
-        phoneticMatches: [
-          {
-            baseSubsets: [
-              {
-                sortedPhoneticSeries: toSortedPhoneticSeries('Foo Bar'),
-                firstWordIndex: 0,
-                lastWordIndex: 1,
-                firstCharIndex: 0,
-                lastCharIndexPlusOne: 'Foo Bar'.length
-              }
-            ],
-            testSubsets: [
-              {
-                sortedPhoneticSeries: toSortedPhoneticSeries('Foo Bar'),
-                firstWordIndex: 0,
-                lastWordIndex: 1,
-                firstCharIndex: 0,
-                lastCharIndexPlusOne: 'Foo Bar'.length
-              }
-            ]
-          }
-        ],
-        excludedSubsetPairs: []
-      },
-      {
-        baseLocality: localities[1],
-        testLocality: localities[2],
-        phoneticMatches: [
-          {
-            baseSubsets: [
-              {
-                sortedPhoneticSeries: toSortedPhoneticSeries('Foo Bar'),
-                firstWordIndex: 0,
-                lastWordIndex: 1,
-                firstCharIndex: 0,
-                lastCharIndexPlusOne: 'Foo Bar'.length
-              }
-            ],
-            testSubsets: [
-              {
-                sortedPhoneticSeries: toSortedPhoneticSeries('Foo Bar'),
-                firstWordIndex: 0,
-                lastWordIndex: 1,
-                firstCharIndex: 0,
-                lastCharIndexPlusOne: 'Foo Bar'.length
-              }
-            ]
-          }
-        ],
-        excludedSubsetPairs: []
-      },
-      {
-        baseLocality: localities[1],
-        testLocality: localities[3],
-        phoneticMatches: [
-          {
-            baseSubsets: [
-              {
-                sortedPhoneticSeries: toSortedPhoneticSeries('Foo Bar'),
-                firstWordIndex: 0,
-                lastWordIndex: 1,
-                firstCharIndex: 0,
-                lastCharIndexPlusOne: 'Foo Bar'.length
-              }
-            ],
-            testSubsets: [
-              {
-                sortedPhoneticSeries: toSortedPhoneticSeries('Foo Bar'),
-                firstWordIndex: 1,
-                lastWordIndex: 2,
-                firstCharIndex: localities[3].name.indexOf('Foo'),
-                lastCharIndexPlusOne: localities[3].name.length
-              }
-            ]
-          }
-        ],
-        excludedSubsetPairs: []
-      },
-      {
         baseLocality: localities[1],
         testLocality: localities[4],
         phoneticMatches: [
@@ -3196,6 +3144,60 @@ describe('excluding specified matches', () => {
                 lastWordIndex: 1,
                 firstCharIndex: 0,
                 lastCharIndexPlusOne: 'Foo Bar'.length
+              }
+            ],
+            testSubsets: [
+              {
+                sortedPhoneticSeries: toSortedPhoneticSeries('Foo Bar'),
+                firstWordIndex: 0,
+                lastWordIndex: 1,
+                firstCharIndex: 0,
+                lastCharIndexPlusOne: 'Foo Bar'.length
+              }
+            ]
+          }
+        ],
+        excludedSubsetPairs: []
+      },
+      {
+        baseLocality: localities[2],
+        testLocality: localities[3],
+        phoneticMatches: [
+          {
+            baseSubsets: [
+              {
+                sortedPhoneticSeries: toSortedPhoneticSeries('Wow Foo Bar'),
+                firstWordIndex: 0,
+                lastWordIndex: 2,
+                firstCharIndex: 0,
+                lastCharIndexPlusOne: localities[2].name.length
+              }
+            ],
+            testSubsets: [
+              {
+                sortedPhoneticSeries: toSortedPhoneticSeries('Wow Foo Bar'),
+                firstWordIndex: 0,
+                lastWordIndex: 2,
+                firstCharIndex: 0,
+                lastCharIndexPlusOne: localities[3].name.length
+              }
+            ]
+          }
+        ],
+        excludedSubsetPairs: []
+      },
+      {
+        baseLocality: localities[2],
+        testLocality: localities[4],
+        phoneticMatches: [
+          {
+            baseSubsets: [
+              {
+                sortedPhoneticSeries: toSortedPhoneticSeries('Foo Bar'),
+                firstWordIndex: 1,
+                lastWordIndex: 2,
+                firstCharIndex: localities[2].name.indexOf('Foo'),
+                lastCharIndexPlusOne: localities[2].name.length
               }
             ],
             testSubsets: [
@@ -3218,20 +3220,20 @@ describe('excluding specified matches', () => {
           {
             baseSubsets: [
               {
-                sortedPhoneticSeries: toSortedPhoneticSeries('Wow Foo Bar'),
+                sortedPhoneticSeries: toSortedPhoneticSeries('Foo Bar'),
                 firstWordIndex: 0,
-                lastWordIndex: 2,
+                lastWordIndex: 1,
                 firstCharIndex: 0,
-                lastCharIndexPlusOne: localities[3].name.length
+                lastCharIndexPlusOne: 'Foo Bar'.length
               }
             ],
             testSubsets: [
               {
-                sortedPhoneticSeries: toSortedPhoneticSeries('Wow Foo Bar'),
+                sortedPhoneticSeries: toSortedPhoneticSeries('Foo Bar'),
                 firstWordIndex: 0,
-                lastWordIndex: 2,
+                lastWordIndex: 1,
                 firstCharIndex: 0,
-                lastCharIndexPlusOne: localities[4].name.length
+                lastCharIndexPlusOne: 'Foo Bar'.length
               }
             ]
           }

@@ -495,7 +495,7 @@ export class RegionProcessor {
   ): PhoneticSubset[][] | null {
     const excludedSubsetPairs: PhoneticSubset[][] = [];
     const fullBaseWordSeries = baseLocality.getEntireWordSeries();
-    //const fullTestWordSeries = testLocality.getEntireWordSeries();
+    const fullTestWordSeries = testLocality.getEntireWordSeries();
 
     // These booleans allow all excludedSubsetPairs to collect for later presentation.
     let foundExclusions = false;
@@ -517,7 +517,7 @@ export class RegionProcessor {
             const testWordSeries = testLocality.getWordSeries(testSubset);
             if (
               testWordSeries != fullBaseWordSeries &&
-              //testWordSeries != fullTestWordSeries &&
+              testWordSeries != fullTestWordSeries &&
               exclusions.nonmatchingWords.includes(testWordSeries)
             ) {
               excludedSubsetPairs.push([baseSubset, testSubset]);
