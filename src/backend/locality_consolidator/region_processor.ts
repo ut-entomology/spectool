@@ -483,7 +483,7 @@ export class RegionProcessor {
 
   /**
    * Examine the provided matches for exclusions that the user provided, and return
-   * a list of all those exclusions (possibly empty, unless the exclusions have
+   * a list of all those exclusions (possibly empty), unless the exclusions have
    * completely ruled out all matches, in which case return null. The list of
    * exclusions can be used to reduce user confusion as seeing apparent matches not
    * marked as matching.
@@ -494,8 +494,10 @@ export class RegionProcessor {
     testLocality: CachedLocality
   ): PhoneticSubset[][] | null {
     const excludedSubsetPairs: PhoneticSubset[][] = [];
+    const fullBaseWordSeries = baseLocality.getEntireWordSeries();
+    //const fullTestWordSeries = testLocality.getEntireWordSeries();
 
-    // These booleans allow all excludedSubsetPairs to collect for the presentation.
+    // These booleans allow all excludedSubsetPairs to collect for later presentation.
     let foundExclusions = false;
     let foundInapplicableExclusion = false;
 
@@ -513,7 +515,11 @@ export class RegionProcessor {
           for (let k = 0; k < testSubsets.length; ++k) {
             const testSubset = testSubsets[k];
             const testWordSeries = testLocality.getWordSeries(testSubset);
-            if (exclusions.nonmatchingWords.includes(testWordSeries)) {
+            if (
+              testWordSeries != fullBaseWordSeries &&
+              //testWordSeries != fullTestWordSeries &&
+              exclusions.nonmatchingWords.includes(testWordSeries)
+            ) {
               excludedSubsetPairs.push([baseSubset, testSubset]);
             } else {
               foundInapplicableExclusion = true;
