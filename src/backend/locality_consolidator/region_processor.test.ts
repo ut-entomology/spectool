@@ -3007,8 +3007,6 @@ describe('excluding specified matches', () => {
     ];
     const excludedMatchesStore = new MockExcludedMatchesStore();
     excludedMatchesStore.excludeWordSeriesMatch('foo bar', 'foo bar');
-    excludedMatchesStore.excludeWordSeriesMatch('foo', 'foo');
-    excludedMatchesStore.excludeWordSeriesMatch('bar', 'bar');
 
     const matches = await runProcessor({
       baselineDate: null,
@@ -3262,8 +3260,6 @@ describe('excluding specified matches', () => {
     ];
     const excludedMatchesStore = new MockExcludedMatchesStore();
     excludedMatchesStore.excludeWordSeriesMatch('foo bar', 'foo barr');
-    excludedMatchesStore.excludeWordSeriesMatch('foo', 'foo');
-    excludedMatchesStore.excludeWordSeriesMatch('bar', 'bar');
 
     const matches = await runProcessor({
       baselineDate: null,
@@ -3378,8 +3374,6 @@ describe('excluding specified matches', () => {
     const excludedMatchesStore = new MockExcludedMatchesStore();
     excludedMatchesStore.excludeWordSeriesMatch('foo bar', 'foo bar');
     excludedMatchesStore.excludeWordSeriesMatch('foo bar', 'barr foo');
-    excludedMatchesStore.excludeWordSeriesMatch('foo', 'foo');
-    excludedMatchesStore.excludeWordSeriesMatch('bar', 'bar');
 
     const matches = await runProcessor({
       baselineDate: null,
