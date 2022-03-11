@@ -3267,7 +3267,6 @@ describe('excluding specified matches', () => {
       synonyms: [],
       excludedMatchesStore
     });
-    console.log('**** matches:', JSON.stringify(matches, undefined, '  '));
 
     expect(matches).toEqual([
       {
@@ -3594,6 +3593,158 @@ describe('excluding specified matches', () => {
                 lastWordIndex: 1,
                 firstCharIndex: 0,
                 lastCharIndexPlusOne: 'foo barr'.length
+              }
+            ]
+          }
+        ],
+        excludedSubsetPairs: []
+      }
+    ]);
+  });
+  test('excluding synonymous matches', async () => {
+    const localities = [
+      createLocalityData({
+        remarks: 'index 0',
+        regionID: region1.id,
+        name: 'Stupendous Park'
+      }),
+      createLocalityData({
+        remarks: 'index 1',
+        regionID: region1.id,
+        name: 'Amazing Preserve'
+      }),
+      createLocalityData({
+        remarks: 'index 2',
+        regionID: region1.id,
+        name: 'City PERK'
+      }),
+      createLocalityData({
+        remarks: 'index 3',
+        regionID: region1.id,
+        name: 'Awesome Preserve'
+      })
+    ];
+    const synonyms: StoredSynonym[][] = [
+      [createSynonym('Park'), createSynonym('Preserve')]
+    ];
+    const excludedMatchesStore = new MockExcludedMatchesStore();
+    excludedMatchesStore.excludeWordSeriesMatch('perk', 'preserve');
+
+    const matches = await runProcessor({
+      baselineDate: null,
+      regionToProcess: region1,
+      domainRegions: [region1],
+      nondomainRegions: [],
+      regionTree: { region: region1 },
+      localities,
+      adjacencyMap: {},
+      synonyms,
+      excludedMatchesStore
+    });
+
+    expect(matches).toEqual([
+      {
+        baseLocality: localities[0],
+        testLocality: localities[2],
+        phoneticMatches: [
+          {
+            baseSubsets: [
+              {
+                sortedPhoneticSeries: toSortedPhoneticSeries('Park'),
+                firstWordIndex: 1,
+                lastWordIndex: 1,
+                firstCharIndex: localities[0].name.indexOf('Park'),
+                lastCharIndexPlusOne: localities[0].name.length
+              }
+            ],
+            testSubsets: [
+              {
+                sortedPhoneticSeries: toSortedPhoneticSeries('PERK'),
+                firstWordIndex: 1,
+                lastWordIndex: 1,
+                firstCharIndex: localities[2].name.indexOf('PERK'),
+                lastCharIndexPlusOne: localities[2].name.length
+              }
+            ]
+          }
+        ],
+        excludedSubsetPairs: []
+      },
+      {
+        baseLocality: localities[0],
+        testLocality: localities[1],
+        phoneticMatches: [
+          {
+            baseSubsets: [
+              {
+                sortedPhoneticSeries: toSortedPhoneticSeries('Park'),
+                firstWordIndex: 1,
+                lastWordIndex: 1,
+                firstCharIndex: localities[0].name.indexOf('Park'),
+                lastCharIndexPlusOne: localities[0].name.length
+              }
+            ],
+            testSubsets: [
+              {
+                sortedPhoneticSeries: toSortedPhoneticSeries('Preserve'),
+                firstWordIndex: 1,
+                lastWordIndex: 1,
+                firstCharIndex: localities[1].name.indexOf('Preserve'),
+                lastCharIndexPlusOne: localities[1].name.length
+              }
+            ]
+          }
+        ],
+        excludedSubsetPairs: []
+      },
+      {
+        baseLocality: localities[0],
+        testLocality: localities[3],
+        phoneticMatches: [
+          {
+            baseSubsets: [
+              {
+                sortedPhoneticSeries: toSortedPhoneticSeries('Park'),
+                firstWordIndex: 1,
+                lastWordIndex: 1,
+                firstCharIndex: localities[0].name.indexOf('Park'),
+                lastCharIndexPlusOne: localities[0].name.length
+              }
+            ],
+            testSubsets: [
+              {
+                sortedPhoneticSeries: toSortedPhoneticSeries('Preserve'),
+                firstWordIndex: 1,
+                lastWordIndex: 1,
+                firstCharIndex: localities[3].name.indexOf('Preserve'),
+                lastCharIndexPlusOne: localities[3].name.length
+              }
+            ]
+          }
+        ],
+        excludedSubsetPairs: []
+      },
+      {
+        baseLocality: localities[1],
+        testLocality: localities[3],
+        phoneticMatches: [
+          {
+            baseSubsets: [
+              {
+                sortedPhoneticSeries: toSortedPhoneticSeries('Preserve'),
+                firstWordIndex: 1,
+                lastWordIndex: 1,
+                firstCharIndex: localities[1].name.indexOf('Preserve'),
+                lastCharIndexPlusOne: localities[1].name.length
+              }
+            ],
+            testSubsets: [
+              {
+                sortedPhoneticSeries: toSortedPhoneticSeries('Preserve'),
+                firstWordIndex: 1,
+                lastWordIndex: 1,
+                firstCharIndex: localities[3].name.indexOf('Preserve'),
+                lastCharIndexPlusOne: localities[3].name.length
               }
             ]
           }
