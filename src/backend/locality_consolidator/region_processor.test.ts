@@ -3240,6 +3240,83 @@ describe('excluding specified matches', () => {
     ]);
   });
 
+  test('excluding only one of multiple words yields excluded words', async () => {
+    const localities = [
+      createLocalityData({
+        remarks: 'index 0',
+        regionID: region1.id,
+        name: 'Foo Baz Bar'
+      }),
+      createLocalityData({
+        remarks: 'index 1',
+        regionID: region1.id,
+        name: 'Yay Bar Foo'
+      })
+    ];
+    const excludedMatchesStore = new MockExcludedMatchesStore();
+    excludedMatchesStore.excludeWordSeriesMatch('bar', 'bar');
+
+    const matches = await runProcessor({
+      baselineDate: null,
+      regionToProcess: region1,
+      domainRegions: [region1],
+      nondomainRegions: [],
+      regionTree: { region: region1 },
+      localities,
+      adjacencyMap: {},
+      synonyms: [],
+      excludedMatchesStore
+    });
+    console.log('**** matches:', JSON.stringify(matches, undefined, '  '));
+
+    expect(matches).toEqual([
+      {
+        baseLocality: localities[0],
+        testLocality: localities[1],
+        phoneticMatches: [
+          {
+            baseSubsets: [
+              {
+                sortedPhoneticSeries: toSortedPhoneticSeries('Foo'),
+                firstWordIndex: 0,
+                lastWordIndex: 0,
+                firstCharIndex: 0,
+                lastCharIndexPlusOne: 'Foo'.length
+              }
+            ],
+            testSubsets: [
+              {
+                sortedPhoneticSeries: toSortedPhoneticSeries('Foo'),
+                firstWordIndex: 2,
+                lastWordIndex: 2,
+                firstCharIndex: localities[1].name.indexOf('Foo'),
+                lastCharIndexPlusOne: localities[1].name.length
+              }
+            ]
+          }
+        ],
+        excludedSubsetPairs: [
+          [
+            {
+              sortedPhoneticSeries: toSortedPhoneticSeries('Bar'),
+              firstWordIndex: 2,
+              lastWordIndex: 2,
+              firstCharIndex: localities[0].name.indexOf('Bar'),
+              lastCharIndexPlusOne: localities[0].name.length
+            },
+            {
+              sortedPhoneticSeries: toSortedPhoneticSeries('Bar'),
+              firstWordIndex: 1,
+              lastWordIndex: 1,
+              firstCharIndex: localities[1].name.indexOf('Bar'),
+              lastCharIndexPlusOne: localities[1].name.indexOf(' Foo')
+            }
+          ]
+        ]
+      }
+    ]);
+  });
+
   test('excluded matches require exact matches on word series', async () => {
     const localities = [
       createLocalityData({
@@ -3386,7 +3463,6 @@ describe('excluding specified matches', () => {
       synonyms: [],
       excludedMatchesStore
     });
-    console.log('**** matches:', JSON.stringify(matches, undefined, '  '));
 
     expect(matches).toEqual([
       {

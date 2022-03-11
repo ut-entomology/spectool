@@ -567,17 +567,16 @@ export class RegionProcessor {
       }
       if (baseIndexesToDelete.length < match.baseSubsets.length) {
         testIndexesToDelete = [];
-      }
-      if (testIndexesToDelete.length < match.testSubsets.length) {
+      } else if (testIndexesToDelete.length < match.testSubsets.length) {
         baseIndexesToDelete = [];
       }
-      let baseIndex = baseIndexesToDelete.length;
-      while (--baseIndex >= 0) {
-        match.baseSubsets.splice(baseIndex, 1);
+      let i = baseIndexesToDelete.length;
+      while (--i >= 0) {
+        match.baseSubsets.splice(baseIndexesToDelete[i], 1);
       }
-      let testIndex = testIndexesToDelete.length;
-      while (--testIndex >= 0) {
-        match.testSubsets.splice(testIndex, 1);
+      i = testIndexesToDelete.length;
+      while (--i >= 0) {
+        match.testSubsets.splice(testIndexesToDelete[i], 1);
       }
       if (match.baseSubsets.length == 0 && match.testSubsets.length == 0) {
         matchIndexesToDelete.push(matchIndex);
@@ -586,9 +585,9 @@ export class RegionProcessor {
 
     // Remove matches for which all subsets were removed.
 
-    let matchIndex = matchIndexesToDelete.length;
-    while (--matchIndex >= 0) {
-      matches.splice(matchIndex, 1);
+    let i = matchIndexesToDelete.length;
+    while (--i >= 0) {
+      matches.splice(matchIndexesToDelete[i], 1);
     }
 
     // Return the excluded pairs if at least one subset match remains, and
