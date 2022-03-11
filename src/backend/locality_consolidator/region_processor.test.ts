@@ -3021,7 +3021,6 @@ describe('excluding specified matches', () => {
       synonyms: [],
       excludedMatchesStore
     });
-    console.log('**** matches:', JSON.stringify(matches, undefined, '  '));
 
     expect(matches).toEqual([
       {
@@ -3242,6 +3241,297 @@ describe('excluding specified matches', () => {
       }
     ]);
   });
+
+  test('excluded matches require exact matches on word series', async () => {
+    const localities = [
+      createLocalityData({
+        remarks: 'index 0',
+        regionID: region1.id,
+        name: 'Foo Bar Baz'
+      }),
+      createLocalityData({
+        remarks: 'index 1',
+        regionID: region1.id,
+        name: 'Foo Bar Yay'
+      }),
+      createLocalityData({
+        remarks: 'index 2',
+        regionID: region1.id,
+        name: 'Foo Barr Blurg Yay'
+      })
+    ];
+    const excludedMatchesStore = new MockExcludedMatchesStore();
+    excludedMatchesStore.excludeWordSeriesMatch('foo bar', 'foo barr');
+    excludedMatchesStore.excludeWordSeriesMatch('foo', 'foo');
+    excludedMatchesStore.excludeWordSeriesMatch('bar', 'bar');
+
+    const matches = await runProcessor({
+      baselineDate: null,
+      regionToProcess: region1,
+      domainRegions: [region1],
+      nondomainRegions: [],
+      regionTree: { region: region1 },
+      localities,
+      adjacencyMap: {},
+      synonyms: [],
+      excludedMatchesStore
+    });
+
+    expect(matches).toEqual([
+      {
+        baseLocality: localities[0],
+        testLocality: localities[1],
+        phoneticMatches: [
+          {
+            baseSubsets: [
+              {
+                sortedPhoneticSeries: toSortedPhoneticSeries('Foo Bar'),
+                firstWordIndex: 0,
+                lastWordIndex: 1,
+                firstCharIndex: 0,
+                lastCharIndexPlusOne: 'Foo Bar'.length
+              }
+            ],
+            testSubsets: [
+              {
+                sortedPhoneticSeries: toSortedPhoneticSeries('Foo Bar'),
+                firstWordIndex: 0,
+                lastWordIndex: 1,
+                firstCharIndex: 0,
+                lastCharIndexPlusOne: 'Foo Bar'.length
+              }
+            ]
+          }
+        ],
+        excludedSubsetPairs: []
+      },
+      {
+        baseLocality: localities[1],
+        testLocality: localities[2],
+        phoneticMatches: [
+          {
+            baseSubsets: [
+              {
+                sortedPhoneticSeries: toSortedPhoneticSeries('Yay'),
+                firstWordIndex: 2,
+                lastWordIndex: 2,
+                firstCharIndex: localities[1].name.indexOf('Yay'),
+                lastCharIndexPlusOne: localities[1].name.length
+              }
+            ],
+            testSubsets: [
+              {
+                sortedPhoneticSeries: toSortedPhoneticSeries('Yay'),
+                firstWordIndex: 3,
+                lastWordIndex: 3,
+                firstCharIndex: localities[2].name.indexOf('Yay'),
+                lastCharIndexPlusOne: localities[2].name.length
+              }
+            ]
+          }
+        ],
+        excludedSubsetPairs: [
+          [
+            {
+              sortedPhoneticSeries: toSortedPhoneticSeries('Foo Bar'),
+              firstWordIndex: 0,
+              lastWordIndex: 1,
+              firstCharIndex: 0,
+              lastCharIndexPlusOne: 'Foo Bar'.length
+            },
+            {
+              sortedPhoneticSeries: toSortedPhoneticSeries('Foo Bar'),
+              firstWordIndex: 0,
+              lastWordIndex: 1,
+              firstCharIndex: 0,
+              lastCharIndexPlusOne: 'Foo Barr'.length
+            }
+          ]
+        ]
+      }
+    ]);
+  });
+
+  test('only excludes matches of words that are in the same order', async () => {
+    const localities = [
+      createLocalityData({
+        remarks: 'index 0',
+        regionID: region1.id,
+        name: 'Yay Foo Bar'
+      }),
+      createLocalityData({
+        remarks: 'index 1',
+        regionID: region1.id,
+        name: 'Bar Foo Chewy'
+      }),
+      createLocalityData({
+        remarks: 'index 2',
+        regionID: region1.id,
+        name: 'Foo Bar Zoo'
+      }),
+      createLocalityData({
+        remarks: 'index 3',
+        regionID: region1.id,
+        name: 'Foo Barr Fun'
+      })
+    ];
+    const excludedMatchesStore = new MockExcludedMatchesStore();
+    excludedMatchesStore.excludeWordSeriesMatch('foo bar', 'foo bar');
+    excludedMatchesStore.excludeWordSeriesMatch('foo bar', 'barr foo');
+    excludedMatchesStore.excludeWordSeriesMatch('foo', 'foo');
+    excludedMatchesStore.excludeWordSeriesMatch('bar', 'bar');
+
+    const matches = await runProcessor({
+      baselineDate: null,
+      regionToProcess: region1,
+      domainRegions: [region1],
+      nondomainRegions: [],
+      regionTree: { region: region1 },
+      localities,
+      adjacencyMap: {},
+      synonyms: [],
+      excludedMatchesStore
+    });
+    console.log('**** matches:', JSON.stringify(matches, undefined, '  '));
+
+    expect(matches).toEqual([
+      {
+        baseLocality: localities[0],
+        testLocality: localities[1],
+        phoneticMatches: [
+          {
+            baseSubsets: [
+              {
+                sortedPhoneticSeries: toSortedPhoneticSeries('Foo Bar'),
+                firstWordIndex: 1,
+                lastWordIndex: 2,
+                firstCharIndex: 'Yay '.length,
+                lastCharIndexPlusOne: localities[0].name.length
+              }
+            ],
+            testSubsets: [
+              {
+                sortedPhoneticSeries: toSortedPhoneticSeries('Foo Bar'),
+                firstWordIndex: 0,
+                lastWordIndex: 1,
+                firstCharIndex: 0,
+                lastCharIndexPlusOne: 'Bar Foo'.length
+              }
+            ]
+          }
+        ],
+        excludedSubsetPairs: []
+      },
+      {
+        baseLocality: localities[0],
+        testLocality: localities[3],
+        phoneticMatches: [
+          {
+            baseSubsets: [
+              {
+                sortedPhoneticSeries: toSortedPhoneticSeries('Foo Bar'),
+                firstWordIndex: 1,
+                lastWordIndex: 2,
+                firstCharIndex: 'Yay '.length,
+                lastCharIndexPlusOne: localities[0].name.length
+              }
+            ],
+            testSubsets: [
+              {
+                sortedPhoneticSeries: toSortedPhoneticSeries('Foo Bar'),
+                firstWordIndex: 0,
+                lastWordIndex: 1,
+                firstCharIndex: 0,
+                lastCharIndexPlusOne: 'Foo Barr'.length
+              }
+            ]
+          }
+        ],
+        excludedSubsetPairs: []
+      },
+      {
+        baseLocality: localities[1],
+        testLocality: localities[2],
+        phoneticMatches: [
+          {
+            baseSubsets: [
+              {
+                sortedPhoneticSeries: toSortedPhoneticSeries('Foo Bar'),
+                firstWordIndex: 0,
+                lastWordIndex: 1,
+                firstCharIndex: 0,
+                lastCharIndexPlusOne: 'Bar Foo'.length
+              }
+            ],
+            testSubsets: [
+              {
+                sortedPhoneticSeries: toSortedPhoneticSeries('Foo Bar'),
+                firstWordIndex: 0,
+                lastWordIndex: 1,
+                firstCharIndex: 0,
+                lastCharIndexPlusOne: 'Foo Bar'.length
+              }
+            ]
+          }
+        ],
+        excludedSubsetPairs: []
+      },
+      {
+        baseLocality: localities[1],
+        testLocality: localities[3],
+        phoneticMatches: [
+          {
+            baseSubsets: [
+              {
+                sortedPhoneticSeries: toSortedPhoneticSeries('Foo Bar'),
+                firstWordIndex: 0,
+                lastWordIndex: 1,
+                firstCharIndex: 0,
+                lastCharIndexPlusOne: 'Bar Foo'.length
+              }
+            ],
+            testSubsets: [
+              {
+                sortedPhoneticSeries: toSortedPhoneticSeries('Foo Bar'),
+                firstWordIndex: 0,
+                lastWordIndex: 1,
+                firstCharIndex: 0,
+                lastCharIndexPlusOne: 'foo barr'.length
+              }
+            ]
+          }
+        ],
+        excludedSubsetPairs: []
+      },
+      {
+        baseLocality: localities[2],
+        testLocality: localities[3],
+        phoneticMatches: [
+          {
+            baseSubsets: [
+              {
+                sortedPhoneticSeries: toSortedPhoneticSeries('Foo Bar'),
+                firstWordIndex: 0,
+                lastWordIndex: 1,
+                firstCharIndex: 0,
+                lastCharIndexPlusOne: 'Foo Bar'.length
+              }
+            ],
+            testSubsets: [
+              {
+                sortedPhoneticSeries: toSortedPhoneticSeries('Foo Bar'),
+                firstWordIndex: 0,
+                lastWordIndex: 1,
+                firstCharIndex: 0,
+                lastCharIndexPlusOne: 'foo barr'.length
+              }
+            ]
+          }
+        ],
+        excludedSubsetPairs: []
+      }
+    ]);
+  });
 });
 
 //// TEST SUPPPORT ///////////////////////////////////////////////////////////
@@ -3381,6 +3671,10 @@ function purgeCachedWordSeries(localityMatch: LocalityMatch): void {
     for (const phoneticSubset of phoneticMatch.testSubsets) {
       delete phoneticSubset.cachedWordSeries;
     }
+  }
+  for (const excludedSubsetPair of localityMatch.excludedSubsetPairs) {
+    delete excludedSubsetPair[0].cachedWordSeries;
+    delete excludedSubsetPair[1].cachedWordSeries;
   }
 }
 

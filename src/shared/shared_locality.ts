@@ -44,4 +44,5 @@ export interface PhoneticSubset {
   firstCharIndex?: number;
   lastCharIndexPlusOne?: number;
   cachedWordSeries?: string; // generated only as needed
+  included?: boolean; // whether subset survived excluded matches
 }

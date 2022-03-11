@@ -278,7 +278,7 @@ export class RegionProcessor {
     // Collect the excluded subset matches, and return null if the exclusions
     // have eliminated all of the matches.
 
-    const excludedSubsetPairs = this._getExcludedSubsetPairs(
+    const excludedSubsetPairs = this._processAndGetExcludedSubsetPairs(
       phoneticMatches,
       baseLocality,
       testLocality
@@ -381,7 +381,7 @@ export class RegionProcessor {
     // Collect the excluded subset matches, and return null if the exclusions
     // have eliminated all of the phonetic matches.
 
-    const excludedSubsetPairs = this._getExcludedSubsetPairs(
+    const excludedSubsetPairs = this._processAndGetExcludedSubsetPairs(
       phoneticMatches,
       baseLocality,
       testLocality
@@ -486,34 +486,44 @@ export class RegionProcessor {
    * a list of all those exclusions (possibly empty), unless the exclusions have
    * completely ruled out all matches, in which case return null. The list of
    * exclusions can be used to reduce user confusion as seeing apparent matches not
-   * marked as matching.
+   * marked as matching. The method also removes from the matches the base and test
+   * subsets that were fully excluded. If any one remaining base subset matches a
+   * test subset, then all test subsets are included, and if any one remaining test
+   * subset matches a base subset, then all base subsets are included.
    */
-  private _getExcludedSubsetPairs(
+  private _processAndGetExcludedSubsetPairs(
     matches: PhoneticMatch[],
     baseLocality: CachedLocality,
     testLocality: CachedLocality
   ): PhoneticSubset[][] | null {
+    const matchIndexesToDelete: number[] = [];
     const excludedSubsetPairs: PhoneticSubset[][] = [];
     const fullBaseWordSeries = baseLocality.getEntireWordSeries();
     const fullTestWordSeries = testLocality.getEntireWordSeries();
 
     // These booleans allow all excludedSubsetPairs to collect for later presentation.
-    let foundExclusions = false;
-    let foundInapplicableExclusion = false;
+    let foundAtLeastOneExclusion = false;
+    let foundAtLeastOneInclusion = false;
 
-    for (let i = 0; i < matches.length; ++i) {
-      const match = matches[i];
+    for (let matchIndex = 0; matchIndex < matches.length; ++matchIndex) {
+      const match = matches[matchIndex];
+
+      // Collect all excluded pairings of base and test subsets, and mark all
+      // subsets participating in at least one non-excluded match as included.
+
+      for (const testSubset of match.testSubsets) {
+        testSubset.included = false;
+      }
       const baseSubsets = match.baseSubsets;
-      for (let j = 0; j < baseSubsets.length; ++j) {
-        const baseSubset = baseSubsets[j];
+      for (const baseSubset of baseSubsets) {
+        baseSubset.included = false;
         const baseWordSeries = baseLocality.getWordSeries(baseSubset);
         const exclusions =
           this._excludedMatchesStore.getExcludedMatches(baseWordSeries);
         if (exclusions) {
-          foundExclusions = true;
+          foundAtLeastOneExclusion = true;
           const testSubsets = match.testSubsets;
-          for (let k = 0; k < testSubsets.length; ++k) {
-            const testSubset = testSubsets[k];
+          for (const testSubset of testSubsets) {
             const testWordSeries = testLocality.getWordSeries(testSubset);
             if (
               testWordSeries != fullBaseWordSeries &&
@@ -522,15 +532,72 @@ export class RegionProcessor {
             ) {
               excludedSubsetPairs.push([baseSubset, testSubset]);
             } else {
-              foundInapplicableExclusion = true;
+              testSubset.included = true;
+              foundAtLeastOneInclusion = true;
             }
           }
+        } else {
+          baseSubset.included = true;
+          foundAtLeastOneInclusion = true;
         }
         // Note: There's no need to also test all test word series against base
         // word series because ExcludedMatchesStore is symmetric on word series.
       }
+
+      // All subsets participating in at least one non-excluded match are now
+      // marked included. If any base subset is included, then it matches all
+      // test subsets, and if any test subset is included, then it matches all
+      // base subsets. Remove the subsets not particpating in any match.
+
+      let baseIndexesToDelete: number[] = [];
+      let testIndexesToDelete: number[] = [];
+      for (let i = 0; i < match.baseSubsets.length; ++i) {
+        const baseSubset = match.baseSubsets[i];
+        if (!baseSubset.included) {
+          baseIndexesToDelete.push(i);
+        }
+        delete baseSubset.included; // no longer needed; pollutes tests
+      }
+      for (let i = 0; i < match.testSubsets.length; ++i) {
+        const testSubset = match.testSubsets[i];
+        if (!testSubset.included) {
+          testIndexesToDelete.push(i);
+        }
+        delete testSubset.included; // no longer needed; pollutes tests
+      }
+      if (baseIndexesToDelete.length < match.baseSubsets.length) {
+        testIndexesToDelete = [];
+      }
+      if (testIndexesToDelete.length < match.testSubsets.length) {
+        baseIndexesToDelete = [];
+      }
+      let baseIndex = baseIndexesToDelete.length;
+      while (--baseIndex >= 0) {
+        match.baseSubsets.splice(baseIndex, 1);
+      }
+      let testIndex = testIndexesToDelete.length;
+      while (--testIndex >= 0) {
+        match.testSubsets.splice(testIndex, 1);
+      }
+      if (match.baseSubsets.length == 0 && match.testSubsets.length == 0) {
+        matchIndexesToDelete.push(matchIndex);
+      }
     }
-    return !foundExclusions || foundInapplicableExclusion ? excludedSubsetPairs : null;
+
+    // Remove matches for which all subsets were removed.
+
+    let matchIndex = matchIndexesToDelete.length;
+    while (--matchIndex >= 0) {
+      matches.splice(matchIndex, 1);
+    }
+
+    // Return the excluded pairs if at least one subset match remains, and
+    // return null otherwise.
+
+    return matches.length > 0 /* not sure this check is needed, but can't hurt */ &&
+      (!foundAtLeastOneExclusion || foundAtLeastOneInclusion)
+      ? excludedSubsetPairs
+      : null;
   }
 
   /**
