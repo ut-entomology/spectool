@@ -507,6 +507,7 @@ export class RegionProcessor {
 
     for (let matchIndex = 0; matchIndex < matches.length; ++matchIndex) {
       const match = matches[matchIndex];
+      let foundMatchExclusion = false; // performance optimization
 
       // Collect all excluded pairings of base and test subsets, and mark all
       // subsets participating in at least one non-excluded match as included.
@@ -531,6 +532,7 @@ export class RegionProcessor {
               exclusions.nonmatchingWords.includes(testWordSeries)
             ) {
               excludedSubsetPairs.push([baseSubset, testSubset]);
+              foundMatchExclusion = true;
             } else {
               testSubset.included = true;
               foundAtLeastOneInclusion = true;
@@ -549,37 +551,48 @@ export class RegionProcessor {
       // test subsets, and if any test subset is included, then it matches all
       // base subsets. Remove the subsets not particpating in any match.
 
-      let baseIndexesToDelete: number[] = [];
-      let testIndexesToDelete: number[] = [];
-      for (let i = 0; i < match.baseSubsets.length; ++i) {
-        const baseSubset = match.baseSubsets[i];
-        if (!baseSubset.included) {
-          baseIndexesToDelete.push(i);
+      if (foundMatchExclusion) {
+        let baseIndexesToDelete: number[] = [];
+        let testIndexesToDelete: number[] = [];
+        for (let i = 0; i < match.baseSubsets.length; ++i) {
+          const baseSubset = match.baseSubsets[i];
+          if (!baseSubset.included) {
+            baseIndexesToDelete.push(i);
+          }
+          delete baseSubset.included; // no longer needed; pollutes tests
         }
-        delete baseSubset.included; // no longer needed; pollutes tests
-      }
-      for (let i = 0; i < match.testSubsets.length; ++i) {
-        const testSubset = match.testSubsets[i];
-        if (!testSubset.included) {
-          testIndexesToDelete.push(i);
+        for (let i = 0; i < match.testSubsets.length; ++i) {
+          const testSubset = match.testSubsets[i];
+          if (!testSubset.included) {
+            testIndexesToDelete.push(i);
+          }
+          delete testSubset.included; // no longer needed; pollutes tests
         }
-        delete testSubset.included; // no longer needed; pollutes tests
-      }
-      if (baseIndexesToDelete.length < match.baseSubsets.length) {
-        testIndexesToDelete = [];
-      } else if (testIndexesToDelete.length < match.testSubsets.length) {
-        baseIndexesToDelete = [];
-      }
-      let i = baseIndexesToDelete.length;
-      while (--i >= 0) {
-        match.baseSubsets.splice(baseIndexesToDelete[i], 1);
-      }
-      i = testIndexesToDelete.length;
-      while (--i >= 0) {
-        match.testSubsets.splice(testIndexesToDelete[i], 1);
-      }
-      if (match.baseSubsets.length == 0 && match.testSubsets.length == 0) {
-        matchIndexesToDelete.push(matchIndex);
+        if (baseIndexesToDelete.length < match.baseSubsets.length) {
+          testIndexesToDelete = [];
+        } else if (testIndexesToDelete.length < match.testSubsets.length) {
+          baseIndexesToDelete = [];
+        }
+        let i = baseIndexesToDelete.length;
+        while (--i >= 0) {
+          match.baseSubsets.splice(baseIndexesToDelete[i], 1);
+        }
+        i = testIndexesToDelete.length;
+        while (--i >= 0) {
+          match.testSubsets.splice(testIndexesToDelete[i], 1);
+        }
+        if (match.baseSubsets.length == 0 && match.testSubsets.length == 0) {
+          matchIndexesToDelete.push(matchIndex);
+        }
+      } else {
+        // Can't simply replace the above deletions with always running this
+        // code because I need to delete before building the excluded subsets.
+        for (const baseSubset of match.baseSubsets) {
+          delete baseSubset.included; // no longer needed; pollutes tests
+        }
+        for (const testSubset of match.testSubsets) {
+          delete testSubset.included; // no longer needed; pollutes tests
+        }
       }
     }
 
