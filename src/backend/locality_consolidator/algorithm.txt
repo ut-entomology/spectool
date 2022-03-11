@@ -16,6 +16,8 @@ At this time, I have no idea how long this process takes or how long the user mi
 
 ## Remaining To-Do Items
 
+(+) The algorithm does not present as possible duplicates localities having similar coordinates but completely different names. 
+
 (+) Experiment with the choice of phonetic encoding. I'll do this by running the program on different encodings. But this may require faking locality mergers so that I'm not correcting the database and preventing myself from running the same experiment with another encodings. I'm punting on how to handle encodings until then.
 
 (+) This functional representation of the algorithm does not allow for storing state for later resumption from that state should the computer crash. If the computer crashes, the algorithm must be restarted from scratch, although it will employ any synonyms and excluded matches accumulated during the run that crashed. However, the region roster can be resumed from its state at crash, reducing the number of regions that need to be compared, so look into doing this.
@@ -33,6 +35,8 @@ At this time, I have no idea how long this process takes or how long the user mi
 (+) Because multiple users on the same computer or across multiple computers could be simultaneously doing consolidations, possibly intermittently, I'll need to verify that associated data in Specify has not changed since caching prior to modifying the database. I should probably do this anyway, in case someone concurrently changes the data by means other than consolidation.
 
 (+) This algorithm does not consolidate localities according to common coordinates. It only consolidates localities according to relationships among the words in their descriptions. However, it is able to distinguish identically-named localities having different coordinates, should the user declare them as such during consolidation.
+
+(+) The algorithm does not present the user with localities that have no name, neither to compare with localities having names nor to compare with other localities having no names.
 
 ## Terminology
 

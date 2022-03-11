@@ -49,7 +49,8 @@
       title: 'Purge Unused Taxa',
       screenSpec: unusedTaxaSpec,
       description:
-        'Selectively remove unused taxa created within a particular range of dates.',
+        'Selectively remove unused taxa created within a particular range of dates. ' +
+        "The 'unused taxa' are those not associated with any catalog number.",
       requiresLogin: true,
       prerequisites: [
         prereqs.databaseConfigPrereq,

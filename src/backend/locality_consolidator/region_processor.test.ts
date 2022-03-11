@@ -14,8 +14,6 @@ import type { LocalityMatch, LocalityData } from '../../shared/shared_locality';
 import { toPartialSortedPhoneticSeries } from './mock/phonetic_util';
 import type { ExcludedMatchesStore } from './excluded_matches';
 
-// TODO: test cases where locality name is not provided
-
 type AdjacencyMap = Record<number, Region[]>;
 
 const toSortedPhoneticSeries = CachedLocality.toSortedPhoneticSeries;
@@ -112,6 +110,46 @@ describe('no matches', () => {
         region: region0,
         children: [{ region: region1 }, { region: region2 }]
       },
+      localities
+    });
+
+    expect(matches).toEqual([]);
+  });
+
+  test('comparisons with localities lacking names', async () => {
+    const localities = [
+      createLocalityData({
+        // ensure that non-empty base subset compares with empty test subset
+        remarks: 'index 0',
+        regionID: region1.id,
+        name: 'Zilker Preserve'
+      }),
+      // ensure that empty base subset compares with empty test subset
+      createLocalityData({
+        remarks: 'index 1',
+        regionID: region1.id,
+        name: ''
+      }),
+      // ensure that empty base subset compares with empty test subset
+      createLocalityData({
+        remarks: 'index 2',
+        regionID: region1.id,
+        name: ''
+      }),
+      // ensure that empty base subset compares with non-empty test subset
+      createLocalityData({
+        remarks: 'index 3',
+        regionID: region1.id,
+        name: 'Some Park'
+      })
+    ];
+
+    const matches = await runProcessor({
+      baselineDate: null,
+      regionToProcess: region1,
+      domainRegions: [region1],
+      nondomainRegions: [],
+      regionTree: { region: region1 },
       localities
     });
 
@@ -3601,6 +3639,7 @@ describe('excluding specified matches', () => {
       }
     ]);
   });
+
   test('excluding synonymous matches', async () => {
     const localities = [
       createLocalityData({
