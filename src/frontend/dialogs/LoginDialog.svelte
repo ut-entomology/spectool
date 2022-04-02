@@ -1,12 +1,4 @@
 <script lang="ts">
-  /*
-    Displays the modal dialog using Sveltestrap. Cannot user Bootstrap's modal
-    JavaScript with svelte-forms-lib because the latter assumes that the form
-    is constructed for each viewing, whereas the former only constructs the
-    modal once and hides and displays it. The problem was that initial values
-    were only ever used on the first opening of the modal form.
-  */
-
   import * as yup from 'yup';
   import { createForm, ContextForm, Input } from '../layout/forms';
 
