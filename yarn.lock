@@ -1542,10 +1542,10 @@ duplexer3@^0.1.4:
   resolved "https://registry.yarnpkg.com/duplexer3/-/duplexer3-0.1.4.tgz#ee01dd1cac0ed3cbc7fdbea37dc0a8f1ce002ce2"
   integrity sha1-7gHdHKwO08vH/b6jfcCo8c4ALOI=
 
-electron-affinity@^1.1.11:
-  version "1.1.11"
-  resolved "https://registry.yarnpkg.com/electron-affinity/-/electron-affinity-1.1.11.tgz#da11c4e110adce5a9c73391d8f991e10406081d7"
-  integrity sha512-tN9M0KpFq1oSMBdjM3cbhn5ut5BfhDiTI8+KMyvpWkTlhNZu3VU4ODRv41WCW7XWaq1ffms0+jWjgBDkoIo86g==
+electron-affinity@^1.2.0:
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/electron-affinity/-/electron-affinity-1.2.0.tgz#ef6069d31105a97da314ed18e1bbf398424a502d"
+  integrity sha512-2f4c1mCHg6t8CQWtU/+sSMrTqb6Od0HTXfNftSF3kRr4Kj9Zj5eIqzPu2JVVGlZ+6rqdcKGrML2ht/MQpSSqDw==
 
 electron-log@^4.4.1:
   version "4.4.4"
