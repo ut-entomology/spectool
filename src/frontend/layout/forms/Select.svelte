@@ -1,7 +1,7 @@
 <script lang="ts">
   import { getContext, tick } from 'svelte';
   import type { SetInputValue } from './Input.svelte';
-  import { formContextKey, FormContext } from './form_context';
+  import { formContextKey, type FormContext } from './form_context';
   import { groupErrorsKey, createErrorsStore, normalizeError } from './form_errors';
 
   // Component parameters

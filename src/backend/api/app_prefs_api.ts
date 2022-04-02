@@ -4,7 +4,7 @@ import type { AppKernel } from '../../backend/app/app_kernel';
 import type { AppPrefs } from '../../shared/shared_app_prefs';
 
 export class AppPrefsApi implements ElectronMainApi<AppPrefsApi> {
-  _kernel: AppKernel;
+  private _kernel: AppKernel;
 
   constructor(kernel: AppKernel) {
     this._kernel = kernel;

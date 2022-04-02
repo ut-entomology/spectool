@@ -11,7 +11,7 @@ import {
 import { WILDCARD_NAME, addAgentName, addAgentEntries } from './agent_api';
 
 export class SpecimenSetApi implements ElectronMainApi<SpecimenSetApi> {
-  _kernel: AppKernel;
+  private _kernel: AppKernel;
 
   constructor(kernel: AppKernel) {
     this._kernel = kernel;

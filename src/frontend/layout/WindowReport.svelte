@@ -1,4 +1,6 @@
 <script lang="ts" context="module">
+  // TODO: This is app-specific and so doesn't belong in layout.
+
   import type { SvelteComponent } from 'svelte';
   import { writable } from 'svelte/store';
 

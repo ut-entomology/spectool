@@ -1,4 +1,6 @@
 <script lang="ts" context="module">
+  // TODO: This is app-specific so should move up a directory, me thinks.
+
   import type { SvelteComponent } from 'svelte';
 
   import DataFolderDialog from '../dialogs/DataFolderDialog.svelte';
