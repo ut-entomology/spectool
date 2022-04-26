@@ -1,7 +1,7 @@
 import type { ElectronMainApi } from 'electron-affinity/main';
 
 import type { AppKernel } from '../../backend/app/app_kernel';
-import type { PersonName } from '../../backend/csv_validation/specimen';
+import type { PersonName } from '../../backend/csv_validation/csv_specimen';
 import {
   getHeaderJSONPath,
   openSpecimenSet,

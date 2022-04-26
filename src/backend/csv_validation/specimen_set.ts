@@ -4,7 +4,7 @@ import * as path from 'path';
 import { parse as parseCSV } from '@fast-csv/parse';
 
 import type { AppKernel } from '../../backend/app/app_kernel';
-import { Specimen, HEADER_REGEX } from './specimen';
+import { CsvSpecimen, HEADER_REGEX } from './csv_specimen';
 
 const INSTRUCTIONS_HEADER = 'INSTRUCTIONS';
 const DEFAULT_HEADER_JSON_DIR = '../../../public/data';
@@ -65,7 +65,7 @@ export class SpecimenSet {
   csvFilePath: string;
   rawHeaderMap: Record<string, string> = {}; // maps standard headers to raw headers
   unrecognizedHeaders: string[] = [];
-  specimens: Specimen[] = [];
+  specimens: CsvSpecimen[] = [];
 
   constructor(headerJSONPath: string, csvFilePath: string) {
     this.csvFilePath = csvFilePath;
@@ -78,7 +78,7 @@ export class SpecimenSet {
         const headerDefs = JSON.parse(json);
         fs.createReadStream(this.csvFilePath)
           .pipe(parseCSV({ headers: this._transformHeaders.bind(this, headerDefs) }))
-          .on('data', (row) => this.specimens.push(new Specimen(row)))
+          .on('data', (row) => this.specimens.push(new CsvSpecimen(row)))
           .on('end', () => resolve())
           .on('error', (err) => {
             console.log('SpecimenSet streaming error:', err);

@@ -5,7 +5,7 @@ export interface PersonName {
   lastName?: string;
 }
 
-export class Specimen {
+export class CsvSpecimen {
   accessionNumber: string;
   catalogNumber: string;
   catalogerFirstName: string;
