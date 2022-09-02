@@ -4,7 +4,19 @@ Cross-platform app providing tools for managing Specify
 
 Written in TypeScript and Svelte for Node.js and Electron.
 
-_WORK IN PROGRESS_
+## How to Run the Tool
+
+Run a web server locally with the following command in one shell:
+
+```
+yarn run server
+```
+
+And then run the client with the following command in another shell:
+
+```
+yarn run client
+```
 
 ## Sample Snapshots
 
