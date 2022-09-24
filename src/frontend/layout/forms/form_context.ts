@@ -27,6 +27,6 @@ export type FormProps<T extends Values> = {
 
 export const formContextKey = {};
 
-export function createForm<T>(formProps: FormProps<T>): FormContext {
+export function createForm<T extends Values>(formProps: FormProps<T>): FormContext {
   return createValidatingForm(formProps as any);
 }
