@@ -83,7 +83,7 @@
                 id="state"
                 name="state"
                 bind:value={stateID}
-                disabled={states == []}
+                disabled={states.length == 0}
               >
                 {#if countryID == 0}
                   <option value={0}>all states/provinces</option>

@@ -4,7 +4,7 @@
 
   import { Context } from '../lib/contexts';
   import { createForm, ContextForm, Input } from '../layout/forms';
-  import type { DatabaseConfig } from '../../shared/shared_db_config';
+  import { DatabaseConfig } from '../../shared/shared_db_config';
   import { Connection } from '../../shared/shared_connection';
   import { currentConnection } from '../stores/currentConnection';
   import { currentDialog } from '../stores/currentDialog';
@@ -13,7 +13,9 @@
   export let onSuccess: () => void = () => {};
   let errorMessage = '';
 
-  const databaseConfig = getContext<DatabaseConfig>(Context.DatabaseConfig);
+  const databaseConfig = new DatabaseConfig(
+    getContext<DatabaseConfig>(Context.DatabaseConfig)
+  );
   const context = createForm({
     initialValues: {
       databaseHost: databaseConfig.databaseHost,
