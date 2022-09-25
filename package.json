@@ -12,10 +12,11 @@
     "server": "kill-port 5000 && rollup -c -w",
     "start": "sirv public --no-clear --single",
     "client": "tsc && cross-env NODE_ENV=development electron .",
+    "window": "node build/tools/wait 2000 && cross-env NODE_ENV=development electron . && kill-port 5000",
     "dist:mac": "tsc && rollup -c && electron-builder build --mac --publish never",
     "test": "jest",
     "prettier": "prettier --config .prettierrc 'src/**/*.ts' --write",
-    "launch": "sirv public --no-clear --single & node build/tools/wait 2000 && cross-env NODE_ENV=development electron . && kill-port 5000"
+    "launch": "run-p start window"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^17.0.0",
