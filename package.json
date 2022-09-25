@@ -9,13 +9,13 @@
     "build-client": "run-s build client",
     "build-backend": "tsc",
     "check": "svelte-check --tsconfig ./tsconfig.json",
-    "server": "kill $(lsof -ti:5000) 2>/dev/null; rollup -c -w",
+    "server": "kill-port 5000 && rollup -c -w",
     "start": "sirv public --no-clear --single",
     "client": "tsc && cross-env NODE_ENV=development electron .",
     "dist:mac": "tsc && rollup -c && electron-builder build --mac --publish never",
     "test": "jest",
     "prettier": "prettier --config .prettierrc 'src/**/*.ts' --write",
-    "launch": "sirv public --no-clear --single & cross-env NODE_ENV=development electron . && npx kill-port 5000"
+    "launch": "sirv public --no-clear --single & cross-env NODE_ENV=development electron . && kill-port 5000"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^17.0.0",
