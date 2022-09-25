@@ -12,8 +12,8 @@
     "server": "kill-port 5000 && rollup -c -w",
     "start": "sirv public --no-clear --single",
     "client": "tsc && cross-env NODE_ENV=development electron .",
-    "window": "node build/tools/wait 2000 && cross-env NODE_ENV=development electron . && kill-port 5000",
-    "dist:mac": "tsc && rollup -c && electron-builder build --mac --publish never",
+    "window": "node build/tools/wait 2000 && cross-env NODE_ENV=development electron . && node build/tools/wait 1000 && kill-port 5000",
+    "dist:mac": "tsc && rollup -c && electron-builder build --cd mac --publish never",
     "test": "jest",
     "prettier": "prettier --config .prettierrc 'src/**/*.ts' --write",
     "launch": "run-p start window"
