@@ -6,7 +6,7 @@
 </script>
 
 <script lang="ts">
-  import { SPECIFY_USA, Region } from '../../shared/shared_geography';
+  import { SPECIFY_USA, Region } from '../../../shared/shared_geography';
   import { currentCollectionID } from '../../stores/currentCollectionID';
   import { closeActivity } from '../../components/ActivityBar.svelte';
   import ActivityInstructions from '../../components/ActivityInstructions.svelte';

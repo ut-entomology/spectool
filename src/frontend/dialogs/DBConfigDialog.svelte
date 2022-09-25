@@ -4,8 +4,8 @@
 
   import { Context } from '../lib/contexts';
   import { createForm, ContextForm, Input } from '../layout/forms';
-  import type { DatabaseConfig } from '../shared/shared_db_config';
-  import { Connection } from '../shared/shared_connection';
+  import type { DatabaseConfig } from '../../shared/shared_db_config';
+  import { Connection } from '../../shared/shared_connection';
   import { currentConnection } from '../stores/currentConnection';
   import { currentDialog } from '../stores/currentDialog';
   import ModalDialog from '../layout/ModalDialog.svelte';

@@ -2,7 +2,7 @@
   import { exposeWindowApi } from 'electron-affinity/window';
 
   import { AppEventApi } from './api/app_event_api.svelte';
-  import type { DatabaseConfig } from './shared/shared_db_config';
+  import type { DatabaseConfig } from '../shared/shared_db_config';
   import { bindMainApis } from './lib/main_client';
   import PageLayout from './components/PageLayout.svelte';
   import { currentConnection } from './stores/currentConnection';

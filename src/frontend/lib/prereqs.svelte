@@ -1,8 +1,8 @@
 <script lang="ts" context="module">
   import type { Prerequisite } from './prerequisite';
-  import type { AppPrefs } from '../shared/shared_app_prefs';
-  import type { Connection } from '../shared/shared_connection';
-  import { AccessLevel, SpecifyUser, findAccessLevel } from '../shared/shared_user';
+  import type { AppPrefs } from '../../shared/shared_app_prefs';
+  import type { Connection } from '../../shared/shared_connection';
+  import { AccessLevel, SpecifyUser, findAccessLevel } from '../../shared/shared_user';
   import { DialogSpec } from '../lib/dialog_spec';
   import { currentPrefs } from '../stores/currentPrefs';
   import { currentConnection } from '../stores/currentConnection';

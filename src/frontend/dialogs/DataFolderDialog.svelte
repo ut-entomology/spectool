@@ -8,7 +8,7 @@
     InputGroup,
     SetInputValue
   } from '../layout/forms';
-  import { AppPrefs } from '../shared/shared_app_prefs';
+  import { AppPrefs } from '../../shared/shared_app_prefs';
   import { currentPrefs } from '../stores/currentPrefs';
   import { currentDialog } from '../stores/currentDialog';
   import ModalDialog from '../layout/ModalDialog.svelte';
