@@ -28,6 +28,7 @@
         "node_modules/*",
         "__sapper__/*",
         "build/*",
-        "public/*"
+        "public/*",
+        "src/frontend/*"
     ]
 }
