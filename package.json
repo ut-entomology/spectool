@@ -15,7 +15,7 @@
     "dist:mac": "tsc && rollup -c && electron-builder build --mac --publish never",
     "test": "jest",
     "prettier": "prettier --config .prettierrc 'src/**/*.ts' --write",
-    "launch": "sirv public --no-clear --single & cross-env NODE_ENV=development electron . && kill-port 5000"
+    "launch": "sirv public --no-clear --single & node build/tools/wait 2000 && cross-env NODE_ENV=development electron . && kill-port 5000"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^17.0.0",
