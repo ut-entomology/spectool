@@ -12,6 +12,11 @@
 
   export let onSuccess: () => void = () => {};
   let errorMessage = '';
+  let connection: Connection;
+
+  currentConnection.subscribe((conn) => {
+    connection = conn;
+  });
 
   const databaseConfig = new DatabaseConfig(
     getContext<DatabaseConfig>(Context.DatabaseConfig)
@@ -58,6 +63,15 @@
         currentConnection.set(
           new Connection(databaseConfig.isReady(), values.databaseName)
         );
+        if (connection!.username) {
+          try {
+            await window.apis.databaseApi.logout();
+            currentConnection.set(new Connection(true, null));
+          } catch (_err: any) {
+            // ignore failure to disconnect; probably not connected
+          }
+        }
+
         closeForm();
         onSuccess();
       } catch (err: any) {
